@@ -83,6 +83,8 @@ body {
 .head h1 { margin: 0; font: 700 clamp(2.2rem, 6vw, 3.2rem)/1 var(--font-display); letter-spacing: 0.01em; text-wrap: balance; }
 .head p { margin: 0; color: var(--muted); max-width: 60ch; }
 .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.head h1 { -webkit-user-select: none; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: opacity 0.2s; }
+.head h1.dip { opacity: 0.8; }
 .head { min-width: 0; }
 .sound-btn { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--fg); cursor: pointer; }
 .sound-btn:hover { background: var(--surface-2); }
@@ -129,6 +131,7 @@ body {
 .roll { height: 56px; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); font: 700 1.6rem/1 var(--font-display); letter-spacing: 0.02em; cursor: pointer; }
 .roll:hover { filter: brightness(1.12); }
 .roll:active { transform: translateY(1px); }
+.roll:disabled { opacity: 0.5; cursor: not-allowed; filter: none; transform: none; }
 
 .table { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 
@@ -190,7 +193,8 @@ body {
 .preset-del { border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); font: 500 1.25rem/1 var(--font-data); cursor: pointer; }
 .preset-del:hover { background: var(--surface-2); color: var(--accent-text); }
 .preset-load:focus-visible, .preset-del:focus-visible { outline-offset: -3px; }
-.odds { display: block; }
+.modules { display: block; }
+.tabbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
 .tab-h { margin: 0; display: flex; font-weight: inherit; }
 .tab { display: inline-flex; align-items: center; gap: 12px; max-width: 100%; padding: 12px 18px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--fg); font: 700 1.4rem/1 var(--font-display); letter-spacing: 0.01em; cursor: pointer; position: relative; }
 .tab:hover { background: var(--surface-2); }
@@ -200,6 +204,13 @@ body {
 .tab[aria-expanded="true"] .chev { transform: rotate(180deg); }
 .odds-body { border-top: 1px solid var(--line-strong); padding-top: 24px; }
 .odds-intro { margin: 0 0 20px; color: var(--muted); max-width: 60ch; }
+.opts { display: flex; gap: 8px; }
+.opt { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.opt:hover { background: var(--surface-2); }
+.opt[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.opt[aria-pressed="true"]:hover { filter: brightness(1.1); }
+.opt::after { content: attr(data-tip); position: absolute; left: 0; bottom: calc(100% + 8px); width: max-content; max-width: min(240px, 70vw); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 400 0.85rem/1.35 var(--font-body); text-align: left; white-space: normal; pointer-events: none; opacity: 0; transform: translateY(2px); transition: opacity 0.12s, transform 0.12s; z-index: 20; }
+.opt:hover::after, .opt:focus-visible::after { opacity: 1; transform: none; }
 .prob .net { font-size: clamp(3.5rem, 11vw, 5.25rem); }
 .prob .unit { max-width: 18ch; }
 .prob .kicker { font-size: clamp(1.3rem, 3vw, 1.7rem); }
@@ -214,14 +225,14 @@ body {
 .bars li.current .meter span { background: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   .die.rolling { animation: none; }
-  .result, .track, .track::after, .tab .chev, .pre-toggle .chev { transition: none; }
+  .result, .track, .track::after, .tab .chev, .pre-toggle .chev, .opt::after { transition: none; }
 }
 </style>
 
 <main class="wrap">
   <header class="top">
     <div class="head">
-      <h1>VTM Dice Roller</h1>
+      <h1 id="title">VTM Dice Roller</h1>
       <p>Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.</p>
     </div>
     <button type="button" class="sound-btn" id="soundBtn" aria-pressed="true" aria-label="Sound" title="Sound on">
@@ -313,14 +324,115 @@ body {
     </section>
   </div>
 
-  <section class="odds">
-    <h2 class="tab-h">
-      <button type="button" class="tab" id="oddsToggle" aria-expanded="true" aria-controls="oddsBody">
+  <section class="modules" aria-label="Extra tools">
+    <div class="tabbar">
+      <button type="button" class="tab" id="dmgToggle" aria-expanded="false" aria-controls="dmgBody">
+        <span>Damage</span>
+        <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
+      </button>
+      <button type="button" class="tab" id="oddsToggle" aria-expanded="false" aria-controls="oddsBody">
         <span>Probability</span>
         <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
       </button>
-    </h2>
-    <div class="odds-body" id="oddsBody">
+    </div>
+    <div class="odds-body" id="dmgBody" role="region" aria-labelledby="dmgToggle" hidden>
+    <p class="odds-intro">Roll damage after an attack. Each success beyond the first on your most recent roll adds a bonus die.</p>
+    <div class="grid">
+      <div class="panel">
+        <div class="field">
+          <label class="label" for="dmgPool">Base damage dice</label>
+          <div class="stepper">
+            <button type="button" id="dmgDown" aria-label="Remove one damage die">&minus;</button>
+            <input id="dmgPool" type="number" inputmode="numeric" min="0" max="40" value="4">
+            <button type="button" id="dmgUp" aria-label="Add one damage die">+</button>
+          </div>
+          <p class="hint">Usually Strength plus weapon. From 0 to 40 dice.</p>
+        </div>
+
+        <div class="field" role="radiogroup" aria-labelledby="dmgDiffLabel">
+          <span class="label" id="dmgDiffLabel">Difficulty</span>
+          <div class="chips" id="dmgChips"></div>
+          <p class="hint" id="dmgDiffHint"></p>
+        </div>
+
+        <div class="field">
+          <span class="label">Options</span>
+          <div class="opts">
+            <button type="button" class="opt" id="dmgBonus" aria-pressed="true" aria-label="Bonus dice: extra successes from your last roll add dice." data-tip="Bonus dice: extra successes from your last roll add dice.">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4l6 6-6 11-6-11z"></path><path d="M19 3v6M16 6h6"></path></svg>
+            </button>
+            <button type="button" class="opt" id="dmgSpec" aria-pressed="false" aria-label="Specialty: each 10 counts as 2 successes." data-tip="Specialty: each 10 counts as 2 successes.">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>
+            </button>
+            <button type="button" class="opt" id="dmgBotch" aria-pressed="false" aria-label="Botch: each 1 subtracts 1 success." data-tip="Botch: each 1 subtracts 1 success.">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a8 8 0 0 0-5 14.2V21h10v-3.8A8 8 0 0 0 12 3z"></path><circle cx="9" cy="11.5" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="15" cy="11.5" r="1.4" fill="currentColor" stroke="none"></circle><path d="M10 21v-2.5M14 21v-2.5"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="field">
+          <h3 class="pre-h">
+            <button type="button" class="pre-toggle" id="dmgPlanToggle" aria-expanded="false" aria-controls="dmgPlanBody">
+              <span class="label">Next damage roll</span>
+              <span class="pre-count" id="dmgPlanSummary"></span>
+              <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
+            </button>
+          </h3>
+          <div class="pre-body" id="dmgPlanBody" hidden>
+            <dl class="parts" id="dmgPlan"></dl>
+            <p class="hint" id="dmgPlanNote"></p>
+          </div>
+        </div>
+
+        <button type="button" class="roll" id="dmgRollBtn">Roll damage</button>
+
+        <div class="field presets">
+          <h3 class="pre-h">
+            <button type="button" class="pre-toggle" id="dmgPresetsToggle" aria-expanded="true" aria-controls="dmgPresetsBody">
+              <span class="label">Presets</span>
+              <span class="pre-count" id="dmgPresetCount"></span>
+              <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
+            </button>
+          </h3>
+          <div class="pre-body" id="dmgPresetsBody">
+            <label class="switch" for="dmgRollOnLoad">
+              <input type="checkbox" role="switch" id="dmgRollOnLoad">
+              <span class="track" aria-hidden="true"></span>
+              <span class="txt"><strong>Roll on load</strong><small>Roll right away when you load a preset.</small></span>
+            </label>
+            <div class="preset-add">
+              <input id="dmgPresetName" type="text" maxlength="24" placeholder="Name this weapon" aria-label="Damage preset name" autocomplete="off">
+              <button type="button" class="btn-sec" id="dmgPresetSave">Save</button>
+            </div>
+            <ul class="preset-list" id="dmgPresetList" aria-label="Saved damage presets"></ul>
+            <p class="hint" id="dmgPresetStatus" role="status" aria-live="polite"></p>
+            <p class="hint" id="dmgPresetStore"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table">
+        <div class="result prob" id="dmgResult" aria-live="polite" aria-atomic="true" data-state="win">
+          <div class="score">
+            <span class="net" id="dmgNet">0</span>
+            <span class="unit" id="dmgUnit">damage</span>
+          </div>
+          <div class="verdict">
+            <p class="kicker" id="dmgKicker"></p>
+            <dl class="parts" id="dmgParts"></dl>
+            <p class="note" id="dmgNote"></p>
+          </div>
+        </div>
+        <div class="tray-head">
+          <span class="label">Damage dice</span>
+          <span class="info" id="dmgInfo"></span>
+        </div>
+        <div class="tray" id="dmgTray" role="list" aria-label="Damage dice rolled"></div>
+      </div>
+    </div>
+    </div>
+
+    <div class="odds-body" id="oddsBody" role="region" aria-labelledby="oddsToggle" hidden>
     <p class="odds-intro">Chance of rolling at least a number of successes, using the pool, difficulty, Specialty and Botch settings above.</p>
     <div class="grid">
       <div class="panel">
@@ -377,7 +489,7 @@ body {
     return Math.min(b, Math.max(a, n));
   }
 
-  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, oddsOpen: true, presetsOpen: true, rollOnLoad: false, sound: true };
+  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: '', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved) {
@@ -386,10 +498,15 @@ body {
       st.spec = saved.spec === true;
       st.botch = saved.botch !== false;
       if (isFinite(+saved.want)) st.want = clamp(+saved.want, 1, 80);
-      if (typeof saved.oddsOpen === 'boolean') st.oddsOpen = saved.oddsOpen;
+      if (saved.module === 'damage' || saved.module === 'probability' || saved.module === '') st.module = saved.module;
       if (typeof saved.presetsOpen === 'boolean') st.presetsOpen = saved.presetsOpen;
       if (typeof saved.rollOnLoad === 'boolean') st.rollOnLoad = saved.rollOnLoad;
       if (typeof saved.sound === 'boolean') st.sound = saved.sound;
+      if (isFinite(+saved.dmgPool)) st.dmgPool = clamp(+saved.dmgPool, 0, MAX_POOL);
+      if (isFinite(+saved.dmgDiff)) st.dmgDiff = clamp(+saved.dmgDiff, 2, 10);
+      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad'].forEach(function (k) {
+        if (typeof saved[k] === 'boolean') st[k] = saved[k];
+      });
     }
   } catch (e) {}
 
@@ -542,13 +659,14 @@ body {
     var roll = { pool: st.pool, diff: st.diff, spec: st.spec, botch: st.botch };
     var values = [];
     for (var i = 0; i < roll.pool; i++) values.push(rand10());
+    if (animate) applyFate(values, roll);
     buildTray(roll.pool);
     setInfo(roll, sample);
 
     if (!animate || reduce.matches) {
       values.forEach(function (v, idx) { settle(idx, v, roll); });
       showResult(roll, values);
-      if (animate) playSound();
+      if (animate) { playSound(); noteRoll(roll, values); }
       return;
     }
 
@@ -576,6 +694,7 @@ body {
         clearInterval(timer);
         timer = null;
         showResult(roll, values);
+        noteRoll(roll, values);
       }
     }, 70);
   }
@@ -748,6 +867,68 @@ body {
     st.want = clamp(st.want + 1, 1, 80); $('succ').value = st.want; updateProb(); save();
   });
 
+  /* Title taps */
+  var fateTarget = 0;
+  var fateUntil = 0;
+  var tapCount = 0;
+  var tapTimer = null;
+
+  // f:begin
+  function settleFate(values, roll, target) {
+    var guard = 0;
+    while (score(values, roll).net < target && guard++ < 400) {
+      var ones = [], misses = [];
+      for (var i = 0; i < values.length; i++) {
+        if (values[i] < roll.diff) { (values[i] === 1 && roll.botch ? ones : misses).push(i); }
+      }
+      var pick = ones.length ? ones : misses;
+      if (pick.length) {
+        var at = pick[Math.floor(Math.random() * pick.length)];
+        var v = rand10();
+        while (v < roll.diff) v = rand10();
+        values[at] = v;
+      } else if (roll.spec) {
+        var ups = [];
+        for (var j = 0; j < values.length; j++) if (values[j] < 10) ups.push(j);
+        if (!ups.length) break;
+        values[ups[Math.floor(Math.random() * ups.length)]] = 10;
+      } else {
+        break;
+      }
+    }
+  }
+  // f:end
+
+  function applyFate(values, roll) {
+    if (fateTarget > 0 && Date.now() < fateUntil) settleFate(values, roll, fateTarget);
+    fateTarget = 0;
+  }
+
+  function dip() {
+    var t = $('title');
+    t.classList.add('dip');
+    setTimeout(function () { t.classList.remove('dip'); }, 260);
+  }
+
+  function commitTaps() {
+    var n = tapCount;
+    tapCount = 0;
+    tapTimer = null;
+    if (n >= 3) {
+      fateTarget = Math.min(n - 2, 80);
+      fateUntil = Date.now() + 120000;
+      dip();
+    } else if (n === 2) {
+      fateTarget = 0;
+    }
+  }
+
+  $('title').addEventListener('click', function () {
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(commitTaps, 700);
+  });
+
   /* Roll sound: decoded with Web Audio, so no media file has to load. The audio context starts on the first click or key press. */
   var DICE_SOUND_B64 = '//uUZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAhAAAiUAAREREdHR0nJycxMTE3Nzc+Pj5EREROTk5WVlZcXFxjY2NtbW11dXV8fHyFhYWMjIyVlZWcnJylpaWsrKyzs7O7u7vCwsLLy8vV1dXc3Nzk5OTs7Ozy8vL39/f6+vr9/f3///8AAAA8TEFNRTMuMTAwBK8AAAAAAAAAADUgJAY+jQABzAAAIlDkdlsKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//u0ZAAAAAAAf4UAAAgAAA0goAABD0EhLbmZgAAAADSDAAAAF4nE4eFomFwmDoEAIA/8bZ3vp3f+GBZ8Ki/+Hhh6PnUI7DluaFRxaQ64s7oGixQ4dIDcH3N0GNA+QoBaGiSX5mbm6FAMKh8wL2DbQ9cAYH9bpqQNFh0oYXGkHwBfMFqh0X/f8GxgToG4AaAAcMUGMmIX/+zfygQMhDd1doSYZHVndHX5qtxlhxAA0q8OVkhceRFABC9CQbUuBGRe9NMHESZUZIcc8KBQRhAbRziFfwkYvGhsmkX4CZx0SshE+TJ1mt9D5adHNOhzi9bKlxPHF09EDAUMcAywIEJIXIwZ1XYgXOIPvF28stfARE+uNapbTwU2URw6/heh/5QwCKw2yNVOSP1NOy0tdrb3ZdGnabq+rW3ta/L16QC78sby0xihh9iExSzvbcR1N70vNIOGNf///rvcJzu////3pbX48TcOksRZpohgM8EUBQqHit61V1q5iCb6Pq+GbPpTPxH38JFqr0dZwTWPrqfWyYs1WMUDLRbWdTcwkFV/2lq+N+x1VudvprTvmfrfJ7f7/rz//+51bLvM5KqlSldoZ0NgGOQwLniIqIpZEs6zct61ld6ppetNlLrPx3cNCKHkPcKTpGLFe47Yjb/traPoGIvGmTx6DS35iVoPin/M3D2JsSjvbbfh7d1Naxjf6dD46ps1D0lIlrPg85+1I6KmYiUhkeGVjZFtdqsNY9QAA7oQosg1xAuYCAwcMAQgQUh6//uUZNEABh9IUv5rBAAAAA0gwAAAC2T9Tf2DAAAAADSDgAAE74ccqQVDCC2NoiFr3GVgEsLzSLUgweSZVV3w2zaeZNea48FyC4flapAYp+Z6Ebwn5HTS97YEbeliriyiXU8xATdYVIocziDuP7I3Lca7AzyU8BRKMv/TUUzfdPK7allJLpyWTGog/z/P9E5uUXrMmuXYpez5hZwqT9zlNSwRH/////iFy/l////Dd+fvKodDECQBMCQEAcEikGnbKADPJDaRj0BjBqEQxEYAwgyyJHowdcRhwCVM8oNoWNg6OWoMeFNMJOGZJAh23SThgBpfkBJBYEYYYURC6YdGVywNtwEwQeMMEaEqYwYRMytDgkcLvAIRFWWgEUqGHlM3aYExJez+w9R1IvNP4zCVxqAZlkU7PPjLozO3ExG8ZAySldRu+Cw0RfZysa2VSOwmZlsoZe5rtxeWfhchxkTtQzTymtOzcqhqSS1/pqVrocSOUX///80/0Sk////9idqZ//uEZO+AAwo/z/VhYAIAAA0goAABFd0hQ/mcAAAAADSDAAAAZE0hiAAACre4CwogI/qJyZ8hVIWTbVubaprR6o+MC2aAtBNNSFY4lAeI8mJkTTU14RHo2POjizU2tq/bnuQNeKa2kXf//7aROx/vJtft2/w6ba1sSi2p/nmTxKNWhrH8G4iodiICFF13YBVAbgXwmAQ4AUmMB8E7FlF3OCUnxPkEcy0QF7ecLY42CIOxQ+dwleftUVCsNIWmKCBjj/F/XmxorGcB0LWUGZGnsZe+CyBQ1fv31o9RRfFSuqacyQDKUu3AUfZ9AIWKDgshgxgIkBYJnq4+TTNqKiklE4scqXeiSDGIpyCEYEqFBIkY02YgxF5//1TAm7RKjHFCjIPmJIgbM7ky91wu/XHaCdA21ZmqWSQhBB2W8BKwucquIgzwNMX4WHXo9ipmCFA8//uEZP0ABnFIVP5rQAAAAA0gwAAADBjvX/2FgCgAADSDgAAEOAweEYmQhlCgWbJm7SmgE0u5sNjUFb61M3kSVGzRVdPP2qmXrzOnTu7CanFGJLNd8jdX//M1ubfn3nx8dvKOPCToPLldVNOiAaJz37AAJRcF9EQ0ZEe2YCIrFS9TWE+T1oBw/NmZfW0eNnVQYLGJZTMPJFWGkZTj5mpJqHdDnVx6dar/SpK3KrdGqcWIqvBqH8//UUVdNUrDl1aoyy1tO0qImKchABJVrdAECYbS4UwQeTLcVFAdEtlXSqrPM7E9BVgXFD2F5ODJcjD4aTGKUxRTq4keNQ4Wts87vnemWCjxNaSpTnKatkVCMTk0nlz8zVTvIiX9aCkbqjMigiKhmQiMjCmt3ABzhbxcZeacml6tdYEXyDEQjs8AMetklKz6itzEeB/Zqfta5gxQ//tUZPuA8sY6VnnmG9oAAA0gAAABCpCvW+wkbKgAADSAAAAE4F0qGEOCDCmFGoCiD8rLudYuWrSyiXC+p9UkbznFBoeWfkDLhm5EgzskXZ55yohSIQKcbTAESGGiwh5xfcaTLCoJmqmzhDxJJKGw5x2MpiVKyFg2y3al0p+6NZMSfD+5vbQpsbshDQ3n4zfO+xse8nIz9u7QZZwQpBCRun8xDMgSkS7m7VwcsDoMmkqH79Oy+blABsBQSjwjQTAz//tkZPKA8wk+U/sJMtoAAA0gAAABC4jdUewxCugAADSAAAAEYsRBxyuIgsVEAwILiGPjZrtau8MAEvQcDmfiZhwlGlnpdtcJ1ZoCi3Waqvii/ImIzpmFIGdKZ00kZhNVW8W4YETEHpfSEZsmZO304yweVmtKq1LnVbIpbDcPQw/9WUU0aweej9/2iLUaxL6PHOxftOvGoHv0lSJDoESBrvZ5Jo7GojjrveZ5ztHE7+WExg0x3Fb3vizXJXDvf/////+9/////3Xvyy9VyKgzMCEgBFLwFFDCJHpEYiUkSIbCEr8qNw6waBF3Z1mtSh8Q//tUZPmA8uI+UXsIG/oAAA0gAAABC1DxQewwaUgAADSAAAAERugF5G+cjWqWnp9ZcdFq0Dv1ayVqn8t+faYtrS0Hyu/9rvS01e1rWtL1Vp89a1pt8za1rTlnsxq07WtMtLLtaztu2q2q0FfFpXMQAAAACnNwArwoAcIdII4TAIUKM6Q2QMovVaTNdMbiuc3AfJ4sRKpm9OuaifskJmH0+fTERpUSktqFUK0/ifwMYvpNqtEFRmIM3V5HUKK4BU+n//uEZOwAAr0vUH1gwAoAAA0goAABF/EhTfm9AAAAADSDAAAA99/+By02AwRs4koAMVFc6tmmlFEAACa7cBTE6sQ5Igg0K8nrQyb0II3F7WlwI0xwHk6pCKrYkZnBJ7QztjMGZP9axgTFxxF+K4jTze0LbEROcPlC56/mjxl/KWr86S3niQLzc5K/YyallNBAwJ6OMAHE+EGAMkPF1CcNQTYV10fqvLi4oxrPAwiSgEDJkwYtyllVeIpO6NdgtJWfslSWkjvu2R9KUMqrmGIZ/6Qmg5ubkt+DkhZFqZ5P7JmJlHWaubl1UhAy57rgBoSBaoywRXiwKkkQVWuS3tEzJu8JTCx2QjVwYnmmkS0mkSVRsvNFTSPFAihS6dUgFaV0MovBS1h00a0sFQ3VnAyL3293b7+BiB4NoXcq8mHRDA0rv9wEvV7jIRCQCGIUR1Di//tkZPYA82A+Wf9hgAoAAA0g4AABDHTlUeekdmgAADSAAAAEvVp6YDS5pvpPHX8djkFwiDiOSSLRPNz1cZWlLTzlp+PaiKHMS///Zp03tIQqmVactdhzqXWY1s0z0XBP+kCaxthQQ181V5eHQTASXdpABAKKNqghCIsBf1GprCerGFYmkOO6FaJ5oJbZdnnYbUbij5DX1z+xxTWc7+TtNr7rC6XW6VPzhSmTktMJBiWioJoA4jnIbmgrNoHMPHipBqxIWGjxNEcGETcer+Wbe9tvi/86aVbfpsDtOIwUGIKACAAYChNxqVTS2QAGjXk0//tUZPQB8rYrVXsJQ0oAAA0gAAABCxjtU+eYb6gAADSAAAAE5oQwINJ/MKvjBpT5EOC0MAjDQhAiEagMd0UYwEalAPEQUjR0DuQGhBCWsrA1+TmUHhUWasZGCEAkvFF3tuDBAJFksJoSnKaFJC4xK0fHTLyDIVSLVZWgCQOlM7AltnDkQ5MJewLNw+z12qZnVmcpXZXY4jvxCw1+NwfLYKb/C5qblMZfivWqTzL5qklDWJZIHGdKekLcnjmZd+N2//tkZOoA8rIpU/sJG1oAAA0gAAABC0z7TewYUagAADSAAAAEUS6JUN67nL+////wbBUa/////GhmxXQREAIADFJwF2pUMATlIiSEUCEEVtWHWCURZ5I4elb7IbVWSBJA/l5mhMyHEqneq4/o38zuBGXUaLJDfQraxu24NYts/+sHP1809rY3bWMwN2xXD3M3+M/////O/v5zSsW28a9q7vjUOtdQpsgsxCIYgAgQ5JeAw4YEXRURT5Eho8qYJZMiAIA5SNj4Rrj6rHF5OysJmTSRM1FefLMJxZHOcacEou3nHvGrP203NLp0jW3vLPhD//uEZPeAA508UX1hgAoAAA0goAABGI0dUfmtAAgAADSDAAAANZZqv///2//nXVy0Tkrt4z8DrLJFm00qqXd1JCAQJ77wIDJQETIHWM57cB0BdRNBfjvPtMN1dmtAsi1FwI04siEIXJ5h6vFoy6H/07SUGQrRdGo7eaxupM0GlqatmmP+OSkh7Ruilx56+j+YzbmbK4JRoU0XEsaiAAAT8loABEyciIrhtUSGng4SoFHVkPsz+Wvg98drhRqAOCkwlDGmYQ9knJ4fBIuYSAk7xshlotDkHLaslUs5FBzRXoh9InGFIvg///+B8uvEv2C/+NUwAAAAAABKKtkWCQAAAIGEQJHsDDiQaKrgKFZU+RMPiJLGQuEIYwg4OWHtcmenkR1PI0RZHEzcEzimLqYQ+kW0zIyBoaUCMGxungFm6gkJMUCecYItnZSwZ/og19ml//tkZPGA83VAVf9h4AoAAA0g4AABC/j1U+wwySAAADSAAAAEizDhghxjxKwqGqmMToZXZeK06kYZZIM6Rh7Y4LhFir/7x7/1c5/upfb+MVYAhWUh1rfb/cP3TxvK3T0027VLNZR2ddIx6fLfEIxgAAJet+4CgiXqXLB2WBA0jEVjKEkhAzB1RQRF3MisyrSuUyuVk8V82qFiiysUKE4MLmw+2oMSVQYjRc6zjNo017vG28SK4KujHTeb0z//bPrn10+pHrnc0ebfxrH3ret/ev//6XxjNIY3WpdhAAAAABuf8BR0QAElK0KSj6byOSA6//tkZPAA8uM8VHsGFHgAAA0gAAABCxiRSfWDACgAADSCgAAEJvYx9erSX5dV9lMSkHYEQOlI+vCtTFU9OR1JPwGR6t6sLs+BEbfw7UlV6jAgIU5MBNNVLuZGeyguMNAFgw8FEbsGAhRY9qkYNVuiHVVIQAAtuspjoslyVQpMorLPXI4LR2HOCyiFPdKn6JAaOCcjokTinlYQJVLo4ZAlpqAZOWrX95uZVFNp5x4IhkIOW1zjbEfI+tP/Pba+4eeGYVV5plUSABKlu4ATSQFFzEBSfRRGdLyMbQmK7ZFBE05EWf+Uk0EIQB2ecpodHQSD//t0ZPsABSs70G5rRAAAAA0gwAAADajzX/2HgCAAADSDgAAEpo8ocsQeUMqqGN3V+s25LpNG5R6dJTQ1wcqxw1xncG03xZEMYJ4PvwQdqVQQAAGiEkJUrB6GgAGbDIKAKUOVUBoIwIQQgCzxjkppEZnwoRIKoItgaNubsuGrwufFgkbMS1NiBNTUNAErtDT+NIkOmHEJFCcFzZmhkBMAhkDC1isSMcIAyOH2XtPjk81wxgQWJt3QXQsoofbqX9rW4OoX+uSJEAOCITGKTUNMBgWglVNUu/+X8twI/bcV1xePsPeaTxeNu7qGd63//3N3lJsMbx0Iw4DpQ7HZDKpqNO13WH/////GN2Oo8rdiMBAAAAJTcBSwimBhoDm9LyhQ//tkZO+B8wo01HsMG8gAAA0gAAABCmTJTewkz2gAADSAAAAEcTQ8f1Olub4TjuP07LbL5ATJJCdkaLIomU/kOclC1q5dN7EczM+Yt72rsXg19bWjw93xbev943je/n69a6zizbmFXVfX1zBe4+/fcfPx//jev81rLVdQnb8YdhFAlLtwH2LwrcEImDkJVhWdKgbxo7CXipnpX7Ss5biySHolH5BSReo4CGFIlPqU0kJOQCSTcso6tB7mcn6izm/UeMjM3qh5mvDjx3q0REmzjfXf6BsbOLMkeGRBAAEAZbtwIJEYzCEsgJAVRLnv8rtG//t0ZPsAAr8yUn1hAAgAAA0goAABF7kLSbmtEAAAADSDAAAARttOo3lSZkEfMD8AcPRKIIvFiDJ4sLufBrQhCy8oDwh3AtNTAwbxFInpl0kxWOjq+bu44S2nu/35///k68iSqpFjTuhxmGgAAAAASTsbvrrBIAAAoPOoBApIQDnQNC/MoULQGRAEy4zYYVoBY6YACgJJk5od4heFUIYEQBhYsXPnGGyCakAxxBLEC9RhQAOpAowinGIyxt4GUIQKGxKTsugdk0egpe7ZYPjMTkUy+jQ3eyoobltIvRf7v+/0pjzkNDZhXxwt83vnM7VW5jTAgUEZn2R7jjw23/yN15ISAQAhftvwASUDKUOApk0xEdDmNBUCgRHN3kfmnQLT//tkZO4E82w61P9h4AoAAA0g4AABC1DFT+wYcygAADSAAAAEx6OBbQHaFVODUSbGxeJAzKJImp5SzVZMNkWUaIlqRufM2M3UatTaZJJJImpq1mau+zKqR9ar1qo6TqTMzjoNgc2Ty4MHI+5YiEAAALl3vATMISDQS6qPKHS2Xhbi1N53hWJB8nfmy5TssylYKCh7fU7wVsnWyqetXCirM7OyqzoatBQWghxjK0zCYsOJCiDr9CKmr5eWa2f9Wj/SNC8KCz5B2rcSCCs+0gFotgWqVXQCDJkESEKdJd1OFOahep8pbDL5WMkgJjUxI/I3//t0ZPAAAvE/U/1hAAoAAA0goAABEpCxPbmtAAAAADSDAAAAhEp/bn+qalG0P3Kut9zUyLqypepZal+GXe/tTcKxxcmhA/mAvXefiVz0URBhEAAAOA5359igMAAACMgIgiehiY4jECW8wwkygESlGFDG2kH/dGRIBYQa4oZc6bxmVLo0EP8YEOixmb/VGGFdOWZa+RAoYcNfLZmDAgcFMN5tKxE9pwYHJzLjag8kdcd52uOhXRMSmLvM9UyBIUWYuXLVLWxX59WG9U6E1MWVTnaP//ff33li4fIHiomLvNkSbyZDI//QhkEQAQAF99vgAEgUQA7LYQsPo0xQAzSnBtEiDKOY0jzgo4DoCJIEUeAHxmXd01ZKpKSaHoZGahub//tkZPSA8zo0VP9hoAgAAA0g4AABC3D1T+wYcKAAADSAAAAETN2bOa61Vi5JI89FqztruIuIjc6Jmaip628w66rOntspO//4alP1vcxlItD8vXlGSCZttpQAI5NRtAKpNQB8EBRg/w1JNS4m8T9UgCeKUxVCaHIlYMS0O9+KoRQCJ2OMROphFL83f1/6ZocmMrnkvOwKpGMQh9Dy9tfiI3GLOGJ3UNh0D5Z3J8kEqayJgISV3lZkakvV5odmtOksOyZdZofCORD1Ds0eh6ruuchtHVacZ20I92EkwOCmIS6kcIWVSMhMgRYROVYzMjhm//tkZPkAAq0o0m1hIAoAAA0goAABEuitQ7mtkEAAADSDAAAAsjaTH30KzOucOFiXAWBRFVEptKpAGQpbbbGAhyfcoS5b0CqXCQTPQqUUAs+ANQzbdmUjwCjZFQ6UFo/GUHoszyKzuzGC0NKnekzwyx3fcp05kTMJy4+JtWI4eYxv45VaMemsyHakOJpShISFWBQgVUd0+ctKIAAAANoRNolMGFCwE4pMCiQIBS2BotNcDBDbkUDBAEOCKFgpggxMFaasZ72fpCSFnyxJSnkpu7KxBJiu13uhAjtONEXYjjuxOCJy5DkbZ5MRZsjrq7eh//tkZOiA8zU+Uv89YAgAAA0g4AABCwT3RaekbSgAADSAAAAE7LWcvznsMJFUn6W5k78vp4fsVtf/4fv//H92TNwXIUbTTai010s6ESWBAEQADIiALZv7YkwAAAseC60XTEObsBrDuaGoQwh0TzyNCkNDIkQs0NCgAchGAZAFHIhjACA1K6AcWZx40WvMvQg88zL2KLrWQrlhC55A4Uij6RxeZ13sdVHFpr+RqAFuONGL1NK37chusnm27U0qkNmAKerAd6Br9bm/p6XGtlyzbs4l4jBtsFi9Tkigw8/4rREACiAAQkpZbE0AAAACyQKR//tkZO8A8r03T+sMGtgAAA0gAAABCuTZQfWEACAAADSCgAAEMTRHgO5AKZmOEVxUlLA4OrSUHRgSKJKgIkwkBKMRBlnVQgEQ4QxoBkDMXLRyZVDZctWN7SQdl1DAkENwbM68aQSxNvI5kvdd730jut6rA6682dUz+wzZu4UshfySRXTvP27cery/7uv+kxv0tu9Wr1vxtWhpu8ap/9pcQBAACNADT5mtbQAAC5TMpxocHNwgug2Ikhg1xohBhxZqRCQJn3ZpqwRiMCoCgFI8G2DSAzRRQqmMGRNCVMWSAhpOQgJJ/NsIwRgkphxKNBdd//t0ZP2ABFIszf5rAAAAAA0gwAAAEmyzQfmcgAAAADSDAAAA1ljtYaeSg3IcBG9c7XIYQ2S+keM5K1XR2P35KAhKMyFxcPN22kvzqvVvuxADjwXC6F36SMxGB427cSgLK7Xw3GcbM7LZnC3acTBwbAgADSqv/eqFQjQRAABT3/AFSDvL2BxExHaOUaQfZXkuEZVxlIhRs57DRDbS8VBsjuc2crmCR81LqBGE+smHMTjH0mWiizV602Wp055JjQ6maIubGpsiyXqN6WZoUknTWYGhWKR1M9R7mla/8vQioRAAAAEkvwBf5QOQF64MKo1sF6FhHSbLF3DhuAYVxfSnUwgfQrreq9yE0ybdCd0ZA3V84rByxtG6gsL1l3H/K21j//uEZOyABFcuze5nIAAAAA0gwAAAFJDFQbmtAAAAADSDAAAAC8ed8bFIbl81fdNl7rv+3ff9DHlAZZT6LZZ9UbrpjT8ruHNnMwARL9/gEBIkVi6IqnSRilUSQROi4CPYiAbKg7FYFgleIRWHQxccxTD1vo7ATqrVKJ7VrvWsmplv2sOCW1XNKSEtG+Z3uJaTn//TgpnjMEDQ3aHhv67aFRUICEPb/0AuUKFgBCUmswpdyAZW19lMlMn9plyzr+xyIsRlIlC4VgsvtsU/ymzMRVOLSlmYY8dyq8BO1wolm2j0gX1bKkYionX//qAnxm+etLMcJaeGakECFv62gBW4QldkviIgpIKwl3h5TfLDMQV85Muw0+wZCwqwxZmmvHBMRxqLeMrItqUmlCpC6/myZz/Y3dxy5blrbnz5+wAkVk6ToIBUMbX2smEVleGVVh1V//tkZOqA8y081P8+AAgAAA0g4AABDIjjU+ww0uAAADSAAAAET1jiMIQAAANE5L0gGDtwuuhQeowcSaEJtDpogEQ0iVLTEFU1CL09gTVhaPAk1EZ+QaAuCsASBe9sa9Ybb1kDL6jE2cNjbm6j0xiC5XYm065yJOwzpuzwKLwBN0PbHJ+62j/s0uKkTqdi1HbL/OT/f5zLifDltrSUjO3Gq1b8ohh9I/j+ud332WT8BuOwSWUmcbq5S2uyq3rm9//////Y33////GludV5d1NDEkjbILAfcUK3UuKRBUukwhAgCbSJK3NOhFybismB8AAI//tkZOuA8sY0VfsMGvgAAA0gAAABCsDBUewkcSgAADSAAAAEx4oHYqEBoNnRxqkhyIiykjiRWdsfdXldsxKuKk1XP/7Wzc/68PXc60t8HQtf/FkxNB9XtcNFipjN0S0Ojq4I2zraAA3Iqka2mCmgsOxERgR+gVFt9EQqEYd1ggGKn4l5qtOMU2OnupVnGH8aa0u0plQEvz1AgoDRJyMx/9aWxlgEMKpSMGBxmZy8Mb/gpsUFhaur+AAC5tedWaE6aRURoKIwcdS0ikQ1mVh8USTEJDAiDoaCjHk2J+87SxrFcGm4ir2+HcVBNo/poQmL//t0ZPoAAp4oUP1hIAgAAA0goAABFdkhNfmcAAAAADSDAAAA////q/9n0+pMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQv1BdVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVWAAACJtVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tUZPaA8vc+zn9hAAIAAA0g4AABCsTHL+wwa4gAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//s0ZOoD8aAWR8lmGOAAAA0gAAABAgAFHKWAAAAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOOP8BEAxYFgAAgAAA0gAAABACQDFgWAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOSP8CoBRqkgAA4AAA0gAAABAAAB/gAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
   var AudioCtor = window.AudioContext || window.webkitAudioContext;
@@ -805,12 +986,10 @@ body {
   document.addEventListener('pointerdown', prepSound, { once: true });
   document.addEventListener('keydown', prepSound, { once: true });
 
-  /* Roll presets. Stored in a cookie; falls back to local storage, then memory, if the browser refuses cookies. */
-  var PRESET_KEY = 'vtm_presets';
+  /* Presets. Stored in a cookie; falls back to local storage, then memory, if the browser refuses cookies. */
   var MAX_PRESETS = 20;
   var MAX_NAME = 24;
   var MAX_COOKIE = 3800;
-  var presets = [];
   var storeMode = 'cookie';
 
   function cookieAttrs() {
@@ -851,212 +1030,494 @@ body {
     }
   }
 
-  function sanitizePresets(arr) {
-    var out = [];
-    if (!Array.isArray(arr)) return out;
-    arr.forEach(function (e) {
-      if (!Array.isArray(e) || typeof e[0] !== 'string') return;
-      var name = e[0].replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
-      if (!name || !isFinite(+e[1]) || !isFinite(+e[2])) return;
-      out.push({
-        name: name,
-        pool: clamp(+e[1], 1, MAX_POOL),
-        diff: clamp(+e[2], 2, 10),
-        spec: +e[3] === 1,
-        botch: +e[4] === 1
-      });
-    });
-    return out.slice(0, MAX_PRESETS);
-  }
-
-  function readPresets() {
-    try {
-      if (storeMode === 'cookie') {
-        var raw = getCookie(PRESET_KEY);
-        return raw ? sanitizePresets(JSON.parse(decodeURIComponent(raw))) : [];
-      }
-      if (storeMode === 'local') {
-        return sanitizePresets(JSON.parse(localStorage.getItem(PRESET_KEY) || '[]'));
-      }
-    } catch (e) {}
-    return [];
-  }
-
-  /* Returns 'ok', 'toolong' or 'failed'. */
-  function persistPresets() {
-    var json = JSON.stringify(presets.map(function (p) {
-      return [p.name, p.pool, p.diff, p.spec ? 1 : 0, p.botch ? 1 : 0];
-    }));
-    try {
-      if (storeMode === 'cookie') {
-        var v = encodeURIComponent(json);
-        if (v.length > MAX_COOKIE) return 'toolong';
-        document.cookie = PRESET_KEY + '=' + v + cookieAttrs();
-        return getCookie(PRESET_KEY) === v ? 'ok' : 'failed';
-      }
-      if (storeMode === 'local') {
-        localStorage.setItem(PRESET_KEY, json);
-        return 'ok';
-      }
-      return 'ok';
-    } catch (e) {
-      return 'failed';
-    }
-  }
-
-  function presetStatus(msg) { $('presetStatus').textContent = msg; }
-
-  function presetSummary(p) {
-    return p.pool + (p.pool === 1 ? ' die' : ' dice') + ' · diff ' + p.diff +
-      (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '');
-  }
-
-  function renderPresets() {
-    var list = $('presetList');
-    list.textContent = '';
-    $('presetCount').textContent = presets.length ? presets.length + ' saved' : '';
-    if (!presets.length) {
-      var empty = document.createElement('li');
-      empty.className = 'empty';
-      empty.textContent = 'No presets yet. Set up a roll, name it and press Save.';
-      list.appendChild(empty);
-      return;
-    }
-    presets.forEach(function (p, idx) {
-      var li = document.createElement('li');
-      var load = document.createElement('button');
-      load.type = 'button';
-      load.className = 'preset-load';
-      load.setAttribute('data-i', idx);
-      var strong = document.createElement('strong');
-      strong.textContent = p.name;
-      var small = document.createElement('small');
-      small.textContent = presetSummary(p);
-      load.appendChild(strong);
-      load.appendChild(small);
-      var del = document.createElement('button');
-      del.type = 'button';
-      del.className = 'preset-del';
-      del.setAttribute('data-i', idx);
-      del.setAttribute('aria-label', 'Delete preset ' + p.name);
-      del.textContent = '×';
-      li.appendChild(load);
-      li.appendChild(del);
-      list.appendChild(li);
-    });
-  }
-
-  function savePreset() {
-    var input = $('presetName');
-    var name = input.value.replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
-    if (!name) {
-      presetStatus('Enter a name for this preset.');
-      input.focus();
-      return;
-    }
-    var before = presets.slice();
-    var entry = { name: name, pool: st.pool, diff: st.diff, spec: st.spec, botch: st.botch };
-    var at = -1;
-    presets.forEach(function (p, i) { if (p.name.toLowerCase() === name.toLowerCase()) at = i; });
-    if (at >= 0) {
-      presets[at] = entry;
-    } else if (presets.length >= MAX_PRESETS) {
-      presetStatus('You can keep up to ' + MAX_PRESETS + ' presets. Delete one to save another.');
-      return;
-    } else {
-      presets.push(entry);
-    }
-    var result = persistPresets();
-    if (result !== 'ok') {
-      presets = before;
-      presetStatus(result === 'toolong'
-        ? 'Those names are too long to fit in a cookie. Shorten a name or delete a preset.'
-        : 'Could not save the preset. This browser may be blocking cookies.');
-      return;
-    }
-    renderPresets();
-    presetStatus((at >= 0 ? 'Updated “' : 'Saved “') + name + '”.');
-  }
-
-  function loadPreset(idx) {
-    var p = presets[idx];
-    if (!p) return;
-    st.pool = p.pool;
-    st.diff = p.diff;
-    st.spec = p.spec;
-    st.botch = p.botch;
-    syncControls();
-    save();
-    $('presetName').value = p.name;
-    if (st.rollOnLoad) {
-      doRoll(true, false);
-      presetStatus('Loaded “' + p.name + '” and rolled.');
-    } else {
-      presetStatus('Loaded “' + p.name + '”.');
-    }
-  }
-
-  function setPresetsOpen(open) {
-    $('presetsToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
-    $('presetsBody').hidden = !open;
-  }
-  $('presetsToggle').addEventListener('click', function () {
-    st.presetsOpen = !st.presetsOpen;
-    setPresetsOpen(st.presetsOpen);
-    save();
-  });
-  $('rollOnLoad').addEventListener('change', function () {
-    st.rollOnLoad = this.checked;
-    save();
-  });
-  $('rollOnLoad').checked = st.rollOnLoad;
-  setPresetsOpen(st.presetsOpen);
-
-  function deletePreset(idx) {
-    var p = presets[idx];
-    if (!p) return;
-    var before = presets.slice();
-    presets.splice(idx, 1);
-    if (persistPresets() !== 'ok') {
-      presets = before;
-      presetStatus('Could not delete the preset. This browser may be blocking cookies.');
-      return;
-    }
-    renderPresets();
-    presetStatus('Deleted “' + p.name + '”.');
-  }
-
-  $('presetSave').addEventListener('click', savePreset);
-  $('presetName').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') { e.preventDefault(); savePreset(); }
-  });
-  $('presetList').addEventListener('click', function (e) {
-    var btn = e.target.closest ? e.target.closest('button') : null;
-    if (!btn) return;
-    var idx = parseInt(btn.getAttribute('data-i'), 10);
-    if (btn.className === 'preset-load') loadPreset(idx);
-    else if (btn.className === 'preset-del') deletePreset(idx);
-  });
-
   storeMode = chooseStore();
-  presets = readPresets();
-  renderPresets();
-  $('presetStore').textContent = storeMode === 'cookie'
-    ? 'Presets are saved in a cookie in this browser.'
-    : storeMode === 'local'
-      ? 'Cookies are blocked here, so presets are kept in this browser’s local storage instead.'
-      : 'This browser blocks cookies and storage, so presets last only until you close the page.';
 
-  function setOdds(open) {
-    $('oddsToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
-    $('oddsBody').hidden = !open;
+  /* One preset list with its own storage key and its own elements. The roller and the damage section each get one. */
+  function createPresetBox(o) {
+    var ids = o.ids;
+    var presets = [];
+
+    function sanitizeList(arr) {
+      var out = [];
+      if (!Array.isArray(arr)) return out;
+      arr.forEach(function (e) {
+        if (!Array.isArray(e) || typeof e[0] !== 'string') return;
+        var name = e[0].replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
+        if (!name || !isFinite(+e[1]) || !isFinite(+e[2])) return;
+        out.push({
+          name: name,
+          pool: clamp(+e[1], o.minPool, MAX_POOL),
+          diff: clamp(+e[2], 2, 10),
+          spec: +e[3] === 1,
+          botch: +e[4] === 1,
+          bonus: e.length > 5 ? +e[5] === 1 : true
+        });
+      });
+      return out.slice(0, MAX_PRESETS);
+    }
+
+    function readList() {
+      try {
+        if (storeMode === 'cookie') {
+          var raw = getCookie(o.key);
+          return raw ? sanitizeList(JSON.parse(decodeURIComponent(raw))) : [];
+        }
+        if (storeMode === 'local') {
+          return sanitizeList(JSON.parse(localStorage.getItem(o.key) || '[]'));
+        }
+      } catch (e) {}
+      return [];
+    }
+
+    /* Returns 'ok', 'toolong' or 'failed'. */
+    function persistList() {
+      var json = JSON.stringify(presets.map(function (p) {
+        var row = [p.name, p.pool, p.diff, p.spec ? 1 : 0, p.botch ? 1 : 0];
+        if (o.hasBonus) row.push(p.bonus ? 1 : 0);
+        return row;
+      }));
+      try {
+        if (storeMode === 'cookie') {
+          var v = encodeURIComponent(json);
+          if (v.length > MAX_COOKIE) return 'toolong';
+          document.cookie = o.key + '=' + v + cookieAttrs();
+          return getCookie(o.key) === v ? 'ok' : 'failed';
+        }
+        if (storeMode === 'local') {
+          localStorage.setItem(o.key, json);
+          return 'ok';
+        }
+        return 'ok';
+      } catch (e) {
+        return 'failed';
+      }
+    }
+
+    function setStatus(msg) { $(ids.status).textContent = msg; }
+
+    function renderList() {
+      var list = $(ids.list);
+      list.textContent = '';
+      $(ids.count).textContent = presets.length ? presets.length + ' saved' : '';
+      if (!presets.length) {
+        var empty = document.createElement('li');
+        empty.className = 'empty';
+        empty.textContent = 'No presets yet. Set up a roll, name it and press Save.';
+        list.appendChild(empty);
+        return;
+      }
+      presets.forEach(function (p, idx) {
+        var li = document.createElement('li');
+        var load = document.createElement('button');
+        load.type = 'button';
+        load.className = 'preset-load';
+        load.setAttribute('data-i', idx);
+        var strong = document.createElement('strong');
+        strong.textContent = p.name;
+        var small = document.createElement('small');
+        small.textContent = o.summary(p);
+        load.appendChild(strong);
+        load.appendChild(small);
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'preset-del';
+        del.setAttribute('data-i', idx);
+        del.setAttribute('aria-label', 'Delete preset ' + p.name);
+        del.textContent = '×';
+        li.appendChild(load);
+        li.appendChild(del);
+        list.appendChild(li);
+      });
+    }
+
+    function savePreset() {
+      var input = $(ids.name);
+      var name = input.value.replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
+      if (!name) {
+        setStatus('Enter a name for this preset.');
+        input.focus();
+        return;
+      }
+      var before = presets.slice();
+      var cur = o.current();
+      var entry = { name: name, pool: cur.pool, diff: cur.diff, spec: cur.spec, botch: cur.botch, bonus: cur.bonus !== false };
+      var at = -1;
+      presets.forEach(function (p, i) { if (p.name.toLowerCase() === name.toLowerCase()) at = i; });
+      if (at >= 0) {
+        presets[at] = entry;
+      } else if (presets.length >= MAX_PRESETS) {
+        setStatus('You can keep up to ' + MAX_PRESETS + ' presets. Delete one to save another.');
+        return;
+      } else {
+        presets.push(entry);
+      }
+      var result = persistList();
+      if (result !== 'ok') {
+        presets = before;
+        setStatus(result === 'toolong'
+          ? 'Those names are too long to fit in a cookie. Shorten a name or delete a preset.'
+          : 'Could not save the preset. This browser may be blocking cookies.');
+        return;
+      }
+      renderList();
+      setStatus((at >= 0 ? 'Updated “' : 'Saved “') + name + '”.');
+    }
+
+    function loadPreset(idx) {
+      var p = presets[idx];
+      if (!p) return;
+      o.apply(p);
+      $(ids.name).value = p.name;
+      if (st[o.rollKey]) {
+        o.roll();
+        setStatus('Loaded “' + p.name + '” and rolled.');
+      } else {
+        setStatus('Loaded “' + p.name + '”.');
+      }
+    }
+
+    function deletePreset(idx) {
+      var p = presets[idx];
+      if (!p) return;
+      var before = presets.slice();
+      presets.splice(idx, 1);
+      if (persistList() !== 'ok') {
+        presets = before;
+        setStatus('Could not delete the preset. This browser may be blocking cookies.');
+        return;
+      }
+      renderList();
+      setStatus('Deleted “' + p.name + '”.');
+    }
+
+    function setOpen(open) {
+      $(ids.toggle).setAttribute('aria-expanded', open ? 'true' : 'false');
+      $(ids.body).hidden = !open;
+    }
+
+    $(ids.save).addEventListener('click', savePreset);
+    $(ids.name).addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); savePreset(); }
+    });
+    $(ids.list).addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('button') : null;
+      if (!btn) return;
+      var idx = parseInt(btn.getAttribute('data-i'), 10);
+      if (btn.className === 'preset-load') loadPreset(idx);
+      else if (btn.className === 'preset-del') deletePreset(idx);
+    });
+    $(ids.toggle).addEventListener('click', function () {
+      st[o.openKey] = !st[o.openKey];
+      setOpen(st[o.openKey]);
+      save();
+    });
+    $(ids.rollSwitch).addEventListener('change', function () {
+      st[o.rollKey] = this.checked;
+      save();
+    });
+
+    presets = readList();
+    renderList();
+    $(ids.store).textContent = storeMode === 'cookie'
+      ? 'Presets are saved in a cookie in this browser.'
+      : storeMode === 'local'
+        ? 'Cookies are blocked here, so presets are kept in this browser’s local storage instead.'
+        : 'This browser blocks cookies and storage, so presets last only until you close the page.';
+    $(ids.rollSwitch).checked = st[o.rollKey];
+    setOpen(st[o.openKey]);
   }
-  $('oddsToggle').addEventListener('click', function () {
-    st.oddsOpen = !st.oddsOpen;
-    setOdds(st.oddsOpen);
+
+  /* A row of dice with the same tumble and settle behaviour as the roller, for sections that roll on their own. */
+  function createBoard(trayEl) {
+    var cells = [];
+    var timer = null;
+    var words = { ten: 'counts as 2 successes', hit: 'success', one: 'subtracts a success', miss: 'miss' };
+    var tags = { ten: '+2', hit: '+1', one: MINUS + '1', miss: 'miss' };
+
+    function build(count) {
+      trayEl.textContent = '';
+      cells = [];
+      for (var i = 0; i < count; i++) {
+        var wrap = document.createElement('div');
+        wrap.className = 'die-cell';
+        wrap.setAttribute('role', 'listitem');
+        wrap.innerHTML = '<svg class="die rolling" viewBox="0 0 64 72" role="img" aria-label="Die"><polygon points="32,3 61,27 32,69 3,27"></polygon><text x="32" y="40" text-anchor="middle">0</text></svg><span class="tag">&nbsp;</span>';
+        trayEl.appendChild(wrap);
+        cells.push({
+          svg: wrap.querySelector('svg'),
+          text: wrap.querySelector('text'),
+          tag: wrap.querySelector('.tag')
+        });
+      }
+    }
+
+    function face(i, v) {
+      var c = cells[i];
+      c.text.textContent = v;
+      c.text.setAttribute('y', v >= 10 ? '38' : '40');
+      c.text.setAttribute('class', v >= 10 ? 'two' : '');
+    }
+
+    function settleDie(i, v, roll) {
+      var c = cells[i];
+      var kind = kindOf(v, roll);
+      face(i, v);
+      c.svg.setAttribute('class', 'die ' + kind);
+      c.svg.setAttribute('aria-label', 'Die ' + (i + 1) + ': ' + v + ', ' + words[kind]);
+      c.tag.textContent = tags[kind];
+      c.tag.setAttribute('class', 'tag ' + kind);
+    }
+
+    function run(values, roll, animate, onStart, onFirst, onDone) {
+      if (timer) { clearInterval(timer); timer = null; }
+      build(values.length);
+      if (!animate || reduce.matches) {
+        values.forEach(function (v, i) { settleDie(i, v, roll); });
+        if (animate && onFirst) onFirst();
+        onDone();
+        return;
+      }
+      if (onStart) onStart();
+      values.forEach(function (v, i) { face(i, rand10()); });
+      var start = performance.now();
+      var done = [];
+      var first = false;
+      var left = values.length;
+      var settleAt = values.map(function (v, i) { return 380 + Math.min(i * 40, 900); });
+      timer = setInterval(function () {
+        var t = performance.now() - start;
+        for (var k = 0; k < values.length; k++) {
+          if (done[k]) continue;
+          if (t >= settleAt[k]) {
+            done[k] = true;
+            left--;
+            settleDie(k, values[k], roll);
+            if (!first) { first = true; if (onFirst) onFirst(); }
+          } else {
+            face(k, rand10());
+          }
+        }
+        if (left === 0) {
+          clearInterval(timer);
+          timer = null;
+          onDone();
+        }
+      }, 70);
+    }
+
+    return { run: run };
+  }
+
+  /* Damage: a follow-up pool that gains bonus dice from the extra successes of the most recent roll. */
+  var lastNet = null;
+  var dmgBoard = createBoard($('dmgTray'));
+
+  function noteRoll(roll, values) {
+    lastNet = score(values, roll).net;
+    updateDmg();
+  }
+
+  function dmgBonusDice() {
+    return (st.dmgBonus && lastNet !== null) ? Math.max(0, lastNet - 1) : 0;
+  }
+
+  function dmgTotal() {
+    return Math.min(99, st.dmgPool + dmgBonusDice());
+  }
+
+  function updateDmg() {
+    var bonus = dmgBonusDice();
+    var total = dmgTotal();
+    $('dmgDiffHint').textContent = 'Each die showing ' + st.dmgDiff + ' or higher counts as a success.';
+    var rows = [['Base damage dice', String(st.dmgPool)]];
+    if (st.dmgBonus) {
+      rows.push(['Last roll', lastNet === null ? 'None yet' : lastNet + (lastNet === 1 ? ' success' : ' successes')]);
+      rows.push(['Bonus dice', '+' + bonus]);
+    }
+    rows.push(['Total dice', String(total)]);
+    fillRows($('dmgPlan'), rows);
+    $('dmgPlanSummary').textContent = (bonus > 0 ? st.dmgPool + ' + ' + bonus + ' = ' : '') + total + (total === 1 ? ' die' : ' dice');
+
+    var note = '';
+    if (st.dmgBonus && lastNet === 0) note = 'The last roll had no successes, so there are no bonus dice.';
+    else if (st.dmgBonus && lastNet === 1) note = 'One success hits. Only extra successes add bonus dice.';
+    else if (st.dmgPool + bonus > 99) note = 'Damage rolls are capped at 99 dice.';
+    $('dmgPlanNote').textContent = note;
+    $('dmgPlanNote').hidden = !note;
+
+    var btn = $('dmgRollBtn');
+    btn.disabled = total < 1;
+    btn.textContent = total < 1 ? 'Add dice to roll' : 'Roll ' + total + ' damage ' + (total === 1 ? 'die' : 'dice');
+  }
+
+  function syncDmg() {
+    $('dmgPool').value = st.dmgPool;
+    $('dmgdiff' + st.dmgDiff).checked = true;
+    setPressed('dmgSpec', st.dmgSpec);
+    setPressed('dmgBotch', st.dmgBotch);
+    setPressed('dmgBonus', st.dmgBonus);
+    updateDmg();
+  }
+
+  function setPressed(id, on) {
+    $(id).setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+
+  function showDmgResult(roll, values) {
+    var s = score(values, roll);
+    var result = $('dmgResult');
+    result.classList.remove('stale');
+    result.setAttribute('data-state', s.botched ? 'botch' : (s.net === 0 ? 'fail' : 'win'));
+    $('dmgNet').textContent = s.net;
+    $('dmgUnit').textContent = 'damage';
+    $('dmgKicker').textContent = s.botched ? 'Botch' : (s.net === 0 ? 'No damage' : 'Before soak');
+    var rows = [
+      ['Dice rolled', roll.bonus > 0 ? roll.base + ' + ' + roll.bonus : String(roll.pool)],
+      ['Dice at difficulty ' + roll.diff + ' or higher', String(s.hits)]
+    ];
+    if (roll.spec) rows.push(['Extra from tens', '+' + s.tens]);
+    if (roll.botch) rows.push(['Removed by ones', MINUS + s.ones]);
+    fillRows($('dmgParts'), rows);
+    var note = s.botched ? 'No successes and ' + s.ones + (s.ones === 1 ? ' one' : ' ones') + ' rolled.' : '';
+    $('dmgNote').textContent = note;
+    $('dmgNote').hidden = !note;
+  }
+
+  function rollDamage(animate, sample) {
+    var total = dmgTotal();
+    if (total < 1) return;
+    var roll = {
+      pool: total,
+      diff: st.dmgDiff,
+      spec: st.dmgSpec,
+      botch: st.dmgBotch,
+      base: st.dmgPool,
+      bonus: total - st.dmgPool
+    };
+    var values = [];
+    for (var i = 0; i < total; i++) values.push(rand10());
+    if (animate) prepSound();
+    $('dmgInfo').textContent = (sample ? 'Sample roll · ' : '') +
+      total + (total === 1 ? ' die' : ' dice') +
+      ' · difficulty ' + roll.diff +
+      ' · specialty ' + (roll.spec ? 'on' : 'off') +
+      ' · botch ' + (roll.botch ? 'on' : 'off');
+    dmgBoard.run(values, roll, animate,
+      function () { $('dmgResult').classList.add('stale'); },
+      playSound,
+      function () { showDmgResult(roll, values); });
+  }
+
+  var dmgChipHtml = '';
+  for (var dmgFace = 2; dmgFace <= 10; dmgFace++) {
+    dmgChipHtml += '<input type="radio" name="dmgdiff" id="dmgdiff' + dmgFace + '" value="' + dmgFace + '"><label for="dmgdiff' + dmgFace + '">' + dmgFace + '</label>';
+  }
+  $('dmgChips').innerHTML = dmgChipHtml;
+
+  $('dmgPool').addEventListener('input', function () {
+    var v = parseInt(this.value, 10);
+    if (isFinite(v)) { st.dmgPool = clamp(v, 0, MAX_POOL); updateDmg(); save(); }
+  });
+  $('dmgPool').addEventListener('change', function () { this.value = st.dmgPool; });
+  $('dmgDown').addEventListener('click', function () {
+    st.dmgPool = clamp(st.dmgPool - 1, 0, MAX_POOL); $('dmgPool').value = st.dmgPool; updateDmg(); save();
+  });
+  $('dmgUp').addEventListener('click', function () {
+    st.dmgPool = clamp(st.dmgPool + 1, 0, MAX_POOL); $('dmgPool').value = st.dmgPool; updateDmg(); save();
+  });
+  $('dmgChips').addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'dmgdiff') { st.dmgDiff = +e.target.value; updateDmg(); save(); }
+  });
+  $('dmgSpec').addEventListener('click', function () { st.dmgSpec = !st.dmgSpec; setPressed('dmgSpec', st.dmgSpec); save(); });
+  $('dmgBotch').addEventListener('click', function () { st.dmgBotch = !st.dmgBotch; setPressed('dmgBotch', st.dmgBotch); save(); });
+  $('dmgBonus').addEventListener('click', function () { st.dmgBonus = !st.dmgBonus; setPressed('dmgBonus', st.dmgBonus); updateDmg(); save(); });
+  $('dmgRollBtn').addEventListener('click', function () { rollDamage(true, false); });
+
+  function setPlanOpen(open) {
+    $('dmgPlanToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+    $('dmgPlanBody').hidden = !open;
+  }
+  $('dmgPlanToggle').addEventListener('click', function () {
+    st.dmgPlanOpen = !st.dmgPlanOpen;
+    setPlanOpen(st.dmgPlanOpen);
     save();
   });
-  setOdds(st.oddsOpen);
+
+  createPresetBox({
+    key: 'vtm_presets',
+    minPool: 1,
+    hasBonus: false,
+    openKey: 'presetsOpen',
+    rollKey: 'rollOnLoad',
+    ids: {
+      name: 'presetName', save: 'presetSave', list: 'presetList', status: 'presetStatus', store: 'presetStore',
+      count: 'presetCount', toggle: 'presetsToggle', body: 'presetsBody', rollSwitch: 'rollOnLoad'
+    },
+    summary: function (p) {
+      return p.pool + (p.pool === 1 ? ' die' : ' dice') + ' · diff ' + p.diff +
+        (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '');
+    },
+    current: function () { return { pool: st.pool, diff: st.diff, spec: st.spec, botch: st.botch, bonus: true }; },
+    apply: function (p) {
+      st.pool = p.pool; st.diff = p.diff; st.spec = p.spec; st.botch = p.botch;
+      syncControls();
+      save();
+    },
+    roll: function () { doRoll(true, false); }
+  });
+
+  createPresetBox({
+    key: 'vtm_dmg_presets',
+    minPool: 0,
+    hasBonus: true,
+    openKey: 'dmgPresetsOpen',
+    rollKey: 'dmgRollOnLoad',
+    ids: {
+      name: 'dmgPresetName', save: 'dmgPresetSave', list: 'dmgPresetList', status: 'dmgPresetStatus', store: 'dmgPresetStore',
+      count: 'dmgPresetCount', toggle: 'dmgPresetsToggle', body: 'dmgPresetsBody', rollSwitch: 'dmgRollOnLoad'
+    },
+    summary: function (p) {
+      return p.pool + (p.pool === 1 ? ' die' : ' dice') + ' · diff ' + p.diff +
+        (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '') + (p.bonus ? ' · bonus dice' : '');
+    },
+    current: function () { return { pool: st.dmgPool, diff: st.dmgDiff, spec: st.dmgSpec, botch: st.dmgBotch, bonus: st.dmgBonus }; },
+    apply: function (p) {
+      st.dmgPool = p.pool; st.dmgDiff = p.diff; st.dmgSpec = p.spec; st.dmgBotch = p.botch; st.dmgBonus = p.bonus;
+      syncDmg();
+      save();
+    },
+    roll: function () { rollDamage(true, false); }
+  });
+
+  syncDmg();
+  setPlanOpen(st.dmgPlanOpen);
+  rollDamage(false, true);
+
+  /* Extra tools sit in one tab row. One panel is open at a time, and pressing the open tab collapses it. */
+  function setModule(name) {
+    var tabs = { damage: ['dmgToggle', 'dmgBody'], probability: ['oddsToggle', 'oddsBody'] };
+    Object.keys(tabs).forEach(function (k) {
+      var open = k === name;
+      $(tabs[k][0]).setAttribute('aria-expanded', open ? 'true' : 'false');
+      $(tabs[k][1]).hidden = !open;
+    });
+  }
+  function toggleModule(name) {
+    st.module = st.module === name ? '' : name;
+    setModule(st.module);
+    save();
+  }
+  $('dmgToggle').addEventListener('click', function () { toggleModule('damage'); });
+  $('oddsToggle').addEventListener('click', function () { toggleModule('probability'); });
+  document.querySelector('.tabbar').addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabbar .tab'));
+    var at = tabs.indexOf(document.activeElement);
+    if (at < 0) return;
+    e.preventDefault();
+    tabs[(at + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length].focus();
+  });
+  setModule(st.module);
 
   syncControls();
   doRoll(false, true);
