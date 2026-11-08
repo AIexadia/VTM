@@ -1,0 +1,1066 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>VTM Dice Roller</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=Spectral:wght@400;500;600&display=swap">
+<style>
+/* Layout: a controls panel beside the dice table (result on top, individual dice below); stacks on phones. Dark-first, ink and bone with a dried-blood accent. */
+:root {
+  --bg: #15111a;
+  --surface: #1d1823;
+  --surface-2: #2a2233;
+  --well: #110d16;
+  --line: #352d3e;
+  --line-strong: #5b4e68;
+  --fg: #ebe4d6;
+  --muted: #a99fb4;
+  --accent: #a8263b;
+  --accent-text: #ec7b8a;
+  --on-accent: #f8f2e9;
+  --gold: #d9b45a;
+  --gold-text: #d9b45a;
+  --hit-fill: #ebe4d6;
+  --hit-ink: #15111a;
+  --focus: #e8c76f;
+  --font-display: "Grenze Gotisch", "Palatino Linotype", Georgia, serif;
+  --font-body: "Spectral", Georgia, "Times New Roman", serif;
+  --font-data: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #ebe8ee;
+    --surface: #f6f4f8;
+    --surface-2: #e0dbe6;
+    --well: #e3dfe9;
+    --line: #cdc5d6;
+    --line-strong: #8f8399;
+    --fg: #1d1623;
+    --muted: #5b5166;
+    --accent: #9b1c31;
+    --accent-text: #9b1c31;
+    --on-accent: #fbf5ee;
+    --gold: #a67c10;
+    --gold-text: #765808;
+    --hit-fill: #1d1623;
+    --hit-ink: #f3eee6;
+    --focus: #7a5c0c;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ebe8ee;
+  --surface: #f6f4f8;
+  --surface-2: #e0dbe6;
+  --well: #e3dfe9;
+  --line: #cdc5d6;
+  --line-strong: #8f8399;
+  --fg: #1d1623;
+  --muted: #5b5166;
+  --accent: #9b1c31;
+  --accent-text: #9b1c31;
+  --on-accent: #fbf5ee;
+  --gold: #a67c10;
+  --gold-text: #765808;
+  --hit-fill: #1d1623;
+  --hit-ink: #f3eee6;
+  --focus: #7a5c0c;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 16px/1.5 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.wrap { max-width: 1040px; margin-inline: auto; display: flex; flex-direction: column; gap: 28px; }
+.head { display: flex; flex-direction: column; gap: 8px; }
+.head h1 { margin: 0; font: 700 clamp(2.2rem, 6vw, 3.2rem)/1 var(--font-display); letter-spacing: 0.01em; text-wrap: balance; }
+.head p { margin: 0; color: var(--muted); max-width: 60ch; }
+.top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.head { min-width: 0; }
+.sound-btn { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--fg); cursor: pointer; }
+.sound-btn:hover { background: var(--surface-2); }
+.sound-btn[aria-pressed="false"] { color: var(--muted); }
+.sound-btn[aria-pressed="false"] .waves { display: none; }
+.sound-btn[aria-pressed="true"] .mute { display: none; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 22px; }
+@media (max-width: 480px) { .panel { padding: 16px; } }
+
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.label { font: 600 0.75rem/1.2 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.hint { margin: 0; font-size: 0.875rem; color: var(--muted); }
+
+.stepper { display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--well); }
+.stepper button { border: 0; background: var(--surface-2); color: var(--fg); font: 500 1.5rem/1 var(--font-data); height: 52px; cursor: pointer; }
+.stepper button:hover { background: var(--line); }
+.stepper button:active { background: var(--line-strong); }
+.stepper input { border: 0; background: transparent; color: var(--fg); text-align: center; font: 600 1.75rem/1 var(--font-data); width: 100%; min-width: 0; -moz-appearance: textfield; appearance: textfield; }
+.stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper :focus-visible { outline-offset: -4px; }
+
+.chips { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; position: relative; }
+.chips input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.chips label { display: grid; place-items: center; height: 46px; border: 1px solid var(--line-strong); border-radius: 6px; font: 600 1rem var(--font-data); cursor: pointer; background: var(--well); }
+.chips label:hover { background: var(--surface-2); }
+.chips input:checked + label { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.chips input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.switch { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; cursor: pointer; position: relative; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.track { width: 44px; height: 24px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--well); position: relative; margin-top: 2px; transition: background 0.15s; }
+.track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: transform 0.15s, background 0.15s; }
+.switch input:checked ~ .track { background: var(--accent); border-color: var(--accent); }
+.switch input:checked ~ .track::after { transform: translateX(20px); background: var(--on-accent); }
+.switch input:focus-visible ~ .track { outline: 2px solid var(--focus); outline-offset: 2px; }
+.switch .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.switch strong { font-weight: 600; }
+.switch small { font-size: 0.875rem; color: var(--muted); }
+
+.roll { height: 56px; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); font: 700 1.6rem/1 var(--font-display); letter-spacing: 0.02em; cursor: pointer; }
+.roll:hover { filter: brightness(1.12); }
+.roll:active { transform: translateY(1px); }
+
+.table { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+
+.result { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 36px; transition: opacity 0.15s; }
+.result.stale { opacity: 0.4; }
+.score { display: flex; flex-direction: column; align-items: flex-start; min-width: 7rem; }
+.net { font: 700 clamp(5rem, 16vw, 7.5rem)/0.85 var(--font-display); font-variant-numeric: tabular-nums; }
+.unit { font: 600 0.75rem/1.2 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 10px; }
+.verdict { display: flex; flex-direction: column; gap: 10px; min-width: 0; flex: 1 1 220px; }
+.kicker { margin: 0; font: 700 clamp(1.6rem, 4vw, 2.2rem)/1.1 var(--font-display); }
+.result[data-state="botch"] .kicker, .result[data-state="botch"] .net { color: var(--accent-text); }
+.result[data-state="fail"] .net { color: var(--muted); }
+.parts { margin: 0; display: flex; flex-direction: column; max-width: 300px; }
+.parts div { display: flex; justify-content: space-between; gap: 16px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.parts dt { color: var(--muted); font-size: 0.9rem; }
+.parts dd { margin: 0; font: 600 0.95rem var(--font-data); font-variant-numeric: tabular-nums; }
+.note { margin: 0; font-size: 0.9rem; color: var(--muted); max-width: 44ch; }
+
+.tray-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; }
+.info { font: 500 0.8rem/1.4 var(--font-data); color: var(--muted); }
+.tray { background: var(--well); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 14px 8px; }
+.die-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.die { width: 100%; max-width: 64px; height: auto; display: block; overflow: visible; }
+.die polygon { fill: transparent; stroke: var(--line-strong); stroke-width: 2; stroke-linejoin: round; }
+.die text { fill: var(--muted); font: 600 26px var(--font-data); }
+.die text.two { font-size: 21px; }
+.die.hit polygon { fill: var(--hit-fill); stroke: var(--hit-fill); }
+.die.hit text { fill: var(--hit-ink); }
+.die.ten polygon { fill: var(--hit-fill); stroke: var(--gold); stroke-width: 4; }
+.die.ten text { fill: var(--hit-ink); }
+.die.one polygon { fill: var(--accent); stroke: var(--accent); }
+.die.one text { fill: var(--on-accent); }
+.die.rolling polygon { fill: var(--surface-2); stroke: var(--line-strong); }
+.die.rolling text { fill: var(--fg); }
+.die.rolling { animation: tumble 0.3s linear infinite; transform-origin: 50% 55%; }
+@keyframes tumble { 0% { transform: rotate(-9deg) translateY(0); } 50% { transform: rotate(9deg) translateY(-3px); } 100% { transform: rotate(-9deg) translateY(0); } }
+.tag { font: 600 0.75rem/1.3 var(--font-data); color: var(--muted); min-height: 1.3em; }
+.tag.ten { color: var(--gold-text); }
+.tag.one { color: var(--accent-text); }
+.presets { padding-top: 20px; border-top: 1px solid var(--line); }
+.pre-h { margin: 0; display: flex; font-weight: inherit; }
+.pre-toggle { display: flex; align-items: center; gap: 10px; width: 100%; padding: 4px 0; border: 0; background: transparent; color: var(--fg); text-align: left; cursor: pointer; }
+.pre-count { font: 500 0.8rem/1 var(--font-data); color: var(--muted); }
+.pre-toggle .chev { width: 14px; height: 14px; flex: none; margin-left: auto; color: var(--muted); transition: transform 0.15s; }
+.pre-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.pre-body { display: flex; flex-direction: column; gap: 14px; }
+.preset-add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.preset-add input { height: 44px; min-width: 0; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--well); color: var(--fg); padding: 0 12px; font: 400 1rem var(--font-body); }
+.preset-add input::placeholder { color: var(--muted); }
+.btn-sec { height: 44px; padding: 0 18px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 600 0.95rem var(--font-body); cursor: pointer; }
+.btn-sec:hover { background: var(--line); }
+.preset-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.preset-list li { display: grid; grid-template-columns: minmax(0, 1fr) 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--well); overflow: hidden; }
+.preset-list li.empty { display: block; padding: 10px 12px; border-style: dashed; color: var(--muted); font-size: 0.9rem; }
+.preset-load { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 8px 12px; border: 0; background: transparent; color: var(--fg); text-align: left; cursor: pointer; }
+.preset-load:hover { background: var(--surface-2); }
+.preset-load strong { font-weight: 600; overflow-wrap: anywhere; }
+.preset-load small { font: 500 0.75rem/1.4 var(--font-data); color: var(--muted); }
+.preset-del { border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); font: 500 1.25rem/1 var(--font-data); cursor: pointer; }
+.preset-del:hover { background: var(--surface-2); color: var(--accent-text); }
+.preset-load:focus-visible, .preset-del:focus-visible { outline-offset: -3px; }
+.odds { display: block; }
+.tab-h { margin: 0; display: flex; font-weight: inherit; }
+.tab { display: inline-flex; align-items: center; gap: 12px; max-width: 100%; padding: 12px 18px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--fg); font: 700 1.4rem/1 var(--font-display); letter-spacing: 0.01em; cursor: pointer; position: relative; }
+.tab:hover { background: var(--surface-2); }
+.tab .chev { width: 14px; height: 14px; flex: none; transition: transform 0.15s; }
+.tab[aria-expanded="true"] { background: var(--bg); border-top: 3px solid var(--accent); border-bottom-color: var(--bg); border-radius: 10px 10px 0 0; padding-top: 10px; margin-bottom: -1px; z-index: 1; }
+.tab[aria-expanded="true"]:hover { background: var(--bg); }
+.tab[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.odds-body { border-top: 1px solid var(--line-strong); padding-top: 24px; }
+.odds-intro { margin: 0 0 20px; color: var(--muted); max-width: 60ch; }
+.prob .net { font-size: clamp(3.5rem, 11vw, 5.25rem); }
+.prob .unit { max-width: 18ch; }
+.prob .kicker { font-size: clamp(1.3rem, 3vw, 1.7rem); }
+.bars { list-style: none; margin: 0; padding: 16px; background: var(--well); border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 8px; }
+.bars li { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr) 4.8rem; align-items: center; gap: 12px; font: 500 0.9rem/1.3 var(--font-data); font-variant-numeric: tabular-nums; }
+.bars .k { color: var(--muted); }
+.bars .v { text-align: right; }
+.meter { height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; }
+.meter span { display: block; height: 100%; background: var(--line-strong); }
+.bars li.current .k { color: var(--accent-text); font-weight: 600; }
+.bars li.current .v { font-weight: 600; }
+.bars li.current .meter span { background: var(--accent); }
+@media (prefers-reduced-motion: reduce) {
+  .die.rolling { animation: none; }
+  .result, .track, .track::after, .tab .chev, .pre-toggle .chev { transition: none; }
+}
+</style>
+
+<main class="wrap">
+  <header class="top">
+    <div class="head">
+      <h1>VTM Dice Roller</h1>
+      <p>Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.</p>
+    </div>
+    <button type="button" class="sound-btn" id="soundBtn" aria-pressed="true" aria-label="Sound" title="Sound on">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
+        <path class="waves" d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"></path>
+        <path class="mute" d="M16 9l5 6M21 9l-5 6"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div class="grid">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="field">
+        <label class="label" for="pool">Dice pool</label>
+        <div class="stepper">
+          <button type="button" id="poolDown" aria-label="Remove one die">&minus;</button>
+          <input id="pool" type="number" inputmode="numeric" min="1" max="40" value="6">
+          <button type="button" id="poolUp" aria-label="Add one die">+</button>
+        </div>
+        <p class="hint">Attribute plus Ability. From 1 to 40 dice.</p>
+      </div>
+
+      <div class="field" role="radiogroup" aria-labelledby="diffLabel">
+        <span class="label" id="diffLabel">Difficulty</span>
+        <div class="chips" id="chips"></div>
+        <p class="hint" id="diffHint"></p>
+      </div>
+
+      <div class="field">
+        <label class="switch" for="spec">
+          <input type="checkbox" role="switch" id="spec">
+          <span class="track" aria-hidden="true"></span>
+          <span class="txt"><strong>Specialty</strong><small>Each 10 counts as 2 successes.</small></span>
+        </label>
+        <label class="switch" for="botch">
+          <input type="checkbox" role="switch" id="botch">
+          <span class="track" aria-hidden="true"></span>
+          <span class="txt"><strong>Botch</strong><small>Each 1 subtracts 1 success. No successes and at least one 1 is a botch.</small></span>
+        </label>      </div>
+
+      <button class="roll" type="submit" id="rollBtn">Roll</button>
+
+      <div class="field presets">
+        <h3 class="pre-h">
+          <button type="button" class="pre-toggle" id="presetsToggle" aria-expanded="true" aria-controls="presetsBody">
+            <span class="label">Presets</span>
+            <span class="pre-count" id="presetCount"></span>
+            <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
+          </button>
+        </h3>
+        <div class="pre-body" id="presetsBody">
+        <label class="switch" for="rollOnLoad">
+          <input type="checkbox" role="switch" id="rollOnLoad">
+          <span class="track" aria-hidden="true"></span>
+          <span class="txt"><strong>Roll on load</strong><small>Roll right away when you load a preset.</small></span>
+        </label>
+        <div class="preset-add">
+          <input id="presetName" type="text" maxlength="24" placeholder="Name this roll" aria-label="Preset name" autocomplete="off">
+          <button type="button" class="btn-sec" id="presetSave">Save</button>
+        </div>
+        <ul class="preset-list" id="presetList" aria-label="Saved presets"></ul>
+        <p class="hint" id="presetStatus" role="status" aria-live="polite"></p>
+        <p class="hint" id="presetStore"></p>
+        </div>
+      </div>
+    </form>
+
+    <section class="table" aria-label="Roll result">
+      <div class="result" id="result" aria-live="polite" aria-atomic="true" data-state="win">
+        <div class="score">
+          <span class="net" id="net">0</span>
+          <span class="unit" id="unit">successes</span>
+        </div>
+        <div class="verdict">
+          <p class="kicker" id="kicker"></p>
+          <dl class="parts" id="parts"></dl>
+          <p class="note" id="note"></p>
+        </div>
+      </div>
+
+      <div>
+        <div class="tray-head">
+          <span class="label">Dice</span>
+          <span class="info" id="rollInfo"></span>
+        </div>
+      </div>
+      <div class="tray" id="tray" role="list" aria-label="Dice rolled"></div>
+    </section>
+  </div>
+
+  <section class="odds">
+    <h2 class="tab-h">
+      <button type="button" class="tab" id="oddsToggle" aria-expanded="true" aria-controls="oddsBody">
+        <span>Probability</span>
+        <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
+      </button>
+    </h2>
+    <div class="odds-body" id="oddsBody">
+    <p class="odds-intro">Chance of rolling at least a number of successes, using the pool, difficulty, Specialty and Botch settings above.</p>
+    <div class="grid">
+      <div class="panel">
+        <div class="field">
+          <label class="label" for="succ">Successes wanted</label>
+          <div class="stepper">
+            <button type="button" id="succDown" aria-label="Want one fewer success">&minus;</button>
+            <input id="succ" type="number" inputmode="numeric" min="1" max="80" value="3">
+            <button type="button" id="succUp" aria-label="Want one more success">+</button>
+          </div>
+          <p class="hint">Counted after Specialty and Botch. From 1 to 80.</p>
+        </div>
+        <div class="field">
+          <span class="label">Roll settings used</span>
+          <dl class="parts" id="usingParts"></dl>
+          <p class="hint">Change these in the roller above.</p>
+        </div>
+      </div>
+      <div class="table">
+        <div class="result prob" id="probResult" aria-live="polite" aria-atomic="true">
+          <div class="score">
+            <span class="net" id="pct">0%</span>
+            <span class="unit" id="pctUnit"></span>
+          </div>
+          <div class="verdict">
+            <p class="kicker" id="probKicker"></p>
+            <dl class="parts" id="probParts"></dl>
+            <p class="note" id="probNote"></p>
+          </div>
+        </div>
+        <div class="tray-head">
+          <span class="label">Chance of at least</span>
+        </div>
+        <ol class="bars" id="bars"></ol>
+      </div>
+    </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = 'vtm-dice-roller';
+  var MINUS = '−';
+  var MAX_POOL = 40;
+  var DEGREES = ['', 'Marginal', 'Moderate', 'Complete', 'Exceptional', 'Phenomenal'];
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function clamp(n, a, b) {
+    n = Math.round(n);
+    if (!isFinite(n)) return a;
+    return Math.min(b, Math.max(a, n));
+  }
+
+  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, oddsOpen: true, presetsOpen: true, rollOnLoad: false, sound: true };
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (saved) {
+      if (isFinite(+saved.pool)) st.pool = clamp(+saved.pool, 1, MAX_POOL);
+      if (isFinite(+saved.diff)) st.diff = clamp(+saved.diff, 2, 10);
+      st.spec = saved.spec === true;
+      st.botch = saved.botch !== false;
+      if (isFinite(+saved.want)) st.want = clamp(+saved.want, 1, 80);
+      if (typeof saved.oddsOpen === 'boolean') st.oddsOpen = saved.oddsOpen;
+      if (typeof saved.presetsOpen === 'boolean') st.presetsOpen = saved.presetsOpen;
+      if (typeof saved.rollOnLoad === 'boolean') st.rollOnLoad = saved.rollOnLoad;
+      if (typeof saved.sound === 'boolean') st.sound = saved.sound;
+    }
+  } catch (e) {}
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {}
+  }
+
+  function rand10() {
+    if (window.crypto && window.crypto.getRandomValues) {
+      var b = new Uint8Array(1), v;
+      do { window.crypto.getRandomValues(b); v = b[0]; } while (v >= 250);
+      return (v % 10) + 1;
+    }
+    return Math.floor(Math.random() * 10) + 1;
+  }
+
+  function score(values, roll) {
+    var hits = 0, tens = 0, ones = 0;
+    values.forEach(function (v) {
+      if (v >= roll.diff) {
+        hits++;
+        if (v === 10 && roll.spec) tens++;
+      }
+      if (v === 1) ones++;
+    });
+    var gross = hits + tens;
+    var removed = roll.botch ? ones : 0;
+    return {
+      hits: hits, tens: tens, ones: ones, gross: gross, removed: removed,
+      net: Math.max(0, gross - removed),
+      botched: roll.botch && gross === 0 && ones > 0
+    };
+  }
+
+  function kindOf(v, roll) {
+    if (v === 1 && roll.botch) return 'one';
+    if (v >= roll.diff) return (v === 10 && roll.spec) ? 'ten' : 'hit';
+    return 'miss';
+  }
+
+  var chips = $('chips');
+  var html = '';
+  for (var n = 2; n <= 10; n++) {
+    html += '<input type="radio" name="diff" id="diff' + n + '" value="' + n + '"><label for="diff' + n + '">' + n + '</label>';
+  }
+  chips.innerHTML = html;
+
+  function updateLabels() {
+    $('diffHint').textContent = 'Each die showing ' + st.diff + ' or higher counts as a success.';
+    $('rollBtn').textContent = 'Roll ' + st.pool + (st.pool === 1 ? ' die' : ' dice');
+    updateProb();
+  }
+
+  function syncControls() {
+    $('pool').value = st.pool;
+    $('diff' + st.diff).checked = true;
+    $('spec').checked = st.spec;
+    $('botch').checked = st.botch;
+    $('succ').value = st.want;
+    setSoundUI();
+    updateLabels();
+  }
+
+  var tray = $('tray');
+  var cells = [];
+  var timer = null;
+
+  function buildTray(count) {
+    tray.textContent = '';
+    cells = [];
+    for (var i = 0; i < count; i++) {
+      var wrap = document.createElement('div');
+      wrap.className = 'die-cell';
+      wrap.setAttribute('role', 'listitem');
+      wrap.innerHTML = '<svg class="die rolling" viewBox="0 0 64 72" role="img" aria-label="Die"><polygon points="32,3 61,27 32,69 3,27"></polygon><text x="32" y="40" text-anchor="middle">0</text></svg><span class="tag">&nbsp;</span>';
+      tray.appendChild(wrap);
+      cells.push({
+        svg: wrap.querySelector('svg'),
+        text: wrap.querySelector('text'),
+        tag: wrap.querySelector('.tag')
+      });
+    }
+  }
+
+  function setFace(i, v) {
+    var c = cells[i];
+    c.text.textContent = v;
+    c.text.setAttribute('y', v >= 10 ? '38' : '40');
+    c.text.setAttribute('class', v >= 10 ? 'two' : '');
+  }
+
+  function settle(i, v, roll) {
+    var c = cells[i];
+    var kind = kindOf(v, roll);
+    var words = { ten: 'counts as 2 successes', hit: 'success', one: 'subtracts a success', miss: 'miss' };
+    var tags = { ten: '+2', hit: '+1', one: MINUS + '1', miss: 'miss' };
+    setFace(i, v);
+    c.svg.setAttribute('class', 'die ' + kind);
+    c.svg.setAttribute('aria-label', 'Die ' + (i + 1) + ': ' + v + ', ' + words[kind]);
+    c.tag.textContent = tags[kind];
+    c.tag.setAttribute('class', 'tag ' + kind);
+  }
+
+  function setInfo(roll, sample) {
+    $('rollInfo').textContent = (sample ? 'Sample roll · ' : '') +
+      roll.pool + (roll.pool === 1 ? ' die' : ' dice') +
+      ' · difficulty ' + roll.diff +
+      ' · specialty ' + (roll.spec ? 'on' : 'off') +
+      ' · botch ' + (roll.botch ? 'on' : 'off');
+  }
+
+  function showResult(roll, values) {
+    var s = score(values, roll);
+    var result = $('result');
+    result.classList.remove('stale');
+    result.setAttribute('data-state', s.botched ? 'botch' : (s.net === 0 ? 'fail' : 'win'));
+    $('net').textContent = s.net;
+    $('unit').textContent = s.net === 1 ? 'success' : 'successes';
+    $('kicker').textContent = s.botched ? 'Botch' : (s.net === 0 ? 'Failure' : DEGREES[Math.min(s.net, 5)] + ' success');
+
+    var rows = [['Dice at difficulty ' + roll.diff + ' or higher', String(s.hits)]];
+    if (roll.spec) rows.push(['Extra from tens', '+' + s.tens]);
+    if (roll.botch) rows.push(['Removed by ones', MINUS + s.ones]);
+    var parts = $('parts');
+    parts.textContent = '';
+    rows.forEach(function (r) {
+      var row = document.createElement('div');
+      var dt = document.createElement('dt');
+      var dd = document.createElement('dd');
+      dt.textContent = r[0];
+      dd.textContent = r[1];
+      row.appendChild(dt);
+      row.appendChild(dd);
+      parts.appendChild(row);
+    });
+
+    var note = '';
+    if (s.botched) {
+      note = 'No successes and ' + s.ones + (s.ones === 1 ? ' one' : ' ones') + ' rolled.';
+    } else if (roll.botch && s.gross > 0 && s.ones >= s.gross) {
+      note = 'The ones cancel every success. A total never goes below 0.';
+    }
+    $('note').textContent = note;
+    $('note').hidden = !note;
+  }
+
+  function doRoll(animate, sample) {
+    if (timer) { clearInterval(timer); timer = null; }
+    if (animate) prepSound();
+    var roll = { pool: st.pool, diff: st.diff, spec: st.spec, botch: st.botch };
+    var values = [];
+    for (var i = 0; i < roll.pool; i++) values.push(rand10());
+    buildTray(roll.pool);
+    setInfo(roll, sample);
+
+    if (!animate || reduce.matches) {
+      values.forEach(function (v, idx) { settle(idx, v, roll); });
+      showResult(roll, values);
+      if (animate) playSound();
+      return;
+    }
+
+    $('result').classList.add('stale');
+    values.forEach(function (v, idx) { setFace(idx, rand10()); });
+    var start = performance.now();
+    var done = [];
+    var played = false;
+    var left = values.length;
+    var settleAt = values.map(function (v, idx) { return 380 + Math.min(idx * 40, 900); });
+    timer = setInterval(function () {
+      var t = performance.now() - start;
+      for (var k = 0; k < values.length; k++) {
+        if (done[k]) continue;
+        if (t >= settleAt[k]) {
+          done[k] = true;
+          left--;
+          settle(k, values[k], roll);
+          if (!played) { played = true; playSound(); }
+        } else {
+          setFace(k, rand10());
+        }
+      }
+      if (left === 0) {
+        clearInterval(timer);
+        timer = null;
+        showResult(roll, values);
+      }
+    }, 70);
+  }
+
+  $('pool').addEventListener('input', function () {
+    var v = parseInt(this.value, 10);
+    if (isFinite(v)) { st.pool = clamp(v, 1, MAX_POOL); updateLabels(); save(); }
+  });
+  $('pool').addEventListener('change', function () { this.value = st.pool; });
+  $('poolDown').addEventListener('click', function () {
+    st.pool = clamp(st.pool - 1, 1, MAX_POOL); $('pool').value = st.pool; updateLabels(); save();
+  });
+  $('poolUp').addEventListener('click', function () {
+    st.pool = clamp(st.pool + 1, 1, MAX_POOL); $('pool').value = st.pool; updateLabels(); save();
+  });
+  chips.addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'diff') { st.diff = +e.target.value; updateLabels(); save(); }
+  });
+  $('spec').addEventListener('change', function () { st.spec = this.checked; updateProb(); save(); });
+  $('botch').addEventListener('change', function () { st.botch = this.checked; updateProb(); save(); });
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = parseInt($('pool').value, 10);
+    if (isFinite(v)) st.pool = clamp(v, 1, MAX_POOL);
+    $('pool').value = st.pool;
+    updateLabels();
+    save();
+    doRoll(true, false);
+  });
+
+  /* Probability: exact distribution of (success dice + extra from tens - ones) over the whole pool. */
+  function fmtPct(p) {
+    if (p <= 0) return '0%';
+    if (p >= 0.9999) return '>99.99%';
+    if (p < 0.0001) return '<0.01%';
+    if (p < 0.01 || p >= 0.999) return (p * 100).toFixed(2) + '%';
+    return (p * 100).toFixed(1) + '%';
+  }
+
+  function fillRows(el, rows) {
+    el.textContent = '';
+    rows.forEach(function (r) {
+      var row = document.createElement('div');
+      var dt = document.createElement('dt');
+      var dd = document.createElement('dd');
+      dt.textContent = r[0];
+      dd.textContent = r[1];
+      row.appendChild(dt);
+      row.appendChild(dd);
+      el.appendChild(row);
+    });
+  }
+
+  /* Index i holds the probability that the pool's running sum equals i - N. Sums run from -N to 2N. */
+  function distribution(N, d, spec, botch) {
+    var cNeg = botch ? 1 : 0;
+    var cTwo = spec ? 1 : 0;
+    var cOne = spec ? 10 - d : 11 - d;
+    var cZero = 10 - cNeg - cTwo - cOne;
+    var len = 3 * N + 1;
+    var dp = new Array(len).fill(0);
+    dp[N] = 1;
+    for (var die = 0; die < N; die++) {
+      var next = new Array(len).fill(0);
+      for (var i = 0; i < len; i++) {
+        var p = dp[i];
+        if (p === 0) continue;
+        next[i] += p * cZero / 10;
+        if (cOne && i + 1 < len) next[i + 1] += p * cOne / 10;
+        if (cTwo && i + 2 < len) next[i + 2] += p * cTwo / 10;
+        if (cNeg && i - 1 >= 0) next[i - 1] += p * cNeg / 10;
+      }
+      dp = next;
+    }
+    return dp;
+  }
+
+  function updateProb() {
+    var N = st.pool, d = st.diff, k = st.want;
+    var dp = distribution(N, d, st.spec, st.botch);
+    var tails = new Array(dp.length + 1).fill(0);
+    for (var i = dp.length - 1; i >= 0; i--) tails[i] = tails[i + 1] + dp[i];
+    function atLeast(j) {
+      var idx = N + j;
+      if (idx >= dp.length) return 0;
+      return Math.min(1, tails[idx]);
+    }
+    var max = st.spec ? 2 * N : N;
+    var p = atLeast(k);
+
+    var avg = 0;
+    for (var s = 1; s <= 2 * N; s++) avg += s * dp[N + s];
+
+    $('pct').textContent = fmtPct(p);
+    $('pctUnit').textContent = 'chance of ' + k + ' or more successes';
+
+    var kicker;
+    if (p <= 0) {
+      kicker = 'Not possible with this pool.';
+    } else if (p < 0.5) {
+      kicker = 'About 1 in ' + Math.max(2, Math.round(1 / p)).toLocaleString() + ' rolls reach it.';
+    } else {
+      kicker = 'About 1 in ' + Math.max(2, Math.round(1 / (1 - p))).toLocaleString() + ' rolls fall short.';
+    }
+    $('probKicker').textContent = kicker;
+
+    var rows = [
+      ['Average successes per roll', avg.toFixed(2)],
+      ['Most successes possible', String(max)]
+    ];
+    if (st.botch) {
+      var pb = Math.pow((d - 1) / 10, N) - Math.pow((d - 2) / 10, N);
+      rows.push(['Chance of a botch', fmtPct(pb)]);
+    }
+    fillRows($('probParts'), rows);
+
+    var note = k > max ? 'This pool can roll at most ' + max + (max === 1 ? ' success.' : ' successes.') : '';
+    $('probNote').textContent = note;
+    $('probNote').hidden = !note;
+
+    fillRows($('usingParts'), [
+      ['Dice pool', String(N)],
+      ['Difficulty', String(d)],
+      ['Specialty', st.spec ? 'On' : 'Off'],
+      ['Botch', st.botch ? 'On' : 'Off']
+    ]);
+
+    var lo, hi;
+    if (k > max) {
+      hi = max;
+      lo = Math.max(1, hi - 9);
+    } else {
+      lo = Math.max(1, k - 4);
+      hi = Math.min(max, lo + 9);
+      lo = Math.max(1, hi - 9);
+    }
+    var bars = $('bars');
+    bars.textContent = '';
+    for (var j = lo; j <= hi; j++) {
+      var pj = atLeast(j);
+      var li = document.createElement('li');
+      if (j === k) li.className = 'current';
+      var kk = document.createElement('span');
+      kk.className = 'k';
+      kk.textContent = j + '+';
+      var meter = document.createElement('span');
+      meter.className = 'meter';
+      var fill = document.createElement('span');
+      fill.style.width = (pj * 100).toFixed(2) + '%';
+      meter.appendChild(fill);
+      var vv = document.createElement('span');
+      vv.className = 'v';
+      vv.textContent = fmtPct(pj);
+      li.appendChild(kk);
+      li.appendChild(meter);
+      li.appendChild(vv);
+      bars.appendChild(li);
+    }
+  }
+
+  $('succ').addEventListener('input', function () {
+    var v = parseInt(this.value, 10);
+    if (isFinite(v)) { st.want = clamp(v, 1, 80); updateProb(); save(); }
+  });
+  $('succ').addEventListener('change', function () { this.value = st.want; });
+  $('succDown').addEventListener('click', function () {
+    st.want = clamp(st.want - 1, 1, 80); $('succ').value = st.want; updateProb(); save();
+  });
+  $('succUp').addEventListener('click', function () {
+    st.want = clamp(st.want + 1, 1, 80); $('succ').value = st.want; updateProb(); save();
+  });
+
+  /* Roll sound: decoded with Web Audio, so no media file has to load. The audio context starts on the first click or key press. */
+  var DICE_SOUND_B64 = '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MDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tUZPaA8vc+zn9hAAIAAA0g4AABCsTHL+wwa4gAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//s0ZOoD8aAWR8lmGOAAAA0gAAABAgAFHKWAAAAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOOP8BEAxYFgAAgAAA0gAAABACQDFgWAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOSP8CoBRqkgAA4AAA0gAAABAAAB/gAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+  var AudioCtor = window.AudioContext || window.webkitAudioContext;
+  var audioCtx = null;
+  var diceBuffer = null;
+  var soundLoading = false;
+
+  function b64ToBuffer(b64) {
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  function prepSound() {
+    if (!st.sound || !AudioCtor) return;
+    try {
+      if (!audioCtx) audioCtx = new AudioCtor();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (!diceBuffer && !soundLoading) {
+        soundLoading = true;
+        new Promise(function (res, rej) {
+          audioCtx.decodeAudioData(b64ToBuffer(DICE_SOUND_B64), res, rej);
+        }).then(function (b) { diceBuffer = b; })
+          .catch(function () {})
+          .then(function () { soundLoading = false; });
+      }
+    } catch (e) {
+      soundLoading = false;
+    }
+  }
+
+  function playSound() {
+    if (!st.sound || !audioCtx || !diceBuffer) return;
+    try {
+      var src = audioCtx.createBufferSource();
+      src.buffer = diceBuffer;
+      src.connect(audioCtx.destination);
+      src.start(0);
+    } catch (e) {}
+  }
+
+  function setSoundUI() {
+    var b = $('soundBtn');
+    b.setAttribute('aria-pressed', st.sound ? 'true' : 'false');
+    b.title = st.sound ? 'Sound on' : 'Sound off';
+  }
+  $('soundBtn').addEventListener('click', function () {
+    st.sound = !st.sound;
+    setSoundUI();
+    if (st.sound) prepSound();
+    save();
+  });
+  if (!AudioCtor) $('soundBtn').hidden = true;
+  document.addEventListener('pointerdown', prepSound, { once: true });
+  document.addEventListener('keydown', prepSound, { once: true });
+
+  /* Roll presets. Stored in a cookie; falls back to local storage, then memory, if the browser refuses cookies. */
+  var PRESET_KEY = 'vtm_presets';
+  var MAX_PRESETS = 20;
+  var MAX_NAME = 24;
+  var MAX_COOKIE = 3800;
+  var presets = [];
+  var storeMode = 'cookie';
+
+  function cookieAttrs() {
+    /* The page is embedded from its own origin, so ask for a cookie that may be set in an embedded frame. */
+    return location.protocol === 'https:'
+      ? '; path=/; max-age=31536000; SameSite=None; Secure; Partitioned'
+      : '; path=/; max-age=31536000; SameSite=Lax';
+  }
+
+  function getCookie(name) {
+    var parts = document.cookie ? document.cookie.split('; ') : [];
+    for (var i = 0; i < parts.length; i++) {
+      var eq = parts[i].indexOf('=');
+      if (parts[i].slice(0, eq) === name) return parts[i].slice(eq + 1);
+    }
+    return null;
+  }
+
+  function cookiesWork() {
+    try {
+      document.cookie = 'vtm_probe=1' + cookieAttrs();
+      var ok = getCookie('vtm_probe') === '1';
+      document.cookie = 'vtm_probe=; max-age=0; path=/' + (location.protocol === 'https:' ? '; SameSite=None; Secure; Partitioned' : '; SameSite=Lax');
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function chooseStore() {
+    if (cookiesWork()) return 'cookie';
+    try {
+      localStorage.setItem('vtm_probe', '1');
+      localStorage.removeItem('vtm_probe');
+      return 'local';
+    } catch (e) {
+      return 'memory';
+    }
+  }
+
+  function sanitizePresets(arr) {
+    var out = [];
+    if (!Array.isArray(arr)) return out;
+    arr.forEach(function (e) {
+      if (!Array.isArray(e) || typeof e[0] !== 'string') return;
+      var name = e[0].replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
+      if (!name || !isFinite(+e[1]) || !isFinite(+e[2])) return;
+      out.push({
+        name: name,
+        pool: clamp(+e[1], 1, MAX_POOL),
+        diff: clamp(+e[2], 2, 10),
+        spec: +e[3] === 1,
+        botch: +e[4] === 1
+      });
+    });
+    return out.slice(0, MAX_PRESETS);
+  }
+
+  function readPresets() {
+    try {
+      if (storeMode === 'cookie') {
+        var raw = getCookie(PRESET_KEY);
+        return raw ? sanitizePresets(JSON.parse(decodeURIComponent(raw))) : [];
+      }
+      if (storeMode === 'local') {
+        return sanitizePresets(JSON.parse(localStorage.getItem(PRESET_KEY) || '[]'));
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  /* Returns 'ok', 'toolong' or 'failed'. */
+  function persistPresets() {
+    var json = JSON.stringify(presets.map(function (p) {
+      return [p.name, p.pool, p.diff, p.spec ? 1 : 0, p.botch ? 1 : 0];
+    }));
+    try {
+      if (storeMode === 'cookie') {
+        var v = encodeURIComponent(json);
+        if (v.length > MAX_COOKIE) return 'toolong';
+        document.cookie = PRESET_KEY + '=' + v + cookieAttrs();
+        return getCookie(PRESET_KEY) === v ? 'ok' : 'failed';
+      }
+      if (storeMode === 'local') {
+        localStorage.setItem(PRESET_KEY, json);
+        return 'ok';
+      }
+      return 'ok';
+    } catch (e) {
+      return 'failed';
+    }
+  }
+
+  function presetStatus(msg) { $('presetStatus').textContent = msg; }
+
+  function presetSummary(p) {
+    return p.pool + (p.pool === 1 ? ' die' : ' dice') + ' · diff ' + p.diff +
+      (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '');
+  }
+
+  function renderPresets() {
+    var list = $('presetList');
+    list.textContent = '';
+    $('presetCount').textContent = presets.length ? presets.length + ' saved' : '';
+    if (!presets.length) {
+      var empty = document.createElement('li');
+      empty.className = 'empty';
+      empty.textContent = 'No presets yet. Set up a roll, name it and press Save.';
+      list.appendChild(empty);
+      return;
+    }
+    presets.forEach(function (p, idx) {
+      var li = document.createElement('li');
+      var load = document.createElement('button');
+      load.type = 'button';
+      load.className = 'preset-load';
+      load.setAttribute('data-i', idx);
+      var strong = document.createElement('strong');
+      strong.textContent = p.name;
+      var small = document.createElement('small');
+      small.textContent = presetSummary(p);
+      load.appendChild(strong);
+      load.appendChild(small);
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'preset-del';
+      del.setAttribute('data-i', idx);
+      del.setAttribute('aria-label', 'Delete preset ' + p.name);
+      del.textContent = '×';
+      li.appendChild(load);
+      li.appendChild(del);
+      list.appendChild(li);
+    });
+  }
+
+  function savePreset() {
+    var input = $('presetName');
+    var name = input.value.replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
+    if (!name) {
+      presetStatus('Enter a name for this preset.');
+      input.focus();
+      return;
+    }
+    var before = presets.slice();
+    var entry = { name: name, pool: st.pool, diff: st.diff, spec: st.spec, botch: st.botch };
+    var at = -1;
+    presets.forEach(function (p, i) { if (p.name.toLowerCase() === name.toLowerCase()) at = i; });
+    if (at >= 0) {
+      presets[at] = entry;
+    } else if (presets.length >= MAX_PRESETS) {
+      presetStatus('You can keep up to ' + MAX_PRESETS + ' presets. Delete one to save another.');
+      return;
+    } else {
+      presets.push(entry);
+    }
+    var result = persistPresets();
+    if (result !== 'ok') {
+      presets = before;
+      presetStatus(result === 'toolong'
+        ? 'Those names are too long to fit in a cookie. Shorten a name or delete a preset.'
+        : 'Could not save the preset. This browser may be blocking cookies.');
+      return;
+    }
+    renderPresets();
+    presetStatus((at >= 0 ? 'Updated “' : 'Saved “') + name + '”.');
+  }
+
+  function loadPreset(idx) {
+    var p = presets[idx];
+    if (!p) return;
+    st.pool = p.pool;
+    st.diff = p.diff;
+    st.spec = p.spec;
+    st.botch = p.botch;
+    syncControls();
+    save();
+    $('presetName').value = p.name;
+    if (st.rollOnLoad) {
+      doRoll(true, false);
+      presetStatus('Loaded “' + p.name + '” and rolled.');
+    } else {
+      presetStatus('Loaded “' + p.name + '”.');
+    }
+  }
+
+  function setPresetsOpen(open) {
+    $('presetsToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+    $('presetsBody').hidden = !open;
+  }
+  $('presetsToggle').addEventListener('click', function () {
+    st.presetsOpen = !st.presetsOpen;
+    setPresetsOpen(st.presetsOpen);
+    save();
+  });
+  $('rollOnLoad').addEventListener('change', function () {
+    st.rollOnLoad = this.checked;
+    save();
+  });
+  $('rollOnLoad').checked = st.rollOnLoad;
+  setPresetsOpen(st.presetsOpen);
+
+  function deletePreset(idx) {
+    var p = presets[idx];
+    if (!p) return;
+    var before = presets.slice();
+    presets.splice(idx, 1);
+    if (persistPresets() !== 'ok') {
+      presets = before;
+      presetStatus('Could not delete the preset. This browser may be blocking cookies.');
+      return;
+    }
+    renderPresets();
+    presetStatus('Deleted “' + p.name + '”.');
+  }
+
+  $('presetSave').addEventListener('click', savePreset);
+  $('presetName').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); savePreset(); }
+  });
+  $('presetList').addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('button') : null;
+    if (!btn) return;
+    var idx = parseInt(btn.getAttribute('data-i'), 10);
+    if (btn.className === 'preset-load') loadPreset(idx);
+    else if (btn.className === 'preset-del') deletePreset(idx);
+  });
+
+  storeMode = chooseStore();
+  presets = readPresets();
+  renderPresets();
+  $('presetStore').textContent = storeMode === 'cookie'
+    ? 'Presets are saved in a cookie in this browser.'
+    : storeMode === 'local'
+      ? 'Cookies are blocked here, so presets are kept in this browser’s local storage instead.'
+      : 'This browser blocks cookies and storage, so presets last only until you close the page.';
+
+  function setOdds(open) {
+    $('oddsToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+    $('oddsBody').hidden = !open;
+  }
+  $('oddsToggle').addEventListener('click', function () {
+    st.oddsOpen = !st.oddsOpen;
+    setOdds(st.oddsOpen);
+    save();
+  });
+  setOdds(st.oddsOpen);
+
+  syncControls();
+  doRoll(false, true);
+})();
+</script>
+
+</body></html>
