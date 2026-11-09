@@ -1902,6 +1902,14 @@ body {
     return Math.min(99, dmgEff() + dmgBonusDice());
   }
 
+  /* Expected successes of one roll under the current rules: the exact average over every possible set of dice. */
+  function avgNet(N, full, spec, botch) {
+    if (N < 1) return 0;
+    var rule = ruleOf(full), dp = distribution(N, rule.die, spec, botch), a = 0;
+    for (var s = rule.extra + 1; s <= 2 * N; s++) a += (s - rule.extra) * dp[N + s];
+    return a;
+  }
+
   function updateDmg() {
     var bonus = dmgBonusDice();
     var total = dmgTotal();
@@ -1914,9 +1922,11 @@ body {
       rows.push(['Bonus dice', '+' + bonus]);
     }
     rows.push(['Total dice', String(total)]);
+    var avg = avgNet(total, dmgEffDiff(), st.dmgSpec, st.dmgBotch);
+    rows.push(['Average damage expected', avg.toFixed(2)]);
     fillRows($('dmgPlan'), rows);
     var sum = (mod ? modText(st.dmgPool, mod) : String(st.dmgPool)) + (bonus > 0 ? ' + ' + bonus : '');
-    $('dmgPlanSummary').textContent = (bonus > 0 || mod ? sum + ' = ' : '') + total + (total === 1 ? ' die' : ' dice');
+    $('dmgPlanSummary').textContent = (bonus > 0 || mod ? sum + ' = ' : '') + total + (total === 1 ? ' die' : ' dice') + (total > 0 ? ' · avg ' + avg.toFixed(2) : '');
 
     var note = '';
     if (st.dmgBonus && lastNet === 0) note = 'The last roll had no successes, so there are no bonus dice.';
