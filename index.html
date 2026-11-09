@@ -293,7 +293,18 @@ body {
       </div>
 
       <div class="field" role="radiogroup" aria-labelledby="diffLabel">
-        <span class="label" id="diffLabel">Difficulty</span>
+        <div class="field-head">
+          <span class="label" id="diffLabel">Difficulty</span>
+          <button type="button" class="mod-toggle" id="dModToggle" aria-pressed="true" aria-label="Show a bonus or penalty to the difficulty" title="Bonus or penalty to the difficulty. Not saved in presets. Hidden means it is not applied.">&plusmn;</button>
+          <div class="mod" id="dModBox">
+            <span class="mod-label" id="dModLabel">Mod</span>
+            <div class="mini-step">
+              <button type="button" id="dModDown" aria-label="Lower the difficulty modifier">&minus;</button>
+              <input id="dMod" type="number" inputmode="numeric" min="-8" max="8" value="0" aria-labelledby="dModLabel">
+              <button type="button" id="dModUp" aria-label="Raise the difficulty modifier">+</button>
+            </div>
+          </div>
+        </div>
         <div class="chips" id="chips"></div>
         <p class="hint" id="diffHint"></p>
       </div>
@@ -403,7 +414,18 @@ body {
         </div>
 
         <div class="field" role="radiogroup" aria-labelledby="dmgDiffLabel">
-          <span class="label" id="dmgDiffLabel">Difficulty</span>
+          <div class="field-head">
+            <span class="label" id="dmgDiffLabel">Difficulty</span>
+            <button type="button" class="mod-toggle" id="dmgDModToggle" aria-pressed="true" aria-label="Show a bonus or penalty to the difficulty" title="Bonus or penalty to the difficulty. Not saved in presets. Hidden means it is not applied.">&plusmn;</button>
+            <div class="mod" id="dmgDModBox">
+              <span class="mod-label" id="dmgDModLabel">Mod</span>
+              <div class="mini-step">
+                <button type="button" id="dmgDModDown" aria-label="Lower the difficulty modifier">&minus;</button>
+                <input id="dmgDMod" type="number" inputmode="numeric" min="-8" max="8" value="0" aria-labelledby="dmgDModLabel">
+                <button type="button" id="dmgDModUp" aria-label="Raise the difficulty modifier">+</button>
+              </div>
+            </div>
+          </div>
           <div class="chips" id="dmgChips"></div>
           <p class="hint" id="dmgDiffHint"></p>
         </div>
@@ -548,7 +570,7 @@ body {
     return Math.min(b, Math.max(a, n));
   }
 
-  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: '', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
+  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: '', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved) {
@@ -566,10 +588,13 @@ body {
       ['mod', 'dmgMod'].forEach(function (k) {
         if (isFinite(+saved[k])) st[k] = clamp(Math.round(+saved[k]), -20, 20);
       });
+      ['dMod', 'dmgDMod'].forEach(function (k) {
+        if (isFinite(+saved[k])) st[k] = clamp(Math.round(+saved[k]), -8, 8);
+      });
       ['presetsH', 'dmgPresetsH'].forEach(function (k) {
         if (isFinite(+saved[k])) st[k] = clamp(+saved[k], 56, 720);
       });
-      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn'].forEach(function (k) {
+      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
     }
@@ -621,13 +646,18 @@ body {
 
   function signed(n) { return (n < 0 ? MINUS : '+') + Math.abs(n); }
   function modText(base, mod) { return base + ' ' + (mod < 0 ? MINUS : '+') + ' ' + Math.abs(mod); }
+  function dModApplied() { return st.dModOn ? st.dMod : 0; }
+  /* The difficulty actually rolled against, kept within 2 to 10. */
+  function effDiff() { return clamp(st.diff + dModApplied(), 2, 10); }
+  function diffText(base, mod, eff) { return 'difficulty ' + eff + (mod ? ' (' + modText(base, mod) + ')' : ''); }
   function modApplied() { return st.modOn ? st.mod : 0; }
   /* The pool actually rolled: the base pool plus the temporary bonus or penalty, never below 0. */
   function effPool() { return clamp(st.pool + modApplied(), 0, 99); }
 
   function updateLabels() {
     var n = effPool();
-    $('diffHint').textContent = 'Each die showing ' + st.diff + ' or higher counts as a success.';
+    var dm = dModApplied();
+    $('diffHint').textContent = (dm ? 'Difficulty ' + effDiff() + ' (' + modText(st.diff, dm) + '). ' : '') + 'Each die showing ' + effDiff() + ' or higher counts as a success.';
     var btn = $('rollBtn');
     btn.disabled = n < 1;
     btn.textContent = n < 1 ? 'No dice to roll' : 'Roll ' + n + (n === 1 ? ' die' : ' dice');
@@ -637,6 +667,7 @@ body {
   function syncControls() {
     $('pool').value = st.pool;
     setModUI(modCfg);
+    setModUI(dModCfg);
     $('diff' + st.diff).checked = true;
     $('spec').checked = st.spec;
     $('botch').checked = st.botch;
@@ -689,7 +720,7 @@ body {
     $('rollInfo').textContent = (sample ? 'Sample roll · ' : '') +
       roll.pool + (roll.pool === 1 ? ' die' : ' dice') +
       (roll.mod ? ' (' + modText(roll.basePool, roll.mod) + ')' : '') +
-      ' · difficulty ' + roll.diff +
+      ' · ' + diffText(roll.baseDiff, roll.dMod, roll.diff) +
       ' · specialty ' + (roll.spec ? 'on' : 'off') +
       ' · botch ' + (roll.botch ? 'on' : 'off');
   }
@@ -734,7 +765,7 @@ body {
     if (animate) prepSound();
     var n = effPool();
     if (n < 1) return;
-    var roll = { pool: n, diff: st.diff, spec: st.spec, botch: st.botch, mod: modApplied(), basePool: st.pool };
+    var roll = { pool: n, diff: effDiff(), spec: st.spec, botch: st.botch, mod: modApplied(), basePool: st.pool, dMod: dModApplied(), baseDiff: st.diff };
     var values = [];
     for (var i = 0; i < roll.pool; i++) values.push(rand10());
     if (animate) applyFate(values, roll);
@@ -784,10 +815,10 @@ body {
     $(c.input).value = st[c.key];
   }
   function wireMod(c) {
-    function set(v) { st[c.key] = clamp(v, -20, 20); $(c.input).value = st[c.key]; c.update(); save(); }
+    function set(v) { st[c.key] = clamp(v, c.lo || -20, c.hi || 20); $(c.input).value = st[c.key]; c.update(); save(); }
     $(c.input).addEventListener('input', function () {
       var v = parseInt(this.value, 10);
-      if (isFinite(v)) { st[c.key] = clamp(v, -20, 20); c.update(); save(); }
+      if (isFinite(v)) { st[c.key] = clamp(v, c.lo || -20, c.hi || 20); c.update(); save(); }
     });
     $(c.input).addEventListener('change', function () { this.value = st[c.key]; });
     $(c.down).addEventListener('click', function () { set(st[c.key] - 1); });
@@ -796,6 +827,8 @@ body {
   }
   var modCfg = { box: 'modBox', input: 'mod', down: 'modDown', up: 'modUp', toggle: 'modToggle', key: 'mod', on: 'modOn', update: function () { updateLabels(); } };
   wireMod(modCfg);
+  var dModCfg = { box: 'dModBox', input: 'dMod', down: 'dModDown', up: 'dModUp', toggle: 'dModToggle', key: 'dMod', on: 'dModOn', lo: -8, hi: 8, update: function () { updateLabels(); } };
+  wireMod(dModCfg);
 
   $('pool').addEventListener('input', function () {
     var v = parseInt(this.value, 10);
@@ -871,7 +904,7 @@ body {
   }
 
   function updateProb() {
-    var N = effPool(), d = st.diff, k = st.want;
+    var N = effPool(), d = effDiff(), k = st.want;
     var dp = distribution(N, d, st.spec, st.botch);
     var tails = new Array(dp.length + 1).fill(0);
     for (var i = dp.length - 1; i >= 0; i--) tails[i] = tails[i + 1] + dp[i];
@@ -915,7 +948,7 @@ body {
 
     fillRows($('usingParts'), [
       ['Dice pool', modApplied() ? N + ' (' + modText(st.pool, modApplied()) + ')' : String(N)],
-      ['Difficulty', String(d)],
+      ['Difficulty', dModApplied() ? d + ' (' + modText(st.diff, dModApplied()) + ')' : String(d)],
       ['Specialty', st.spec ? 'On' : 'Off'],
       ['Botch', st.botch ? 'On' : 'Off']
     ]);
@@ -1651,6 +1684,8 @@ body {
     return (st.dmgBonus && lastNet !== null) ? Math.max(0, lastNet - 1) : 0;
   }
 
+  function dmgDModApplied() { return st.dmgDModOn ? st.dmgDMod : 0; }
+  function dmgEffDiff() { return clamp(st.dmgDiff + dmgDModApplied(), 2, 10); }
   function dmgModApplied() { return st.dmgModOn ? st.dmgMod : 0; }
   function dmgEff() { return clamp(st.dmgPool + dmgModApplied(), 0, 99); }
 
@@ -1661,7 +1696,8 @@ body {
   function updateDmg() {
     var bonus = dmgBonusDice();
     var total = dmgTotal();
-    $('dmgDiffHint').textContent = 'Each die showing ' + st.dmgDiff + ' or higher counts as a success.';
+    var ddm = dmgDModApplied();
+    $('dmgDiffHint').textContent = (ddm ? 'Difficulty ' + dmgEffDiff() + ' (' + modText(st.dmgDiff, ddm) + '). ' : '') + 'Each die showing ' + dmgEffDiff() + ' or higher counts as a success.';
     var rows = [['Base damage dice', String(st.dmgPool)]];
     var mod = dmgModApplied();
     if (mod) rows.push(['Modifier', signed(mod)]);
@@ -1689,6 +1725,7 @@ body {
   function syncDmg() {
     $('dmgPool').value = st.dmgPool;
     setModUI(dmgModCfg);
+    setModUI(dmgDModCfg);
     $('dmgdiff' + st.dmgDiff).checked = true;
     setPressed('dmgSpec', st.dmgSpec);
     setPressed('dmgBotch', st.dmgBotch);
@@ -1726,7 +1763,9 @@ body {
     if (total < 1) return;
     var roll = {
       pool: total,
-      diff: st.dmgDiff,
+      diff: dmgEffDiff(),
+      dMod: dmgDModApplied(),
+      baseDiff: st.dmgDiff,
       spec: st.dmgSpec,
       botch: st.dmgBotch,
       base: dmgEff(),
@@ -1739,7 +1778,7 @@ body {
     if (animate) prepSound();
     $('dmgInfo').textContent = (sample ? 'Sample roll · ' : '') +
       total + (total === 1 ? ' die' : ' dice') +
-      ' · difficulty ' + roll.diff +
+      ' · ' + diffText(roll.baseDiff, roll.dMod, roll.diff) +
       ' · specialty ' + (roll.spec ? 'on' : 'off') +
       ' · botch ' + (roll.botch ? 'on' : 'off');
     dmgBoard.run(values, roll, animate,
@@ -1767,6 +1806,8 @@ body {
   });
   var dmgModCfg = { box: 'dmgModBox', input: 'dmgMod', down: 'dmgModDown', up: 'dmgModUp', toggle: 'dmgModToggle', key: 'dmgMod', on: 'dmgModOn', update: function () { updateDmg(); } };
   wireMod(dmgModCfg);
+  var dmgDModCfg = { box: 'dmgDModBox', input: 'dmgDMod', down: 'dmgDModDown', up: 'dmgDModUp', toggle: 'dmgDModToggle', key: 'dmgDMod', on: 'dmgDModOn', lo: -8, hi: 8, update: function () { updateDmg(); } };
+  wireMod(dmgDModCfg);
   $('dmgChips').addEventListener('change', function (e) {
     if (e.target && e.target.name === 'dmgdiff') { st.dmgDiff = +e.target.value; updateDmg(); save(); }
   });
