@@ -21,6 +21,8 @@
   --hit-fill: #ebe4d6;
   --hit-ink: #15111a;
   --focus: #e8c76f;
+  --danger: #ef7d72;
+  --danger-fill: #a8281f;
   --font-display: "Grenze Gotisch", "Palatino Linotype", Georgia, serif;
   --font-body: "Spectral", Georgia, "Times New Roman", serif;
   --font-data: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -44,6 +46,8 @@
     --hit-fill: #1d1623;
     --hit-ink: #f3eee6;
     --focus: #7a5c0c;
+    --danger: #b3261e;
+    --danger-fill: #a8281f;
     color-scheme: light;
   }
 }
@@ -64,6 +68,8 @@
   --hit-fill: #1d1623;
   --hit-ink: #f3eee6;
   --focus: #7a5c0c;
+  --danger: #b3261e;
+  --danger-fill: #a8281f;
   color-scheme: light;
 }
 
@@ -86,6 +92,37 @@ body {
 .head h1 { -webkit-user-select: none; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: opacity 0.2s; }
 .head h1.dip { opacity: 0.8; }
 .head { min-width: 0; }
+.top-btns { display: flex; gap: 8px; flex: none; }
+.modal-back { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: rgba(8, 6, 10, 0.62); }
+.modal-back[hidden] { display: none; }
+.switch[hidden], .opt[hidden] { display: none; }
+.set-sec.danger { border-top-color: var(--danger); }
+.set-sec.danger h3 { color: var(--danger); }
+.danger-btn { align-self: flex-start; padding: 8px 14px; border: 1px solid var(--danger); border-radius: 8px; background: transparent; color: var(--danger); font: 600 0.9rem/1.2 var(--font-body); cursor: pointer; }
+.danger-btn:hover { background: var(--surface-2); }
+.danger-btn.solid { background: var(--danger-fill); border-color: var(--danger-fill); color: #fff; }
+.danger-btn.solid:hover { filter: brightness(1.1); }
+.wipe-confirm { display: flex; flex-direction: column; gap: 12px; padding: 12px; border: 1px solid var(--danger); border-radius: 8px; background: var(--well); }
+.wipe-confirm[hidden], .danger-btn[hidden] { display: none; }
+.wipe-confirm p { margin: 0; font-size: 0.95rem; }
+.wipe-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.set-row { display: flex; flex-direction: column; gap: 8px; }
+.set-label { font: 600 0.95rem/1.3 var(--font-body); }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch { position: relative; width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 2px solid var(--line-strong); background: var(--sw, var(--surface-2)); cursor: pointer; overflow: hidden; }
+.swatch[aria-pressed="true"], .swatch.on { outline: 2px solid var(--fg); outline-offset: 2px; }
+.swatch:focus-visible, .swatch.custom:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+.swatch.custom { display: block; background: conic-gradient(#e0314b, #e8a838, #6cc24a, #36b6c9, #4a5fe0, #b648d8, #e0314b); }
+.swatch.custom.on { background: var(--sw); }
+.swatch.custom input { position: absolute; inset: -6px; width: 48px; height: 48px; opacity: 0; cursor: pointer; }
+.reset-btn { align-self: flex-start; padding: 8px 14px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 600 0.9rem/1.2 var(--font-body); cursor: pointer; }
+.reset-btn:hover { background: var(--line); }
+.modal { width: min(720px, 100%); max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 20px; background: var(--surface); color: var(--fg); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45); }
+.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.modal-head h2 { margin: 0; font: 700 1.6rem/1.1 var(--font-display); }
+.set-sec { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px 28px; align-items: start; padding-top: 16px; border-top: 1px solid var(--line); }
+.set-sec > h3, .set-sec.danger > *, .set-sec > .reset-btn { grid-column: 1 / -1; }
+.set-sec h3 { margin: 0; font: 600 0.75rem/1.2 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .sound-btn { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--fg); cursor: pointer; }
 .sound-btn:hover { background: var(--surface-2); }
 .sound-btn[aria-pressed="false"] { color: var(--muted); }
@@ -110,6 +147,15 @@ body {
 .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .stepper :focus-visible { outline-offset: -4px; }
 
+.chips[hidden], .diff-in[hidden], .diff-plus[hidden], .mod[hidden] { display: none; }
+.diffrow { display: flex; align-items: center; gap: 6px; }
+.diffrow .chips { flex: 1; min-width: 0; }
+.diff-in { flex: 1; min-width: 0; }
+.diff-in .mini-step { width: 100%; height: 46px; grid-template-columns: 46px minmax(0, 1fr) 46px; }
+.diff-in .mini-step input { font-size: 1.1rem; }
+.diff-in .mini-step button { font-size: 1.2rem; }
+.diff-plus { flex: none; width: 28px !important; height: 46px !important; font-size: 1.1rem; }
+.diff-plus[aria-pressed="true"] { color: var(--accent-text); font-size: 1.3rem; }
 .chips { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; position: relative; }
 .chips input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .chips label { display: grid; place-items: center; height: 46px; border: 1px solid var(--line-strong); border-radius: 6px; font: 600 1rem var(--font-data); cursor: pointer; background: var(--well); }
@@ -260,13 +306,21 @@ body {
       <h1 id="title">VTM Dice Roller</h1>
       <p>Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.</p>
     </div>
-    <button type="button" class="sound-btn" id="soundBtn" aria-pressed="true" aria-label="Sound" title="Sound on">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
-        <path class="waves" d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"></path>
-        <path class="mute" d="M16 9l5 6M21 9l-5 6"></path>
-      </svg>
-    </button>
+    <div class="top-btns">
+      <button type="button" class="sound-btn" id="soundBtn" aria-pressed="true" aria-label="Sound" title="Sound on">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
+          <path class="waves" d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"></path>
+          <path class="mute" d="M16 9l5 6M21 9l-5 6"></path>
+        </svg>
+      </button>
+      <button type="button" class="sound-btn" id="settingsBtn" aria-haspopup="dialog" aria-label="Settings" title="Settings">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </div>
   </header>
 
   <div class="grid">
@@ -305,7 +359,17 @@ body {
             </div>
           </div>
         </div>
-        <div class="chips" id="chips"></div>
+        <div class="diffrow">
+          <div class="chips" id="chips"></div>
+          <div class="diff-in" id="diffInBox" hidden>
+            <div class="mini-step">
+              <button type="button" id="diffNumDown" aria-label="Lower the difficulty">&minus;</button>
+              <input id="diffNum" type="number" inputmode="numeric" min="2" max="30" value="6" aria-label="Difficulty">
+              <button type="button" id="diffNumUp" aria-label="Raise the difficulty">+</button>
+            </div>
+          </div>
+          <button type="button" class="mod-toggle diff-plus" id="diffPlus" aria-pressed="false" aria-label="Type a higher difficulty instead of picking one" title="Type a higher difficulty (M20 only)" hidden>+</button>
+        </div>
         <p class="hint" id="diffHint"></p>
       </div>
 
@@ -426,7 +490,17 @@ body {
               </div>
             </div>
           </div>
-          <div class="chips" id="dmgChips"></div>
+          <div class="diffrow">
+            <div class="chips" id="dmgChips"></div>
+            <div class="diff-in" id="dmgDiffInBox" hidden>
+              <div class="mini-step">
+                <button type="button" id="dmgDiffNumDown" aria-label="Lower the difficulty">&minus;</button>
+                <input id="dmgDiffNum" type="number" inputmode="numeric" min="2" max="30" value="6" aria-label="Difficulty">
+                <button type="button" id="dmgDiffNumUp" aria-label="Raise the difficulty">+</button>
+              </div>
+            </div>
+            <button type="button" class="mod-toggle diff-plus" id="dmgDiffPlus" aria-pressed="false" aria-label="Type a higher difficulty instead of picking one" title="Type a higher difficulty (M20 only)" hidden>+</button>
+          </div>
           <p class="hint" id="dmgDiffHint"></p>
         </div>
 
@@ -553,6 +627,67 @@ body {
     </div>
   </section>
 </main>
+<div class="modal-back" id="settingsBack" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" id="settingsDlg">
+    <div class="modal-head">
+      <h2 id="settingsTitle">Settings</h2>
+      <button type="button" class="sound-btn" id="settingsClose" aria-label="Close settings" title="Close">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+    <section class="set-sec" aria-labelledby="rulesHead">
+      <h3 id="rulesHead">Rules</h3>
+      <label class="switch" for="m20">
+        <input type="checkbox" role="switch" id="m20">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>M20 Thresholds</strong><small>Mage: The Ascension 20th rules. Dice succeed on 9 or higher at most. Each point of difficulty above 9 means one more success is needed to count as one: difficulty 10 needs 2, difficulty 12 needs 4. Applies to rolls, damage and probability.</small></span>
+      </label>
+    </section>
+    <section class="set-sec" aria-labelledby="uiHead">
+      <h3 id="uiHead">UI Options</h3>
+      <label class="switch" for="botchLock">
+        <input type="checkbox" role="switch" id="botchLock">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Botch Toggle</strong><small>Hide the Botch toggles and always count botches.</small></span>
+      </label>
+      <label class="switch" for="cookieRefresh">
+        <input type="checkbox" role="switch" id="cookieRefresh">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Cookie Refresh</strong><small>Renew your saved preset cookies every time the page loads, so they don't expire.</small></span>
+      </label>
+      <label class="switch" for="instantRoll">
+        <input type="checkbox" role="switch" id="instantRoll">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Instant Results</strong><small>Skip the dice animation and show the result as soon as you roll.</small></span>
+      </label>
+    </section>
+    <section class="set-sec" aria-labelledby="lookHead">
+      <h3 id="lookHead">Appearance</h3>
+      <div class="set-row">
+        <span class="set-label" id="accentLabel">Accent color</span>
+        <div class="swatches" id="accentSwatches" role="group" aria-labelledby="accentLabel"></div>
+      </div>
+      <div class="set-row">
+        <span class="set-label" id="tintLabel">Background tint</span>
+        <div class="swatches" id="tintSwatches" role="group" aria-labelledby="tintLabel"></div>
+      </div>
+      <button type="button" class="reset-btn" id="colorsReset">Reset colors</button>
+    </section>
+    <section class="set-sec danger" aria-labelledby="dangerHead">
+      <h3 id="dangerHead">Danger Zone</h3>
+      <p class="hint" id="wipeInfo">Deletes everything this page has saved in this browser: presets, settings and colors.</p>
+      <button type="button" class="danger-btn" id="wipeBtn" aria-describedby="wipeInfo">Clear all saved data</button>
+      <div class="wipe-confirm" id="wipeConfirm" role="group" aria-labelledby="wipeMsg" hidden>
+        <p id="wipeMsg">Delete all saved presets, settings and colors? This cannot be undone.</p>
+        <div class="wipe-actions">
+          <button type="button" class="danger-btn solid" id="wipeYes">Yes, delete everything</button>
+          <button type="button" class="reset-btn" id="wipeNo">Cancel</button>
+        </div>
+      </div>
+      <p class="hint" id="wipeStatus" role="status"></p>
+    </section>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -563,6 +698,8 @@ body {
   var MAX_POOL = 40;
   var DEGREES = ['', 'Marginal', 'Moderate', 'Complete', 'Exceptional', 'Phenomenal'];
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  /* Reduced-motion users, and anyone who turned on Instant Results, get the finished roll straight away. */
+  function noMotion() { return reduce.matches || st.instant; }
 
   function clamp(n, a, b) {
     n = Math.round(n);
@@ -570,12 +707,12 @@ body {
     return Math.min(b, Math.max(a, n));
   }
 
-  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: '', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
+  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: '', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: false, instant: false, cookieRefresh: true, botchPrev: true, dmgBotchPrev: false, m20: false, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved) {
       if (isFinite(+saved.pool)) st.pool = clamp(+saved.pool, 1, MAX_POOL);
-      if (isFinite(+saved.diff)) st.diff = clamp(+saved.diff, 2, 10);
+      if (isFinite(+saved.diff)) st.diff = clamp(+saved.diff, 2, 30);
       st.spec = saved.spec === true;
       st.botch = saved.botch !== false;
       if (isFinite(+saved.want)) st.want = clamp(+saved.want, 1, 80);
@@ -584,7 +721,9 @@ body {
       if (typeof saved.rollOnLoad === 'boolean') st.rollOnLoad = saved.rollOnLoad;
       if (typeof saved.sound === 'boolean') st.sound = saved.sound;
       if (isFinite(+saved.dmgPool)) st.dmgPool = clamp(+saved.dmgPool, 0, MAX_POOL);
-      if (isFinite(+saved.dmgDiff)) st.dmgDiff = clamp(+saved.dmgDiff, 2, 10);
+      if (isFinite(+saved.dmgDiff)) st.dmgDiff = clamp(+saved.dmgDiff, 2, 30);
+      if (typeof saved.accent === 'string' && (/^#[0-9a-f]{6}$/i.test(saved.accent) || /^(crimson|violet|azure|emerald|amber)$/.test(saved.accent))) st.accent = saved.accent.toLowerCase();
+      if (typeof saved.tint === 'string' && /^(plum|slate|forest|ember|neutral)$/.test(saved.tint)) st.tint = saved.tint;
       ['mod', 'dmgMod'].forEach(function (k) {
         if (isFinite(+saved[k])) st[k] = clamp(Math.round(+saved[k]), -20, 20);
       });
@@ -594,13 +733,15 @@ body {
       ['presetsH', 'dmgPresetsH'].forEach(function (k) {
         if (isFinite(+saved[k])) st[k] = clamp(+saved[k], 56, 720);
       });
-      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn'].forEach(function (k) {
+      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn', 'm20', 'diffInput', 'dmgDiffInput', 'botchLock', 'botchPrev', 'dmgBotchPrev', 'instant', 'cookieRefresh'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
     }
   } catch (e) {}
 
+  var wiping = false;
   function save() {
+    if (wiping) return;
     try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {}
   }
 
@@ -624,9 +765,11 @@ body {
     });
     var gross = hits + tens;
     var removed = roll.botch ? ones : 0;
+    var raw = Math.max(0, gross - removed);
+    var extra = roll.extra || 0;
     return {
-      hits: hits, tens: tens, ones: ones, gross: gross, removed: removed,
-      net: Math.max(0, gross - removed),
+      hits: hits, tens: tens, ones: ones, gross: gross, removed: removed, raw: raw, extra: extra,
+      net: Math.max(0, raw - extra),
       botched: roll.botch && gross === 0 && ones > 0
     };
   }
@@ -648,16 +791,24 @@ body {
   function modText(base, mod) { return base + ' ' + (mod < 0 ? MINUS : '+') + ' ' + Math.abs(mod); }
   function dModApplied() { return st.dModOn ? st.dMod : 0; }
   /* The difficulty actually rolled against, kept within 2 to 10. */
-  function effDiff() { return clamp(st.diff + dModApplied(), 2, 10); }
-  function diffText(base, mod, eff) { return 'difficulty ' + eff + (mod ? ' (' + modText(base, mod) + ')' : ''); }
+  function maxDiff() { return st.m20 ? 38 : 10; }
+  function effDiff() { return clamp(st.diff + dModApplied(), 2, maxDiff()); }
+  /* M20: dice never need more than a 9, and each point of difficulty past 9 costs one extra success. */
+  function ruleOf(full) { return (st.m20 && full > 9) ? { die: 9, extra: full - 9 } : { die: full, extra: 0 }; }
+  function diffHintText(base, mod, full) {
+    var r = ruleOf(full);
+    var t = mod ? 'Difficulty ' + full + ' (' + modText(base, mod) + '). ' : '';
+    if (r.extra) return t + 'M20: dice succeed on 9 or higher, and ' + (r.extra + 1) + ' successes count as one.';
+    return t + 'Each die showing ' + r.die + ' or higher counts as a success.';
+  }
+  function diffText(base, mod, full, extra) { return 'difficulty ' + full + (mod ? ' (' + modText(base, mod) + ')' : '') + (extra ? ', needs ' + (extra + 1) + ' successes' : ''); }
   function modApplied() { return st.modOn ? st.mod : 0; }
   /* The pool actually rolled: the base pool plus the temporary bonus or penalty, never below 0. */
   function effPool() { return clamp(st.pool + modApplied(), 0, 99); }
 
   function updateLabels() {
     var n = effPool();
-    var dm = dModApplied();
-    $('diffHint').textContent = (dm ? 'Difficulty ' + effDiff() + ' (' + modText(st.diff, dm) + '). ' : '') + 'Each die showing ' + effDiff() + ' or higher counts as a success.';
+    $('diffHint').textContent = diffHintText(st.diff, dModApplied(), effDiff());
     var btn = $('rollBtn');
     btn.disabled = n < 1;
     btn.textContent = n < 1 ? 'No dice to roll' : 'Roll ' + n + (n === 1 ? ' die' : ' dice');
@@ -668,9 +819,11 @@ body {
     $('pool').value = st.pool;
     setModUI(modCfg);
     setModUI(dModCfg);
-    $('diff' + st.diff).checked = true;
+    syncDiffUI(diffCfg);
     $('spec').checked = st.spec;
+    if (st.botchLock) st.botch = true;
     $('botch').checked = st.botch;
+    $('botch').closest('label').hidden = st.botchLock;
     $('succ').value = st.want;
     setSoundUI();
     updateLabels();
@@ -720,9 +873,9 @@ body {
     $('rollInfo').textContent = (sample ? 'Sample roll · ' : '') +
       roll.pool + (roll.pool === 1 ? ' die' : ' dice') +
       (roll.mod ? ' (' + modText(roll.basePool, roll.mod) + ')' : '') +
-      ' · ' + diffText(roll.baseDiff, roll.dMod, roll.diff) +
+      ' · ' + diffText(roll.baseDiff, roll.dMod, roll.full, roll.extra) +
       ' · specialty ' + (roll.spec ? 'on' : 'off') +
-      ' · botch ' + (roll.botch ? 'on' : 'off');
+      (st.botchLock ? '' : ' · botch ' + (roll.botch ? 'on' : 'off'));
   }
 
   function showResult(roll, values) {
@@ -737,6 +890,7 @@ body {
     var rows = [['Dice at difficulty ' + roll.diff + ' or higher', String(s.hits)]];
     if (roll.spec) rows.push(['Extra from tens', '+' + s.tens]);
     if (roll.botch) rows.push(['Removed by ones', MINUS + s.ones]);
+    if (roll.extra) rows.push(['Spent on difficulty ' + roll.full, MINUS + Math.min(s.raw, roll.extra)]);
     var parts = $('parts');
     parts.textContent = '';
     rows.forEach(function (r) {
@@ -755,6 +909,8 @@ body {
       note = 'No successes and ' + s.ones + (s.ones === 1 ? ' one' : ' ones') + ' rolled.';
     } else if (roll.botch && s.gross > 0 && s.ones >= s.gross) {
       note = 'The ones cancel every success. A total never goes below 0.';
+    } else if (roll.extra && s.raw > 0 && s.net === 0) {
+      note = 'M20: difficulty ' + roll.full + ' needs ' + (roll.extra + 1) + ' successes to count as one. This roll had ' + s.raw + '.';
     }
     $('note').textContent = note;
     $('note').hidden = !note;
@@ -765,14 +921,15 @@ body {
     if (animate) prepSound();
     var n = effPool();
     if (n < 1) return;
-    var roll = { pool: n, diff: effDiff(), spec: st.spec, botch: st.botch, mod: modApplied(), basePool: st.pool, dMod: dModApplied(), baseDiff: st.diff };
+    var full = effDiff(), rl = ruleOf(full);
+    var roll = { pool: n, diff: rl.die, extra: rl.extra, full: full, spec: st.spec, botch: st.botch, mod: modApplied(), basePool: st.pool, dMod: dModApplied(), baseDiff: st.diff };
     var values = [];
     for (var i = 0; i < roll.pool; i++) values.push(rand10());
     if (animate) applyFate(values, roll);
     buildTray(roll.pool);
     setInfo(roll, sample);
 
-    if (!animate || reduce.matches) {
+    if (!animate || noMotion()) {
       values.forEach(function (v, idx) { settle(idx, v, roll); });
       showResult(roll, values);
       if (animate) { playSound(); noteRoll(roll, values); }
@@ -814,6 +971,40 @@ body {
     setPressed(c.toggle, st[c.on]);
     $(c.input).value = st[c.key];
   }
+  /* Difficulty is picked from chips, or typed once M20 allows numbers above 10. Outside M20 it never exceeds 10. */
+  function syncDiffUI(c) {
+    if (st.m20 && st[c.key] > 10) st[c.inKey] = true;
+    var typed = st.m20 && st[c.inKey];
+    if (!typed && st[c.key] > 10) st[c.key] = 10;
+    $(c.plus).hidden = !st.m20;
+    setPressed(c.plus, typed);
+    $(c.chips).hidden = typed;
+    $(c.box).hidden = !typed;
+    $(c.num).value = st[c.key];
+    if (st[c.key] <= 10) $(c.chipPrefix + st[c.key]).checked = true;
+  }
+  function wireDiff(c) {
+    function set(v) {
+      st[c.key] = clamp(v, 2, 30);
+      if (st[c.key] <= 10) $(c.chipPrefix + st[c.key]).checked = true;
+      c.update();
+      save();
+    }
+    $(c.plus).addEventListener('click', function () {
+      st[c.inKey] = !(st.m20 && st[c.inKey]);
+      if (!st[c.inKey] && st[c.key] > 10) st[c.key] = 10;
+      syncDiffUI(c);
+      c.update();
+      save();
+    });
+    $(c.num).addEventListener('input', function () {
+      var v = parseInt(this.value, 10);
+      if (isFinite(v)) set(v);
+    });
+    $(c.num).addEventListener('change', function () { this.value = st[c.key]; });
+    $(c.down).addEventListener('click', function () { set(st[c.key] - 1); $(c.num).value = st[c.key]; });
+    $(c.up).addEventListener('click', function () { set(st[c.key] + 1); $(c.num).value = st[c.key]; });
+  }
   function wireMod(c) {
     function set(v) { st[c.key] = clamp(v, c.lo || -20, c.hi || 20); $(c.input).value = st[c.key]; c.update(); save(); }
     $(c.input).addEventListener('input', function () {
@@ -829,6 +1020,8 @@ body {
   wireMod(modCfg);
   var dModCfg = { box: 'dModBox', input: 'dMod', down: 'dModDown', up: 'dModUp', toggle: 'dModToggle', key: 'dMod', on: 'dModOn', lo: -8, hi: 8, update: function () { updateLabels(); } };
   wireMod(dModCfg);
+  var diffCfg = { key: 'diff', inKey: 'diffInput', chips: 'chips', box: 'diffInBox', num: 'diffNum', down: 'diffNumDown', up: 'diffNumUp', plus: 'diffPlus', chipPrefix: 'diff', update: function () { updateLabels(); } };
+  wireDiff(diffCfg);
 
   $('pool').addEventListener('input', function () {
     var v = parseInt(this.value, 10);
@@ -905,19 +1098,20 @@ body {
 
   function updateProb() {
     var N = effPool(), d = effDiff(), k = st.want;
-    var dp = distribution(N, d, st.spec, st.botch);
+    var rule = ruleOf(d), ex = rule.extra;
+    var dp = distribution(N, rule.die, st.spec, st.botch);
     var tails = new Array(dp.length + 1).fill(0);
     for (var i = dp.length - 1; i >= 0; i--) tails[i] = tails[i + 1] + dp[i];
     function atLeast(j) {
-      var idx = N + j;
+      var idx = N + j + ex;
       if (idx >= dp.length) return 0;
       return Math.min(1, tails[idx]);
     }
-    var max = st.spec ? 2 * N : N;
+    var max = Math.max(0, (st.spec ? 2 * N : N) - ex);
     var p = atLeast(k);
 
     var avg = 0;
-    for (var s = 1; s <= 2 * N; s++) avg += s * dp[N + s];
+    for (var s = ex + 1; s <= 2 * N; s++) avg += (s - ex) * dp[N + s];
 
     $('pct').textContent = fmtPct(p);
     $('pctUnit').textContent = 'chance of ' + k + ' or more successes';
@@ -937,12 +1131,12 @@ body {
       ['Most successes possible', String(max)]
     ];
     if (st.botch) {
-      var pb = Math.pow((d - 1) / 10, N) - Math.pow((d - 2) / 10, N);
+      var pb = Math.pow((rule.die - 1) / 10, N) - Math.pow((rule.die - 2) / 10, N);
       rows.push(['Chance of a botch', fmtPct(pb)]);
     }
     fillRows($('probParts'), rows);
 
-    var note = k > max ? 'This pool can roll at most ' + max + (max === 1 ? ' success.' : ' successes.') : '';
+    var note = k > max ? (max < 1 ? 'This pool cannot reach a success at this difficulty.' : 'This pool can roll at most ' + max + (max === 1 ? ' success.' : ' successes.')) : '';
     $('probNote').textContent = note;
     $('probNote').hidden = !note;
 
@@ -951,7 +1145,7 @@ body {
       ['Difficulty', dModApplied() ? d + ' (' + modText(st.diff, dModApplied()) + ')' : String(d)],
       ['Specialty', st.spec ? 'On' : 'Off'],
       ['Botch', st.botch ? 'On' : 'Off']
-    ]);
+    ].filter(function (r) { return !(st.botchLock && r[0] === 'Botch'); }).concat(ex ? [['M20 threshold', 'Dice ' + rule.die + '+, ' + (ex + 1) + ' for 1']] : []));
 
     var lo, hi;
     if (k > max) {
@@ -1163,6 +1357,21 @@ body {
 
   storeMode = chooseStore();
 
+  /* Writing a cookie again with the same value restarts its one-year expiry. Done on load, so presets that are
+     used at least once a year never expire. Returns how many cookies were renewed. */
+  function refreshCookies() {
+    if (storeMode !== 'cookie') return 0;
+    var n = 0;
+    ['vtm_presets', 'vtm_dmg_presets'].forEach(function (k) {
+      try {
+        var raw = getCookie(k);
+        if (raw) { document.cookie = k + '=' + raw + cookieAttrs(); n++; }
+      } catch (e) {}
+    });
+    return n;
+  }
+  if (st.cookieRefresh) refreshCookies();
+
   /* Milliseconds since 2025-01-01, never repeating, so two uses in the same millisecond still have an order. */
   var stampLast = 0;
   function stamp() {
@@ -1191,7 +1400,7 @@ body {
         out.push({
           name: name,
           pool: clamp(+e[1], o.minPool, MAX_POOL),
-          diff: clamp(+e[2], 2, 10),
+          diff: clamp(+e[2], 2, 30),
           spec: +e[3] === 1,
           botch: +e[4] === 1,
           bonus: e.length > 5 ? +e[5] === 1 : true,
@@ -1634,7 +1843,7 @@ body {
     function run(values, roll, animate, onStart, onFirst, onDone) {
       if (timer) { clearInterval(timer); timer = null; }
       build(values.length);
-      if (!animate || reduce.matches) {
+      if (!animate || noMotion()) {
         values.forEach(function (v, i) { settleDie(i, v, roll); });
         if (animate && onFirst) onFirst();
         onDone();
@@ -1685,7 +1894,7 @@ body {
   }
 
   function dmgDModApplied() { return st.dmgDModOn ? st.dmgDMod : 0; }
-  function dmgEffDiff() { return clamp(st.dmgDiff + dmgDModApplied(), 2, 10); }
+  function dmgEffDiff() { return clamp(st.dmgDiff + dmgDModApplied(), 2, maxDiff()); }
   function dmgModApplied() { return st.dmgModOn ? st.dmgMod : 0; }
   function dmgEff() { return clamp(st.dmgPool + dmgModApplied(), 0, 99); }
 
@@ -1696,8 +1905,7 @@ body {
   function updateDmg() {
     var bonus = dmgBonusDice();
     var total = dmgTotal();
-    var ddm = dmgDModApplied();
-    $('dmgDiffHint').textContent = (ddm ? 'Difficulty ' + dmgEffDiff() + ' (' + modText(st.dmgDiff, ddm) + '). ' : '') + 'Each die showing ' + dmgEffDiff() + ' or higher counts as a success.';
+    $('dmgDiffHint').textContent = diffHintText(st.dmgDiff, dmgDModApplied(), dmgEffDiff());
     var rows = [['Base damage dice', String(st.dmgPool)]];
     var mod = dmgModApplied();
     if (mod) rows.push(['Modifier', signed(mod)]);
@@ -1726,9 +1934,11 @@ body {
     $('dmgPool').value = st.dmgPool;
     setModUI(dmgModCfg);
     setModUI(dmgDModCfg);
-    $('dmgdiff' + st.dmgDiff).checked = true;
+    syncDiffUI(dmgDiffCfg);
     setPressed('dmgSpec', st.dmgSpec);
+    if (st.botchLock) st.dmgBotch = true;
     setPressed('dmgBotch', st.dmgBotch);
+    $('dmgBotch').hidden = st.botchLock;
     setPressed('dmgBonus', st.dmgBonus);
     updateDmg();
   }
@@ -1752,8 +1962,10 @@ body {
     rows.push(['Dice at difficulty ' + roll.diff + ' or higher', String(s.hits)]);
     if (roll.spec) rows.push(['Extra from tens', '+' + s.tens]);
     if (roll.botch) rows.push(['Removed by ones', MINUS + s.ones]);
+    if (roll.extra) rows.push(['Spent on difficulty ' + roll.full, MINUS + Math.min(s.raw, roll.extra)]);
     fillRows($('dmgParts'), rows);
     var note = s.botched ? 'No successes and ' + s.ones + (s.ones === 1 ? ' one' : ' ones') + ' rolled.' : '';
+    if (!note && roll.extra && s.raw > 0 && s.net === 0) note = 'M20: difficulty ' + roll.full + ' needs ' + (roll.extra + 1) + ' successes to count as one. This roll had ' + s.raw + '.';
     $('dmgNote').textContent = note;
     $('dmgNote').hidden = !note;
   }
@@ -1763,7 +1975,9 @@ body {
     if (total < 1) return;
     var roll = {
       pool: total,
-      diff: dmgEffDiff(),
+      diff: ruleOf(dmgEffDiff()).die,
+      extra: ruleOf(dmgEffDiff()).extra,
+      full: dmgEffDiff(),
       dMod: dmgDModApplied(),
       baseDiff: st.dmgDiff,
       spec: st.dmgSpec,
@@ -1778,9 +1992,9 @@ body {
     if (animate) prepSound();
     $('dmgInfo').textContent = (sample ? 'Sample roll · ' : '') +
       total + (total === 1 ? ' die' : ' dice') +
-      ' · ' + diffText(roll.baseDiff, roll.dMod, roll.diff) +
+      ' · ' + diffText(roll.baseDiff, roll.dMod, roll.full, roll.extra) +
       ' · specialty ' + (roll.spec ? 'on' : 'off') +
-      ' · botch ' + (roll.botch ? 'on' : 'off');
+      (st.botchLock ? '' : ' · botch ' + (roll.botch ? 'on' : 'off'));
     dmgBoard.run(values, roll, animate,
       function () { $('dmgResult').classList.add('stale'); },
       playSound,
@@ -1808,6 +2022,8 @@ body {
   wireMod(dmgModCfg);
   var dmgDModCfg = { box: 'dmgDModBox', input: 'dmgDMod', down: 'dmgDModDown', up: 'dmgDModUp', toggle: 'dmgDModToggle', key: 'dmgDMod', on: 'dmgDModOn', lo: -8, hi: 8, update: function () { updateDmg(); } };
   wireMod(dmgDModCfg);
+  var dmgDiffCfg = { key: 'dmgDiff', inKey: 'dmgDiffInput', chips: 'dmgChips', box: 'dmgDiffInBox', num: 'dmgDiffNum', down: 'dmgDiffNumDown', up: 'dmgDiffNumUp', plus: 'dmgDiffPlus', chipPrefix: 'dmgdiff', update: function () { updateDmg(); } };
+  wireDiff(dmgDiffCfg);
   $('dmgChips').addEventListener('change', function (e) {
     if (e.target && e.target.name === 'dmgdiff') { st.dmgDiff = +e.target.value; updateDmg(); save(); }
   });
@@ -1905,6 +2121,224 @@ body {
     tabs[(at + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length].focus();
   });
   setModule(st.module);
+
+  /* Recoloring. The stylesheet keeps the original palette; choices are applied as inline overrides of its tokens,
+     and are recomputed whenever the light or dark theme changes so contrast holds in both. */
+  var ACCENTS = [
+    { id: 'crimson', name: 'Crimson', h: 349, s: 63 },
+    { id: 'violet', name: 'Violet', h: 268, s: 55 },
+    { id: 'azure', name: 'Azure', h: 210, s: 70 },
+    { id: 'emerald', name: 'Emerald', h: 150, s: 60 },
+    { id: 'amber', name: 'Amber', h: 32, s: 78 }
+  ];
+  var TINTS = [
+    { id: 'plum', name: 'Plum', h: null, m: 1, show: 273 },
+    { id: 'slate', name: 'Slate', h: 215, m: 1, show: 215 },
+    { id: 'forest', name: 'Forest', h: 150, m: 0.9, show: 150 },
+    { id: 'ember', name: 'Ember', h: 20, m: 1.1, show: 20 },
+    { id: 'neutral', name: 'Neutral', h: 0, m: 0, show: 0 }
+  ];
+  var BASE_TOKENS = {
+    dark: { bg: '#15111a', surface: '#1d1823', 'surface-2': '#2a2233', well: '#110d16', line: '#352d3e', 'line-strong': '#5b4e68', muted: '#a99fb4' },
+    light: { bg: '#ebe8ee', surface: '#f6f4f8', 'surface-2': '#e0dbe6', well: '#e3dfe9', line: '#cdc5d6', 'line-strong': '#8f8399', muted: '#5b5166' }
+  };
+  var MANAGED = ['accent', 'accent-text', 'bg', 'surface', 'surface-2', 'well', 'line', 'line-strong', 'muted'];
+
+  function hexToHsl(hex) {
+    var r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255;
+    var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, h = 0, sat = 0, d = mx - mn;
+    if (d) {
+      sat = d / (1 - Math.abs(2 * l - 1));
+      if (mx === r) h = ((g - b) / d + 6) % 6;
+      else if (mx === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+    }
+    return [h, sat * 100, l * 100];
+  }
+  function hsl(h, sat, l) { return 'hsl(' + Math.round(h) + ' ' + Math.round(sat * 10) / 10 + '% ' + Math.round(l * 10) / 10 + '%)'; }
+  function isLightTheme() {
+    var a = document.documentElement.getAttribute('data-theme');
+    if (a === 'light') return true;
+    if (a === 'dark') return false;
+    try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { return false; }
+  }
+  function accentSpec() {
+    if (!st.accent || st.accent === 'crimson') return null;
+    var preset = ACCENTS.filter(function (a) { return a.id === st.accent; })[0];
+    if (preset) return preset;
+    var c = hexToHsl(st.accent);
+    return { h: c[0], s: clamp(c[1], 35, 85) };
+  }
+  function tintSpec() {
+    if (!st.tint || st.tint === 'plum') return null;
+    return TINTS.filter(function (t) { return t.id === st.tint; })[0] || null;
+  }
+  function applyColors() {
+    var root = document.documentElement.style;
+    var light = isLightTheme();
+    MANAGED.forEach(function (k) { root.removeProperty('--' + k); });
+    var a = accentSpec();
+    if (a) {
+      root.setProperty('--accent', hsl(a.h, a.s, light ? 36 : 40));
+      root.setProperty('--accent-text', light ? hsl(a.h, a.s, 36) : hsl(a.h, Math.min(100, a.s + 12), 70));
+    }
+    var t = tintSpec();
+    if (t) {
+      var base = BASE_TOKENS[light ? 'light' : 'dark'];
+      Object.keys(base).forEach(function (k) {
+        var c = hexToHsl(base[k]);
+        root.setProperty('--' + k, hsl(t.h === null ? c[0] : t.h, Math.min(100, c[1] * t.m), c[2]));
+      });
+    }
+  }
+  function buildSwatches() {
+    var html = '';
+    ACCENTS.forEach(function (a) {
+      html += '<button type="button" class="swatch" data-kind="accent" data-id="' + a.id + '" style="--sw:' + hsl(a.h, a.s, 42) + '" aria-label="' + a.name + '" title="' + a.name + '" aria-pressed="false"></button>';
+    });
+    html += '<label class="swatch custom" id="accentCustomWrap" title="Custom color"><input type="color" id="accentCustom" value="#a8263b" aria-label="Custom accent color"></label>';
+    $('accentSwatches').innerHTML = html;
+    var th = '';
+    TINTS.forEach(function (t) {
+      th += '<button type="button" class="swatch" data-kind="tint" data-id="' + t.id + '" style="--sw:' + hsl(t.show, t.m ? 22 * t.m : 0, 20) + '" aria-label="' + t.name + '" title="' + t.name + '" aria-pressed="false"></button>';
+    });
+    $('tintSwatches').innerHTML = th;
+  }
+  function refreshSwatches() {
+    var accent = st.accent || 'crimson', tint = st.tint || 'plum';
+    Array.prototype.forEach.call(document.querySelectorAll('.swatch[data-kind]'), function (b) {
+      var cur = b.getAttribute('data-kind') === 'accent' ? accent : tint;
+      b.setAttribute('aria-pressed', b.getAttribute('data-id') === cur ? 'true' : 'false');
+    });
+    var custom = /^#/.test(accent);
+    var wrap = $('accentCustomWrap');
+    wrap.classList.toggle('on', custom);
+    if (custom) { wrap.style.setProperty('--sw', st.accent); $('accentCustom').value = st.accent; }
+    else wrap.style.removeProperty('--sw');
+  }
+  function colorsChanged() { applyColors(); refreshSwatches(); save(); }
+  buildSwatches();
+  $('settingsDlg').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.swatch[data-kind]') : null;
+    if (!b) return;
+    if (b.getAttribute('data-kind') === 'accent') st.accent = b.getAttribute('data-id') === 'crimson' ? '' : b.getAttribute('data-id');
+    else st.tint = b.getAttribute('data-id') === 'plum' ? '' : b.getAttribute('data-id');
+    colorsChanged();
+  });
+  $('accentCustom').addEventListener('input', function () {
+    if (/^#[0-9a-f]{6}$/i.test(this.value)) { st.accent = this.value.toLowerCase(); colorsChanged(); }
+  });
+  $('colorsReset').addEventListener('click', function () {
+    st.accent = '';
+    st.tint = '';
+    colorsChanged();
+  });
+  try {
+    new MutationObserver(applyColors).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    var mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)');
+    if (mq && mq.addEventListener) mq.addEventListener('change', applyColors);
+  } catch (e) {}
+  applyColors();
+  refreshSwatches();
+
+  /* UI options. With the lock on, Botch is always on and its toggles cannot be changed; turning it off restores the earlier choices. */
+  function applyBotchLock() {
+    $('botch').checked = st.botch;
+    $('botch').closest('label').hidden = st.botchLock;
+    setPressed('dmgBotch', st.dmgBotch);
+    $('dmgBotch').hidden = st.botchLock;
+  }
+  $('botchLock').addEventListener('change', function () {
+    if (this.checked) {
+      st.botchPrev = st.botch;
+      st.dmgBotchPrev = st.dmgBotch;
+      st.botchLock = true;
+      st.botch = true;
+      st.dmgBotch = true;
+    } else {
+      st.botchLock = false;
+      st.botch = st.botchPrev;
+      st.dmgBotch = st.dmgBotchPrev;
+    }
+    applyBotchLock();
+    if (st.botchLock) {
+      ['rollInfo', 'dmgInfo'].forEach(function (id) { $(id).textContent = $(id).textContent.replace(/ · botch (on|off)/, ''); });
+    }
+    updateLabels();
+    updateDmg();
+    save();
+  });
+  $('cookieRefresh').checked = st.cookieRefresh;
+  $('cookieRefresh').addEventListener('change', function () {
+    st.cookieRefresh = this.checked;
+    if (this.checked) refreshCookies();
+    save();
+  });
+  $('instantRoll').checked = st.instant;
+  $('instantRoll').addEventListener('change', function () { st.instant = this.checked; save(); });
+  $('botchLock').checked = st.botchLock;
+  applyBotchLock();
+
+  /* Danger zone: wipe everything this page stored, after an in-page confirmation. */
+  function resetWipe() {
+    $('wipeConfirm').hidden = true;
+    $('wipeBtn').hidden = false;
+  }
+  $('wipeBtn').addEventListener('click', function () {
+    this.hidden = true;
+    $('wipeStatus').textContent = '';
+    $('wipeConfirm').hidden = false;
+    $('wipeNo').focus();
+  });
+  $('wipeNo').addEventListener('click', function () {
+    resetWipe();
+    $('wipeBtn').focus();
+  });
+  $('wipeYes').addEventListener('click', function () {
+    wiping = true;
+    try { localStorage.clear(); } catch (e) {}
+    try { sessionStorage.clear(); } catch (e) {}
+    ['vtm_presets', 'vtm_dmg_presets'].forEach(function (k) {
+      try { document.cookie = k + '=' + cookieAttrs().replace('max-age=31536000', 'max-age=0'); } catch (e) {}
+    });
+    resetWipe();
+    $('wipeStatus').textContent = 'All saved data was deleted. Reloading…';
+    try { window.location.reload(); } catch (e) { $('wipeStatus').textContent = 'All saved data was deleted. Reload the page to start fresh.'; }
+  });
+
+  /* Settings dialog */
+  function openSettings() {
+    $('settingsBack').hidden = false;
+    $('m20').checked = st.m20;
+    $('settingsClose').focus();
+  }
+  function closeSettings() {
+    resetWipe();
+    $('settingsBack').hidden = true;
+    $('settingsBtn').focus();
+  }
+  $('settingsBtn').addEventListener('click', openSettings);
+  $('settingsClose').addEventListener('click', closeSettings);
+  $('settingsBack').addEventListener('click', function (e) { if (e.target === this) closeSettings(); });
+  $('settingsBack').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeSettings(); return; }
+    if (e.key !== 'Tab') return;
+    var f = Array.prototype.filter.call($('settingsDlg').querySelectorAll('button, input, [tabindex]'), function (x) { return !x.disabled; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  $('m20').addEventListener('change', function () {
+    st.m20 = this.checked;
+    syncDiffUI(diffCfg);
+    syncDiffUI(dmgDiffCfg);
+    save();
+    updateLabels();
+    updateDmg();
+  });
+  $('m20').checked = st.m20;
 
   syncControls();
   doRoll(false, true);
