@@ -177,6 +177,12 @@ body {
 .roll { height: 56px; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); font: 700 1.6rem/1 var(--font-display); letter-spacing: 0.02em; cursor: pointer; }
 .roll:hover { filter: brightness(1.12); }
 .roll:active { transform: translateY(1px); }
+.roll-row { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
+.roll-row.solo { grid-template-columns: minmax(0, 1fr); }
+.quick[hidden] { display: none; }
+.quick { height: 56px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 700 0.9rem/1.15 var(--font-data); padding: 0 4px; cursor: pointer; }
+.quick:hover { background: var(--line); }
+.quick:active { transform: translateY(1px); }
 .roll:disabled { opacity: 0.5; cursor: not-allowed; filter: none; transform: none; }
 
 .table { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
@@ -274,6 +280,19 @@ body {
 .tab[aria-expanded="true"]:hover { background: var(--bg); }
 .tab[aria-expanded="true"] .chev { transform: rotate(180deg); }
 .odds-body { border-top: 1px solid var(--line-strong); padding-top: 24px; }
+/* Wide Aspect: on large screens the extra tools sit beside the roller; both halves share the width equally. */
+@media (min-width: 1280px) {
+  .wrap.wide { max-width: 1680px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 32px; row-gap: 28px; align-items: start; }
+  .wrap.wide > .top { grid-column: 1 / -1; grid-row: 1; }
+  /* The tabs ride up beside the title so the modules' panels start level with the main roller's panel. */
+  .wrap.wide .modules { display: contents; }
+  .wrap.wide .tabbar { grid-column: 2; grid-row: 1; align-self: end; z-index: 1; border-bottom: 1px solid var(--line-strong); }
+  .wrap.wide > .grid { grid-column: 1; grid-row: 2; }
+  .wrap.wide .modules > .odds-body { grid-column: 2; grid-row: 2; border-top: 0; padding-top: 0; display: flex; flex-direction: column; }
+  .wrap.wide .modules > .odds-body[hidden] { display: none; }
+  .wrap.wide .odds-body > .odds-intro { order: 2; margin: 16px 0 0; }
+  .wrap.wide .grid, .wrap.wide .modules .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+}
 .odds-intro { margin: 0 0 20px; color: var(--muted); max-width: 60ch; }
 .opts { display: flex; gap: 8px; }
 .opt { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--muted); cursor: pointer; }
@@ -385,7 +404,10 @@ body {
           <span class="txt"><strong>Botch</strong><small>Each 1 subtracts 1 success. No successes and at least one 1 is a botch.</small></span>
         </label>      </div>
 
-      <button class="roll" type="submit" id="rollBtn">Roll</button>
+      <div class="roll-row">
+        <button class="roll" type="submit" id="rollBtn">Roll</button>
+        <button class="quick" type="button" id="quickBtn" aria-label="Roll a single d10, ignoring the pool, difficulty, modifiers, Specialty and Botch" title="Single Roll: one d10, nothing else applies">Single<br>Roll</button>
+      </div>
 
       <div class="field presets">
         <h3 class="pre-h">
@@ -640,7 +662,7 @@ body {
       <label class="switch" for="m20">
         <input type="checkbox" role="switch" id="m20">
         <span class="track" aria-hidden="true"></span>
-        <span class="txt"><strong>M20 Thresholds</strong><small>Mage: The Ascension 20th rules. Dice succeed on 9 or higher at most. Each point of difficulty above 9 means one more success is needed to count as one: difficulty 10 needs 2, difficulty 12 needs 4. Applies to rolls, damage and probability.</small></span>
+        <span class="txt"><strong>M20 Thresholds</strong><small>Mage: The Ascension 20th rules. Dice succeed on 10 at most. Each point of difficulty above 10 means one more success is needed to count as one: difficulty 11 needs 2, difficulty 13 needs 4. Applies to rolls, damage and probability.</small></span>
       </label>
     </section>
     <section class="set-sec" aria-labelledby="uiHead">
@@ -654,6 +676,11 @@ body {
         <input type="checkbox" role="switch" id="cookieRefresh">
         <span class="track" aria-hidden="true"></span>
         <span class="txt"><strong>Cookie Refresh</strong><small>Renew your saved preset cookies every time the page loads, so they don't expire.</small></span>
+      </label>
+      <label class="switch" for="quickOpt">
+        <input type="checkbox" role="switch" id="quickOpt">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Single Roll Button</strong><small>Show the button beside Roll that rolls one plain d10.</small></span>
       </label>
       <label class="switch" for="instantRoll">
         <input type="checkbox" role="switch" id="instantRoll">
@@ -672,6 +699,11 @@ body {
         <div class="swatches" id="tintSwatches" role="group" aria-labelledby="tintLabel"></div>
       </div>
       <button type="button" class="reset-btn" id="colorsReset">Reset colors</button>
+      <label class="switch" for="wideAspect">
+        <input type="checkbox" role="switch" id="wideAspect">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Wide Aspect</strong><small>On screens over 1280px wide, show Extra Modules beside the roller, with their tabs above them. Narrow screens keep the stacked layout.</small></span>
+      </label>
     </section>
     <section class="set-sec danger" aria-labelledby="dangerHead">
       <h3 id="dangerHead">Danger Zone</h3>
@@ -707,7 +739,7 @@ body {
     return Math.min(b, Math.max(a, n));
   }
 
-  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: '', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: false, instant: false, cookieRefresh: true, botchPrev: true, dmgBotchPrev: false, m20: false, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
+  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: '', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: false, instant: false, cookieRefresh: true, quickBtn: true, wide: false, botchPrev: true, dmgBotchPrev: false, m20: false, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved) {
@@ -733,7 +765,7 @@ body {
       ['presetsH', 'dmgPresetsH'].forEach(function (k) {
         if (isFinite(+saved[k])) st[k] = clamp(+saved[k], 56, 720);
       });
-      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn', 'm20', 'diffInput', 'dmgDiffInput', 'botchLock', 'botchPrev', 'dmgBotchPrev', 'instant', 'cookieRefresh'].forEach(function (k) {
+      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn', 'm20', 'diffInput', 'dmgDiffInput', 'botchLock', 'botchPrev', 'dmgBotchPrev', 'instant', 'cookieRefresh', 'quickBtn', 'wide'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
     }
@@ -791,14 +823,14 @@ body {
   function modText(base, mod) { return base + ' ' + (mod < 0 ? MINUS : '+') + ' ' + Math.abs(mod); }
   function dModApplied() { return st.dModOn ? st.dMod : 0; }
   /* The difficulty actually rolled against, kept within 2 to 10. */
-  function maxDiff() { return st.m20 ? 38 : 10; }
+  function maxDiff() { return st.m20 ? 39 : 10; }
   function effDiff() { return clamp(st.diff + dModApplied(), 2, maxDiff()); }
-  /* M20: dice never need more than a 9, and each point of difficulty past 9 costs one extra success. */
-  function ruleOf(full) { return (st.m20 && full > 9) ? { die: 9, extra: full - 9 } : { die: full, extra: 0 }; }
+  /* M20: dice never need more than a 10, and each point of difficulty past 10 costs one extra success. */
+  function ruleOf(full) { return (st.m20 && full > 10) ? { die: 10, extra: full - 10 } : { die: full, extra: 0 }; }
   function diffHintText(base, mod, full) {
     var r = ruleOf(full);
     var t = mod ? 'Difficulty ' + full + ' (' + modText(base, mod) + '). ' : '';
-    if (r.extra) return t + 'M20: dice succeed on 9 or higher, and ' + (r.extra + 1) + ' successes count as one.';
+    if (r.extra) return t + 'M20: dice succeed on 10, and ' + (r.extra + 1) + ' successes count as one.';
     return t + 'Each die showing ' + r.die + ' or higher counts as a success.';
   }
   function diffText(base, mod, full, extra) { return 'difficulty ' + full + (mod ? ' (' + modText(base, mod) + ')' : '') + (extra ? ', needs ' + (extra + 1) + ' successes' : ''); }
@@ -915,6 +947,60 @@ body {
     $('note').textContent = note;
     $('note').hidden = !note;
   }
+
+  /* One plain d10. Pool, difficulty, modifiers, Specialty and Botch do not apply, it never feeds the damage bonus,
+     and it leaves any secret setting untouched. Only a 10 and a 1 are lit up. */
+  function quickRoll() {
+    if (timer) { clearInterval(timer); timer = null; }
+    prepSound();
+    var v = rand10();
+    buildTray(1);
+    $('rollInfo').textContent = 'Quick d10 · pool, difficulty, modifiers, specialty and botch are ignored';
+    function finish() {
+      var kind = v === 10 ? 'ten' : (v === 1 ? 'one' : '');
+      var c = cells[0];
+      setFace(0, v);
+      c.svg.setAttribute('class', 'die' + (kind ? ' ' + kind : ''));
+      c.svg.setAttribute('aria-label', 'Die 1: ' + v + (v === 10 ? ', a ten' : (v === 1 ? ', a one' : ', plain roll')));
+      c.tag.textContent = v === 10 ? '10' : (v === 1 ? '1' : '');
+      c.tag.setAttribute('class', 'tag' + (kind ? ' ' + kind : ''));
+      var result = $('result');
+      result.classList.remove('stale');
+      result.setAttribute('data-state', v === 1 ? 'botch' : (v === 10 ? 'win' : 'fail'));
+      $('net').textContent = v;
+      $('unit').textContent = 'on one d10';
+      $('kicker').textContent = v === 10 ? 'Ten' : (v === 1 ? 'One' : 'Quick d10');
+      $('parts').textContent = '';
+      $('note').textContent = '';
+      $('note').hidden = true;
+    }
+    if (noMotion()) { finish(); playSound(); return; }
+    $('result').classList.add('stale');
+    setFace(0, rand10());
+    var start = performance.now();
+    timer = setInterval(function () {
+      if (performance.now() - start >= 380) {
+        clearInterval(timer);
+        timer = null;
+        finish();
+        playSound();
+      } else {
+        setFace(0, rand10());
+      }
+    }, 70);
+  }
+  $('quickBtn').addEventListener('click', quickRoll);
+  function applyQuickOpt() {
+    $('quickBtn').hidden = !st.quickBtn;
+    document.querySelector('.roll-row').classList.toggle('solo', !st.quickBtn);
+  }
+  $('quickOpt').checked = st.quickBtn;
+  $('quickOpt').addEventListener('change', function () {
+    st.quickBtn = this.checked;
+    applyQuickOpt();
+    save();
+  });
+  applyQuickOpt();
 
   function doRoll(animate, sample) {
     if (timer) { clearInterval(timer); timer = null; }
@@ -2123,14 +2209,24 @@ body {
   $('dmgToggle').addEventListener('click', function () { toggleModule('damage'); });
   $('oddsToggle').addEventListener('click', function () { toggleModule('probability'); });
   document.querySelector('.tabbar').addEventListener('keydown', function (e) {
-    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) < 0) return;
+    var fwd = e.key === 'ArrowRight' || e.key === 'ArrowDown';
     var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabbar .tab'));
     var at = tabs.indexOf(document.activeElement);
     if (at < 0) return;
     e.preventDefault();
-    tabs[(at + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length].focus();
+    tabs[(at + (fwd ? 1 : tabs.length - 1)) % tabs.length].focus();
   });
   setModule(st.module);
+
+  /* Wide Aspect: only a class on the page wrapper; the stylesheet decides whether the screen is wide enough. */
+  $('wideAspect').checked = st.wide;
+  document.querySelector('.wrap').classList.toggle('wide', st.wide);
+  $('wideAspect').addEventListener('change', function () {
+    st.wide = this.checked;
+    document.querySelector('.wrap').classList.toggle('wide', st.wide);
+    save();
+  });
 
   /* Recoloring. The stylesheet keeps the original palette; choices are applied as inline overrides of its tokens,
      and are recomputed whenever the light or dark theme changes so contrast holds in both. */
