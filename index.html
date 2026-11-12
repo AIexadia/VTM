@@ -240,23 +240,28 @@ body {
 .preset-add input::placeholder { color: var(--muted); }
 .btn-sec { height: 44px; padding: 0 18px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 600 0.95rem var(--font-body); cursor: pointer; }
 .btn-sec:hover { background: var(--line); }
-.preset-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; overscroll-behavior: contain; }
-.preset-list li { display: grid; grid-template-columns: 28px minmax(0, 1fr) 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--well); overflow: hidden; }
-.preset-list li:not(.empty) { height: 56px; flex: none; }
-.preset-list.is-recent li { grid-template-columns: minmax(0, 1fr) 44px; }
-.preset-list li.empty { display: block; padding: 10px 12px; border-style: dashed; color: var(--muted); font-size: 0.9rem; }
+.preset-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 56px; align-content: start; gap: 6px; max-height: 180px; overflow-y: auto; overscroll-behavior: contain; }
+.preset-list li { display: grid; grid-template-columns: minmax(0, 1fr); -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; touch-action: pan-y; border: 1px solid var(--line); border-radius: 8px; background: var(--well); overflow: hidden; min-width: 0; }
+.preset-list li.empty { grid-column: 1 / -1; display: block; padding: 10px 12px; border-style: dashed; color: var(--muted); font-size: 0.9rem; }
+.preset-list li.lift { border-color: var(--accent); background: var(--surface-2); transition: background 0.1s, border-color 0.1s; }
 .preset-list li.dragging { position: relative; z-index: 5; background: var(--surface-2); border-color: var(--accent); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); transition: none; user-select: none; }
-.preset-grab { display: grid; place-items: center; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--muted); cursor: grab; touch-action: none; padding: 0; }
-.preset-grab:hover { background: var(--surface-2); color: var(--fg); }
-.dragging .preset-grab { cursor: grabbing; }
-.is-recent .preset-grab { display: none; }
-.preset-load { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 0; padding: 6px 12px; border: 0; background: transparent; color: var(--fg); text-align: left; cursor: pointer; }
+.preset-load { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; min-width: 0; padding: 4px 8px; border: 0; background: transparent; color: var(--fg); text-align: center; cursor: pointer; }
 .preset-load:hover { background: var(--surface-2); }
-.preset-load strong { font-weight: 600; font-size: 0.95rem; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.preset-load small { font: 500 0.75rem/1.4 var(--font-data); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.preset-del { border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); font: 500 1.25rem/1 var(--font-data); cursor: pointer; }
-.preset-del:hover { background: var(--surface-2); color: var(--accent-text); }
-.preset-load:focus-visible, .preset-del:focus-visible, .preset-grab:focus-visible { outline-offset: -3px; }
+.preset-load strong { font-weight: 600; font-size: 14px; line-height: 1.15; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.preset-load strong.s2 { font-size: 13px; }
+.preset-load strong.s3 { font-size: 12px; }
+.preset-load strong.s4 { font-size: 11px; }
+.preset-load strong { max-width: 100%; }
+.preset-load small .sp { font-weight: 800; color: var(--fg); }
+.preset-load small { max-width: 100%; font: 500 0.7rem/1.2 var(--font-data); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.preset-rename { grid-column: 1; min-width: 0; margin: 6px; height: auto; border: 1px solid var(--accent); border-radius: 6px; background: var(--bg); color: var(--fg); padding: 0 6px; font: 600 0.85rem var(--font-body); }
+.renaming .preset-load { display: none; }
+.preset-list li button:focus-visible, .preset-rename:focus-visible { outline-offset: -3px; }
+.ctx { position: fixed; z-index: 60; min-width: 140px; padding: 4px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface-2); box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; }
+.ctx[hidden] { display: none; }
+.ctx button { text-align: left; border: 0; border-radius: 6px; background: transparent; color: var(--fg); padding: 10px 12px; font: 500 0.95rem var(--font-body); cursor: pointer; }
+.ctx button:hover, .ctx button:focus-visible { background: var(--line); outline: none; }
+.ctx button.danger { color: var(--accent-text); }
 .preset-grip { height: 20px; display: grid; place-items: center; cursor: ns-resize; touch-action: none; border-radius: 6px; }
 .preset-grip::before { content: ""; width: 44px; height: 4px; border-radius: 2px; background: var(--line-strong); }
 .preset-grip:hover::before, .preset-grip.active::before, .preset-grip:focus-visible::before { background: var(--accent); }
@@ -1522,9 +1527,61 @@ body {
   var GRIP_MAX = 720;
 
   /* One preset list with its own storage key and its own elements. The roller and the damage section each get one. */
-  /* A short note on the preset's saved Mod inputs, left out when both are zero. */
-  function modsText(p) {
-    return (p.mod ? ' · mod ' + signed(p.mod) : '') + (p.dmod ? ' · diff mod ' + signed(p.dmod) : '');
+  /* Everything a preset stores, for its tooltip. */
+  function presetDetails(p, withBonus) {
+    var rows = ['Dice: ' + p.pool, 'Difficulty: ' + p.diff, 'Specialty: ' + (p.spec ? 'on' : 'off'), 'Botch: ' + (p.botch ? 'on' : 'off')];
+    if (withBonus) rows.push('Bonus dice: ' + (p.bonus ? 'on' : 'off'));
+    rows.push('Pool mod: ' + (p.mod ? signed(p.mod) : '0'));
+    rows.push('Difficulty mod: ' + (p.dmod ? signed(p.dmod) : '0'));
+    return rows;
+  }
+
+  /* One shared context menu for every preset list. */
+  var ctxEl = null, ctxBack = null;
+  function closeContextMenu(refocus) {
+    if (!ctxEl || ctxEl.hidden) return;
+    ctxEl.hidden = true;
+    if (refocus && ctxBack && document.contains(ctxBack)) ctxBack.focus();
+    ctxBack = null;
+  }
+  function openContextMenu(x, y, items, back) {
+    if (!ctxEl) {
+      ctxEl = document.createElement('div');
+      ctxEl.className = 'ctx';
+      ctxEl.setAttribute('role', 'menu');
+      ctxEl.hidden = true;
+      document.body.appendChild(ctxEl);
+      document.addEventListener('pointerdown', function (e) { if (!ctxEl.hidden && !ctxEl.contains(e.target)) closeContextMenu(false); }, true);
+      document.addEventListener('keydown', function (e) {
+        if (ctxEl.hidden) return;
+        var btns = Array.prototype.slice.call(ctxEl.querySelectorAll('button'));
+        var at = btns.indexOf(document.activeElement);
+        if (e.key === 'Escape') { e.preventDefault(); closeContextMenu(true); }
+        else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          btns[(at + (e.key === 'ArrowDown' ? 1 : btns.length - 1) + btns.length) % btns.length].focus();
+        } else if (e.key === 'Tab') closeContextMenu(false);
+      });
+      window.addEventListener('blur', function () { closeContextMenu(false); });
+      window.addEventListener('resize', function () { closeContextMenu(false); });
+      window.addEventListener('scroll', function () { closeContextMenu(false); }, true);
+    }
+    ctxEl.textContent = '';
+    ctxBack = back;
+    items.forEach(function (it) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'menuitem');
+      b.textContent = it.label;
+      if (it.danger) b.className = 'danger';
+      b.addEventListener('click', function () { closeContextMenu(false); it.run(); });
+      ctxEl.appendChild(b);
+    });
+    ctxEl.hidden = false;
+    var w = ctxEl.offsetWidth || 150, h = ctxEl.offsetHeight || 90;
+    ctxEl.style.left = Math.max(8, Math.min(x, window.innerWidth - w - 8)) + 'px';
+    ctxEl.style.top = Math.max(8, Math.min(y, window.innerHeight - h - 8)) + 'px';
+    ctxEl.firstChild.focus();
   }
 
   function createPresetBox(o) {
@@ -1600,7 +1657,6 @@ body {
         .map(function (x) { return x.p; });
     }
 
-    var GRAB_SVG = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><circle cx="5.5" cy="3.5" r="1.4"></circle><circle cx="10.5" cy="3.5" r="1.4"></circle><circle cx="5.5" cy="8" r="1.4"></circle><circle cx="10.5" cy="8" r="1.4"></circle><circle cx="5.5" cy="12.5" r="1.4"></circle><circle cx="10.5" cy="12.5" r="1.4"></circle></svg>';
 
     function renderList() {
       var list = $(ids.list);
@@ -1618,30 +1674,87 @@ body {
       ordered().forEach(function (p) {
         var li = document.createElement('li');
         li._p = p;
-        var grab = document.createElement('button');
-        grab.type = 'button';
-        grab.className = 'preset-grab';
-        grab.setAttribute('aria-label', 'Move preset ' + p.name + '. Drag it, or press the up and down arrow keys.');
-        grab.innerHTML = GRAB_SVG;
         var load = document.createElement('button');
         load.type = 'button';
         load.className = 'preset-load';
+        var lines = o.details(p);
+        load.title = p.name + '\n' + lines.join('\n') + '\nRight-click for Rename and Delete. Hold, then drag to move. Shift+click loads with mods and rolls.';
+        load.setAttribute('aria-label', 'Load preset ' + p.name + '. ' + lines.join(', ') + '. Press the menu key for Rename and Delete. Hold Alt and press an arrow key to move it.');
         var strong = document.createElement('strong');
         strong.textContent = p.name;
+        /* Longer names get a smaller font first, then wrap onto a second row inside the button. */
+        var n = p.name.length;
+        strong.className = n <= 9 ? '' : n <= 16 ? 's2' : n <= 26 ? 's3' : 's4';
         var small = document.createElement('small');
-        small.textContent = o.summary(p);
+        /* A lone + or − after the 'd' or the DC number says that the preset carries a pool or difficulty mod. */
+        var dice = document.createElement('span');
+        dice.textContent = p.pool + 'd' + (p.mod ? (p.mod < 0 ? MINUS : '+') : '');
+        if (p.spec) dice.className = 'sp';   // bold when the preset has Specialty on
+        small.appendChild(dice);
+        small.appendChild(document.createTextNode(' · DC ' + p.diff + (p.dmod ? (p.dmod < 0 ? MINUS : '+') : '')));
         load.appendChild(strong);
         load.appendChild(small);
-        var del = document.createElement('button');
-        del.type = 'button';
-        del.className = 'preset-del';
-        del.setAttribute('aria-label', 'Delete preset ' + p.name);
-        del.textContent = '×';
-        li.appendChild(grab);
         li.appendChild(load);
-        li.appendChild(del);
         list.appendChild(li);
       });
+    }
+
+    var PENCIL_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z"></path></svg>';
+
+    /* Rename in place: Enter or leaving the box keeps the new name, Escape keeps the old one. */
+    function startRename(li) {
+      var p = li._p;
+      if (!p || li.classList.contains('renaming')) return;
+      li.classList.add('renaming');
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'preset-rename';
+      input.maxLength = MAX_NAME;
+      input.value = p.name;
+      input.setAttribute('aria-label', 'New name for preset ' + p.name);
+      var done = false;
+      function finish(commit) {
+        if (done) return true;
+        var name = input.value.replace(/\s+/g, ' ').trim().slice(0, MAX_NAME);
+        if (commit && name && name !== p.name) {
+          var clash = presets.some(function (q) { return q !== p && q.name.toLowerCase() === name.toLowerCase(); });
+          if (clash) { setStatus('Another preset is already called “' + name + '”.'); return false; }
+          var old = p.name;
+          p.name = name;
+          var result = persistList();
+          if (result !== 'ok') {
+            p.name = old;
+            setStatus(result === 'toolong' ? 'That name is too long to fit in a cookie.' : 'Could not save the new name. This browser may be blocking cookies.');
+          } else {
+            setStatus('Renamed “' + old + '” to “' + name + '”.');
+          }
+        } else if (commit && !name) {
+          setStatus('A preset needs a name.');
+        }
+        done = true;
+        return true;
+      }
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (finish(true)) { renderList(); var r = rowOf(p); if (r) r.querySelector('.preset-load').focus(); }
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          done = true;
+          renderList();
+          var r2 = rowOf(p);
+          if (r2) r2.querySelector('.preset-load').focus();
+        }
+      });
+      input.addEventListener('blur', function () {
+        if (done) return;
+        finish(true);
+        done = true;
+        renderList();
+      });
+      li.appendChild(input);
+      input.focus();
+      input.select();
     }
 
     function rowOf(p) {
@@ -1684,9 +1797,10 @@ body {
       setStatus((at >= 0 ? 'Updated “' : 'Saved “') + name + '”.');
     }
 
-    function loadPreset(p) {
+    /* force (Shift+click) applies the saved mods and rolls whatever the two option buttons say. */
+    function loadPreset(p, force) {
       if (!p || presets.indexOf(p) < 0) return;
-      o.apply(p, st[o.modsKey] === true);
+      o.apply(p, force || st[o.modsKey] === true);
       $(ids.name).value = p.name;
       p.used = stamp();
       persistList();
@@ -1694,7 +1808,7 @@ body {
         renderList();
         $(ids.list).scrollTop = 0;
       }
-      if (st[o.rollKey]) {
+      if (force || st[o.rollKey]) {
         o.roll();
         setStatus('Loaded “' + p.name + '” and rolled.');
       } else {
@@ -1734,35 +1848,42 @@ body {
     }
 
     /* Drag a row by its handle. The row follows the pointer; the others slide out of the way. */
-    function startDrag(e, li) {
+    function startDrag(e0, e, li, done) {
       var list = $(ids.list);
       var pid = e.pointerId;
       var p = li._p;
-      var offY = e.clientY - li.getBoundingClientRect().top;
+      var offY = e0.clientY - li.getBoundingClientRect().top;
+      var offX = e0.clientX - li.getBoundingClientRect().left;
       var lastY = e.clientY;
+      var lastX = e.clientX;
       var raf = 0;
-      var grab = li.querySelector('.preset-grab');
+      var grab = li.querySelector('.preset-load');
+      li.classList.remove('lift');
       li.classList.add('dragging');
       try { grab.setPointerCapture(pid); } catch (err) {}
 
       function update() {
         li.style.transform = '';
-        var h = li.getBoundingClientRect().height;
-        var natural = li.getBoundingClientRect().top;
-        var desired = lastY - offY;
-        var center = desired + h / 2;
+        var box = li.getBoundingClientRect();
+        var natX = box.left, natY = box.top;
+        var desiredY = lastY - offY;
+        var desiredX = isFinite(lastX) ? lastX - offX : natX;
+        var cy = desiredY + box.height / 2;
+        var cx = desiredX + box.width / 2;
         var rows = Array.prototype.filter.call(list.children, function (c) { return c._p && c !== li; });
         var target = null;
+        /* The row moves in front of the first tile that is below it, or beside it and further right. */
         for (var i = 0; i < rows.length; i++) {
           var r = rows[i].getBoundingClientRect();
-          if (center < r.top + r.height / 2) { target = rows[i]; break; }
+          if (cy < r.top || (cy < r.bottom && cx < r.left + r.width / 2)) { target = rows[i]; break; }
         }
         var current = li.nextElementSibling;
         if (target !== current && !(target === null && current === null)) {
           list.insertBefore(li, target);
-          natural = li.getBoundingClientRect().top;
+          var nb = li.getBoundingClientRect();
+          natX = nb.left; natY = nb.top;
         }
-        li.style.transform = 'translateY(' + Math.round(desired - natural) + 'px)';
+        li.style.transform = 'translate(' + Math.round(desiredX - natX) + 'px, ' + Math.round(desiredY - natY) + 'px)';
       }
 
       function tick() {
@@ -1782,6 +1903,7 @@ body {
       function move(ev) {
         if (ev.pointerId !== pid) return;
         lastY = ev.clientY;
+        lastX = ev.clientX;
         update();
         if (!raf && window.requestAnimationFrame) raf = window.requestAnimationFrame(tick);
       }
@@ -1796,6 +1918,8 @@ body {
         li.classList.remove('dragging');
         li.style.transform = '';
         try { grab.releasePointerCapture(pid); } catch (err) {}
+        holdShown = Date.now();   // the release that ends a drag is not a click on the preset
+        if (done) done();
         if (cancelled) { renderList(); return; }
         var next = Array.prototype.filter.call(list.children, function (c) { return c._p; })
           .map(function (c) { return c._p; });
@@ -1807,25 +1931,88 @@ body {
       document.addEventListener('pointermove', move);
       document.addEventListener('pointerup', up);
       document.addEventListener('pointercancel', cancel);
+      update();
     }
 
-    function onListPointerDown(e) {
-      var grab = e.target.closest ? e.target.closest('.preset-grab') : null;
-      if (!grab || recentOn()) return;
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      var li = grab.closest('li');
+    /* Right-click, the menu key, or a long press on a preset opens a small menu. */
+    var holdShown = 0;
+    function menuFor(li, x, y) {
+      var p = li._p;
+      if (!p) return;
+      holdShown = Date.now();
+      openContextMenu(x, y, [
+        { label: 'Rename', run: function () { startRename(rowOf(p) || li); } },
+        { label: 'Delete', danger: true, run: function () { deletePreset(p); } }
+      ], li.querySelector('.preset-load'));
+    }
+    $(ids.list).addEventListener('contextmenu', function (e) {
+      var li = e.target.closest ? e.target.closest('li') : null;
       if (!li || !li._p) return;
       e.preventDefault();
-      startDrag(e, li);
+      if (touchGesture) return;   // a touch is handled by hold-and-release
+      var x = e.clientX, y = e.clientY;
+      if (!x && !y) { var r = li.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; }
+      menuFor(li, x, y);
+    });
+    /* Hold a preset for a moment, then drag it to a new place. A touch that is held and released without moving opens
+       the menu instead, since a touch screen has no right button. */
+    var HOLD_MS = 320;
+    var touchGesture = false;
+    function onListPointerDown(e) {
+      var load = e.target.closest ? e.target.closest('.preset-load') : null;
+      if (!load) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      var li = load.closest('li');
+      if (!li || !li._p) return;
+      var touch = e.pointerType === 'touch';
+      if (touch) touchGesture = true;
+      var pid = e.pointerId, sx = e.clientX, sy = e.clientY;
+      var ready = false, timer = 0;
+      var canDrag = !recentOn();
+      function blockScroll(ev) { if (ready && ev.cancelable) ev.preventDefault(); }
+      function stopListening() {
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', up);
+        document.removeEventListener('pointercancel', cancel);
+      }
+      function finish() {
+        window.clearTimeout(timer);
+        stopListening();
+        document.removeEventListener('touchmove', blockScroll);
+        li.classList.remove('lift');
+        window.setTimeout(function () { touchGesture = false; }, 600);
+      }
+      function move(ev) {
+        if (ev.pointerId !== pid) return;
+        var d = Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy);
+        if (!ready) { if (d > 8) finish(); return; }
+        if (canDrag && d > 4) {
+          stopListening();
+          window.clearTimeout(timer);
+          startDrag({ clientX: sx, clientY: sy }, ev, li, finish);
+        }
+      }
+      function up(ev) {
+        if (ev.pointerId !== pid) return;
+        var wasHeld = ready;
+        finish();
+        if (wasHeld && touch) menuFor(li, sx, sy);
+      }
+      function cancel(ev) { if (ev.pointerId === pid) finish(); }
+      timer = window.setTimeout(function () { ready = true; if (canDrag) li.classList.add('lift'); }, HOLD_MS);
+      document.addEventListener('pointermove', move);
+      document.addEventListener('pointerup', up);
+      document.addEventListener('pointercancel', cancel);
+      if (touch) document.addEventListener('touchmove', blockScroll, { passive: false });
     }
 
     function onListKeyDown(e) {
-      var grab = e.target.closest ? e.target.closest('.preset-grab') : null;
-      if (!grab || recentOn()) return;
-      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
-      var p = grab.closest('li')._p;
+      var load = e.target.closest ? e.target.closest('.preset-load') : null;
+      if (!load || !e.altKey || recentOn()) return;
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) < 0) return;
+      var p = load.closest('li')._p;
       var i = presets.indexOf(p);
-      var j = e.key === 'ArrowUp' ? i - 1 : i + 1;
+      var j = (e.key === 'ArrowUp' || e.key === 'ArrowLeft') ? i - 1 : i + 1;
       e.preventDefault();
       if (!p || j < 0 || j >= presets.length) return;
       var next = presets.slice();
@@ -1834,7 +2021,7 @@ body {
       commitOrder(next, p);
       var row = rowOf(p);
       if (row) {
-        var g = row.querySelector('.preset-grab');
+        var g = row.querySelector('.preset-load');
         if (g) g.focus();
         if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest' });
       }
@@ -1904,8 +2091,10 @@ body {
       if (!btn) return;
       var li = btn.closest('li');
       if (!li || !li._p) return;
-      if (btn.classList.contains('preset-load')) loadPreset(li._p);
-      else if (btn.classList.contains('preset-del')) deletePreset(li._p);
+      if (btn.classList.contains('preset-load')) {
+        if (Date.now() - holdShown < 700) return;   // the tap that opened the menu is not a load
+        loadPreset(li._p, e.shiftKey);
+      }
     });
     $(ids.list).addEventListener('pointerdown', onListPointerDown);
     $(ids.list).addEventListener('keydown', onListKeyDown);
@@ -2217,10 +2406,7 @@ body {
       name: 'presetName', save: 'presetSave', list: 'presetList', status: 'presetStatus', store: 'presetStore',
       count: 'presetCount', toggle: 'presetsToggle', body: 'presetsBody', rollSwitch: 'rollOnLoad', mods: 'presetMods', recent: 'presetRecent', grip: 'presetGrip'
     },
-    summary: function (p) {
-      return p.pool + (p.pool === 1 ? ' die' : ' dice') + ' · diff ' + p.diff +
-        (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '') + modsText(p);
-    },
+    details: function (p) { return presetDetails(p, false); },
     current: function () { return { pool: st.pool, diff: st.diff, spec: st.spec, botch: st.botch, bonus: true, mod: modApplied(), dmod: dModApplied() }; },
     apply: function (p, withMods) {
       st.pool = p.pool; st.diff = p.diff; st.spec = p.spec; st.botch = p.botch;
@@ -2244,10 +2430,7 @@ body {
       name: 'dmgPresetName', save: 'dmgPresetSave', list: 'dmgPresetList', status: 'dmgPresetStatus', store: 'dmgPresetStore',
       count: 'dmgPresetCount', toggle: 'dmgPresetsToggle', body: 'dmgPresetsBody', rollSwitch: 'dmgRollOnLoad', mods: 'dmgPresetMods', recent: 'dmgPresetRecent', grip: 'dmgPresetGrip'
     },
-    summary: function (p) {
-      return p.pool + (p.pool === 1 ? ' die' : ' dice') + ' · diff ' + p.diff +
-        (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '') + (p.bonus ? ' · bonus dice' : '') + modsText(p);
-    },
+    details: function (p) { return presetDetails(p, true); },
     current: function () { return { pool: st.dmgPool, diff: st.dmgDiff, spec: st.dmgSpec, botch: st.dmgBotch, bonus: st.dmgBonus, mod: dmgModApplied(), dmod: dmgDModApplied() }; },
     apply: function (p, withMods) {
       st.dmgPool = p.pool; st.dmgDiff = p.diff; st.dmgSpec = p.spec; st.dmgBotch = p.botch; st.dmgBonus = p.bonus;
