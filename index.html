@@ -95,7 +95,9 @@ body {
 .top-btns { display: flex; gap: 8px; flex: none; }
 .modal-back { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: rgba(8, 6, 10, 0.62); }
 .modal-back[hidden] { display: none; }
-.switch[hidden], .opt[hidden] { display: none; }
+.switch[hidden], .opt[hidden], #mainRoller[hidden], .simple[hidden] { display: none; }
+.switch.off { opacity: 0.45; cursor: not-allowed; }
+.switch.off .track { filter: grayscale(1); }
 .set-sec.danger { border-top-color: var(--danger); }
 .set-sec.danger h3 { color: var(--danger); }
 .danger-btn { align-self: flex-start; padding: 8px 14px; border: 1px solid var(--danger); border-radius: 8px; background: transparent; color: var(--danger); font: 600 0.9rem/1.2 var(--font-body); cursor: pointer; }
@@ -118,6 +120,12 @@ body {
 .reset-btn { align-self: flex-start; padding: 8px 14px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 600 0.9rem/1.2 var(--font-body); cursor: pointer; }
 .reset-btn:hover { background: var(--line); }
 .modal { width: min(720px, 100%); max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 20px; background: var(--surface); color: var(--fg); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45); }
+.changelog { display: flex; flex-direction: column; gap: 18px; }
+.changelog h3 { margin: 0 0 6px; font: 700 1.05rem/1.2 var(--font-display); color: var(--accent-text, var(--fg)); }
+.changelog ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+.changelog ul ul { margin-top: 4px; }
+.changelog li { line-height: 1.4; }
+.changelog .none { margin: 0; color: var(--muted); }
 .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .modal-head h2 { margin: 0; font: 700 1.6rem/1.1 var(--font-display); }
 .set-sec { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px 28px; align-items: start; padding-top: 16px; border-top: 1px solid var(--line); }
@@ -292,12 +300,78 @@ body {
 .tab[aria-expanded="true"]:hover { background: var(--bg); }
 .tab[aria-expanded="true"] .chev { transform: rotate(180deg); }
 .odds-body { border-top: 1px solid var(--line-strong); padding-top: 24px; }
+.tab[hidden], .modules[hidden], .wrap.wide .modules[hidden] { display: none; }
+.init-panel { gap: 16px; }
+.init-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 16px; }
+.round { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 110px; padding: 8px 22px 10px; border: 1px solid var(--line-strong); border-top: 4px solid var(--accent); border-radius: 10px; background: var(--surface-2); }
+.round b { font: 700 3.6rem/1 var(--font-display); color: var(--accent-text); }
+.ini-cell.pending { font-style: italic; color: var(--muted); }
+.init-opts { display: flex; flex-direction: column; gap: 8px; align-self: flex-end; }
+.simple { align-items: stretch; gap: 20px; text-align: center; }
+.simple-die { display: grid; justify-items: center; gap: 4px; padding: 20px 12px; background: var(--well); border: 1px solid var(--line); border-radius: 10px; }
+.simple-die .die { max-width: 240px; width: 70%; }
+.simple-die .tag { font-size: 0.9rem; }
+.simple .roll { height: 80px; font-size: 2.2rem; }
+.wrap.wide > .simple { grid-column: 1; grid-row: 2; }
+.init-turn { margin: 0 0 0 auto; font-size: 0.9rem; color: var(--muted); min-width: 0; overflow-wrap: anywhere; text-align: right; }
+.init-turn strong { color: var(--fg); }
+.init-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 480px) { .init-actions { grid-template-columns: 1fr 1fr; } .init-actions #initClear { grid-column: 1 / -1; } }
+.init-actions .roll { grid-column: 1 / -1; }
+.init-actions .btn-sec { height: 44px; padding: 0 10px; }
+.init-actions .btn-sec.confirm { background: var(--danger-fill); border-color: var(--danger-fill); color: #fff; }
+.init-actions .btn-sec:disabled, .init-actions .roll:disabled { opacity: 0.5; cursor: not-allowed; }
+.init-wrap { overflow-x: auto; }
+.init-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.init-table th { padding: 0 8px 8px; text-align: left; font: 600 0.75rem/1.2 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line-strong); }
+.init-table th:nth-child(1), .init-table td:nth-child(1) { width: 28px; padding-right: 0; }
+.init-table { min-width: 360px; }
+.init-table th:nth-child(3), .init-table td:nth-child(3) { width: 58px; }
+.init-table th:nth-child(4), .init-table td:nth-child(4) { width: 80px; }
+.init-table th:nth-child(5), .init-table td:nth-child(5) { width: 100px; text-align: right; }
+.init-table td:nth-child(4) { white-space: nowrap; }
+.ini-x { display: inline-grid; place-items: center; width: 20px; height: 20px; margin-left: 6px; padding: 0; vertical-align: middle; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface-2); color: var(--muted); font: 600 0.8rem/1 var(--font-data); cursor: pointer; }
+.ini-x:hover { background: var(--line); color: var(--fg); }
+.ini-cell.dim { color: var(--muted); font-weight: 500; }
+.init-table td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: middle; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+.init-table tbody tr { transition: opacity 0.15s; }
+.init-table tr.acted { opacity: 0.42; }
+.init-table tr.current { background: var(--surface-2); }
+.init-table tr.current td:nth-child(2) strong { color: var(--accent-text); }
+.init-table .arrow { color: var(--accent-text); }
+.init-table .arrow svg { display: block; width: 18px; height: 18px; }
+.init-table .none { color: var(--muted); text-align: center; padding: 22px 8px; }
+.ini-cell { display: inline-block; max-width: 100%; padding: 4px 6px; margin: -4px -6px; border: 0; border-radius: 6px; background: transparent; color: var(--fg); font: 600 1rem/1.3 var(--font-body); text-align: left; cursor: text; overflow-wrap: anywhere; }
+.ini-cell:hover { background: var(--line); }
+.ini-cell.mono { font-family: var(--font-data); }
+.ini-edit { width: 100%; min-width: 0; padding: 4px 6px; margin: -5px -7px; box-sizing: content-box; border: 1px solid var(--accent); border-radius: 6px; background: var(--well); color: var(--fg); font: 600 1rem/1.3 var(--font-body); }
+.ini-edit.mono { font-family: var(--font-data); width: 3.2em; }
+.ini-total { font: 700 1.3rem/1 var(--font-data); text-align: right; }
+.ini-total.dash { color: var(--muted); font-weight: 500; }
+.init-table td:nth-child(5) .ini-cell { margin-right: -6px; }
+.init-sync { display: flex; flex-direction: column; gap: 8px; }
+.sync-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.sync-row[hidden] { display: none; }
+.sync-row .btn-sec { height: 40px; padding: 0 16px; }
+.sync-row input { width: 7.5em; height: 40px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--well); color: var(--fg); font: 600 1rem var(--font-data); letter-spacing: 0.18em; text-transform: uppercase; text-align: center; }
+.sync-row .code { font: 700 1.25rem/1 var(--font-data); letter-spacing: 0.2em; color: var(--accent-text); }
+.sync-row .sp { flex: 1 1 auto; }
+.init-sync .hint:empty { display: none; }
+.init-panel.watching .init-actions, .init-panel.watching .init-opts { display: none; }
+.init-panel.watching .init-table th:nth-child(3), .init-panel.watching .init-table td:nth-child(3) { display: none; }
+.ini-static { font-weight: 600; overflow-wrap: anywhere; }
+.ini-static.mono { font-family: var(--font-data); }
+.ini-static.pending { font-style: italic; color: var(--muted); }
+.ini-static.dim { color: var(--muted); font-weight: 500; }
+.ini-pin { display: inline-flex; vertical-align: -2px; margin-left: 6px; color: var(--muted); }
+.ini-pin svg { width: 14px; height: 14px; }
 /* Wide Aspect: on large screens the extra tools sit beside the roller; both halves share the width equally. */
 @media (min-width: 1280px) {
   .wrap.wide { max-width: 1680px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 32px; row-gap: 28px; align-items: start; }
   .wrap.wide > .top { grid-column: 1 / -1; grid-row: 1; }
   /* The tabs ride up beside the title so the modules' panels start level with the main roller's panel. */
   .wrap.wide .modules { display: contents; }
+  .wrap.wide.no-roller .tabbar, .wrap.wide.no-roller .modules > .odds-body { grid-column: 1 / -1; }
   .wrap.wide .tabbar { grid-column: 2; grid-row: 1; align-self: end; z-index: 1; border-bottom: 1px solid var(--line-strong); }
   .wrap.wide > .grid { grid-column: 1; grid-row: 2; }
   .wrap.wide .modules > .odds-body { grid-column: 2; grid-row: 2; border-top: 0; padding-top: 0; display: flex; flex-direction: column; }
@@ -348,6 +422,12 @@ body {
           <path class="mute" d="M16 9l5 6M21 9l-5 6"></path>
         </svg>
       </button>
+      <button type="button" class="sound-btn" id="changelogBtn" aria-haspopup="dialog" aria-label="Changelog" title="Changelog">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path>
+          <path d="M14 3v5h5M9 13h6M9 17h6"></path>
+        </svg>
+      </button>
       <button type="button" class="sound-btn" id="settingsBtn" aria-haspopup="dialog" aria-label="Settings" title="Settings">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
@@ -357,7 +437,7 @@ body {
     </div>
   </header>
 
-  <div class="grid">
+  <div class="grid" id="mainRoller">
     <form class="panel" id="form" autocomplete="off">
       <div class="field">
         <div class="field-head">
@@ -424,7 +504,7 @@ body {
 
       <div class="roll-row">
         <button class="roll" type="submit" id="rollBtn">Roll</button>
-        <button class="quick" type="button" id="quickBtn" aria-label="Roll a single d10, ignoring the pool, difficulty, modifiers, Specialty and Botch" title="Single Roll: one d10, nothing else applies">Single<br>Roll</button>
+        <button class="quick" type="button" id="quickBtn" aria-label="Roll a single d10, ignoring the pool, difficulty, modifiers, Specialty and Botch" title="Single Roll: one d10, nothing else applies. Shift+click adds a die to the last roll, Shift+right-click removes the last die.">Single<br>Roll</button>
       </div>
 
       <div class="field presets">
@@ -485,6 +565,14 @@ body {
     </section>
   </div>
 
+  <section class="panel simple" id="simpleRoller" aria-label="Simple roller" hidden>
+    <div class="simple-die">
+      <svg class="die" id="simpleDie" viewBox="0 0 64 72" role="img" aria-label="Die: not rolled yet"><polygon points="32,3 61,27 32,69 3,27"></polygon><text x="32" y="40" text-anchor="middle" id="simpleText">?</text></svg>
+      <span class="tag" id="simpleTag" aria-live="polite">&nbsp;</span>
+    </div>
+    <button type="button" class="roll" id="simpleRollBtn">Roll</button>
+  </section>
+
   <section class="modules" aria-label="Extra tools">
     <div class="tabbar">
       <button type="button" class="tab" id="dmgToggle" aria-expanded="false" aria-controls="dmgBody" data-tip="Roll damage after an attack. Each success beyond the first on your most recent roll adds a bonus die." aria-description="Roll damage after an attack. Each success beyond the first on your most recent roll adds a bonus die.">
@@ -493,6 +581,10 @@ body {
       </button>
       <button type="button" class="tab tip-right" id="oddsToggle" aria-expanded="false" aria-controls="oddsBody" data-tip="Chance of rolling at least a number of successes, using the pool, difficulty, Specialty and Botch settings above." aria-description="Chance of rolling at least a number of successes, using the pool, difficulty, Specialty and Botch settings above.">
         <span>Probability</span>
+        <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
+      </button>
+      <button type="button" class="tab" id="initToggle" aria-expanded="false" aria-controls="initBody" data-tip="Track initiative for a combat scene: roll for each actor, follow the turn order and count the rounds." aria-description="Track initiative for a combat scene: roll for each actor, follow the turn order and count the rounds.">
+        <span>Initiative</span>
         <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
       </button>
     </div>
@@ -672,8 +764,74 @@ body {
       </div>
     </div>
     </div>
+    <div class="odds-body" id="initBody" role="region" aria-labelledby="initToggle" hidden>
+      <div class="panel init-panel" id="initPanel">
+        <div class="init-top">
+          <div class="round"><span class="label">Round</span><b id="initRound">1</b></div>
+          <div class="init-opts">
+            <span class="label">Options</span>
+            <div class="opts">
+              <button type="button" class="opt" id="initPersist" aria-pressed="false" aria-label="Persistent rolls: Roll initiative also rolls Persistent actors instead of waiting for you to enter their result." data-tip="Persistent rolls: Roll initiative also rolls Persistent actors instead of waiting for you to enter their result.">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 6-3 1-4 4 .5 4-1.5 1.5-4.5-4.5L3 21M9 8l-1 3 5 5"></path></svg>
+                <span class="opt-word" aria-hidden="true">Persistent rolls</span>
+              </button>
+            </div>
+          </div>
+          <p class="init-turn" id="initTurn" aria-live="polite">Add actors, then roll for initiative.</p>
+        </div>
+        <div class="init-actions">
+          <button type="button" class="roll" id="initRoll">Roll initiative</button>
+          <button type="button" class="btn-sec" id="initAdd">Add actor</button>
+          <button type="button" class="btn-sec" id="initNext">Next turn</button>
+          <button type="button" class="btn-sec" id="initClear">Clear encounter</button>
+        </div>
+        <div class="init-sync" id="initSync">
+          <div class="sync-row" id="syncIdle">
+            <span class="label">Sync</span>
+            <button type="button" class="btn-sec" id="syncHost" title="Share this tracker: you get a code that others can use to watch it live.">Host</button>
+            <span class="sp"></span>
+            <input id="syncCode" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE" aria-label="Room code">
+            <button type="button" class="btn-sec" id="syncJoin" title="Watch a host's tracker with their code. Your own tracker stays as it is.">Sync</button>
+          </div>
+          <div class="sync-row" id="syncHosting" hidden>
+            <span class="label">Hosting</span>
+            <strong class="code" id="syncHostCode"></strong>
+            <span id="syncPeers" class="hint"></span>
+            <span class="sp"></span>
+            <button type="button" class="btn-sec" id="syncCopy">Copy code</button>
+            <button type="button" class="btn-sec" id="syncClose">Close room</button>
+          </div>
+          <div class="sync-row" id="syncWatching" hidden>
+            <span class="label">Synced</span>
+            <strong class="code" id="syncWatchCode"></strong>
+            <span class="hint">Watching the host's tracker</span>
+            <span class="sp"></span>
+            <button type="button" class="btn-sec" id="syncLeave">Leave</button>
+          </div>
+          <p class="hint" id="syncMsg" role="status" aria-live="polite"></p>
+        </div>
+        <div class="init-wrap">
+          <table class="init-table" id="initTable">
+            <caption class="sr-only" style="position:absolute;left:-9999px">Initiative order. Double-click a name, modifier, bonus or initiative to edit it. Right-click an actor for more options.</caption>
+            <thead><tr><th scope="col"><span class="sr-only" style="position:absolute;left:-9999px">Turn</span></th><th scope="col">Actor</th><th scope="col">Mod</th><th scope="col" title="A penalty or bonus to initiative that lasts until the next round">+/-</th><th scope="col">Initiative</th></tr></thead>
+            <tbody id="initBodyRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </section>
 </main>
+<div class="modal-back" id="changelogBack" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="changelogTitle" id="changelogDlg">
+    <div class="modal-head">
+      <h2 id="changelogTitle">Changelog</h2>
+      <button type="button" class="sound-btn" id="changelogClose" aria-label="Close changelog" title="Close">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+    <div class="changelog" id="changelogBody"></div>
+  </div>
+</div>
 <div class="modal-back" id="settingsBack" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" id="settingsDlg">
     <div class="modal-head">
@@ -716,6 +874,34 @@ body {
         <input type="checkbox" role="switch" id="instantRoll">
         <span class="track" aria-hidden="true"></span>
         <span class="txt"><strong>Instant Results</strong><small>Skip the dice animation and show the result as soon as you roll.</small></span>
+      </label>
+    </section>
+    <section class="set-sec" aria-labelledby="modsHead">
+      <h3 id="modsHead">Modules</h3>
+      <label class="switch" for="modMain">
+        <input type="checkbox" role="switch" id="modMain">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Main Roller</strong><small>Show the main dice pool roller. Turning it off also turns off Probability and the Damage roller's Bonus button.</small></span>
+      </label>
+      <label class="switch" for="modSimple" id="modSimpleLabel">
+        <input type="checkbox" role="switch" id="modSimple">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Simple Roller</strong><small>Replace the Main Roller with one big d10 and a Roll button. Only available while the Main Roller is off.</small></span>
+      </label>
+      <label class="switch" for="modDamage">
+        <input type="checkbox" role="switch" id="modDamage">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Damage</strong><small>Show the Damage module in the menu.</small></span>
+      </label>
+      <label class="switch" for="modProb" id="modProbLabel">
+        <input type="checkbox" role="switch" id="modProb">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Probability</strong><small>Show the Probability module in the menu. Needs the Main Roller.</small></span>
+      </label>
+      <label class="switch" for="modInit">
+        <input type="checkbox" role="switch" id="modInit">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Initiative</strong><small>Show the Initiative tracker in the menu.</small></span>
       </label>
     </section>
     <section class="set-sec" aria-labelledby="lookHead">
@@ -775,6 +961,8 @@ body {
   }
 
   var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: 'damage', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: true, instant: false, cookieRefresh: true, quickBtn: true, showAvg: true, touched: [], wide: true, presetsMods: false, dmgPresetsMods: false, wordToggles: true, botchPrev: true, dmgBotchPrev: false, m20: true, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
+  st.showMain = true; st.simple = false; st.showDamage = true; st.showProb = true; st.showInit = true; st.initPersist = false;
+  st.ini = { actors: [], round: 1, turn: 0, seq: 1, started: false };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved) {
@@ -783,7 +971,7 @@ body {
       st.spec = saved.spec === true;
       st.botch = saved.botch !== false;
       if (isFinite(+saved.want)) st.want = clamp(+saved.want, 1, 80);
-      if (saved.module === 'damage' || saved.module === 'probability' || saved.module === '') st.module = saved.module;
+      if (saved.module === 'damage' || saved.module === 'probability' || saved.module === 'initiative' || saved.module === '') st.module = saved.module;
       if (typeof saved.presetsOpen === 'boolean') st.presetsOpen = saved.presetsOpen;
       if (typeof saved.rollOnLoad === 'boolean') st.rollOnLoad = saved.rollOnLoad;
       if (typeof saved.sound === 'boolean') st.sound = saved.sound;
@@ -803,6 +991,27 @@ body {
       ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn', 'm20', 'diffInput', 'dmgDiffInput', 'botchLock', 'botchPrev', 'dmgBotchPrev', 'instant', 'cookieRefresh', 'quickBtn', 'showAvg', 'wide', 'presetsMods', 'dmgPresetsMods', 'wordToggles'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
+      ['showMain', 'simple', 'showDamage', 'showProb', 'showInit', 'initPersist'].forEach(function (k) {
+        if (typeof saved[k] === 'boolean') st[k] = saved[k];
+      });
+      if (saved.ini && Array.isArray(saved.ini.actors)) {
+        var seen = {}, seq = 1;
+        saved.ini.actors.slice(0, 60).forEach(function (a) {
+          if (!a || !isFinite(+a.id) || seen[+a.id]) return;
+          var mod = isFinite(+a.mod) ? clamp(Math.round(+a.mod), -99, 99) : 0;
+          var bonus = isFinite(+a.bonus) ? clamp(Math.round(+a.bonus), -99, 99) : 0;
+          var applied = isFinite(+a.applied) ? clamp(Math.round(+a.applied), -99, 99) : bonus;
+          var rolled = a.init !== null && a.init !== undefined && isFinite(+a.init);
+          var die = isFinite(+a.die) ? clamp(Math.round(+a.die), -199, 999) : (rolled ? Math.round(+a.init) - mod - applied : 0);
+          seen[+a.id] = true;
+          seq = Math.max(seq, +a.id + 1);
+          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, die: rolled ? die : 0, init: rolled ? die + mod + applied : null, persistent: a.persistent === true });
+        });
+        st.ini.seq = seq;
+        if (isFinite(+saved.ini.round)) st.ini.round = clamp(Math.round(+saved.ini.round), 1, 9999);
+        st.ini.turn = seen[+saved.ini.turn] ? +saved.ini.turn : 0;
+        st.ini.started = saved.ini.started === true;
+      }
     }
   } catch (e) {}
 
@@ -952,6 +1161,7 @@ body {
     $('rollInfo').textContent = (sample ? 'Sample roll · ' : '') +
       roll.pool + (roll.pool === 1 ? ' die' : ' dice') +
       (roll.mod ? ' (' + modText(roll.basePool, roll.mod) + ')' : '') +
+      (roll.hand ? ' (' + (roll.hand > 0 ? '+' : MINUS) + Math.abs(roll.hand) + ' by Single Roll)' : '') +
       ' · ' + diffText(roll.baseDiff, roll.dMod, roll.full, roll.extra) +
       ' · specialty ' + (roll.spec ? 'on' : 'off') +
       (st.botchLock ? '' : ' · botch ' + (roll.botch ? 'on' : 'off'));
@@ -1000,6 +1210,7 @@ body {
   function quickRoll() {
     if (timer) { clearInterval(timer); timer = null; }
     prepSound();
+    curRoll = null;
     var v = rand10();
     buildTray(1);
     $('rollInfo').textContent = 'Quick d10 · pool, difficulty, modifiers, specialty and botch are ignored';
@@ -1036,7 +1247,48 @@ body {
       }
     }, 70);
   }
-  $('quickBtn').addEventListener('click', quickRoll);
+  /* Shift+click adds one more d10 to the roll in the tray, Shift+right-click takes the last one away. Every figure
+     is worked out again from the dice that are left, and the damage roller's bonus follows. */
+  function adjustRoll(delta) {
+    var c = curRoll;
+    if (!c || c.sample || !c.ready || timer) return false;   // the preview shown at load is not a roll
+    var roll = c.roll, values = c.values;
+    if (delta > 0) {
+      if (values.length >= 99) return true;
+      var v = rand10();
+      values.push(v);
+      var wrap = document.createElement('div');
+      wrap.className = 'die-cell';
+      wrap.setAttribute('role', 'listitem');
+      wrap.innerHTML = '<svg class="die" viewBox="0 0 64 72" role="img" aria-label="Die"><polygon points="32,3 61,27 32,69 3,27"></polygon><text x="32" y="40" text-anchor="middle">0</text></svg><span class="tag">&nbsp;</span>';
+      tray.appendChild(wrap);
+      cells.push({ svg: wrap.querySelector('svg'), text: wrap.querySelector('text'), tag: wrap.querySelector('.tag') });
+      roll.hand = (roll.hand || 0) + 1;
+      prepSound();
+      settle(values.length - 1, v, roll);
+      playSound();
+    } else {
+      if (values.length <= 1) return true;
+      values.pop();
+      cells.pop();
+      tray.removeChild(tray.lastChild);
+      roll.hand = (roll.hand || 0) - 1;
+    }
+    roll.pool = values.length;
+    setInfo(roll, c.sample);
+    showResult(roll, values);
+    if (!c.sample) noteRoll(roll, values);
+    return true;
+  }
+  $('quickBtn').addEventListener('click', function (e) {
+    if (e.shiftKey && adjustRoll(1)) return;
+    quickRoll();
+  });
+  $('quickBtn').addEventListener('contextmenu', function (e) {
+    if (!e.shiftKey) return;
+    e.preventDefault();
+    adjustRoll(-1);
+  });
   function applyQuickOpt() {
     $('quickBtn').hidden = !st.quickBtn;
     document.querySelector('.roll-row').classList.toggle('solo', !st.quickBtn);
@@ -1057,6 +1309,7 @@ body {
     save();
   });
 
+  var curRoll = null;   // the finished roll in the tray, which Single Roll can add dice to or take dice from
   function doRoll(animate, sample) {
     if (timer) { clearInterval(timer); timer = null; }
     if (animate) prepSound();
@@ -1069,10 +1322,12 @@ body {
     if (animate) applyFate(values, roll);
     buildTray(roll.pool);
     setInfo(roll, sample);
+    curRoll = { roll: roll, values: values, sample: !!sample, ready: false };
 
     if (!animate || noMotion()) {
       values.forEach(function (v, idx) { settle(idx, v, roll); });
       showResult(roll, values);
+      curRoll.ready = true;
       if (animate) { playSound(); noteRoll(roll, values); }
       return;
     }
@@ -1101,6 +1356,7 @@ body {
         clearInterval(timer);
         timer = null;
         showResult(roll, values);
+        if (curRoll && curRoll.values === values) curRoll.ready = true;
         noteRoll(roll, values);
       }
     }, 70);
@@ -2229,8 +2485,10 @@ body {
     updateDmg();
   }
 
+  /* Bonus dice come from the main roller, so they only exist while it is shown. */
+  function dmgBonusOn() { return st.dmgBonus && st.showMain; }
   function dmgBonusDice() {
-    return (st.dmgBonus && lastNet !== null) ? Math.max(0, lastNet - 1) : 0;
+    return (dmgBonusOn() && lastNet !== null) ? Math.max(0, lastNet - 1) : 0;
   }
 
   function dmgDModApplied() { return st.dmgDModOn ? st.dmgDMod : 0; }
@@ -2257,7 +2515,7 @@ body {
     var rows = [['Base damage dice', String(st.dmgPool)]];
     var mod = dmgModApplied();
     if (mod) rows.push(['Modifier', signed(mod)]);
-    if (st.dmgBonus) {
+    if (dmgBonusOn()) {
       rows.push(['Last roll', lastNet === null ? 'None yet' : lastNet + (lastNet === 1 ? ' success' : ' successes')]);
       rows.push(['Bonus dice', '+' + bonus]);
     }
@@ -2270,8 +2528,8 @@ body {
     $('dmgPlanSummary').textContent = st.showAvg ? avg.toFixed(2) : (bonus > 0 || mod ? sum + ' = ' : '') + total + (total === 1 ? ' die' : ' dice');
 
     var note = '';
-    if (st.dmgBonus && lastNet === 0) note = 'The last roll had no successes, so there are no bonus dice.';
-    else if (st.dmgBonus && lastNet === 1) note = 'One success hits. Only extra successes add bonus dice.';
+    if (dmgBonusOn() && lastNet === 0) note = 'The last roll had no successes, so there are no bonus dice.';
+    else if (dmgBonusOn() && lastNet === 1) note = 'One success hits. Only extra successes add bonus dice.';
     else if (dmgEff() + bonus > 99) note = 'Damage rolls are capped at 99 dice.';
     $('dmgPlanNote').textContent = note;
     $('dmgPlanNote').hidden = !note;
@@ -2291,6 +2549,7 @@ body {
     setPressed('dmgBotch', st.dmgBotch);
     $('dmgBotch').hidden = st.botchLock;
     setPressed('dmgBonus', st.dmgBonus);
+    $('dmgBonus').hidden = !st.showMain;
     updateDmg();
   }
 
@@ -2447,7 +2706,7 @@ body {
 
   /* Extra tools sit in one tab row. One panel is open at a time, and pressing the open tab collapses it. */
   function setModule(name) {
-    var tabs = { damage: ['dmgToggle', 'dmgBody'], probability: ['oddsToggle', 'oddsBody'] };
+    var tabs = { damage: ['dmgToggle', 'dmgBody'], probability: ['oddsToggle', 'oddsBody'], initiative: ['initToggle', 'initBody'] };
     Object.keys(tabs).forEach(function (k) {
       var open = k === name;
       $(tabs[k][0]).setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -2461,23 +2720,631 @@ body {
   }
   $('dmgToggle').addEventListener('click', function () { toggleModule('damage'); });
   $('oddsToggle').addEventListener('click', function () { toggleModule('probability'); });
+  $('initToggle').addEventListener('click', function () { toggleModule('initiative'); });
   document.querySelector('.tabbar').addEventListener('keydown', function (e) {
     if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].indexOf(e.key) < 0) return;
     var fwd = e.key === 'ArrowRight' || e.key === 'ArrowDown';
-    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabbar .tab'));
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabbar .tab')).filter(function (t) { return !t.hidden; });
     var at = tabs.indexOf(document.activeElement);
     if (at < 0) return;
     e.preventDefault();
     tabs[(at + (fwd ? 1 : tabs.length - 1)) % tabs.length].focus();
   });
-  setModule(st.module);
+  /* Settings > Modules: a module that is switched off leaves the menu. */
+  var MODULES = [
+    { key: 'showDamage', name: 'damage', tab: 'dmgToggle', sw: 'modDamage' },
+    { key: 'showProb', name: 'probability', tab: 'oddsToggle', sw: 'modProb' },
+    { key: 'showInit', name: 'initiative', tab: 'initToggle', sw: 'modInit' }
+  ];
+  /* With neither roller on screen there is nothing to put the extra modules beside, so they stack as on a narrow
+     screen. The Wide Aspect setting itself is left alone. */
+  function applyWide() {
+    document.querySelector('.wrap').classList.toggle('wide', st.wide && (st.showMain || st.simple));
+  }
+  function moduleOn(m) { return m.key === 'showProb' ? st.showProb && st.showMain : st[m.key]; }
+  function applyModules() {
+    if (st.showMain && st.simple) st.simple = false;        // the simple roller only stands in for a hidden main roller
+    $('mainRoller').hidden = !st.showMain;
+    $('simpleRoller').hidden = st.showMain || !st.simple;
+    document.querySelector('.wrap').classList.toggle('no-roller', !st.showMain && !st.simple);
+    applyWide();
+    $('modMain').checked = st.showMain;
+    $('modSimple').checked = st.simple; $('modSimple').disabled = st.showMain;
+    $('modSimpleLabel').classList.toggle('off', st.showMain);
+    $('modProb').checked = st.showProb && st.showMain; $('modProb').disabled = !st.showMain;   // the choice is kept while the main roller is off
+    $('modProbLabel').classList.toggle('off', !st.showMain);
+    syncDmg();
+    var visible = MODULES.filter(moduleOn);
+    MODULES.forEach(function (m) {
+      $(m.tab).hidden = !moduleOn(m);
+      $(m.sw).checked = moduleOn(m);
+      $(m.tab).classList.remove('tip-right');
+    });
+    if (visible.length) $(visible[visible.length - 1].tab).classList.add('tip-right');
+    if (st.module && !visible.some(function (m) { return m.name === st.module; })) st.module = '';
+    document.querySelector('.modules').hidden = !visible.length;
+    setModule(st.module);
+  }
+  MODULES.forEach(function (m) {
+    $(m.sw).addEventListener('change', function () { st[m.key] = this.checked; applyModules(); save(); });
+  });
+  $('modMain').addEventListener('change', function () { st.showMain = this.checked; applyModules(); save(); });
+  $('modSimple').addEventListener('change', function () { st.simple = this.checked; applyModules(); save(); });
+  applyModules();
+
+  /* Simple roller: one d10, animated the way the main roller animates its dice. */
+  var simpleTimer = null;
+  function simpleFace(v) {
+    var t = $('simpleText');
+    t.textContent = v;
+    t.setAttribute('y', v >= 10 ? '38' : '40');
+    t.setAttribute('class', v >= 10 ? 'two' : '');
+  }
+  $('simpleRollBtn').addEventListener('click', function () {
+    if (simpleTimer) { clearInterval(simpleTimer); simpleTimer = null; }
+    prepSound();
+    var v = rand10();
+    var svg = $('simpleDie'), tag = $('simpleTag');
+    function finish() {
+      var kind = v === 10 ? 'ten' : (v === 1 ? 'one' : '');
+      simpleFace(v);
+      svg.setAttribute('class', 'die' + (kind ? ' ' + kind : ''));
+      svg.setAttribute('aria-label', 'Die: ' + v + (v === 10 ? ', a ten' : (v === 1 ? ', a one' : '')));
+      tag.textContent = v === 10 ? '10' : (v === 1 ? '1' : '\u00a0');
+      tag.setAttribute('class', 'tag' + (kind ? ' ' + kind : ''));
+    }
+    if (noMotion()) { finish(); playSound(); return; }
+    svg.setAttribute('class', 'die rolling');
+    tag.textContent = '\u00a0';
+    tag.setAttribute('class', 'tag');
+    simpleFace(rand10());
+    var start = performance.now();
+    simpleTimer = setInterval(function () {
+      if (performance.now() - start >= 380) {
+        clearInterval(simpleTimer);
+        simpleTimer = null;
+        finish();
+        playSound();
+      } else simpleFace(rand10());
+    }, 70);
+  });
+
+  /* Initiative option: Persistent actors roll along with everyone else. */
+  setPressed('initPersist', st.initPersist);
+  $('initPersist').addEventListener('click', function () { st.initPersist = !st.initPersist; setPressed('initPersist', st.initPersist); save(); });
+
+  /* Initiative tracker */
+  var ini = st.ini;
+  var ARROW_SVG = '<svg viewBox="0 0 18 18" aria-hidden="true" fill="currentColor"><path d="M5 3l9 6-9 6z"></path></svg>';
+  var PIN_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5l5 5-2 .6-2.6 2.6.3 3.2-1.2 1.2-3-3-4 4M6.6 5.1l-.6 2 3 3"></path></svg>';
+  var clearTimer = 0;
+  function actorOf(id) { for (var i = 0; i < ini.actors.length; i++) if (ini.actors[i].id === id) return ini.actors[i]; return null; }
+  /* Highest initiative first; a tie goes to the bigger modifier, then to whoever was added first. Persistent actors still waiting for a result stay
+     at the top, other actors without a roll sit at the bottom. */
+  function initOrder() {
+    var rolled = ini.actors.filter(function (a) { return a.init !== null; }).sort(function (a, b) { return b.init - a.init || b.mod - a.mod || a.id - b.id; });
+    var top = ini.actors.filter(function (a) { return a.init === null && a.persistent; });
+    var rest = ini.actors.filter(function (a) { return a.init === null && !a.persistent; });
+    return { rolled: rolled, all: top.concat(rolled, rest) };
+  }
+  function fmtMod(n) { return (n < 0 ? MINUS : '+') + Math.abs(n); }
+  /* The total is the roll plus the modifier plus the bonus or penalty. */
+  function recompute(a) { if (a.init !== null) a.init = a.die + a.mod + a.applied; }
+  function rollActor(a) { a.die = rand10(); a.init = a.die + a.mod + a.applied; }
+  /* Until the encounter's first turn is taken, whoever tops the order is the one acting, so actors whose results
+     arrive after the roll are never skipped. */
+  function syncTurn() {
+    if (ini.started) return;
+    var r = initOrder().rolled;
+    ini.turn = r.length ? r[0].id : 0;
+  }
+  /* A bonus or penalty set during a round only counts in the totals from the next round on. */
+  function startNextRound() {
+    ini.round++;
+    ini.actors.forEach(function (a) { if (a.applied !== a.bonus) { a.applied = a.bonus; recompute(a); } });
+  }
+  /* Sync: a host shares the tracker through a small relay server. Joiners get a read-only view without the Mod column.
+     Put the address of your deployed sync server here, for example 'wss://vtm-sync.your-name.workers.dev'. */
+  var SYNC_URL = 'wss://vtm-sync.alexadia.com';
+  var hostWs = null, hostInfo = null, watchWs = null, remote = null, hostRetry = 0, syncPing = 0;
+  var HOST_KEY = 'vtm-sync-host';
+
+  function syncMsg(text) { $('syncMsg').textContent = text || ''; }
+  function syncView() {
+    var hosting = !!hostInfo, watching = !!watchWs;
+    $('syncIdle').hidden = hosting || watching;
+    $('syncHosting').hidden = !hosting;
+    $('syncWatching').hidden = !watching;
+    $('initPanel').classList.toggle('watching', watching);
+    if (hosting) $('syncHostCode').textContent = hostInfo.code;
+  }
+  function syncOpen(query) {
+    if (!SYNC_URL) { syncMsg('Sync has not been set up on this copy of the page yet.'); return null; }
+    if (typeof WebSocket === 'undefined') { syncMsg('This browser cannot sync.'); return null; }
+    try { return new WebSocket(SYNC_URL.replace(/\/+$/, '') + '/ws?' + query); }
+    catch (e) { syncMsg('Could not reach the sync server.'); return null; }
+  }
+  function syncKeepAlive() {
+    window.clearInterval(syncPing);
+    syncPing = window.setInterval(function () {
+      [hostWs, watchWs].forEach(function (w) { if (w && w.readyState === 1) w.send('{"t":"ping"}'); });
+    }, 25000);
+  }
+  /* What joiners may see: names, totals, bonuses and whose turn it is. Modifiers and dice stay with the host. */
+  function publicState() {
+    var ord = initOrder();
+    var cur = ini.turn ? actorOf(ini.turn) : null;
+    var curAt = cur ? ord.rolled.indexOf(cur) : -1;
+    return {
+      r: ini.round,
+      c: curAt >= 0 ? cur.name : '',
+      rows: ord.all.map(function (a) {
+        var at = ord.rolled.indexOf(a);
+        return { n: a.name, i: a.init, b: a.bonus, w: a.bonus !== a.applied, p: a.persistent, s: curAt >= 0 && a === cur ? 'c' : (curAt >= 0 && at >= 0 && at < curAt ? 'a' : '') };
+      })
+    };
+  }
+  function pushState() {
+    if (hostWs && hostWs.readyState === 1) hostWs.send(JSON.stringify({ t: 'state', s: publicState() }));
+  }
+
+  function startHosting(resume) {
+    var q = 'role=host' + (resume ? '&code=' + encodeURIComponent(resume.code) + '&token=' + encodeURIComponent(resume.token) : '');
+    var ws = syncOpen(q);
+    if (!ws) return;
+    hostWs = ws;
+    var finished = false;
+    if (!resume) syncMsg('Connecting…');
+    ws.addEventListener('message', function (e) {
+      var m; try { m = JSON.parse(e.data); } catch (err) { return; }
+      if (m.t === 'hosted') {
+        hostInfo = { code: m.code, token: m.token };
+        hostRetry = 0;
+        try { sessionStorage.setItem(HOST_KEY, JSON.stringify(hostInfo)); } catch (err) {}
+        syncMsg('');
+        syncView();
+        syncKeepAlive();
+        pushState();
+      } else if (m.t === 'peers') {
+        $('syncPeers').textContent = m.n === 1 ? '1 watching' : m.n + ' watching';
+      } else if (m.t === 'error') {
+        finished = true;
+        endHosting(m.reason === 'gone' ? 'The room had already closed.' : 'Could not host a room (' + m.reason + ').');
+      }
+    });
+    ws.addEventListener('close', function () {
+      if (finished || ws !== hostWs) return;
+      if (!hostInfo) { hostWs = null; syncView(); syncMsg('Could not reach the sync server.'); return; }
+      // Lost the connection: try to take the room back before the server gives up on the host.
+      if (hostRetry < 4) {
+        hostRetry++;
+        syncMsg('Connection lost. Trying to reconnect…');
+        window.setTimeout(function () { if (hostInfo && ws === hostWs) startHosting(hostInfo); }, 3000);
+      } else endHosting('Lost the connection, so the room was closed.');
+    });
+  }
+  function endHosting(note) {
+    var w = hostWs;
+    hostWs = null; hostInfo = null; hostRetry = 0;
+    $('syncPeers').textContent = '';
+    try { sessionStorage.removeItem(HOST_KEY); } catch (err) {}
+    if (w) { try { w.close(); } catch (err) {} }
+    syncMsg(note || '');
+    syncView();
+  }
+  $('syncHost').addEventListener('click', function () { syncMsg(''); startHosting(null); });
+  $('syncClose').addEventListener('click', function () {
+    if (hostWs && hostWs.readyState === 1) { try { hostWs.send('{"t":"close"}'); } catch (err) {} }
+    endHosting('Room closed.');
+  });
+  $('syncCopy').addEventListener('click', function () {
+    if (!hostInfo) return;
+    var code = hostInfo.code;
+    try { navigator.clipboard.writeText(code).then(function () { syncMsg('Code copied.'); }, function () { syncMsg('Copy the code from the screen: ' + code); }); }
+    catch (err) { syncMsg('Copy the code from the screen: ' + code); }
+  });
+
+  function leaveWatching(note) {
+    var w = watchWs;
+    watchWs = null; remote = null;
+    if (w) { try { w.close(); } catch (err) {} }
+    syncMsg(note || '');
+    syncView();
+    renderInit();   // the person's own tracker comes back exactly as they left it
+  }
+  function joinRoom() {
+    var code = $('syncCode').value.trim().toUpperCase();
+    if (!/^[A-HJ-NP-Z2-9]{5}$/.test(code)) { syncMsg('Enter the 5-letter code the host shows.'); $('syncCode').focus(); return; }
+    var ws = syncOpen('role=join&code=' + code);
+    if (!ws) return;
+    syncMsg('Connecting…');
+    var failed = false, joined = false;
+    ws.addEventListener('message', function (e) {
+      var m; try { m = JSON.parse(e.data); } catch (err) { return; }
+      if (m.t === 'joined') {
+        joined = true;
+        watchWs = ws;
+        remote = { r: 1, c: '', rows: [] };
+        $('syncWatchCode').textContent = m.code;
+        $('syncCode').value = '';
+        syncMsg('');
+        syncView();
+        syncKeepAlive();
+        renderRemote();
+      } else if (m.t === 'state' && ws === watchWs) {
+        remote = m.s;
+        renderRemote();
+      } else if (m.t === 'closed' && ws === watchWs) {
+        leaveWatching(m.reason === 'host-closed' ? 'The host closed the room.' : 'The host left, so the room closed.');
+      } else if (m.t === 'error') {
+        failed = true;
+        syncMsg(m.reason === 'nocode' ? 'No room has that code.' : (m.reason === 'full' ? 'That room is full.' : 'Could not join (' + m.reason + ').'));
+      }
+    });
+    ws.addEventListener('close', function () {
+      if (ws === watchWs) leaveWatching('Lost the connection to the host.');
+      else if (!failed && !joined) syncMsg('Could not reach the sync server.');
+    });
+  }
+  $('syncJoin').addEventListener('click', joinRoom);
+  $('syncCode').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); joinRoom(); } });
+  $('syncCode').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+  $('syncLeave').addEventListener('click', function () { leaveWatching('You left the room.'); });
+
+  /* A joiner's view: the same table, read only, with no Mod column. */
+  function renderRemote() {
+    if (!remote) return;
+    var body = $('initBodyRows');
+    body.textContent = '';
+    var rows = Array.isArray(remote.rows) ? remote.rows.slice(0, 60) : [];
+    if (!rows.length) {
+      var tr0 = document.createElement('tr');
+      var td0 = document.createElement('td');
+      td0.colSpan = 5;
+      td0.className = 'none';
+      td0.textContent = 'The host has not added any actors yet.';
+      tr0.appendChild(td0);
+      body.appendChild(tr0);
+    }
+    rows.forEach(function (a) {
+      var tr = document.createElement('tr');
+      if (a.s === 'c') tr.className = 'current';
+      else if (a.s === 'a') tr.className = 'acted';
+      var t1 = document.createElement('td');
+      t1.className = 'arrow';
+      if (a.s === 'c') { t1.innerHTML = ARROW_SVG; t1.setAttribute('aria-label', 'Current turn'); }
+      var t2 = document.createElement('td');
+      var nm = document.createElement('strong');
+      nm.className = 'ini-static';
+      nm.textContent = String(a.n).slice(0, 24);
+      t2.appendChild(nm);
+      if (a.p) {
+        var pin = document.createElement('span');
+        pin.className = 'ini-pin';
+        pin.title = 'Persistent';
+        pin.innerHTML = PIN_SVG;
+        t2.appendChild(pin);
+      }
+      var t3 = document.createElement('td');
+      var tb = document.createElement('td');
+      var bn = isFinite(+a.b) ? Math.round(+a.b) : 0;
+      var bb = document.createElement('span');
+      bb.className = 'ini-static mono' + (bn ? '' : ' dim') + (a.w ? ' pending' : '');
+      bb.textContent = bn ? fmtMod(bn) : '—';
+      if (a.w && bn) bb.title = 'Counts toward initiative from the next round';
+      tb.appendChild(bb);
+      var t4 = document.createElement('td');
+      var tot = document.createElement('span');
+      var rolled = a.i !== null && a.i !== undefined && isFinite(+a.i);
+      tot.className = 'ini-static ini-total' + (rolled ? '' : ' dash');
+      tot.textContent = rolled ? String(Math.round(+a.i)) : '—';
+      t4.appendChild(tot);
+      tr.appendChild(t1); tr.appendChild(t2); tr.appendChild(t3); tr.appendChild(tb); tr.appendChild(t4);
+      body.appendChild(tr);
+    });
+    $('initRound').textContent = isFinite(+remote.r) ? Math.round(+remote.r) : 1;
+    var turnEl = $('initTurn');
+    if (remote.c) { turnEl.textContent = ''; turnEl.appendChild(document.createTextNode('Now acting: ')); var sg = document.createElement('strong'); sg.textContent = String(remote.c).slice(0, 24); turnEl.appendChild(sg); }
+    else turnEl.textContent = rows.length ? 'Waiting for the host to roll initiative.' : 'Waiting for the host.';
+  }
+
+  function renderInit() {
+    if (watchWs) return;   // a joiner is looking at the host's table instead
+    var ord = initOrder();
+    var cur = ini.turn ? actorOf(ini.turn) : null;
+    var curAt = cur ? ord.rolled.indexOf(cur) : -1;
+    var body = $('initBodyRows');
+    body.textContent = '';
+    if (!ord.all.length) {
+      var tr0 = document.createElement('tr');
+      var td0 = document.createElement('td');
+      td0.colSpan = 5;
+      td0.className = 'none';
+      td0.textContent = 'No actors yet. Press Add actor to start.';
+      tr0.appendChild(td0);
+      body.appendChild(tr0);
+    }
+    ord.all.forEach(function (a) {
+      var at = ord.rolled.indexOf(a);
+      var tr = document.createElement('tr');
+      tr._a = a;
+      tr.setAttribute('data-id', a.id);
+      if (curAt >= 0 && a === cur) tr.className = 'current';
+      else if (curAt >= 0 && at >= 0 && at < curAt) tr.className = 'acted';
+      var t1 = document.createElement('td');
+      t1.className = 'arrow';
+      if (tr.className === 'current') { t1.innerHTML = ARROW_SVG; t1.setAttribute('aria-label', 'Current turn'); }
+      var t2 = document.createElement('td');
+      var nb = document.createElement('button');
+      nb.type = 'button';
+      nb.className = 'ini-cell';
+      nb.setAttribute('data-f', 'name');
+      nb.innerHTML = '<strong></strong>';
+      nb.firstChild.textContent = a.name;
+      nb.setAttribute('aria-label', a.name + (a.persistent ? ', persistent' : '') + '. Press Enter to rename, or the menu key for more options.');
+      nb.title = 'Double-click to rename. Right-click for more options.';
+      t2.appendChild(nb);
+      if (a.persistent) {
+        var pin = document.createElement('span');
+        pin.className = 'ini-pin';
+        pin.title = 'Persistent: stays when the encounter is cleared';
+        pin.innerHTML = PIN_SVG;
+        t2.appendChild(pin);
+      }
+      var t3 = document.createElement('td');
+      var mb = document.createElement('button');
+      mb.type = 'button';
+      mb.className = 'ini-cell mono';
+      mb.setAttribute('data-f', 'mod');
+      mb.textContent = fmtMod(a.mod);
+      mb.setAttribute('aria-label', 'Initiative modifier ' + fmtMod(a.mod) + '. Press Enter to edit.');
+      mb.title = 'Double-click to edit the initiative modifier';
+      t3.appendChild(mb);
+      var tb = document.createElement('td');
+      var bb = document.createElement('button');
+      bb.type = 'button';
+      var waiting = a.bonus !== a.applied;
+      bb.className = 'ini-cell mono' + (a.bonus || a.applied ? '' : ' dim') + (waiting ? ' pending' : '');
+      bb.setAttribute('data-f', 'bonus');
+      bb.textContent = a.bonus || a.applied ? (a.bonus ? fmtMod(a.bonus) : '0') : '\u2014';
+      bb.setAttribute('aria-label', (a.bonus || a.applied ? 'Initiative ' + (a.bonus >= 0 ? 'bonus' : 'penalty') + ' ' + fmtMod(a.bonus) + (waiting ? ', not counted until the next round' : '') + '. Press Enter to edit.' : 'No initiative bonus or penalty. Press Enter to set one.'));
+      bb.title = waiting ? 'Counts toward initiative from the next round. Double-click to change it.' : 'Double-click to set a bonus or penalty. It counts from the next round.';
+      tb.appendChild(bb);
+      if (a.bonus) {
+        var xb = document.createElement('button');
+        xb.type = 'button';
+        xb.className = 'ini-x';
+        xb.textContent = '\u00d7';
+        xb.setAttribute('aria-label', 'Clear the initiative bonus or penalty for ' + a.name);
+        xb.title = 'Clear the bonus or penalty';
+        tb.appendChild(xb);
+      }
+      var t4 = document.createElement('td');
+      var tot = document.createElement('button');
+      tot.type = 'button';
+      tot.className = 'ini-cell ini-total' + (a.init === null ? ' dash' : '');
+      tot.setAttribute('data-f', 'init');
+      tot.textContent = a.init === null ? '\u2014' : String(a.init);
+      var parts = a.die + ' ' + (a.mod < 0 ? MINUS : '+') + ' ' + Math.abs(a.mod) + (a.applied ? ' ' + (a.applied < 0 ? MINUS : '+') + ' ' + Math.abs(a.applied) : '');
+      tot.title = a.init === null ? 'Not rolled yet. Double-click to enter a result.' : 'Roll ' + parts + ' = ' + a.init + '. Double-click to enter a result.';
+      tot.setAttribute('aria-label', a.init === null ? 'Initiative not set. Press Enter to enter a result.' : 'Initiative ' + a.init + '. Press Enter to enter a result.');
+      t4.appendChild(tot);
+      tr.appendChild(t1); tr.appendChild(t2); tr.appendChild(t3); tr.appendChild(tb); tr.appendChild(t4);
+      body.appendChild(tr);
+    });
+    $('initRound').textContent = ini.round;
+    var turnEl = $('initTurn');
+    if (cur && curAt >= 0) { turnEl.textContent = ''; turnEl.appendChild(document.createTextNode('Now acting: ')); var sg = document.createElement('strong'); sg.textContent = cur.name; turnEl.appendChild(sg); }
+    else turnEl.textContent = ord.all.length ? 'Roll for initiative to start the order.' : 'Add actors, then roll for initiative.';
+    $('initRoll').disabled = !ini.actors.length;
+    $('initNext').disabled = !ord.rolled.length;
+    var lastUp = curAt >= 0 && curAt === ord.rolled.length - 1;
+    $('initNext').textContent = lastUp ? 'End round' : 'Next turn';
+    $('initClear').disabled = !ini.actors.length;
+    pushState();
+    if (!clearTimer) { $('initClear').classList.remove('confirm'); $('initClear').textContent = 'Clear encounter'; }
+  }
+  function initChanged() { syncTurn(); save(); renderInit(); }
+  function setTurnMsg(msg) { $('initTurn').textContent = msg; }
+
+  $('initAdd').addEventListener('click', function () {
+    if (ini.actors.length >= 60) { setTurnMsg('That is the most actors the tracker holds.'); return; }
+    var a = { id: ini.seq++, name: 'Actor ' + (ini.actors.length + 1), mod: 0, bonus: 0, applied: 0, die: 0, init: null, persistent: false };
+    ini.actors.push(a);
+    initChanged();
+    var row = $('initBodyRows').querySelector('tr[data-id="' + a.id + '"]');
+    if (row) { if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest' }); startInitEdit(row.querySelector('[data-f="name"]'), a, 'name'); }
+  });
+  $('initRoll').addEventListener('click', function () {
+    if (!ini.actors.length) return;
+    prepSound();
+    ini.actors.forEach(function (a) { a.applied = a.bonus; });   // a bonus set before the roll counts from round 1
+    ini.actors.forEach(function (a) { if (!a.persistent || st.initPersist) rollActor(a); });   // otherwise persistent actors are entered or rolled one by one
+    ini.round = 1;
+    ini.started = false;
+    var first = initOrder().rolled[0];
+    ini.turn = first ? first.id : 0;
+    initChanged();
+    playSound();
+  });
+  $('initNext').addEventListener('click', function () {
+    var rolled = initOrder().rolled;
+    if (!rolled.length) return;
+    ini.started = true;
+    var at = ini.turn ? rolled.indexOf(actorOf(ini.turn)) : -1;
+    if (at < 0) ini.turn = rolled[0].id;
+    else if (at === rolled.length - 1) { startNextRound(); ini.turn = initOrder().rolled[0].id; }
+    else ini.turn = rolled[at + 1].id;
+    initChanged();
+  });
+  function stopClearConfirm() {
+    window.clearTimeout(clearTimer);
+    clearTimer = 0;
+    $('initClear').classList.remove('confirm');
+    $('initClear').textContent = 'Clear encounter';
+  }
+  $('initClear').addEventListener('click', function () {
+    var drop = ini.actors.filter(function (a) { return !a.persistent; });
+    if (drop.length && !clearTimer) {
+      $('initClear').classList.add('confirm');
+      $('initClear').textContent = 'Click again to clear';
+      clearTimer = window.setTimeout(stopClearConfirm, 3500);
+      return;
+    }
+    stopClearConfirm();
+    ini.actors = ini.actors.filter(function (a) { return a.persistent; });
+    ini.actors.forEach(function (a) { a.die = 0; a.bonus = 0; a.applied = 0; a.init = null; });
+    ini.round = 1;
+    ini.turn = 0;
+    ini.started = false;
+    initChanged();
+  });
+
+  function deleteActor(a) {
+    var rolled = initOrder().rolled;
+    if (ini.turn === a.id) {
+      var at = rolled.indexOf(a);
+      if (rolled.length <= 1) ini.turn = 0;
+      else if (at === rolled.length - 1) { ini.actors.splice(ini.actors.indexOf(a), 1); startNextRound(); ini.turn = initOrder().rolled[0].id; initChanged(); return; }
+      else ini.turn = rolled[at + 1].id;
+    }
+    ini.actors.splice(ini.actors.indexOf(a), 1);
+    initChanged();
+  }
+  function initMenu(tr, x, y) {
+    var a = tr._a;
+    if (!a) return;
+    openContextMenu(x, y, [
+      { label: a.init === null ? 'Roll initiative' : 'Re-roll initiative', run: function () { rollActor(a); initChanged(); } },
+      { label: a.persistent ? 'Remove Persistent' : 'Set as Persistent', run: function () { a.persistent = !a.persistent; initChanged(); } },
+      { label: 'Delete', danger: true, run: function () { deleteActor(a); } }
+    ], tr.querySelector('.ini-cell'));
+  }
+  var initHeld = 0;
+  $('initBodyRows').addEventListener('contextmenu', function (e) {
+    var tr = e.target.closest ? e.target.closest('tr') : null;
+    if (!tr || !tr._a) return;
+    e.preventDefault();
+    if (Date.now() - initHeld < 800) return;
+    var x = e.clientX, y = e.clientY;
+    if (!x && !y) { var r = tr.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; }
+    initMenu(tr, x, y);
+  });
+  $('initBodyRows').addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'touch' || !e.target.closest || e.target.closest('input')) return;
+    var tr = e.target.closest('tr');
+    if (!tr || !tr._a) return;
+    var sx = e.clientX, sy = e.clientY;
+    var timer = window.setTimeout(function () { initHeld = Date.now(); initMenu(tr, sx, sy); }, 500);
+    function stop(ev) {
+      if (ev.type === 'pointermove' && Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) < 10) return;
+      window.clearTimeout(timer);
+      document.removeEventListener('pointermove', stop);
+      document.removeEventListener('pointerup', stop);
+      document.removeEventListener('pointercancel', stop);
+    }
+    document.addEventListener('pointermove', stop);
+    document.addEventListener('pointerup', stop);
+    document.addEventListener('pointercancel', stop);
+  });
+
+  /* Double-click (or double-tap, or Enter) turns a name or modifier into a field. */
+  function startInitEdit(btn, a, field) {
+    if (!btn || !btn.parentNode) return;
+    var td = btn.parentNode;
+    var input = document.createElement('input');
+    var mono = field !== 'name';
+    input.className = 'ini-edit' + (mono ? ' mono' : '');
+    input.type = mono ? 'number' : 'text';
+    if (mono) {
+      input.min = field === 'init' ? -99 : -99; input.max = field === 'init' ? 999 : 99; input.step = 1; input.inputMode = 'numeric';
+      input.value = field === 'mod' ? a.mod : (field === 'bonus' ? (a.bonus || '') : (a.init === null ? '' : a.init));
+    } else { input.maxLength = 24; input.value = a.name; }
+    input.setAttribute('aria-label', field === 'mod' ? 'Initiative modifier for ' + a.name : (field === 'bonus' ? 'Initiative bonus or penalty for ' + a.name : (field === 'init' ? 'Initiative result for ' + a.name : 'Name')));
+    Array.prototype.forEach.call(td.querySelectorAll('.ini-x'), function (x) { x.hidden = true; });
+    btn.hidden = true;
+    td.insertBefore(input, btn);
+    input.focus();
+    input.select();
+    var done = false;
+    function end(commit, keepFocus) {
+      if (done) return;
+      done = true;
+      if (commit) {
+        if (field === 'mod') {
+          var v = parseInt(input.value, 10);
+          if (isFinite(v)) { a.mod = clamp(v, -99, 99); recompute(a); }
+        } else if (field === 'bonus') {
+          var b = input.value.trim() === '' ? 0 : parseInt(input.value, 10);
+          if (isFinite(b)) a.bonus = clamp(b, -99, 99);   // counts from the next round
+        } else if (field === 'init') {
+          var t = parseInt(input.value, 10);
+          if (isFinite(t)) { a.die = clamp(t, -99, 999) - a.mod - a.applied; a.init = a.die + a.mod + a.applied; }
+        } else {
+          var nm = input.value.replace(/\s+/g, ' ').trim().slice(0, 24);
+          if (nm) a.name = nm;
+        }
+        syncTurn();
+        save();
+      }
+      renderInit();
+      if (keepFocus) {
+        var again = $('initBodyRows').querySelector('tr[data-id="' + a.id + '"] [data-f="' + field + '"]');
+        if (again) again.focus();
+      }
+    }
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); end(true, true); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); end(false, true); }
+    });
+    input.addEventListener('blur', function () { end(true, false); });
+  }
+  function initCellOf(e) {
+    var b = e.target.closest ? e.target.closest('.ini-cell') : null;
+    var tr = b ? b.closest('tr') : null;
+    return b && tr && tr._a ? { b: b, a: tr._a, f: b.getAttribute('data-f') } : null;
+  }
+  $('initBodyRows').addEventListener('click', function (e) {
+    var x = e.target.closest ? e.target.closest('.ini-x') : null;
+    var tr = x ? x.closest('tr') : null;
+    if (!tr || !tr._a) return;
+    tr._a.bonus = 0;   // like any change, the totals only drop it from the next round
+    if (!ini.started && !ini.actors.some(function (q) { return q.init !== null; })) tr._a.applied = 0;
+    initChanged();
+    var again = $('initBodyRows').querySelector('tr[data-id="' + tr._a.id + '"] [data-f="bonus"]');
+    if (again) again.focus();
+  });
+  $('initBodyRows').addEventListener('dblclick', function (e) {
+    var c = initCellOf(e);
+    if (c) { e.preventDefault(); startInitEdit(c.b, c.a, c.f); }
+  });
+  var lastTap = { el: null, t: 0 };
+  $('initBodyRows').addEventListener('pointerup', function (e) {
+    if (e.pointerType !== 'touch') return;
+    var c = initCellOf(e);
+    if (!c) return;
+    var now = Date.now();
+    if (lastTap.el === c.b && now - lastTap.t < 400) { lastTap.el = null; startInitEdit(c.b, c.a, c.f); }
+    else lastTap = { el: c.b, t: now };
+  });
+  $('initBodyRows').addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== 'F2') return;
+    var c = initCellOf(e);
+    if (c) { e.preventDefault(); startInitEdit(c.b, c.a, c.f); }
+  });
+  renderInit();
+  syncView();
+  try {
+    var back = JSON.parse(sessionStorage.getItem(HOST_KEY) || 'null');
+    if (back && back.code && back.token && SYNC_URL) startHosting(back);
+  } catch (err) {}
 
   /* Wide Aspect: only a class on the page wrapper; the stylesheet decides whether the screen is wide enough. */
   $('wideAspect').checked = st.wide;
-  document.querySelector('.wrap').classList.toggle('wide', st.wide);
+  applyWide();
   $('wideAspect').addEventListener('change', function () {
     st.wide = this.checked;
-    document.querySelector('.wrap').classList.toggle('wide', st.wide);
+    applyWide();
     save();
   });
 
@@ -2687,6 +3554,132 @@ body {
     resetWipe();
     $('wipeStatus').textContent = 'All saved data was deleted. Reloading…';
     try { window.location.reload(); } catch (e) { $('wipeStatus').textContent = 'All saved data was deleted. Reload the page to start fresh.'; }
+  });
+
+  /* Changelog dialog. Replace the text below with the new changelog whenever it changes.
+     Lines starting with V are version headings, "-" lines are bullets, and tab-indented lines nest. */
+  var CHANGELOG = `V1.0
+-First version of the Web App
+
+V1.1
+-Added Damage section
+-Implemented safety net
+-Made all extra modules (Probability, Damage, and future ones), work off of a "Tabs" system.
+
+V1.2
+-Changed preset list to be scrollable, default showing 3 items, with the ability to change how many are shown.
+-Made it possible to rearrange presets, or have them rearrange themselves based on how most recently used.
+
+V1.2.1
+-Added a "Mod" input for Dice Pools that can be toggled on and off.
+
+V1.2.2
+-Added modifier input for Difficulty (from -8 to 8, but difficulty clamps between 2 and 10)
+
+V1.3
+-Added Settings menu (top right)
+	-Added "Rules" Settings Subsection
+		-Added M20 Thresholds Toggle, this implements a ruling from WoD Mage The Ascention ruling for difficulties higher than 9.
+	-Added "UI Options" Settings Subsection
+		-Added "Botch Toggle", hides the botch toggles in the rollers.
+		-Added "Instant Results", skips rolling animation.
+		-Added "Cookie Refresh", everytime the page is loaded, all stores cookies are refreshed.
+	-Added "Appearance" Settings Subsection
+		-Added Accent color, and background tint options. Along with a Reset colors button.
+	-Added "Danger Zone" Settings Subsection, along with a button to clear all saved data.
+	
+V1.3.1
+-Added Average Damage expected on damage roller
+
+V1.3.2
+-Added "Wide Aspect" toggle in the settings menu, under "UI Options".
+-Added Single Roll button, to roll a single D10 (and a toggle for it in settings).
+-Changed M20 Thresholds to start at a 10 or higher.
+
+V1.4
+-Changed all toggles to be the same style (buttons with an icon)
+-Added a new setting under "Appearance" called "Toggle Style" which changes all toggle buttons to words rather than symbols.
+-Added a "Single Roll" button, which rolls a single D10.
+-Added Average Successes Expected for the main roller, and a toggle to hide Averages (both for Main and Damage rollers)
+-Changed the M20 Thresholds to have a maximum difficulty of 10 before needing more successes.
+-Added the ability for a custom background tint color.
+-Adjusted how the page resizes itself to account for Wide Aspect mode.
+-Added a toggle to let presets load the Mods that they were saved with.
+
+V1.4.1
+-Preset Changes:
+	-Changed Presets so they show on 2 separate columns.
+	-Saved presets no longer show all their info on the button, only the amount of dice, and the difficulty. The text on presets is now centered.
+	-If a preset was saved with MODS, it shows a + or - (depending if the mod in memory is positive or negative).
+	-If a preset was saved with Specialty enabled, it shows the dice pool part of the info in Bold.
+	-When a preset button is hovered over, it shows the full info saved to the preset.
+	-Added the ability to right click a preset, opening a context menu which replaces the previous delete button.
+		-Context menu has the option to delete a preset.
+		-Presets can now be renamed in the context menu. A new preset being saved with the same name as another will give an error.
+	-Shift-Clicking a preset forces a quick roll with MODS enabled on the preset.
+	-Removed the drag handle in place of a Drag-n-Hold system to rearrange presets.
+	
+V1.4.2
+-Fixed an error that didn't update AVG damage expected when toggling Specialty or Botch.
+
+V1.5
+-Added changelog button.
+-Added the ability to shift+click/right-click the "Single Roll" button, and have it add/remove 1 dice to the last roll, which is accounted for in results.
+-Added a new Module "Initiative", this functions as an Initiative Tracker.
+	-It is possible to "Host" an initiative tracker, so that those that join with the code get to see the tracker as well.
+-Added a new subsection to the settings menu called "Modules", which enables and disables modules.
+-Added "Main Roller" toggle in the settings menu, under "UI Options". This turns off the main roller, which in turn lets users enable the new "Simple Roller" toggle. It also hides the Probability module, and when both the main roller and simple roller are off, the extra modules treat the "Wide Aspect" toggle as always off.`;
+  (function () {
+    var body = $('changelogBody');
+    var sections = [], cur = null;
+    CHANGELOG.split(/\r?\n/).forEach(function (line) {
+      if (!line.trim()) return;
+      if (/^V\d/i.test(line.trim()) && !/^\s/.test(line)) { cur = { title: line.trim(), items: [] }; sections.push(cur); return; }
+      if (!cur) return;
+      var depth = (line.match(/^[\t ]*/)[0].replace(/ {2,4}/g, '\t').length);
+      cur.items.push({ depth: depth, text: line.replace(/^[\t ]*-?\s*/, '') });
+    });
+    if (!sections.length) {
+      var none = document.createElement('p');
+      none.className = 'none';
+      none.textContent = 'No changelog yet.';
+      body.appendChild(none);
+      return;
+    }
+    sections.reverse().forEach(function (sec) {
+      var wrap = document.createElement('section');
+      var h = document.createElement('h3');
+      h.textContent = sec.title;
+      wrap.appendChild(h);
+      var root = document.createElement('ul');
+      var stack = [{ depth: 0, ul: root }];
+      var lastLi = null;
+      sec.items.forEach(function (it) {
+        var top = stack[stack.length - 1];
+        if (it.depth > top.depth && lastLi) {
+          var ul = document.createElement('ul');
+          lastLi.appendChild(ul);
+          stack.push({ depth: it.depth, ul: ul });
+        } else {
+          while (stack.length > 1 && it.depth < stack[stack.length - 1].depth) stack.pop();
+        }
+        var li = document.createElement('li');
+        li.textContent = it.text;
+        stack[stack.length - 1].ul.appendChild(li);
+        lastLi = li;
+      });
+      wrap.appendChild(root);
+      body.appendChild(wrap);
+    });
+  })();
+  function openChangelog() { $('changelogBack').hidden = false; $('changelogClose').focus(); }
+  function closeChangelog() { $('changelogBack').hidden = true; $('changelogBtn').focus(); }
+  $('changelogBtn').addEventListener('click', openChangelog);
+  $('changelogClose').addEventListener('click', closeChangelog);
+  $('changelogBack').addEventListener('click', function (e) { if (e.target === this) closeChangelog(); });
+  $('changelogBack').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeChangelog(); return; }
+    if (e.key === 'Tab') { e.preventDefault(); $('changelogClose').focus(); }
   });
 
   /* Settings dialog */
