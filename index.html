@@ -2378,8 +2378,8 @@ body {
   $('dmgChips').addEventListener('change', function (e) {
     if (e.target && e.target.name === 'dmgdiff') { st.dmgDiff = +e.target.value; updateDmg(); save(); }
   });
-  $('dmgSpec').addEventListener('click', function () { st.dmgSpec = !st.dmgSpec; setPressed('dmgSpec', st.dmgSpec); save(); });
-  $('dmgBotch').addEventListener('click', function () { st.dmgBotch = !st.dmgBotch; setPressed('dmgBotch', st.dmgBotch); save(); });
+  $('dmgSpec').addEventListener('click', function () { st.dmgSpec = !st.dmgSpec; setPressed('dmgSpec', st.dmgSpec); updateDmg(); save(); });
+  $('dmgBotch').addEventListener('click', function () { st.dmgBotch = !st.dmgBotch; setPressed('dmgBotch', st.dmgBotch); updateDmg(); save(); });
   $('dmgBonus').addEventListener('click', function () { st.dmgBonus = !st.dmgBonus; setPressed('dmgBonus', st.dmgBonus); updateDmg(); save(); });
   $('dmgRollBtn').addEventListener('click', function () { rollDamage(true, false); });
 
