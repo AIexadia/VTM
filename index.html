@@ -177,6 +177,7 @@ body {
 .roll { height: 56px; border: 0; border-radius: 8px; background: var(--accent); color: var(--on-accent); font: 700 1.6rem/1 var(--font-display); letter-spacing: 0.02em; cursor: pointer; }
 .roll:hover { filter: brightness(1.12); }
 .roll:active { transform: translateY(1px); }
+.parts.avg-row { max-width: none; }
 .roll-row { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
 .roll-row.solo { grid-template-columns: minmax(0, 1fr); }
 .quick[hidden] { display: none; }
@@ -227,6 +228,10 @@ body {
 .pre-h { margin: 0; display: flex; font-weight: inherit; }
 .pre-toggle { display: flex; align-items: center; gap: 10px; width: 100%; padding: 4px 0; border: 0; background: transparent; color: var(--fg); text-align: left; cursor: pointer; }
 .pre-count { font: 500 0.8rem/1 var(--font-data); color: var(--muted); }
+.pre-toggle.plan { padding: 5px 0; border-bottom: 1px solid var(--line); font: 400 16px/1.5 var(--font-body); }
+.plan-label { color: var(--muted); font-size: 0.9rem; }
+.plan-val { margin-left: auto; font: 600 0.95rem var(--font-data); font-variant-numeric: tabular-nums; }
+.pre-toggle .plan-val + .chev { margin-left: 4px; }
 .pre-toggle .chev { width: 14px; height: 14px; flex: none; margin-left: auto; color: var(--muted); transition: transform 0.15s; }
 .pre-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
 .pre-body { display: flex; flex-direction: column; gap: 14px; }
@@ -255,8 +260,7 @@ body {
 .preset-grip { height: 20px; display: grid; place-items: center; cursor: ns-resize; touch-action: none; border-radius: 6px; }
 .preset-grip::before { content: ""; width: 44px; height: 4px; border-radius: 2px; background: var(--line-strong); }
 .preset-grip:hover::before, .preset-grip.active::before, .preset-grip:focus-visible::before { background: var(--accent); }
-.pre-opts { display: flex; gap: 12px; align-items: flex-start; }
-.pre-opts .switch { flex: 1; min-width: 0; }
+.pre-opts { display: flex; gap: 8px; align-items: center; }
 .opt.tip-right::after { left: auto; right: 0; }
 .field-head { display: flex; align-items: center; gap: 8px; min-height: 26px; }
 .mod { display: flex; align-items: center; gap: 6px; margin-left: auto; }
@@ -275,6 +279,9 @@ body {
 .tab-h { margin: 0; display: flex; font-weight: inherit; }
 .tab { display: inline-flex; align-items: center; gap: 12px; max-width: 100%; padding: 12px 18px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--fg); font: 700 1.4rem/1 var(--font-display); letter-spacing: 0.01em; cursor: pointer; position: relative; }
 .tab:hover { background: var(--surface-2); }
+.tab::after { content: attr(data-tip); position: absolute; left: 0; top: calc(100% + 8px); width: max-content; max-width: min(280px, 70vw); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 400 0.85rem/1.35 var(--font-body); letter-spacing: 0; text-align: left; white-space: normal; pointer-events: none; opacity: 0; transform: translateY(-2px); transition: opacity 0.12s, transform 0.12s; z-index: 20; }
+.tab.tip-right::after { left: auto; right: 0; }
+.tab:hover::after, .tab:focus-visible::after { opacity: 1; transform: none; }
 .tab .chev { width: 14px; height: 14px; flex: none; transition: transform 0.15s; }
 .tab[aria-expanded="true"] { background: var(--bg); border-top: 3px solid var(--accent); border-bottom-color: var(--bg); border-radius: 10px 10px 0 0; padding-top: 10px; margin-bottom: -1px; z-index: 1; }
 .tab[aria-expanded="true"]:hover { background: var(--bg); }
@@ -290,13 +297,16 @@ body {
   .wrap.wide > .grid { grid-column: 1; grid-row: 2; }
   .wrap.wide .modules > .odds-body { grid-column: 2; grid-row: 2; border-top: 0; padding-top: 0; display: flex; flex-direction: column; }
   .wrap.wide .modules > .odds-body[hidden] { display: none; }
-  .wrap.wide .odds-body > .odds-intro { order: 2; margin: 16px 0 0; }
   .wrap.wide .grid, .wrap.wide .modules .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
 }
-.odds-intro { margin: 0 0 20px; color: var(--muted); max-width: 60ch; }
 .opts { display: flex; gap: 8px; }
 .opt { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--muted); cursor: pointer; }
 .opt:hover { background: var(--surface-2); }
+.opt-word { display: none; }
+.wrap.words .opt svg { display: none; }
+.wrap.words .opt-word { display: inline; }
+.wrap.words .opt { width: auto; min-width: 40px; padding: 0 12px; font: 600 0.85rem/1 var(--font-body); white-space: nowrap; }
+.wrap.words .opts, .wrap.words .pre-opts { flex-wrap: wrap; }
 .opt[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .opt[aria-pressed="true"]:hover { filter: brightness(1.1); }
 .opt::after { content: attr(data-tip); position: absolute; left: 0; bottom: calc(100% + 8px); width: max-content; max-width: min(240px, 70vw); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 400 0.85rem/1.35 var(--font-body); text-align: left; white-space: normal; pointer-events: none; opacity: 0; transform: translateY(2px); transition: opacity 0.12s, transform 0.12s; z-index: 20; }
@@ -362,7 +372,6 @@ body {
           <input id="pool" type="number" inputmode="numeric" min="1" max="40" value="6">
           <button type="button" id="poolUp" aria-label="Add one die">+</button>
         </div>
-        <p class="hint">Attribute plus Ability. From 1 to 40 dice.</p>
       </div>
 
       <div class="field" role="radiogroup" aria-labelledby="diffLabel">
@@ -393,16 +402,20 @@ body {
       </div>
 
       <div class="field">
-        <label class="switch" for="spec">
-          <input type="checkbox" role="switch" id="spec">
-          <span class="track" aria-hidden="true"></span>
-          <span class="txt"><strong>Specialty</strong><small>Each 10 counts as 2 successes.</small></span>
-        </label>
-        <label class="switch" for="botch">
-          <input type="checkbox" role="switch" id="botch">
-          <span class="track" aria-hidden="true"></span>
-          <span class="txt"><strong>Botch</strong><small>Each 1 subtracts 1 success. No successes and at least one 1 is a botch.</small></span>
-        </label>      </div>
+        <span class="label">Options</span>
+        <div class="opts">
+          <button type="button" class="opt" id="spec" aria-pressed="false" aria-label="Specialty: each 10 counts as 2 successes." data-tip="Specialty: each 10 counts as 2 successes.">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>
+            <span class="opt-word" aria-hidden="true">Specialty</span>
+          </button>
+          <button type="button" class="opt" id="botch" aria-pressed="false" aria-label="Botch: each 1 subtracts 1 success. No successes and at least one 1 is a botch." data-tip="Botch: each 1 subtracts 1 success. No successes and at least one 1 is a botch.">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a8 8 0 0 0-5 14.2V21h10v-3.8A8 8 0 0 0 12 3z"></path><circle cx="9" cy="11.5" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="15" cy="11.5" r="1.4" fill="currentColor" stroke="none"></circle><path d="M10 21v-2.5M14 21v-2.5"></path></svg>
+            <span class="opt-word" aria-hidden="true">Botch</span>
+          </button>
+        </div>
+</div>
+
+      <dl class="parts avg-row" id="avgRow"></dl>
 
       <div class="roll-row">
         <button class="roll" type="submit" id="rollBtn">Roll</button>
@@ -419,13 +432,17 @@ body {
         </h3>
         <div class="pre-body" id="presetsBody">
         <div class="pre-opts">
-          <label class="switch" for="rollOnLoad">
-            <input type="checkbox" role="switch" id="rollOnLoad">
-            <span class="track" aria-hidden="true"></span>
-            <span class="txt"><strong>Roll on load</strong><small>Roll right away when you load a preset.</small></span>
-          </label>
+          <button type="button" class="opt" id="rollOnLoad" aria-pressed="false" aria-label="Roll on load: roll right away when you load a preset." data-tip="Roll on load: roll right away when you load a preset.">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>
+            <span class="opt-word" aria-hidden="true">Quick Roll</span>
+          </button>
+          <button type="button" class="opt" id="presetMods" aria-pressed="false" aria-label="Load mods: also set the Mod inputs saved with a preset when you load it. Mods are always saved." data-tip="Load mods: also set the Mod inputs saved with a preset when you load it. Mods are always saved.">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v8M8 8h8M8 19h8"></path></svg>
+            <span class="opt-word" aria-hidden="true">Mods</span>
+          </button>
           <button type="button" class="opt tip-right" id="presetRecent" aria-pressed="false" aria-label="Recently used first: sort by when you last used each preset. Turn off to go back to your own order." data-tip="Recently used first: sort by when you last used each preset. Turn off to go back to your own order.">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+            <span class="opt-word" aria-hidden="true">Recent</span>
           </button>
         </div>
         <div class="preset-add">
@@ -465,17 +482,16 @@ body {
 
   <section class="modules" aria-label="Extra tools">
     <div class="tabbar">
-      <button type="button" class="tab" id="dmgToggle" aria-expanded="false" aria-controls="dmgBody">
+      <button type="button" class="tab" id="dmgToggle" aria-expanded="false" aria-controls="dmgBody" data-tip="Roll damage after an attack. Each success beyond the first on your most recent roll adds a bonus die." aria-description="Roll damage after an attack. Each success beyond the first on your most recent roll adds a bonus die.">
         <span>Damage</span>
         <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
       </button>
-      <button type="button" class="tab" id="oddsToggle" aria-expanded="false" aria-controls="oddsBody">
+      <button type="button" class="tab tip-right" id="oddsToggle" aria-expanded="false" aria-controls="oddsBody" data-tip="Chance of rolling at least a number of successes, using the pool, difficulty, Specialty and Botch settings above." aria-description="Chance of rolling at least a number of successes, using the pool, difficulty, Specialty and Botch settings above.">
         <span>Probability</span>
         <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
       </button>
     </div>
     <div class="odds-body" id="dmgBody" role="region" aria-labelledby="dmgToggle" hidden>
-    <p class="odds-intro">Roll damage after an attack. Each success beyond the first on your most recent roll adds a bonus die.</p>
     <div class="grid">
       <div class="panel">
         <div class="field">
@@ -496,7 +512,6 @@ body {
             <input id="dmgPool" type="number" inputmode="numeric" min="0" max="40" value="4">
             <button type="button" id="dmgUp" aria-label="Add one damage die">+</button>
           </div>
-          <p class="hint">Usually Strength plus weapon. From 0 to 40 dice.</p>
         </div>
 
         <div class="field" role="radiogroup" aria-labelledby="dmgDiffLabel">
@@ -531,21 +546,24 @@ body {
           <div class="opts">
             <button type="button" class="opt" id="dmgBonus" aria-pressed="true" aria-label="Bonus dice: extra successes from your last roll add dice." data-tip="Bonus dice: extra successes from your last roll add dice.">
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4l6 6-6 11-6-11z"></path><path d="M19 3v6M16 6h6"></path></svg>
+            <span class="opt-word" aria-hidden="true">Bonus</span>
             </button>
             <button type="button" class="opt" id="dmgSpec" aria-pressed="false" aria-label="Specialty: each 10 counts as 2 successes." data-tip="Specialty: each 10 counts as 2 successes.">
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>
+            <span class="opt-word" aria-hidden="true">Specialty</span>
             </button>
             <button type="button" class="opt" id="dmgBotch" aria-pressed="false" aria-label="Botch: each 1 subtracts 1 success." data-tip="Botch: each 1 subtracts 1 success.">
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a8 8 0 0 0-5 14.2V21h10v-3.8A8 8 0 0 0 12 3z"></path><circle cx="9" cy="11.5" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="15" cy="11.5" r="1.4" fill="currentColor" stroke="none"></circle><path d="M10 21v-2.5M14 21v-2.5"></path></svg>
+            <span class="opt-word" aria-hidden="true">Botch</span>
             </button>
           </div>
         </div>
 
         <div class="field">
           <h3 class="pre-h">
-            <button type="button" class="pre-toggle" id="dmgPlanToggle" aria-expanded="false" aria-controls="dmgPlanBody">
-              <span class="label">Next damage roll</span>
-              <span class="pre-count" id="dmgPlanSummary"></span>
+            <button type="button" class="pre-toggle plan" id="dmgPlanToggle" aria-expanded="false" aria-controls="dmgPlanBody">
+              <span class="plan-label" id="dmgPlanLabel">Average damage expected</span>
+              <span class="plan-val" id="dmgPlanSummary"></span>
               <svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>
             </button>
           </h3>
@@ -567,13 +585,17 @@ body {
           </h3>
           <div class="pre-body" id="dmgPresetsBody">
             <div class="pre-opts">
-              <label class="switch" for="dmgRollOnLoad">
-                <input type="checkbox" role="switch" id="dmgRollOnLoad">
-                <span class="track" aria-hidden="true"></span>
-                <span class="txt"><strong>Roll on load</strong><small>Roll right away when you load a preset.</small></span>
-              </label>
+              <button type="button" class="opt" id="dmgRollOnLoad" aria-pressed="false" aria-label="Roll on load: roll right away when you load a preset." data-tip="Roll on load: roll right away when you load a preset.">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>
+            <span class="opt-word" aria-hidden="true">Quick Roll</span>
+              </button>
+              <button type="button" class="opt" id="dmgPresetMods" aria-pressed="false" aria-label="Load mods: also set the Mod inputs saved with a preset when you load it. Mods are always saved." data-tip="Load mods: also set the Mod inputs saved with a preset when you load it. Mods are always saved.">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v8M8 8h8M8 19h8"></path></svg>
+            <span class="opt-word" aria-hidden="true">Mods</span>
+              </button>
               <button type="button" class="opt tip-right" id="dmgPresetRecent" aria-pressed="false" aria-label="Recently used first: sort by when you last used each preset. Turn off to go back to your own order." data-tip="Recently used first: sort by when you last used each preset. Turn off to go back to your own order.">
                 <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+            <span class="opt-word" aria-hidden="true">Recent</span>
               </button>
             </div>
             <div class="preset-add">
@@ -610,7 +632,6 @@ body {
     </div>
 
     <div class="odds-body" id="oddsBody" role="region" aria-labelledby="oddsToggle" hidden>
-    <p class="odds-intro">Chance of rolling at least a number of successes, using the pool, difficulty, Specialty and Botch settings above.</p>
     <div class="grid">
       <div class="panel">
         <div class="field">
@@ -620,7 +641,6 @@ body {
             <input id="succ" type="number" inputmode="numeric" min="1" max="80" value="3">
             <button type="button" id="succUp" aria-label="Want one more success">+</button>
           </div>
-          <p class="hint">Counted after Specialty and Botch. From 1 to 80.</p>
         </div>
         <div class="field">
           <span class="label">Roll settings used</span>
@@ -682,6 +702,11 @@ body {
         <span class="track" aria-hidden="true"></span>
         <span class="txt"><strong>Single Roll Button</strong><small>Show the button beside Roll that rolls one plain d10.</small></span>
       </label>
+      <label class="switch" for="avgOpt">
+        <input type="checkbox" role="switch" id="avgOpt">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Show Averages</strong><small>Show the average successes expected in the roller and the average damage expected in the Damage plan.</small></span>
+      </label>
       <label class="switch" for="instantRoll">
         <input type="checkbox" role="switch" id="instantRoll">
         <span class="track" aria-hidden="true"></span>
@@ -703,6 +728,11 @@ body {
         <input type="checkbox" role="switch" id="wideAspect">
         <span class="track" aria-hidden="true"></span>
         <span class="txt"><strong>Wide Aspect</strong><small>On screens over 1280px wide, show Extra Modules beside the roller, with their tabs above them. Narrow screens keep the stacked layout.</small></span>
+      </label>
+      <label class="switch" for="wordToggles">
+        <input type="checkbox" role="switch" id="wordToggles">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Toggle Style</strong><small>Show option buttons such as Specialty, Bonus dice, Botch and Roll on load as words instead of icons.</small></span>
       </label>
     </section>
     <section class="set-sec danger" aria-labelledby="dangerHead">
@@ -739,7 +769,7 @@ body {
     return Math.min(b, Math.max(a, n));
   }
 
-  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: '', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: false, instant: false, cookieRefresh: true, quickBtn: true, wide: false, botchPrev: true, dmgBotchPrev: false, m20: false, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
+  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: 'damage', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: true, instant: false, cookieRefresh: true, quickBtn: true, showAvg: true, touched: [], wide: true, presetsMods: false, dmgPresetsMods: false, wordToggles: true, botchPrev: true, dmgBotchPrev: false, m20: true, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved) {
@@ -755,7 +785,7 @@ body {
       if (isFinite(+saved.dmgPool)) st.dmgPool = clamp(+saved.dmgPool, 0, MAX_POOL);
       if (isFinite(+saved.dmgDiff)) st.dmgDiff = clamp(+saved.dmgDiff, 2, 30);
       if (typeof saved.accent === 'string' && (/^#[0-9a-f]{6}$/i.test(saved.accent) || /^(crimson|violet|azure|emerald|amber)$/.test(saved.accent))) st.accent = saved.accent.toLowerCase();
-      if (typeof saved.tint === 'string' && /^(plum|slate|forest|ember|neutral)$/.test(saved.tint)) st.tint = saved.tint;
+      if (typeof saved.tint === 'string' && (/^#[0-9a-f]{6}$/i.test(saved.tint) || /^(plum|slate|forest|ember|neutral)$/.test(saved.tint))) st.tint = saved.tint.toLowerCase();
       ['mod', 'dmgMod'].forEach(function (k) {
         if (isFinite(+saved[k])) st[k] = clamp(Math.round(+saved[k]), -20, 20);
       });
@@ -765,11 +795,21 @@ body {
       ['presetsH', 'dmgPresetsH'].forEach(function (k) {
         if (isFinite(+saved[k])) st[k] = clamp(+saved[k], 56, 720);
       });
-      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn', 'm20', 'diffInput', 'dmgDiffInput', 'botchLock', 'botchPrev', 'dmgBotchPrev', 'instant', 'cookieRefresh', 'quickBtn', 'wide'].forEach(function (k) {
+      ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn', 'm20', 'diffInput', 'dmgDiffInput', 'botchLock', 'botchPrev', 'dmgBotchPrev', 'instant', 'cookieRefresh', 'quickBtn', 'showAvg', 'wide', 'presetsMods', 'dmgPresetsMods', 'wordToggles'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
     }
   } catch (e) {}
+
+  /* Defaults the page enforces. A setting follows its default until the person changes that switch themselves,
+     so saved copies of an older default never stick. A change made by hand is remembered in st.touched. */
+  var FORCED = { m20: true, botchLock: true, cookieRefresh: true, quickBtn: true, showAvg: true, instant: false, wide: true, wordToggles: true };
+  if (saved && Array.isArray(saved.touched)) {
+    st.touched = saved.touched.filter(function (k) { return Object.prototype.hasOwnProperty.call(FORCED, k); });
+  }
+  Object.keys(FORCED).forEach(function (k) {
+    if (st.touched.indexOf(k) < 0) st[k] = FORCED[k];
+  });
 
   var wiping = false;
   function save() {
@@ -844,6 +884,8 @@ body {
     var btn = $('rollBtn');
     btn.disabled = n < 1;
     btn.textContent = n < 1 ? 'No dice to roll' : 'Roll ' + n + (n === 1 ? ' die' : ' dice');
+    $('avgRow').hidden = !st.showAvg;
+    if (st.showAvg) fillRows($('avgRow'), [['Average successes expected', avgNet(n, effDiff(), st.spec, st.botch).toFixed(2)]]);
     updateProb();
   }
 
@@ -852,10 +894,10 @@ body {
     setModUI(modCfg);
     setModUI(dModCfg);
     syncDiffUI(diffCfg);
-    $('spec').checked = st.spec;
+    setPressed('spec', st.spec);
     if (st.botchLock) st.botch = true;
-    $('botch').checked = st.botch;
-    $('botch').closest('label').hidden = st.botchLock;
+    setPressed('botch', st.botch);
+    $('botch').hidden = st.botchLock;
     $('succ').value = st.want;
     setSoundUI();
     updateLabels();
@@ -1002,6 +1044,14 @@ body {
   });
   applyQuickOpt();
 
+  $('avgOpt').checked = st.showAvg;
+  $('avgOpt').addEventListener('change', function () {
+    st.showAvg = this.checked;
+    updateLabels();
+    updateDmg();
+    save();
+  });
+
   function doRoll(animate, sample) {
     if (timer) { clearInterval(timer); timer = null; }
     if (animate) prepSound();
@@ -1123,8 +1173,8 @@ body {
   chips.addEventListener('change', function (e) {
     if (e.target && e.target.name === 'diff') { st.diff = +e.target.value; updateLabels(); save(); }
   });
-  $('spec').addEventListener('change', function () { st.spec = this.checked; updateProb(); save(); });
-  $('botch').addEventListener('change', function () { st.botch = this.checked; updateProb(); save(); });
+  $('spec').addEventListener('click', function () { st.spec = !st.spec; setPressed('spec', st.spec); updateLabels(); save(); });
+  $('botch').addEventListener('click', function () { st.botch = !st.botch; setPressed('botch', st.botch); updateLabels(); save(); });
   $('form').addEventListener('submit', function (e) {
     e.preventDefault();
     var v = parseInt($('pool').value, 10);
@@ -1472,6 +1522,11 @@ body {
   var GRIP_MAX = 720;
 
   /* One preset list with its own storage key and its own elements. The roller and the damage section each get one. */
+  /* A short note on the preset's saved Mod inputs, left out when both are zero. */
+  function modsText(p) {
+    return (p.mod ? ' · mod ' + signed(p.mod) : '') + (p.dmod ? ' · diff mod ' + signed(p.dmod) : '');
+  }
+
   function createPresetBox(o) {
     var ids = o.ids;
     var presets = [];
@@ -1490,7 +1545,9 @@ body {
           spec: +e[3] === 1,
           botch: +e[4] === 1,
           bonus: e.length > 5 ? +e[5] === 1 : true,
-          used: e.length > 6 && isFinite(+e[6]) && +e[6] > 0 ? +e[6] : 0
+          used: e.length > 6 && isFinite(+e[6]) && +e[6] > 0 ? +e[6] : 0,
+          mod: e.length > 7 && isFinite(+e[7]) ? clamp(Math.round(+e[7]), -20, 20) : 0,
+          dmod: e.length > 8 && isFinite(+e[8]) ? clamp(Math.round(+e[8]), -8, 8) : 0
         });
       });
       return out.slice(0, MAX_PRESETS);
@@ -1512,7 +1569,7 @@ body {
     /* Returns 'ok', 'toolong' or 'failed'. The array order is the user's own order. */
     function persistList() {
       var json = JSON.stringify(presets.map(function (p) {
-        return [p.name, p.pool, p.diff, p.spec ? 1 : 0, p.botch ? 1 : 0, p.bonus ? 1 : 0, p.used || 0];
+        return [p.name, p.pool, p.diff, p.spec ? 1 : 0, p.botch ? 1 : 0, p.bonus ? 1 : 0, p.used || 0, p.mod || 0, p.dmod || 0];
       }));
       try {
         if (storeMode === 'cookie') {
@@ -1603,7 +1660,7 @@ body {
       }
       var before = presets.slice();
       var cur = o.current();
-      var entry = { name: name, pool: cur.pool, diff: cur.diff, spec: cur.spec, botch: cur.botch, bonus: cur.bonus !== false, used: stamp() };
+      var entry = { name: name, pool: cur.pool, diff: cur.diff, spec: cur.spec, botch: cur.botch, bonus: cur.bonus !== false, used: stamp(), mod: cur.mod || 0, dmod: cur.dmod || 0 };
       var at = -1;
       presets.forEach(function (p, i) { if (p.name.toLowerCase() === name.toLowerCase()) at = i; });
       if (at >= 0) {
@@ -1629,7 +1686,7 @@ body {
 
     function loadPreset(p) {
       if (!p || presets.indexOf(p) < 0) return;
-      o.apply(p);
+      o.apply(p, st[o.modsKey] === true);
       $(ids.name).value = p.name;
       p.used = stamp();
       persistList();
@@ -1859,9 +1916,16 @@ body {
       setOpen(st[o.openKey]);
       save();
     });
-    $(ids.rollSwitch).addEventListener('change', function () {
-      st[o.rollKey] = this.checked;
+    $(ids.rollSwitch).addEventListener('click', function () {
+      st[o.rollKey] = !st[o.rollKey];
+      setPressed(ids.rollSwitch, st[o.rollKey]);
       save();
+    });
+    $(ids.mods).addEventListener('click', function () {
+      st[o.modsKey] = !st[o.modsKey];
+      setPressed(ids.mods, st[o.modsKey]);
+      save();
+      setStatus(st[o.modsKey] ? 'Loading a preset will also set its Mod inputs.' : 'Loading a preset leaves your Mod inputs alone.');
     });
     $(ids.recent).addEventListener('click', function () {
       st[o.recentKey] = !recentOn();
@@ -1875,11 +1939,12 @@ body {
     presets = readList();
     renderList();
     $(ids.store).textContent = storeMode === 'cookie'
-      ? 'Presets are saved in a cookie in this browser.'
+      ? ''
       : storeMode === 'local'
         ? 'Cookies are blocked here, so presets are kept in this browser’s local storage instead.'
         : 'This browser blocks cookies and storage, so presets last only until you close the page.';
-    $(ids.rollSwitch).checked = st[o.rollKey];
+    setPressed(ids.rollSwitch, st[o.rollKey]);
+    setPressed(ids.mods, st[o.modsKey]);
     setRecentUI();
     setHeight(st[o.heightKey], false);
     setOpen(st[o.openKey]);
@@ -2009,10 +2074,11 @@ body {
     }
     rows.push(['Total dice', String(total)]);
     var avg = avgNet(total, dmgEffDiff(), st.dmgSpec, st.dmgBotch);
-    rows.push(['Average damage expected', avg.toFixed(2)]);
     fillRows($('dmgPlan'), rows);
     var sum = (mod ? modText(st.dmgPool, mod) : String(st.dmgPool)) + (bonus > 0 ? ' + ' + bonus : '');
-    $('dmgPlanSummary').textContent = (bonus > 0 || mod ? sum + ' = ' : '') + total + (total === 1 ? ' die' : ' dice') + (total > 0 ? ' · avg ' + avg.toFixed(2) : '');
+    /* With averages on, the header is just the average. With them off it describes the next roll's dice. */
+    $('dmgPlanLabel').textContent = st.showAvg ? 'Average damage expected' : 'Next damage roll';
+    $('dmgPlanSummary').textContent = st.showAvg ? avg.toFixed(2) : (bonus > 0 || mod ? sum + ' = ' : '') + total + (total === 1 ? ' die' : ' dice');
 
     var note = '';
     if (st.dmgBonus && lastNet === 0) note = 'The last roll had no successes, so there are no bonus dice.';
@@ -2145,18 +2211,20 @@ body {
     openKey: 'presetsOpen',
     rollKey: 'rollOnLoad',
     recentKey: 'presetsRecent',
+    modsKey: 'presetsMods',
     heightKey: 'presetsH',
     ids: {
       name: 'presetName', save: 'presetSave', list: 'presetList', status: 'presetStatus', store: 'presetStore',
-      count: 'presetCount', toggle: 'presetsToggle', body: 'presetsBody', rollSwitch: 'rollOnLoad', recent: 'presetRecent', grip: 'presetGrip'
+      count: 'presetCount', toggle: 'presetsToggle', body: 'presetsBody', rollSwitch: 'rollOnLoad', mods: 'presetMods', recent: 'presetRecent', grip: 'presetGrip'
     },
     summary: function (p) {
       return p.pool + (p.pool === 1 ? ' die' : ' dice') + ' · diff ' + p.diff +
-        (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '');
+        (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '') + modsText(p);
     },
-    current: function () { return { pool: st.pool, diff: st.diff, spec: st.spec, botch: st.botch, bonus: true }; },
-    apply: function (p) {
+    current: function () { return { pool: st.pool, diff: st.diff, spec: st.spec, botch: st.botch, bonus: true, mod: modApplied(), dmod: dModApplied() }; },
+    apply: function (p, withMods) {
       st.pool = p.pool; st.diff = p.diff; st.spec = p.spec; st.botch = p.botch;
+      if (withMods) { st.mod = p.mod; st.dMod = p.dmod; if (p.mod) st.modOn = true; if (p.dmod) st.dModOn = true; }
       syncControls();
       save();
     },
@@ -2170,18 +2238,20 @@ body {
     openKey: 'dmgPresetsOpen',
     rollKey: 'dmgRollOnLoad',
     recentKey: 'dmgPresetsRecent',
+    modsKey: 'dmgPresetsMods',
     heightKey: 'dmgPresetsH',
     ids: {
       name: 'dmgPresetName', save: 'dmgPresetSave', list: 'dmgPresetList', status: 'dmgPresetStatus', store: 'dmgPresetStore',
-      count: 'dmgPresetCount', toggle: 'dmgPresetsToggle', body: 'dmgPresetsBody', rollSwitch: 'dmgRollOnLoad', recent: 'dmgPresetRecent', grip: 'dmgPresetGrip'
+      count: 'dmgPresetCount', toggle: 'dmgPresetsToggle', body: 'dmgPresetsBody', rollSwitch: 'dmgRollOnLoad', mods: 'dmgPresetMods', recent: 'dmgPresetRecent', grip: 'dmgPresetGrip'
     },
     summary: function (p) {
       return p.pool + (p.pool === 1 ? ' die' : ' dice') + ' · diff ' + p.diff +
-        (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '') + (p.bonus ? ' · bonus dice' : '');
+        (p.spec ? ' · specialty' : '') + (p.botch ? ' · botch' : '') + (p.bonus ? ' · bonus dice' : '') + modsText(p);
     },
-    current: function () { return { pool: st.dmgPool, diff: st.dmgDiff, spec: st.dmgSpec, botch: st.dmgBotch, bonus: st.dmgBonus }; },
-    apply: function (p) {
+    current: function () { return { pool: st.dmgPool, diff: st.dmgDiff, spec: st.dmgSpec, botch: st.dmgBotch, bonus: st.dmgBonus, mod: dmgModApplied(), dmod: dmgDModApplied() }; },
+    apply: function (p, withMods) {
       st.dmgPool = p.pool; st.dmgDiff = p.diff; st.dmgSpec = p.spec; st.dmgBotch = p.botch; st.dmgBonus = p.bonus;
+      if (withMods) { st.dmgMod = p.mod; st.dmgDMod = p.dmod; if (p.mod) st.dmgModOn = true; if (p.dmod) st.dmgDModOn = true; }
       syncDmg();
       save();
     },
@@ -2225,6 +2295,15 @@ body {
   $('wideAspect').addEventListener('change', function () {
     st.wide = this.checked;
     document.querySelector('.wrap').classList.toggle('wide', st.wide);
+    save();
+  });
+
+  /* Toggle Style: option buttons as words instead of icons. */
+  $('wordToggles').checked = st.wordToggles;
+  document.querySelector('.wrap').classList.toggle('words', st.wordToggles);
+  $('wordToggles').addEventListener('change', function () {
+    st.wordToggles = this.checked;
+    document.querySelector('.wrap').classList.toggle('words', st.wordToggles);
     save();
   });
 
@@ -2278,6 +2357,11 @@ body {
   }
   function tintSpec() {
     if (!st.tint || st.tint === 'plum') return null;
+    if (/^#/.test(st.tint)) {
+      /* A custom tint keeps the theme's lightness. Its hue is the picked hue, and how colorful the picked color is sets the strength. */
+      var c = hexToHsl(st.tint);
+      return { h: c[0], m: clamp(c[1] / 22, 0, 1.6), show: c[0] };
+    }
     return TINTS.filter(function (t) { return t.id === st.tint; })[0] || null;
   }
   function applyColors() {
@@ -2309,6 +2393,7 @@ body {
     TINTS.forEach(function (t) {
       th += '<button type="button" class="swatch" data-kind="tint" data-id="' + t.id + '" style="--sw:' + hsl(t.show, t.m ? 22 * t.m : 0, 20) + '" aria-label="' + t.name + '" title="' + t.name + '" aria-pressed="false"></button>';
     });
+    th += '<label class="swatch custom" id="tintCustomWrap" title="Custom tint"><input type="color" id="tintCustom" value="#6a5a7a" aria-label="Custom background tint"></label>';
     $('tintSwatches').innerHTML = th;
   }
   function refreshSwatches() {
@@ -2322,6 +2407,11 @@ body {
     wrap.classList.toggle('on', custom);
     if (custom) { wrap.style.setProperty('--sw', st.accent); $('accentCustom').value = st.accent; }
     else wrap.style.removeProperty('--sw');
+    var tcustom = /^#/.test(tint);
+    var twrap = $('tintCustomWrap'), tspec = tintSpec();
+    twrap.classList.toggle('on', tcustom);
+    if (tcustom && tspec) { twrap.style.setProperty('--sw', hsl(tspec.h, 22 * tspec.m, 20)); $('tintCustom').value = st.tint; }
+    else twrap.style.removeProperty('--sw');
   }
   function colorsChanged() { applyColors(); refreshSwatches(); save(); }
   buildSwatches();
@@ -2334,6 +2424,9 @@ body {
   });
   $('accentCustom').addEventListener('input', function () {
     if (/^#[0-9a-f]{6}$/i.test(this.value)) { st.accent = this.value.toLowerCase(); colorsChanged(); }
+  });
+  $('tintCustom').addEventListener('input', function () {
+    if (/^#[0-9a-f]{6}$/i.test(this.value)) { st.tint = this.value.toLowerCase(); colorsChanged(); }
   });
   $('colorsReset').addEventListener('click', function () {
     st.accent = '';
@@ -2350,8 +2443,8 @@ body {
 
   /* UI options. With the lock on, Botch is always on and its toggles cannot be changed; turning it off restores the earlier choices. */
   function applyBotchLock() {
-    $('botch').checked = st.botch;
-    $('botch').closest('label').hidden = st.botchLock;
+    setPressed('botch', st.botch);
+    $('botch').hidden = st.botchLock;
     setPressed('dmgBotch', st.dmgBotch);
     $('dmgBotch').hidden = st.botchLock;
   }
@@ -2445,6 +2538,14 @@ body {
     updateDmg();
   });
   $('m20').checked = st.m20;
+
+  /* Remember which switches the person has flipped themselves. */
+  [['m20', 'm20'], ['botchLock', 'botchLock'], ['cookieRefresh', 'cookieRefresh'], ['quickOpt', 'quickBtn'], ['avgOpt', 'showAvg'], ['instantRoll', 'instant'], ['wideAspect', 'wide'], ['wordToggles', 'wordToggles']].forEach(function (pair) {
+    $(pair[0]).addEventListener('change', function () {
+      if (st.touched.indexOf(pair[1]) < 0) st.touched.push(pair[1]);
+      save();
+    });
+  });
 
   syncControls();
   doRoll(false, true);
