@@ -81,3 +81,13 @@ V1.5.2
 -Initiative Tracker Changes:
 	-Added the ability to have the actor whose turn is active, delay their turn by holding click on them and dragging them to the desired position
 	-Added an "Undo" button, which can undo almost any action taken in the tracker
+	
+V1.5.3
+-Initiative Tracker Changes:
+	-Added Celerity Turns tracking, right clicking an actor let's the user designate them as a "Celerity User", which shows a Celerity field with - and + buttons. These can only be set before the first actor delays, or takes their turn. After which, they become locked until the next round. Once a round would normally end, it wraps back around through all Celerity Users, until they have no celerity turns left. After which, the round ends.
+	-Added the "Actor List" and the ability to save actors as presets. The list can be searched, sorted, and updated. Adding any duplicate actors marks them as such between brackets. Saving a preset of an actor already on the list asks the user to confirm, and then replaces the actor preset.
+	-Changed a lot of button labels. Mainly, the "Roll Inititative" button now starts the encounter (or ends it), and the "Next Round" button now reads "Start Round" at first. Rounds no longer start automatically, and the start round button must be clicked before locking in data (like celerity uses, and initiative).
+	-Added a new Actor toggle for revealing an actor's name. This saves to an actor's preset.
+		-Made it so that remote clients can't see an unrevealed actor's name, and instead show as "Enemy [X]", the X being number of enemy.
+	-Moved all tag related actor toggles to their own submenu within the context menu.
+	-Added an Auto Update option to the tracker, when enabled, it automatically updates presets with changes on the tracker (but not if they're duplicates of actors).

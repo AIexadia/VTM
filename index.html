@@ -272,6 +272,14 @@ body {
 .ctx button { text-align: left; border: 0; border-radius: 6px; background: transparent; color: var(--fg); padding: 10px 12px; font: 500 0.95rem var(--font-body); cursor: pointer; }
 .ctx button:hover, .ctx button:focus-visible { background: var(--line); outline: none; }
 .ctx button.danger { color: var(--accent-text); }
+.ctx button.has-sub::after { content: '\203a'; float: right; margin-left: 18px; color: var(--muted); }
+.ctx-sub { position: absolute; left: calc(100% + 4px); min-width: 180px; padding: 4px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface-2); box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; }
+.ctx-sub.flip { left: auto; right: calc(100% + 4px); }
+.ctx-sub[hidden] { display: none; }
+.ctx button.ck-item { display: flex; align-items: center; gap: 10px; }
+.ck { flex: none; width: 16px; height: 16px; display: inline-grid; place-items: center; border: 1.5px solid var(--line-strong); border-radius: 4px; background: var(--surface); }
+.ck-item.on .ck { background: var(--accent); border-color: var(--accent); }
+.ck-item.on .ck::after { content: ''; width: 8px; height: 4px; border-left: 2px solid var(--on-accent); border-bottom: 2px solid var(--on-accent); transform: translateY(-1px) rotate(-45deg); }
 .preset-grip { height: 20px; display: grid; place-items: center; cursor: ns-resize; touch-action: none; border-radius: 6px; }
 .preset-grip::before { content: ""; width: 44px; height: 4px; border-radius: 2px; background: var(--line-strong); }
 .preset-grip:hover::before, .preset-grip.active::before, .preset-grip:focus-visible::before { background: var(--accent); }
@@ -377,6 +385,39 @@ body {
 .ini-static.mono { font-family: var(--font-data); }
 .ini-static.pending { font-style: italic; color: var(--muted); }
 .ini-static.dim { color: var(--muted); font-weight: 500; }
+.ini-cel { display: flex; align-items: center; gap: 4px; margin-top: 5px; font-size: 0.8rem; color: var(--muted); }
+.ini-cel .lbl { text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem; font-weight: 700; margin-right: 2px; }
+.ini-cel .num { font-family: var(--font-data); min-width: 1.6em; text-align: center; color: var(--fg); }
+.ini-cel-b { width: 26px; height: 26px; padding: 0; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface-2); color: var(--fg); font: 700 1rem/1 var(--font-body); cursor: pointer; }
+.ini-cel-b:hover:not(:disabled) { background: var(--line); }
+.ini-cel-b:disabled { opacity: 0.4; cursor: not-allowed; }
+.ini-cel-n { width: 3em; height: 26px; padding: 0 2px; text-align: center; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--fg); font: 600 0.9rem var(--font-data); -moz-appearance: textfield; appearance: textfield; }
+.ini-cel-n::-webkit-outer-spin-button, .ini-cel-n::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.cel-badge { display: inline-block; margin-left: 10px; padding: 2px 9px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: 1px; }
+.init-panel, #mainRoller, #simpleRoller { position: relative; }
+.init-foot { display: flex; }
+.init-foot .btn-sec { width: 100%; height: 44px; }
+.init-panel.watching .init-foot { display: none; }
+.actors-pop { position: absolute; z-index: 30; inset: 0; min-height: 380px; max-height: 720px; display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4); }
+.actors-pop[hidden] { display: none; }
+.ap-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 1.05rem; }
+.ap-x { width: 36px; height: 36px; padding: 0; font-size: 1.3rem; line-height: 1; }
+.actors-pop input[type="search"] { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg); color: var(--fg); font: 1rem var(--font-body); }
+.ap-sort { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.ap-sort .btn-sec { height: 34px; padding: 0 12px; font-size: 0.9rem; }
+.ap-sort .btn-sec[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.ap-list { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.ap-list li { display: flex; gap: 6px; }
+.ap-item { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 600 1rem var(--font-body); text-align: left; cursor: pointer; }
+.ap-item:hover { border-color: var(--accent); }
+.ap-item .nm { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.ap-item .tag { padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.ap-item .md { font-family: var(--font-data); color: var(--muted); }
+.ap-del { width: 40px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--muted); font-size: 1.1rem; cursor: pointer; }
+.ap-del:hover { color: var(--fg); border-color: var(--line-strong); }
+.ap-del.confirm { width: auto; padding: 0 10px; background: var(--danger-fill); border-color: var(--danger-fill); color: #fff; font: 700 0.85rem var(--font-body); }
+.ap-empty:empty { display: none; }
+.ini-enemy { margin-left: 8px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em; color: var(--muted); opacity: 0.8; white-space: nowrap; }
 .ini-pin { display: inline-flex; vertical-align: -2px; margin-left: 6px; color: var(--muted); }
 .ini-pin svg { width: 14px; height: 14px; }
 /* Wide Aspect: on large screens the extra tools sit beside the roller; both halves share the width equally. */
@@ -400,6 +441,7 @@ body {
 .wrap.words .opt-word { display: inline; }
 .wrap.words .opt { width: auto; min-width: 40px; padding: 0 12px; font: 600 0.85rem/1 var(--font-body); white-space: nowrap; }
 .wrap.words .opts, .wrap.words .pre-opts { flex-wrap: wrap; }
+.wrap.words .init-opts .opt { width: 84px; min-width: 0; height: 46px; padding: 3px 6px; white-space: normal; text-align: center; font: 600 0.78rem/1.15 var(--font-body); }
 .opt[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .opt[aria-pressed="true"]:hover { filter: brightness(1.1); }
 .opt::after { content: attr(data-tip); position: absolute; left: 0; bottom: calc(100% + 8px); width: max-content; max-width: min(240px, 70vw); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 400 0.85rem/1.35 var(--font-body); text-align: left; white-space: normal; pointer-events: none; opacity: 0; transform: translateY(2px); transition: opacity 0.12s, transform 0.12s; z-index: 20; }
@@ -785,23 +827,27 @@ body {
           <div class="init-opts">
             <span class="label">Options</span>
             <div class="opts">
-              <button type="button" class="opt" id="initPersist" aria-pressed="false" aria-label="Persistent rolls: Roll initiative also rolls Persistent actors instead of waiting for you to enter their result." data-tip="Persistent rolls: Roll initiative also rolls Persistent actors instead of waiting for you to enter their result.">
+              <button type="button" class="opt" id="initPersist" aria-pressed="false" aria-label="Persistent rolls: Start round also rolls Persistent actors instead of waiting for you to enter their result." data-tip="Persistent rolls: Start round also rolls Persistent actors instead of waiting for you to enter their result.">
                 <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 6-3 1-4 4 .5 4-1.5 1.5-4.5-4.5L3 21M9 8l-1 3 5 5"></path></svg>
-                <span class="opt-word" aria-hidden="true">Persistent rolls</span>
+                <span class="opt-word" aria-hidden="true">Persistent<br>rolls</span>
               </button>
             <button type="button" class="opt" id="initFresh" aria-pressed="false" aria-label="Fresh initiative: everyone, Persistent actors included, rolls initiative again at the start of every round." data-tip="Fresh initiative: everyone, Persistent actors included, rolls initiative again at the start of every round.">
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14-4.5L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4.5L20 15M20 20v-5h-5"></path></svg>
-              <span class="opt-word" aria-hidden="true">Fresh initiative</span>
+              <span class="opt-word" aria-hidden="true">Fresh<br>initiative</span>
+            </button>
+            <button type="button" class="opt" id="initAuto" aria-pressed="false" aria-label="Auto Update: actors already saved on the Actors list keep their saved name, mod and tags in step with changes made here. Copies like Goblin [2] do not change it." data-tip="Auto Update: actors already saved on the Actors list keep their saved name, mod and tags in step with changes made here. A name already on the list is refused. Copies like Goblin [2] do not change it.">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path></svg>
+              <span class="opt-word" aria-hidden="true">Auto<br>Update</span>
             </button>
             </div>
           </div>
-          <p class="init-turn" id="initTurn" aria-live="polite">Add actors, then roll for initiative.</p>
+          <p class="init-turn" id="initTurn" aria-live="polite">Add actors, then press Start encounter.</p>
         </div>
         <div class="init-actions">
-          <button type="button" class="roll" id="initRoll">Roll initiative</button>
-          <button type="button" class="btn-sec" id="initAdd">Add actor</button>
+          <button type="button" class="roll" id="initRoll">Start encounter</button>
+          <button type="button" class="btn-sec" id="initAdd">Add new actor</button>
           <button type="button" class="btn-sec" id="initNext">Next turn</button>
-          <button type="button" class="btn-sec" id="initClear">Clear encounter</button>
+          <button type="button" class="btn-sec" id="initClear" title="Clears all actors that aren't Persistent">Clear actors</button>
           <button type="button" class="btn-sec" id="initUndo" title="Undo the last change to the tracker" disabled>Undo</button>
         </div>
         <div class="init-sync" id="initSync">
@@ -835,6 +881,20 @@ body {
             <thead><tr><th scope="col"><span class="sr-only" style="position:absolute;left:-9999px">Turn</span></th><th scope="col">Actor</th><th scope="col">Mod</th><th scope="col" title="A penalty or bonus to initiative that lasts until the next round">+/-</th><th scope="col">Initiative</th></tr></thead>
             <tbody id="initBodyRows"></tbody>
           </table>
+        </div>
+        <div class="init-foot"><button type="button" class="btn-sec" id="actorsBtn" aria-expanded="false" aria-controls="actorsPop" title="Saved actors you can add to the encounter with one click">Actors list</button></div>
+        <div class="actors-pop" id="actorsPop" role="dialog" aria-label="Actors list" hidden>
+          <div class="ap-head"><strong>Actors list</strong><button type="button" class="btn-sec ap-x" id="actorsClose" aria-label="Close the actors list">&times;</button></div>
+          <input type="search" id="actorsSearch" placeholder="Search actors" aria-label="Search actors by name" autocomplete="off" spellcheck="false">
+          <div class="ap-sort" role="group" aria-label="Sort actors">
+            <span class="label">Sort</span>
+            <button type="button" class="btn-sec" data-k="name" title="Sort by name. Press again to reverse.">Name</button>
+            <button type="button" class="btn-sec" data-k="cel" title="Sort by Celerity users. Press again to reverse.">Celerity</button>
+            <button type="button" class="btn-sec" data-k="mod" title="Sort by modifier. Press again to reverse.">Mod</button>
+          </div>
+          <ul class="ap-list" id="actorsList"></ul>
+          <p class="hint ap-empty" id="actorsEmpty"></p>
+          <p class="hint" id="actorsMsg" role="status" aria-live="polite"></p>
         </div>
       </div>
     </div>
@@ -980,9 +1040,9 @@ body {
     return Math.min(b, Math.max(a, n));
   }
 
-  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: 'damage', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: true, instant: false, cookieRefresh: true, quickBtn: true, showAvg: true, touched: [], wide: true, presetsMods: false, dmgPresetsMods: false, wordToggles: true, botchPrev: true, dmgBotchPrev: false, m20: true, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
+  var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: 'damage', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: true, instant: false, cookieRefresh: true, quickBtn: true, showAvg: true, touched: [], wide: true, presetsMods: false, dmgPresetsMods: false, wordToggles: true, botchPrev: true, dmgBotchPrev: false, m20: true, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false, actorPresets: [], actorSort: 'name', actorDesc: false, initAuto: false };
   st.showMain = true; st.simple = false; st.showDamage = true; st.showProb = true; st.showInit = true; st.initPersist = false; st.initFresh = false;
-  st.ini = { actors: [], round: 1, turn: 0, seq: 1, started: false };
+  st.ini = { actors: [], round: 1, turn: 0, seq: 1, started: false, live: false, encounter: false, celerity: false };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (saved) {
@@ -1011,9 +1071,21 @@ body {
       ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn', 'm20', 'diffInput', 'dmgDiffInput', 'botchLock', 'botchPrev', 'dmgBotchPrev', 'instant', 'cookieRefresh', 'quickBtn', 'showAvg', 'wide', 'presetsMods', 'dmgPresetsMods', 'wordToggles'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
-      ['showMain', 'simple', 'showDamage', 'showProb', 'showInit', 'initPersist', 'initFresh'].forEach(function (k) {
+      ['showMain', 'simple', 'showDamage', 'showProb', 'showInit', 'initPersist', 'initFresh', 'initAuto'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
+      if (Array.isArray(saved.actorPresets)) {
+        var pnames = {};
+        saved.actorPresets.slice(0, 300).forEach(function (p) {
+          if (!p) return;
+          var nm = String(p.name || '').replace(/\s+/g, ' ').trim().slice(0, 24);
+          if (!nm || pnames[nm.toLowerCase()]) return;
+          pnames[nm.toLowerCase()] = true;
+          st.actorPresets.push({ name: nm, cel: p.cel === true, rev: p.rev === true, mod: isFinite(+p.mod) ? clamp(Math.round(+p.mod), -99, 99) : 0 });
+        });
+      }
+      if (/^(name|cel|mod)$/.test(saved.actorSort)) st.actorSort = saved.actorSort;
+      if (typeof saved.actorDesc === 'boolean') st.actorDesc = saved.actorDesc;
       if (saved.ini && Array.isArray(saved.ini.actors)) {
         var seen = {}, seq = 1;
         saved.ini.actors.slice(0, 60).forEach(function (a) {
@@ -1025,12 +1097,19 @@ body {
           var die = isFinite(+a.die) ? clamp(Math.round(+a.die), -199, 999) : (rolled ? Math.round(+a.init) - mod - applied : 0);
           seen[+a.id] = true;
           seq = Math.max(seq, +a.id + 1);
-          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied : null, persistent: a.persistent === true });
+          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied : null, persistent: a.persistent === true, reveal: a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0 });
         });
         st.ini.seq = seq;
+        var usedEn = {};
+        st.ini.actors.forEach(function (q) { if (q.en > 0 && !usedEn[q.en]) usedEn[q.en] = true; else q.en = 0; });
+        st.ini.actors.forEach(function (q) { if (!q.en) { var k = 1; while (usedEn[k]) k++; q.en = k; usedEn[k] = true; } });
         if (isFinite(+saved.ini.round)) st.ini.round = clamp(Math.round(+saved.ini.round), 1, 9999);
         st.ini.turn = seen[+saved.ini.turn] ? +saved.ini.turn : 0;
         st.ini.started = saved.ini.started === true;
+        st.ini.live = (typeof saved.ini.live === 'boolean' ? saved.ini.live : saved.ini.started === true) && st.ini.turn !== 0;
+        st.ini.celerity = saved.ini.celerity === true && st.ini.live;
+        st.ini.encounter = typeof saved.ini.encounter === 'boolean' ? saved.ini.encounter : (st.ini.live || st.ini.actors.some(function (q) { return q.init !== null; }));
+        if (st.ini.live) st.ini.encounter = true;
       }
     }
   } catch (e) {}
@@ -1820,6 +1899,20 @@ body {
     if (refocus && ctxBack && document.contains(ctxBack)) ctxBack.focus();
     ctxBack = null;
   }
+  function closeSubs() {
+    if (!ctxEl) return;
+    Array.prototype.forEach.call(ctxEl.querySelectorAll('.ctx-sub'), function (w) { w.hidden = true; w.previousSibling.setAttribute('aria-expanded', 'false'); });
+  }
+  function openSub(b) {
+    closeSubs();
+    var w = b.nextSibling;
+    w.hidden = false;
+    b.setAttribute('aria-expanded', 'true');
+    w.style.top = (b.offsetTop - 5) + 'px';
+    w.classList.remove('flip');
+    var r = w.getBoundingClientRect();
+    if (r.right > window.innerWidth - 8) w.classList.add('flip');   // no room on the right
+  }
   function openContextMenu(x, y, items, back) {
     if (!ctxEl) {
       ctxEl = document.createElement('div');
@@ -1828,14 +1921,27 @@ body {
       ctxEl.hidden = true;
       document.body.appendChild(ctxEl);
       document.addEventListener('pointerdown', function (e) { if (!ctxEl.hidden && !ctxEl.contains(e.target)) closeContextMenu(false); }, true);
+      ctxEl.addEventListener('mouseover', function (e) {   // pointing at another entry puts a submenu away
+        var t = e.target.closest ? e.target.closest('button') : null;
+        if (t && t.parentNode === ctxEl && !t.classList.contains('has-sub')) closeSubs();
+      });
       document.addEventListener('keydown', function (e) {
         if (ctxEl.hidden) return;
-        var btns = Array.prototype.slice.call(ctxEl.querySelectorAll('button'));
-        var at = btns.indexOf(document.activeElement);
-        if (e.key === 'Escape') { e.preventDefault(); closeContextMenu(true); }
-        else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        var cur = document.activeElement;
+        var sub = cur && cur.closest ? cur.closest('.ctx-sub') : null;
+        var scope = sub || ctxEl;
+        var btns = Array.prototype.filter.call(scope.children, function (c) { return c.tagName === 'BUTTON'; });
+        var at = btns.indexOf(cur);
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          if (sub) { var pb = sub.previousSibling; closeSubs(); pb.focus(); } else closeContextMenu(true);
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
           e.preventDefault();
           btns[(at + (e.key === 'ArrowDown' ? 1 : btns.length - 1) + btns.length) % btns.length].focus();
+        } else if (e.key === 'ArrowRight' && cur && cur.classList.contains('has-sub')) {
+          e.preventDefault(); openSub(cur); cur.nextSibling.firstChild.focus();
+        } else if (e.key === 'ArrowLeft' && sub) {
+          e.preventDefault(); var pb2 = sub.previousSibling; closeSubs(); pb2.focus();
         } else if (e.key === 'Tab') closeContextMenu(false);
       });
       window.addEventListener('blur', function () { closeContextMenu(false); });
@@ -1850,8 +1956,36 @@ body {
       b.setAttribute('role', 'menuitem');
       b.textContent = it.label;
       if (it.danger) b.className = 'danger';
-      b.addEventListener('click', function () { closeContextMenu(false); it.run(); });
       ctxEl.appendChild(b);
+      if (it.sub) {   // a submenu of checkboxes: they flip at once and the menu stays open
+        b.className = 'has-sub';
+        b.setAttribute('aria-haspopup', 'menu');
+        b.setAttribute('aria-expanded', 'false');
+        var w = document.createElement('div');
+        w.className = 'ctx-sub';
+        w.setAttribute('role', 'menu');
+        w.hidden = true;
+        it.sub.forEach(function (si) {
+          var sb = document.createElement('button');
+          sb.type = 'button';
+          sb.className = 'ck-item';
+          sb.setAttribute('role', 'menuitemcheckbox');
+          var box = document.createElement('span');
+          box.className = 'ck';
+          box.setAttribute('aria-hidden', 'true');
+          sb.appendChild(box);
+          sb.appendChild(document.createTextNode(si.label));
+          function paint() { var on = !!si.checked(); sb.setAttribute('aria-checked', on ? 'true' : 'false'); sb.classList.toggle('on', on); }
+          paint();
+          sb.addEventListener('click', function () { si.run(); paint(); sb.focus(); });
+          w.appendChild(sb);
+        });
+        ctxEl.appendChild(w);
+        b.addEventListener('mouseenter', function () { openSub(b); });
+        b.addEventListener('click', function () { if (w.hidden) openSub(b); else closeSubs(); });
+        return;
+      }
+      b.addEventListener('click', function () { if (it.hold && it.hold(b)) return; closeContextMenu(false); it.run(); });
     });
     ctxEl.hidden = false;
     var w = ctxEl.offsetWidth || 150, h = ctxEl.offsetHeight || 90;
@@ -2760,6 +2894,7 @@ body {
      screen. The Wide Aspect setting itself is left alone. */
   function applyWide() {
     document.querySelector('.wrap').classList.toggle('wide', st.wide && (st.showMain || st.simple));
+    if (!$('actorsPop').hidden) placeActors();
   }
   function moduleOn(m) { return m.key === 'showProb' ? st.showProb && st.showMain : st[m.key]; }
   function applyModules() {
@@ -2832,7 +2967,9 @@ body {
   /* Initiative option: Persistent actors roll along with everyone else. */
   setPressed('initPersist', st.initPersist);
   setPressed('initFresh', st.initFresh);
-  $('initFresh').addEventListener('click', function () { st.initFresh = !st.initFresh; setPressed('initFresh', st.initFresh); save(); });
+  setPressed('initAuto', st.initAuto);
+  $('initAuto').addEventListener('click', function () { st.initAuto = !st.initAuto; setPressed('initAuto', st.initAuto); save(); });
+  $('initFresh').addEventListener('click', function () { st.initFresh = !st.initFresh; setPressed('initFresh', st.initFresh); save(); renderInit(); });
   $('initPersist').addEventListener('click', function () { st.initPersist = !st.initPersist; setPressed('initPersist', st.initPersist); save(); });
 
   /* Initiative tracker */
@@ -2856,24 +2993,80 @@ body {
     var rest = ini.actors.filter(function (a) { return a.init === null && !a.persistent; });
     return { rolled: rolled, all: top.concat(rolled, rest) };
   }
+  /* Remote viewers only see an actor's name once the host reveals it; until then it reads "Enemy [n]", with a number that stays with the actor. */
+  function nextEn() {
+    var used = {};
+    ini.actors.forEach(function (q) { used[q.en] = true; });
+    var k = 1;
+    while (used[k]) k++;
+    return k;
+  }
+  function pubName(a) { return a.reveal ? a.name : 'Enemy [' + a.en + ']'; }
   function fmtMod(n) { return (n < 0 ? MINUS : '+') + Math.abs(n); }
   /* The total is the roll plus the modifier plus the bonus or penalty. */
   function recompute(a) { if (a.init !== null) a.init = a.die + a.mod + a.applied; }
   function rollActor(a) { a.die = rand10(); a.tie = 0; a.init = a.die + a.mod + a.applied; }
-  /* Until the encounter's first turn is taken, whoever tops the order is the one acting, so actors whose results
-     arrive after the roll are never skipped. */
+  /* Before a round is started nobody is acting; everything can still be set up. */
   function syncTurn() {
-    if (ini.started) return;
-    var r = initOrder().rolled;
-    ini.turn = r.length ? r[0].id : 0;
+    if (!ini.live) ini.turn = 0;
   }
   /* A bonus or penalty set during a round only counts in the totals from the next round on. */
+  function celActive(a) { return a.cel && a.ca >= 1 && a.init !== null; }
+  function celFirst(rolled, from) {
+    for (var j = from; j < rolled.length; j++) if (celActive(rolled[j])) return rolled[j];
+    return null;
+  }
+  /* The row styles: the one acting, the ones that have acted, and during Celerity turns everyone without Celerity actions. */
+  function rowState(a, ord, cur, curAt) {
+    if (curAt < 0) return '';
+    if (a === cur) return 'c';
+    var at = ord.rolled.indexOf(a);
+    if (ini.celerity) return !celActive(a) || (at >= 0 && at < curAt) ? 'a' : '';
+    return at >= 0 && at < curAt ? 'a' : '';
+  }
+  /* The turn passes on. Past the last actor the round only ends when nobody has Celerity actions left; otherwise the order
+     wraps round again for the actors that still have some. */
+  function passTurn(rolled, at) {
+    var cur = rolled[at], nxt;
+    if (ini.celerity) {
+      if (cur && cur.cel && cur.ca >= 1) cur.ca--;
+      nxt = celFirst(rolled, at + 1) || celFirst(rolled, 0);
+      if (nxt) { ini.turn = nxt.id; return; }
+    } else if (at === rolled.length - 1) {
+      nxt = celFirst(rolled, 0);
+      if (nxt) { ini.celerity = true; ini.turn = nxt.id; return; }
+    } else { ini.turn = rolled[at + 1].id; return; }
+    startNextRound();
+  }
+  function endsRound(ord, cur, curAt) {
+    if (curAt < 0) return false;
+    if (ini.celerity) return celActive(cur) && cur.ca === 1 && ord.rolled.filter(celActive).length === 1;
+    return curAt === ord.rolled.length - 1 && !celFirst(ord.rolled, 0);
+  }
+  /* A round ending only gets the next one ready: nobody acts until Start round is pressed. */
   function startNextRound() {
+    ini.celerity = false;
+    ini.live = false;
+    ini.turn = 0;
     ini.round++;
-    prepSound();
-    playSound();   // the same dice sound as rolling initiative
+  }
+  /* Start round: bonuses and penalties count from here, Fresh initiative rolls everyone again (with the dice sound), and the
+     top of the order acts first. */
+  function startRound() {
+    if (!ini.actors.length) return false;
+    var first = !ini.started;
     ini.actors.forEach(function (a) { if (a.applied !== a.bonus) { a.applied = a.bonus; recompute(a); } });
-    if (st.initFresh) ini.actors.forEach(rollActor);   // Fresh initiative: everyone rolls again, Persistent actors included
+    if (first) ini.actors.forEach(function (a) { if (a.init === null && (!a.persistent || st.initPersist || st.initFresh)) rollActor(a); });   // results entered beforehand stay; Persistent actors wait for theirs
+    else if (st.initFresh) ini.actors.forEach(rollActor);   // Fresh initiative: everyone again, Persistent actors included
+    var rolled = initOrder().rolled;
+    if (!rolled.length) { setTurnMsg('Nobody has an initiative yet. Enter results for the Persistent actors first.'); return false; }
+    prepSound();
+    playSound();   // the dice sound, as the round begins
+    ini.started = true;
+    ini.live = true;
+    ini.celerity = false;
+    ini.turn = rolled[0].id;
+    return true;
   }
   /* Sync: a host shares the tracker through a small relay server. Joiners get a read-only view without the Mod column.
      Put the address of your deployed sync server here, for example 'wss://vtm-sync.your-name.workers.dev'. */
@@ -2888,6 +3081,8 @@ body {
     $('syncHosting').hidden = !hosting;
     $('syncWatching').hidden = !watching;
     $('initPanel').classList.toggle('watching', watching);
+    if (watching) closeActors(false);
+    else renderInit();   // the host's "Enemy" hints come and go with the room
     if (hosting) $('syncHostCode').textContent = hostInfo.code;
   }
   function syncOpen(query) {
@@ -2909,10 +3104,10 @@ body {
     var curAt = cur ? ord.rolled.indexOf(cur) : -1;
     return {
       r: ini.round,
-      c: curAt >= 0 ? cur.name : '',
+      c: curAt >= 0 ? pubName(cur) : '',
+      z: ini.celerity,
       rows: ord.all.map(function (a) {
-        var at = ord.rolled.indexOf(a);
-        return { n: a.name, i: a.init, b: a.bonus, w: a.bonus !== a.applied, p: a.persistent, s: curAt >= 0 && a === cur ? 'c' : (curAt >= 0 && at >= 0 && at < curAt ? 'a' : '') };
+        return { n: pubName(a), i: a.init, b: a.bonus, w: a.bonus !== a.applied, p: a.persistent, q: a.cel ? a.ca : null, s: rowState(a, ord, cur, curAt) };
       })
     };
   }
@@ -3024,6 +3219,7 @@ body {
   $('syncLeave').addEventListener('click', function () { leaveWatching('You left the room.'); });
 
   /* A joiner's view: the same table, read only, with no Mod column. */
+  function celBadge() { var b = document.createElement('span'); b.className = 'cel-badge'; b.textContent = 'Celerity turn'; return b; }
   function renderRemote() {
     if (!remote) return;
     var body = $('initBodyRows');
@@ -3057,6 +3253,15 @@ body {
         pin.innerHTML = PIN_SVG;
         t2.appendChild(pin);
       }
+      if (a.q !== null && a.q !== undefined && isFinite(+a.q)) {
+        var rc = document.createElement('div');
+        rc.className = 'ini-cel';
+        rc.title = 'Celerity actions';
+        var rl = document.createElement('span'); rl.className = 'lbl'; rl.textContent = 'Celerity';
+        var rn = document.createElement('b'); rn.className = 'num'; rn.textContent = clamp(Math.round(+a.q), 0, 9);
+        rc.appendChild(rl); rc.appendChild(rn);
+        t2.appendChild(rc);
+      }
       var t3 = document.createElement('td');
       var tb = document.createElement('td');
       var bn = isFinite(+a.b) ? Math.round(+a.b) : 0;
@@ -3076,8 +3281,8 @@ body {
     });
     $('initRound').textContent = isFinite(+remote.r) ? Math.round(+remote.r) : 1;
     var turnEl = $('initTurn');
-    if (remote.c) { turnEl.textContent = ''; turnEl.appendChild(document.createTextNode('Now acting: ')); var sg = document.createElement('strong'); sg.textContent = String(remote.c).slice(0, 24); turnEl.appendChild(sg); }
-    else turnEl.textContent = rows.length ? 'Waiting for the host to roll initiative.' : 'Waiting for the host.';
+    if (remote.c) { turnEl.textContent = ''; turnEl.appendChild(document.createTextNode('Now acting: ')); var sg = document.createElement('strong'); sg.textContent = String(remote.c).slice(0, 24); turnEl.appendChild(sg); if (remote.z === true) turnEl.appendChild(celBadge()); }
+    else turnEl.textContent = rows.length ? 'Waiting for the host to start the round.' : 'Waiting for the host.';
   }
 
   function renderInit() {
@@ -3093,7 +3298,7 @@ body {
       var td0 = document.createElement('td');
       td0.colSpan = 5;
       td0.className = 'none';
-      td0.textContent = 'No actors yet. Press Add actor to start.';
+      td0.textContent = 'No actors yet. Press Add new actor to start.';
       tr0.appendChild(td0);
       body.appendChild(tr0);
     }
@@ -3102,8 +3307,9 @@ body {
       var tr = document.createElement('tr');
       tr._a = a;
       tr.setAttribute('data-id', a.id);
-      if (curAt >= 0 && a === cur) tr.className = 'current';
-      else if (curAt >= 0 && at >= 0 && at < curAt) tr.className = 'acted';
+      var rs = rowState(a, ord, cur, curAt);
+      if (rs === 'c') tr.className = 'current';
+      else if (rs === 'a') tr.className = 'acted';
       var t1 = document.createElement('td');
       t1.className = 'arrow';
       if (tr.className === 'current') { t1.innerHTML = ARROW_SVG; t1.setAttribute('aria-label', 'Current turn'); }
@@ -3115,14 +3321,42 @@ body {
       nb.innerHTML = '<strong></strong>';
       nb.firstChild.textContent = a.name;
       nb.setAttribute('aria-label', a.name + (a.persistent ? ', persistent' : '') + '. Press Enter to rename, or the menu key for more options.');
-      nb.title = 'Double-click to rename. Right-click for more options.' + (tr.className === 'current' && curAt < ord.rolled.length - 1 ? ' Hold, then drag down to delay.' : '');
+      nb.title = 'Double-click to rename. Right-click for more options.' + (tr.className === 'current' && curAt < ord.rolled.length - 1 && !ini.celerity ? ' Hold, then drag down to delay.' : '');
       t2.appendChild(nb);
+      if (hostInfo && !a.reveal) {
+        var hint = document.createElement('span');
+        hint.className = 'ini-enemy';
+        hint.textContent = pubName(a);
+        hint.title = 'What joiners see for this actor. Right-click and choose Reveal Name to show them the real name.';
+        t2.appendChild(hint);
+      }
       if (a.persistent) {
         var pin = document.createElement('span');
         pin.className = 'ini-pin';
         pin.title = 'Persistent: stays when the encounter is cleared';
         pin.innerHTML = PIN_SVG;
         t2.appendChild(pin);
+      }
+      if (a.cel) {
+        var cc = document.createElement('div');
+        cc.className = 'ini-cel';
+        var cl = document.createElement('span'); cl.className = 'lbl'; cl.textContent = 'Celerity';
+        cc.appendChild(cl);
+        if (!ini.live) {
+          var cm = document.createElement('button'); cm.type = 'button'; cm.className = 'ini-cel-b'; cm.setAttribute('data-d', '-1'); cm.textContent = MINUS;
+          cm.setAttribute('aria-label', 'One fewer Celerity action for ' + a.name); cm.disabled = a.ca <= 0;
+          var ci = document.createElement('input'); ci.type = 'number'; ci.className = 'ini-cel-n'; ci.min = '0'; ci.max = '9'; ci.step = '1'; ci.value = a.ca;
+          ci.setAttribute('inputmode', 'numeric'); ci.setAttribute('aria-label', 'Celerity actions for ' + a.name);
+          var cp = document.createElement('button'); cp.type = 'button'; cp.className = 'ini-cel-b'; cp.setAttribute('data-d', '1'); cp.textContent = '+';
+          cp.setAttribute('aria-label', 'One more Celerity action for ' + a.name); cp.disabled = a.ca >= 9;
+          cc.appendChild(cm); cc.appendChild(ci); cc.appendChild(cp);
+          cc.title = 'Celerity actions: set them before the round starts';
+        } else {
+          var cn = document.createElement('b'); cn.className = 'num'; cn.textContent = a.ca;
+          cc.appendChild(cn);
+          cc.title = 'Celerity actions left';
+        }
+        t2.appendChild(cc);
       }
       var t3 = document.createElement('td');
       var mb = document.createElement('button');
@@ -3167,23 +3401,24 @@ body {
     });
     $('initRound').textContent = ini.round;
     var turnEl = $('initTurn');
-    if (cur && curAt >= 0) { turnEl.textContent = ''; turnEl.appendChild(document.createTextNode('Now acting: ')); var sg = document.createElement('strong'); sg.textContent = cur.name; turnEl.appendChild(sg); }
-    else turnEl.textContent = ord.all.length ? 'Roll for initiative to start the order.' : 'Add actors, then roll for initiative.';
-    $('initRoll').disabled = !ini.actors.length;
-    $('initRoll').classList.toggle('rerun', !!ini.started);
-    if (!ini.started && rollTimer) stopRollConfirm();
-    $('initNext').disabled = !ord.rolled.length;
-    var lastUp = curAt >= 0 && curAt === ord.rolled.length - 1;
-    $('initNext').textContent = lastUp ? 'End round' : 'Next turn';
+    if (cur && curAt >= 0) { turnEl.textContent = ''; turnEl.appendChild(document.createTextNode('Now acting: ')); var sg = document.createElement('strong'); sg.textContent = cur.name; turnEl.appendChild(sg); if (ini.celerity) turnEl.appendChild(celBadge()); }
+    else turnEl.textContent = !ini.encounter ? (ord.all.length ? 'Press Start encounter to begin.' : 'Add actors, then press Start encounter.') : (ini.started ? 'Round ' + ini.round + ' is ready. Press Start round when everyone is set.' : 'Set things up, then press Start round. Initiative is rolled when the round starts.');
+    $('initRoll').disabled = !ini.encounter && !ini.actors.length;
+    $('initRoll').classList.toggle('rerun', !!ini.encounter);
+    $('initRoll').title = ini.encounter ? 'Ends the encounter and returns to round 1. Actors stay on the list.' : 'Begins the encounter. Initiative is rolled when the first round starts.';
+    if (!ini.encounter && rollTimer) stopRollConfirm();
+    if (!rollTimer) $('initRoll').textContent = rollLabel();
+    $('initNext').disabled = !ini.encounter || (ini.live ? !ord.rolled.length : !ini.actors.length);
+    $('initNext').textContent = !ini.live ? 'Start round' : endsRound(ord, cur, curAt) ? 'End round' : 'Next turn';
     $('initClear').disabled = !ini.actors.length;
     pushState();
-    if (!clearTimer) { $('initClear').classList.remove('confirm'); $('initClear').textContent = 'Clear encounter'; }
+    if (!clearTimer) { $('initClear').classList.remove('confirm'); $('initClear').textContent = 'Clear actors'; }
   }
   function initChanged() { syncTurn(); save(); renderInit(); }
   $('initUndo').addEventListener('click', function () {
     if (watchWs || !undoStack.length) return;
     var back = JSON.parse(undoStack.pop());
-    ini.actors = back.actors; ini.round = back.round; ini.turn = back.turn; ini.seq = back.seq; ini.started = back.started;
+    Object.keys(back).forEach(function (k) { ini[k] = back[k]; });
     undoSnap = JSON.stringify(ini);
     stopRollConfirm(); stopClearConfirm();
     save();
@@ -3193,54 +3428,64 @@ body {
 
   $('initAdd').addEventListener('click', function () {
     if (ini.actors.length >= 60) { setTurnMsg('That is the most actors the tracker holds.'); return; }
-    var a = { id: ini.seq++, name: 'Actor ' + (ini.actors.length + 1), mod: 0, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false };
+    var a = { id: ini.seq++, name: 'Actor ' + (ini.actors.length + 1), mod: 0, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false, reveal: false, en: nextEn(), base: '', cel: false, ca: 0 };
     ini.actors.push(a);
     initChanged();
     var row = $('initBodyRows').querySelector('tr[data-id="' + a.id + '"]');
     if (row) { if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest' }); startInitEdit(row.querySelector('[data-f="name"]'), a, 'name'); }
   });
   var rollTimer = 0;
+  function rollLabel() { return ini.encounter ? 'End encounter' : 'Start encounter'; }
   function stopRollConfirm() {
     window.clearTimeout(rollTimer);
     rollTimer = 0;
     $('initRoll').classList.remove('confirm');
-    $('initRoll').textContent = 'Roll initiative';
+    $('initRoll').textContent = rollLabel();
   }
   $('initRoll').addEventListener('click', function () {
-    if (!ini.actors.length) return;
-    // Once the turns have started, rolling again throws the encounter away, so ask first.
-    if (ini.started && !rollTimer) {
-      $('initRoll').classList.add('confirm');
-      $('initRoll').textContent = 'Click again to roll anew and reset rounds';
-      rollTimer = window.setTimeout(stopRollConfirm, 4000);
+    if (ini.encounter) {
+      // Ending an encounter resets the rounds, so ask first.
+      if (!rollTimer) {
+        $('initRoll').classList.add('confirm');
+        $('initRoll').textContent = 'Click again to end the encounter';
+        rollTimer = window.setTimeout(stopRollConfirm, 4000);
+        return;
+      }
+      stopRollConfirm();
+      ini.encounter = false;
+      ini.round = 1;
+      ini.started = false;
+      ini.live = false;
+      ini.celerity = false;
+      ini.turn = 0;
+      ini.actors.forEach(function (a) { a.ca = 0; a.die = 0; a.tie = 0; a.init = null; });   // the next encounter rolls afresh
+      initChanged();
       return;
     }
+    if (!ini.actors.length) return;
     stopRollConfirm();
-    prepSound();
-    ini.actors.forEach(function (a) { a.applied = a.bonus; });   // a bonus set before the roll counts from round 1
-    ini.actors.forEach(function (a) { if (!a.persistent || st.initPersist || st.initFresh) rollActor(a); });   // otherwise persistent actors are entered or rolled one by one
+    ini.encounter = true;   // nothing is rolled yet: that happens when the round starts
     ini.round = 1;
     ini.started = false;
-    var first = initOrder().rolled[0];
-    ini.turn = first ? first.id : 0;
+    ini.live = false;
+    ini.celerity = false;
+    ini.turn = 0;
     initChanged();
-    playSound();
   });
   $('initNext').addEventListener('click', function () {
+    if (!ini.live) { if (startRound()) initChanged(); return; }
     var rolled = initOrder().rolled;
     if (!rolled.length) return;
-    ini.started = true;
     var at = ini.turn ? rolled.indexOf(actorOf(ini.turn)) : -1;
     if (at < 0) ini.turn = rolled[0].id;
-    else if (at === rolled.length - 1) { startNextRound(); ini.turn = initOrder().rolled[0].id; }
-    else ini.turn = rolled[at + 1].id;
+    else passTurn(rolled, at);
     initChanged();
   });
   function stopClearConfirm() {
     window.clearTimeout(clearTimer);
     clearTimer = 0;
     $('initClear').classList.remove('confirm');
-    $('initClear').textContent = 'Clear encounter';
+    $('initClear').textContent = 'Clear actors';
   }
   $('initClear').addEventListener('click', function () {
     var drop = ini.actors.filter(function (a) { return !a.persistent; });
@@ -3252,10 +3497,13 @@ body {
     }
     stopClearConfirm();
     ini.actors = ini.actors.filter(function (a) { return a.persistent; });
-    ini.actors.forEach(function (a) { a.die = 0; a.bonus = 0; a.applied = 0; a.tie = 0; a.init = null; });
+    ini.actors.forEach(function (a) { a.die = 0; a.bonus = 0; a.applied = 0; a.tie = 0; a.ca = 0; a.init = null; });
     ini.round = 1;
     ini.turn = 0;
     ini.started = false;
+    ini.live = false;
+    ini.encounter = false;
+    ini.celerity = false;
     initChanged();
   });
 
@@ -3263,19 +3511,177 @@ body {
     var rolled = initOrder().rolled;
     if (ini.turn === a.id) {
       var at = rolled.indexOf(a);
-      if (rolled.length <= 1) ini.turn = 0;
-      else if (at === rolled.length - 1) { ini.actors.splice(ini.actors.indexOf(a), 1); startNextRound(); ini.turn = initOrder().rolled[0].id; initChanged(); return; }
+      if (rolled.length <= 1) { ini.turn = 0; ini.celerity = false; ini.live = false; }
+      else if (ini.celerity) {
+        ini.actors.splice(ini.actors.indexOf(a), 1);
+        var left = rolled.filter(function (x) { return x !== a; });
+        var nx = celFirst(left, at) || celFirst(left, 0);
+        if (nx) ini.turn = nx.id; else startNextRound();
+        initChanged();
+        return;
+      }
+      else if (at === rolled.length - 1) { ini.actors.splice(ini.actors.indexOf(a), 1); var nc = celFirst(rolled.filter(function (x) { return x !== a; }), 0); if (nc) { ini.celerity = true; ini.turn = nc.id; } else startNextRound(); initChanged(); return; }
       else ini.turn = rolled[at + 1].id;
     }
     ini.actors.splice(ini.actors.indexOf(a), 1);
     initChanged();
   }
+  /* Actors list: saved actors (name, Celerity user, modifier) that can be added to the encounter with one click. */
+  var actorPresets = st.actorPresets;
+  function presetAt(name) {
+    var k = String(name).toLowerCase();
+    for (var i = 0; i < actorPresets.length; i++) if (actorPresets[i].name.toLowerCase() === k) return i;
+    return -1;
+  }
+  function saveActorPreset(a) {
+    var p = { name: (a.base || a.name).slice(0, 24), cel: !!a.cel, rev: !!a.reveal, mod: a.mod };
+    var i = presetAt(p.name);
+    if (i >= 0) actorPresets[i] = p;
+    else if (actorPresets.length < 300) actorPresets.push(p);
+    save();
+    renderActors();
+  }
+  /* Auto-Update: an actor that is already on the list keeps its preset in step with its mod and tags. Copies such as "Goblin [2]" never touch it. */
+  function autoUpdate(a) {
+    if (!st.initAuto || a.base) return;
+    var i = presetAt(a.name);
+    if (i < 0) return;
+    actorPresets[i].cel = !!a.cel;
+    actorPresets[i].rev = !!a.reveal;
+    actorPresets[i].mod = a.mod;
+    renderActors();
+  }
+  /* A second copy of a saved actor gets a number on the end of its name, which is not part of the name the list saves. */
+  function addFromPreset(p) {
+    if (ini.actors.length >= 60) { $('actorsMsg').textContent = 'That is the most actors the tracker holds.'; return; }
+    var k = p.name.toLowerCase(), have = {}, same = 0;
+    ini.actors.forEach(function (q) { have[q.name.toLowerCase()] = true; if ((q.base || q.name).toLowerCase() === k) same++; });
+    var name = p.name, base = '';
+    if (same) {
+      for (var x = 2; ; x++) {
+        var sfx = ' [' + x + ']';
+        name = p.name.slice(0, 24 - sfx.length) + sfx;
+        if (!have[name.toLowerCase()]) break;
+      }
+      base = p.name;
+    }
+    ini.actors.push({ id: ini.seq++, name: name, base: base, mod: p.mod, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false, reveal: !!p.rev, en: nextEn(), cel: p.cel, ca: 0 });
+    initChanged();
+    $('actorsMsg').textContent = 'Added ' + name;
+  }
+  function sortedPresets() {
+    var q = $('actorsSearch').value.trim().toLowerCase();
+    var arr = actorPresets.filter(function (p) { return !q || p.name.toLowerCase().indexOf(q) >= 0; });
+    var dir = st.actorDesc ? -1 : 1;
+    function byName(a, b) { var x = a.name.toLowerCase(), y = b.name.toLowerCase(); return x < y ? -1 : x > y ? 1 : 0; }
+    arr.sort(function (a, b) {
+      var r = st.actorSort === 'cel' ? (b.cel ? 1 : 0) - (a.cel ? 1 : 0) : st.actorSort === 'mod' ? b.mod - a.mod : byName(a, b);
+      return r ? r * dir : byName(a, b);
+    });
+    return arr;
+  }
+  function renderActors() {
+    var list = $('actorsList');
+    list.textContent = '';
+    Array.prototype.forEach.call(document.querySelectorAll('#actorsPop .ap-sort button'), function (b) {
+      var on = b.getAttribute('data-k') === st.actorSort;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.textContent = { name: 'Name', cel: 'Celerity', mod: 'Mod' }[b.getAttribute('data-k')] + (on ? (st.actorDesc ? ' \u25bc' : ' \u25b2') : '');
+    });
+    var rows = sortedPresets();
+    rows.forEach(function (p) {
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ap-item';
+      b.title = 'Add ' + p.name + ' to the encounter';
+      var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = p.name;
+      b.appendChild(nm);
+      if (p.cel) { var tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = 'Celerity'; b.appendChild(tg); }
+      if (p.rev) { var tr2 = document.createElement('span'); tr2.className = 'tag'; tr2.textContent = 'Revealed'; b.appendChild(tr2); }
+      var md = document.createElement('span'); md.className = 'md'; md.textContent = fmtMod(p.mod);
+      md.title = 'Initiative modifier';
+      b.appendChild(md);
+      b.addEventListener('click', function () { addFromPreset(p); });
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'ap-del';
+      x.textContent = '\u00d7';
+      x.title = 'Remove ' + p.name + ' from the list';
+      x.setAttribute('aria-label', 'Remove ' + p.name + ' from the list');
+      var t = 0;
+      x.addEventListener('click', function () {
+        if (!x.classList.contains('confirm')) {
+          x.classList.add('confirm'); x.textContent = 'Sure?';
+          t = window.setTimeout(function () { x.classList.remove('confirm'); x.textContent = '\u00d7'; }, 3000);
+          return;
+        }
+        window.clearTimeout(t);
+        var i = presetAt(p.name);
+        if (i >= 0) actorPresets.splice(i, 1);
+        save();
+        renderActors();
+      });
+      li.appendChild(b); li.appendChild(x);
+      list.appendChild(li);
+    });
+    $('actorsEmpty').textContent = rows.length ? '' : (actorPresets.length ? 'No saved actor matches that name.' : 'No saved actors yet. Right-click an actor in the tracker and choose Save as Preset.');
+  }
+  /* The list sits over the Main Roller (or the Simple Roller) when Wide Aspect puts it beside the tracker, so the tracker stays visible; otherwise it covers the tracker. */
+  function placeActors() {
+    var pop = $('actorsPop');
+    var wide = document.querySelector('.wrap').classList.contains('wide') && window.matchMedia && window.matchMedia('(min-width: 1280px)').matches && (st.showMain || st.simple);
+    var host = wide ? (st.showMain ? $('mainRoller') : $('simpleRoller')) : $('initPanel');
+    if (pop.parentNode !== host) host.appendChild(pop);
+  }
+  function openActors() {
+    if (watchWs) return;
+    renderActors();
+    placeActors();
+    $('actorsPop').hidden = false;
+    $('actorsBtn').setAttribute('aria-expanded', 'true');
+    $('actorsMsg').textContent = '';
+    $('actorsSearch').focus();
+  }
+  function closeActors(refocus) {
+    if ($('actorsPop').hidden) return;
+    $('actorsPop').hidden = true;
+    $('actorsBtn').setAttribute('aria-expanded', 'false');
+    if (refocus) $('actorsBtn').focus();
+  }
+  $('actorsBtn').addEventListener('click', function () { if ($('actorsPop').hidden) openActors(); else closeActors(true); });
+  $('actorsClose').addEventListener('click', function () { closeActors(true); });
+  $('actorsSearch').addEventListener('input', renderActors);
+  Array.prototype.forEach.call(document.querySelectorAll('#actorsPop .ap-sort button'), function (b) {
+    b.addEventListener('click', function () {
+      var k = b.getAttribute('data-k');
+      if (st.actorSort === k) st.actorDesc = !st.actorDesc; else { st.actorSort = k; st.actorDesc = false; }
+      save();
+      renderActors();
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !$('actorsPop').hidden && $('actorsPop').contains(document.activeElement)) { e.preventDefault(); closeActors(true); }
+  });
+  window.addEventListener('resize', function () { if (!$('actorsPop').hidden) placeActors(); });
   function initMenu(tr, x, y) {
     var a = tr._a;
     if (!a) return;
     openContextMenu(x, y, [
       { label: a.init === null ? 'Roll initiative' : 'Re-roll initiative', run: function () { rollActor(a); initChanged(); } },
-      { label: a.persistent ? 'Remove Persistent' : 'Set as Persistent', run: function () { a.persistent = !a.persistent; initChanged(); } },
+      { label: 'Set Tags', sub: [
+        { label: 'Persistent', checked: function () { return a.persistent; }, run: function () { a.persistent = !a.persistent; initChanged(); } },
+        { label: 'Celerity User', checked: function () { return a.cel; }, run: function () { a.cel = !a.cel; if (!a.cel) a.ca = 0; autoUpdate(a); initChanged(); } },
+        { label: 'Reveal Name', checked: function () { return a.reveal; }, run: function () { a.reveal = !a.reveal; autoUpdate(a); initChanged(); } }
+      ] },
+      { label: 'Save as Preset', run: function () { saveActorPreset(a); },
+        hold: function (b) {   // a name already on the list asks once more, without closing the menu
+          if (b.getAttribute('data-sure') || presetAt(a.base || a.name) < 0) return false;
+          b.setAttribute('data-sure', '1');
+          b.textContent = 'Confirm Overwrite';
+          b.classList.add('danger');   // like Delete, until the menu closes
+          return true;
+        } },
       { label: 'Delete', danger: true, run: function () { deleteActor(a); } }
     ], tr.querySelector('.ini-cell'));
   }
@@ -3295,7 +3701,7 @@ body {
   function delayActor(a, after) {
     var rolled = initOrder().rolled;
     var i = rolled.indexOf(a), j = rolled.indexOf(after);
-    if (i < 0 || j <= i) return false;
+    if (ini.celerity || i < 0 || j <= i) return false;
     var nextUp = rolled[i + 1], below = rolled[j + 1];
     var newInit = after.init - 1;
     if (below) newInit = Math.max(newInit, below.init);   // never under the actor below, where it may only equal it
@@ -3312,7 +3718,7 @@ body {
   }
   function canDelay(tr) {
     var a = tr._a;
-    if (!a || !tr.classList.contains('current') || watchWs) return false;
+    if (!a || !tr.classList.contains('current') || watchWs || ini.celerity) return false;
     var r = initOrder().rolled, i = r.indexOf(a);
     return i >= 0 && i < r.length - 1;
   }
@@ -3392,7 +3798,7 @@ body {
   }
   var INIT_HOLD = 320, initTouch = false;
   $('initBodyRows').addEventListener('pointerdown', function (e) {
-    if (!e.target.closest || e.target.closest('input') || e.target.closest('.ini-x')) return;
+    if (!e.target.closest || e.target.closest('input') || e.target.closest('.ini-x') || e.target.closest('.ini-cel')) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     var tr = e.target.closest('tr');
     if (!tr || !tr._a) return;
@@ -3460,14 +3866,14 @@ body {
     td.insertBefore(input, btn);
     input.focus();
     input.select();
-    var done = false;
+    var done = false, rejected = '';
     function end(commit, keepFocus) {
       if (done) return;
       done = true;
       if (commit) {
         if (field === 'mod') {
           var v = parseInt(input.value, 10);
-          if (isFinite(v)) { a.mod = clamp(v, -99, 99); recompute(a); }
+          if (isFinite(v)) { a.mod = clamp(v, -99, 99); recompute(a); autoUpdate(a); }
         } else if (field === 'bonus') {
           var b = input.value.trim() === '' ? 0 : parseInt(input.value, 10);
           if (isFinite(b)) a.bonus = clamp(b, -99, 99);   // counts from the next round
@@ -3476,12 +3882,20 @@ body {
           if (isFinite(t)) { a.die = clamp(t, -99, 999) - a.mod - a.applied; a.tie = 0; a.init = a.die + a.mod + a.applied; }
         } else {
           var nm = input.value.replace(/\s+/g, ' ').trim().slice(0, 24);
-          if (nm) a.name = nm;
+          if (nm) {
+            var own = !a.base ? presetAt(a.name) : -1, hit = presetAt(nm);
+            if (st.initAuto && hit >= 0 && hit !== own) rejected = nm;   // that name is already on the Actors list
+            else {
+              if (st.initAuto && own >= 0) { actorPresets[own].name = nm; renderActors(); }
+              a.name = nm; a.base = '';
+            }
+          }
         }
         syncTurn();
         save();
       }
       renderInit();
+      if (rejected) setTurnMsg('The Actors list already has an actor named "' + rejected + '", so the name was kept as ' + a.name + '.');
       if (keepFocus) {
         var again = $('initBodyRows').querySelector('tr[data-id="' + a.id + '"] [data-f="' + field + '"]');
         if (again) again.focus();
@@ -3498,7 +3912,21 @@ body {
     var tr = b ? b.closest('tr') : null;
     return b && tr && tr._a ? { b: b, a: tr._a, f: b.getAttribute('data-f') } : null;
   }
+  $('initBodyRows').addEventListener('change', function (e) {
+    var ci = e.target.closest ? e.target.closest('.ini-cel-n') : null;
+    if (!ci) return;
+    var v = parseInt(ci.value, 10);
+    celSet(ci.closest('tr'), isFinite(v) ? v : 0);
+  });
+  function celSet(tr, v) {
+    var a = tr && tr._a;
+    if (!a || !a.cel || ini.live) return;
+    a.ca = clamp(Math.round(v), 0, 9);
+    initChanged();
+  }
   $('initBodyRows').addEventListener('click', function (e) {
+    var cb = e.target.closest ? e.target.closest('.ini-cel-b') : null;
+    if (cb) { var ctr = cb.closest('tr'); if (ctr && ctr._a) celSet(ctr, ctr._a.ca + (+cb.getAttribute('data-d'))); return; }
     var x = e.target.closest ? e.target.closest('.ini-x') : null;
     var tr = x ? x.closest('tr') : null;
     if (!tr || !tr._a) return;
