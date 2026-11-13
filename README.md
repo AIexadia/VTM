@@ -76,3 +76,8 @@ V1.5.1
 	-Dice rolling SFX plays each time a new round begins when this option is turned on.
 -When at least 1 turn has passed on the first round, the "Roll Initiative" button grays out, and pressing it shows a confirm message to reset rounds, should it be pressed again within 4 seconds.
 -Changelog now automatically updates from the repo.
+
+V1.5.2
+-Initiative Tracker Changes:
+	-Added the ability to have the actor whose turn is active, delay their turn by holding click on them and dragging them to the desired position
+	-Added an "Undo" button, which can undo almost any action taken in the tracker

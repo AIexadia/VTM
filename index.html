@@ -317,8 +317,8 @@ body {
 .wrap.wide > .simple { grid-column: 1; grid-row: 2; }
 .init-turn { margin: 0 0 0 auto; font-size: 0.9rem; color: var(--muted); min-width: 0; overflow-wrap: anywhere; text-align: right; }
 .init-turn strong { color: var(--fg); }
-.init-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 480px) { .init-actions { grid-template-columns: 1fr 1fr; } .init-actions #initClear { grid-column: 1 / -1; } }
+.init-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .init-actions { grid-template-columns: 1fr 1fr; } }
 .init-actions .roll { grid-column: 1 / -1; }
 .init-actions .btn-sec { height: 44px; padding: 0 10px; }
 .init-actions .roll.rerun { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line-strong); }
@@ -341,6 +341,15 @@ body {
 .init-table td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: middle; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
 .init-table tbody tr { transition: opacity 0.15s; }
 .init-table tr.acted { opacity: 0.42; }
+.init-table tr { touch-action: pan-y; }
+.init-table tr.lift td { background: var(--line); }
+.init-table tr.dragging { opacity: 0.35; }
+.init-table tr.drop-after td { border-bottom: 3px solid var(--accent); }
+.ini-ghost { position: fixed; z-index: 60; opacity: 0.92; pointer-events: none; display: flex; justify-content: space-between; gap: 16px; padding: 10px 14px; border: 1px solid var(--accent); border-radius: 8px; background: var(--surface-2); color: var(--fg); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); font: 700 1rem/1.2 var(--font-body); }
+.ini-dropline { position: fixed; z-index: 59; pointer-events: none; height: 4px; border-radius: 2px; background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+.ini-dropline span { position: absolute; right: 110px; bottom: -11px; padding: 3px 9px; border-radius: 6px; background: var(--accent); color: var(--on-accent); font: 700 0.8rem/1.2 var(--font-body); white-space: nowrap; }
+.init-table tr.drop-after td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.ini-ghost span:last-child { font-family: var(--font-data); }
 .init-table tr.current { background: var(--surface-2); }
 .init-table tr.current td:nth-child(2) strong { color: var(--accent-text); }
 .init-table .arrow { color: var(--accent-text); }
@@ -793,6 +802,7 @@ body {
           <button type="button" class="btn-sec" id="initAdd">Add actor</button>
           <button type="button" class="btn-sec" id="initNext">Next turn</button>
           <button type="button" class="btn-sec" id="initClear">Clear encounter</button>
+          <button type="button" class="btn-sec" id="initUndo" title="Undo the last change to the tracker" disabled>Undo</button>
         </div>
         <div class="init-sync" id="initSync">
           <div class="sync-row" id="syncIdle">
@@ -1015,7 +1025,7 @@ body {
           var die = isFinite(+a.die) ? clamp(Math.round(+a.die), -199, 999) : (rolled ? Math.round(+a.init) - mod - applied : 0);
           seen[+a.id] = true;
           seq = Math.max(seq, +a.id + 1);
-          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, die: rolled ? die : 0, init: rolled ? die + mod + applied : null, persistent: a.persistent === true });
+          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied : null, persistent: a.persistent === true });
         });
         st.ini.seq = seq;
         if (isFinite(+saved.ini.round)) st.ini.round = clamp(Math.round(+saved.ini.round), 1, 9999);
@@ -2827,6 +2837,13 @@ body {
 
   /* Initiative tracker */
   var ini = st.ini;
+  /* Undo: every change to the tracker is spotted by comparing it with the last copy we saw, so no action can be missed. */
+  var undoStack = [], undoSnap = JSON.stringify(ini);
+  function undoWatch() {
+    var now = JSON.stringify(ini);
+    if (now !== undoSnap) { undoStack.push(undoSnap); if (undoStack.length > 100) undoStack.shift(); undoSnap = now; }
+    $('initUndo').disabled = !undoStack.length;
+  }
   var ARROW_SVG = '<svg viewBox="0 0 18 18" aria-hidden="true" fill="currentColor"><path d="M5 3l9 6-9 6z"></path></svg>';
   var PIN_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5l5 5-2 .6-2.6 2.6.3 3.2-1.2 1.2-3-3-4 4M6.6 5.1l-.6 2 3 3"></path></svg>';
   var clearTimer = 0;
@@ -2834,7 +2851,7 @@ body {
   /* Highest initiative first; a tie goes to the bigger modifier, then to whoever was added first. Persistent actors still waiting for a result stay
      at the top, other actors without a roll sit at the bottom. */
   function initOrder() {
-    var rolled = ini.actors.filter(function (a) { return a.init !== null; }).sort(function (a, b) { return b.init - a.init || b.mod - a.mod || a.id - b.id; });
+    var rolled = ini.actors.filter(function (a) { return a.init !== null; }).sort(function (a, b) { return b.init - a.init || a.tie - b.tie || b.mod - a.mod || a.id - b.id; });
     var top = ini.actors.filter(function (a) { return a.init === null && a.persistent; });
     var rest = ini.actors.filter(function (a) { return a.init === null && !a.persistent; });
     return { rolled: rolled, all: top.concat(rolled, rest) };
@@ -2842,7 +2859,7 @@ body {
   function fmtMod(n) { return (n < 0 ? MINUS : '+') + Math.abs(n); }
   /* The total is the roll plus the modifier plus the bonus or penalty. */
   function recompute(a) { if (a.init !== null) a.init = a.die + a.mod + a.applied; }
-  function rollActor(a) { a.die = rand10(); a.init = a.die + a.mod + a.applied; }
+  function rollActor(a) { a.die = rand10(); a.tie = 0; a.init = a.die + a.mod + a.applied; }
   /* Until the encounter's first turn is taken, whoever tops the order is the one acting, so actors whose results
      arrive after the roll are never skipped. */
   function syncTurn() {
@@ -3065,6 +3082,7 @@ body {
 
   function renderInit() {
     if (watchWs) return;   // a joiner is looking at the host's table instead
+    undoWatch();
     var ord = initOrder();
     var cur = ini.turn ? actorOf(ini.turn) : null;
     var curAt = cur ? ord.rolled.indexOf(cur) : -1;
@@ -3097,7 +3115,7 @@ body {
       nb.innerHTML = '<strong></strong>';
       nb.firstChild.textContent = a.name;
       nb.setAttribute('aria-label', a.name + (a.persistent ? ', persistent' : '') + '. Press Enter to rename, or the menu key for more options.');
-      nb.title = 'Double-click to rename. Right-click for more options.';
+      nb.title = 'Double-click to rename. Right-click for more options.' + (tr.className === 'current' && curAt < ord.rolled.length - 1 ? ' Hold, then drag down to delay.' : '');
       t2.appendChild(nb);
       if (a.persistent) {
         var pin = document.createElement('span');
@@ -3162,11 +3180,20 @@ body {
     if (!clearTimer) { $('initClear').classList.remove('confirm'); $('initClear').textContent = 'Clear encounter'; }
   }
   function initChanged() { syncTurn(); save(); renderInit(); }
+  $('initUndo').addEventListener('click', function () {
+    if (watchWs || !undoStack.length) return;
+    var back = JSON.parse(undoStack.pop());
+    ini.actors = back.actors; ini.round = back.round; ini.turn = back.turn; ini.seq = back.seq; ini.started = back.started;
+    undoSnap = JSON.stringify(ini);
+    stopRollConfirm(); stopClearConfirm();
+    save();
+    renderInit();
+  });
   function setTurnMsg(msg) { $('initTurn').textContent = msg; }
 
   $('initAdd').addEventListener('click', function () {
     if (ini.actors.length >= 60) { setTurnMsg('That is the most actors the tracker holds.'); return; }
-    var a = { id: ini.seq++, name: 'Actor ' + (ini.actors.length + 1), mod: 0, bonus: 0, applied: 0, die: 0, init: null, persistent: false };
+    var a = { id: ini.seq++, name: 'Actor ' + (ini.actors.length + 1), mod: 0, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false };
     ini.actors.push(a);
     initChanged();
     var row = $('initBodyRows').querySelector('tr[data-id="' + a.id + '"]');
@@ -3225,7 +3252,7 @@ body {
     }
     stopClearConfirm();
     ini.actors = ini.actors.filter(function (a) { return a.persistent; });
-    ini.actors.forEach(function (a) { a.die = 0; a.bonus = 0; a.applied = 0; a.init = null; });
+    ini.actors.forEach(function (a) { a.die = 0; a.bonus = 0; a.applied = 0; a.tie = 0; a.init = null; });
     ini.round = 1;
     ini.turn = 0;
     ini.started = false;
@@ -3257,27 +3284,162 @@ body {
     var tr = e.target.closest ? e.target.closest('tr') : null;
     if (!tr || !tr._a) return;
     e.preventDefault();
-    if (Date.now() - initHeld < 800) return;
+    if (initTouch || Date.now() - initHeld < 800) return;   // a touch is handled by hold and release
     var x = e.clientX, y = e.clientY;
     if (!x && !y) { var r = tr.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top + r.height / 2; }
     initMenu(tr, x, y);
   });
+  /* Delaying: the actor whose turn it is can be held, then dragged further down the order. Dropping them there gives them
+     the initiative of the spot they land in. Nobody can jump ahead of a higher initiative, and only the host's own
+     table can do this (a joiner's rows are plain text). */
+  function delayActor(a, after) {
+    var rolled = initOrder().rolled;
+    var i = rolled.indexOf(a), j = rolled.indexOf(after);
+    if (i < 0 || j <= i) return false;
+    var nextUp = rolled[i + 1], below = rolled[j + 1];
+    var newInit = after.init - 1;
+    if (below) newInit = Math.max(newInit, below.init);   // never under the actor below, where it may only equal it
+    a.die = newInit - a.mod - a.applied;                  // a +/- set this round does not count yet, so it is not used here
+    recompute(a);
+    var wanted = rolled.slice();
+    wanted.splice(i, 1);
+    wanted.splice(j, 0, a);
+    var slot = 0;
+    wanted.forEach(function (q) { if (q.init === newInit) q.tie = slot++; });   // equal totals keep exactly the order they were dropped in
+    ini.turn = nextUp.id;
+    initChanged();
+    return true;
+  }
+  function canDelay(tr) {
+    var a = tr._a;
+    if (!a || !tr.classList.contains('current') || watchWs) return false;
+    var r = initOrder().rolled, i = r.indexOf(a);
+    return i >= 0 && i < r.length - 1;
+  }
+  function startDelayDrag(tr, x0, y0, ev, done) {
+    var a = tr._a;
+    var rolled = initOrder().rolled;
+    var rowOf = {};
+    Array.prototype.forEach.call($('initBodyRows').querySelectorAll('tr[data-id]'), function (r) { if (r._a) rowOf[r._a.id] = r; });
+    var below = rolled.slice(rolled.indexOf(a) + 1).map(function (q) { return { a: q, row: rowOf[q.id] }; }).filter(function (x) { return x.row; });
+    var rect = tr.getBoundingClientRect();
+    var ghost = document.createElement('div');
+    ghost.className = 'ini-ghost';
+    ghost.style.left = rect.left + 'px';
+    ghost.style.width = Math.min(rect.width, Math.max(180, rect.width * 0.42)) + 'px';
+    var g1 = document.createElement('span'); g1.textContent = a.name;
+    var g2 = document.createElement('span'); g2.textContent = a.init;
+    ghost.appendChild(g1); ghost.appendChild(g2);
+    document.body.appendChild(ghost);
+    var line = document.createElement('div');
+    line.className = 'ini-dropline';
+    var lineTxt = document.createElement('span');
+    line.appendChild(lineTxt);
+    line.hidden = true;
+    document.body.appendChild(line);
+    tr.classList.remove('lift');
+    tr.classList.add('dragging');
+    var offY = y0 - rect.top, target = null, ended = false;
+    function place(e) {
+      ghost.style.top = (e.clientY - offY - 18) + 'px';
+      var hit = null;
+      below.forEach(function (x) {
+        var r = x.row.getBoundingClientRect();
+        if (e.clientY > r.top + r.height / 2) hit = x;
+        x.row.classList.remove('drop-after');
+      });
+      target = hit ? hit.a : null;
+      if (hit) {
+        hit.row.classList.add('drop-after');
+        var idx = rolled.indexOf(hit.a), nx = rolled[idx + 1];
+        var ni = hit.a.init - 1;
+        if (nx) ni = Math.max(ni, nx.init);
+        var rr = hit.row.getBoundingClientRect();
+        line.hidden = false;
+        line.style.left = rr.left + 'px';
+        line.style.width = rr.width + 'px';
+        line.style.top = (rr.bottom - 2) + 'px';
+        lineTxt.textContent = 'Acts after ' + hit.a.name + ' \u00b7 initiative ' + ni + (nx && nx.init === ni ? ' (ties with ' + nx.name + ')' : '');
+        g2.textContent = ni;
+      } else {
+        line.hidden = true;
+        g2.textContent = a.init;
+      }
+    }
+    function finish(apply) {
+      if (ended) return;
+      ended = true;
+      document.removeEventListener('pointermove', place);
+      document.removeEventListener('pointerup', up);
+      document.removeEventListener('pointercancel', cancel);
+      document.removeEventListener('keydown', esc, true);
+      if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+      if (line.parentNode) line.parentNode.removeChild(line);
+      var chosen = apply ? target : null;
+      below.forEach(function (x) { x.row.classList.remove('drop-after'); });
+      tr.classList.remove('dragging');
+      if (done) done();
+      if (chosen) delayActor(a, chosen);
+    }
+    function up() { finish(true); }
+    function cancel() { finish(false); }
+    function esc(e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); } }
+    document.addEventListener('pointermove', place);
+    document.addEventListener('pointerup', up);
+    document.addEventListener('pointercancel', cancel);
+    document.addEventListener('keydown', esc, true);
+    place(ev);
+  }
+  var INIT_HOLD = 320, initTouch = false;
   $('initBodyRows').addEventListener('pointerdown', function (e) {
-    if (e.pointerType !== 'touch' || !e.target.closest || e.target.closest('input')) return;
+    if (!e.target.closest || e.target.closest('input') || e.target.closest('.ini-x')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     var tr = e.target.closest('tr');
     if (!tr || !tr._a) return;
-    var sx = e.clientX, sy = e.clientY;
-    var timer = window.setTimeout(function () { initHeld = Date.now(); initMenu(tr, sx, sy); }, 500);
-    function stop(ev) {
-      if (ev.type === 'pointermove' && Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) < 10) return;
-      window.clearTimeout(timer);
-      document.removeEventListener('pointermove', stop);
-      document.removeEventListener('pointerup', stop);
-      document.removeEventListener('pointercancel', stop);
+    var touch = e.pointerType === 'touch';
+    var drag = canDelay(tr);
+    if (!touch && !drag) return;
+    if (touch) initTouch = true;
+    var pid = e.pointerId, sx = e.clientX, sy = e.clientY, ready = false, timer = 0;
+    function blockScroll(ev) { if (ready && ev.cancelable) ev.preventDefault(); }
+    function stopListening() {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      document.removeEventListener('pointercancel', cancel);
     }
-    document.addEventListener('pointermove', stop);
-    document.addEventListener('pointerup', stop);
-    document.addEventListener('pointercancel', stop);
+    function finish() {
+      window.clearTimeout(timer);
+      stopListening();
+      document.removeEventListener('touchmove', blockScroll);
+      tr.classList.remove('lift');
+      window.setTimeout(function () { initTouch = false; }, 600);
+    }
+    function move(ev) {
+      if (ev.pointerId !== pid) return;
+      var d = Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy);
+      if (!ready) { if (d > 8) finish(); return; }   // moved before the hold: a scroll or swipe
+      if (drag && d > 4) {
+        stopListening();
+        window.clearTimeout(timer);
+        startDelayDrag(tr, sx, sy, ev, finish);
+      }
+    }
+    function up(ev) {
+      if (ev.pointerId !== pid) return;
+      var wasReady = ready;
+      finish();
+      if (wasReady && touch && drag) { initHeld = Date.now(); initMenu(tr, sx, sy); }   // held and let go: the menu
+    }
+    function cancel(ev) { if (ev.pointerId === pid) finish(); }
+    timer = window.setTimeout(function () {
+      ready = true;
+      if (drag) tr.classList.add('lift');
+      else if (touch) { initHeld = Date.now(); finish(); initMenu(tr, sx, sy); }   // other actors: a long press is the menu
+    }, drag ? INIT_HOLD : 500);
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+    document.addEventListener('pointercancel', cancel);
+    if (touch) document.addEventListener('touchmove', blockScroll, { passive: false });
   });
 
   /* Double-click (or double-tap, or Enter) turns a name or modifier into a field. */
@@ -3311,7 +3473,7 @@ body {
           if (isFinite(b)) a.bonus = clamp(b, -99, 99);   // counts from the next round
         } else if (field === 'init') {
           var t = parseInt(input.value, 10);
-          if (isFinite(t)) { a.die = clamp(t, -99, 999) - a.mod - a.applied; a.init = a.die + a.mod + a.applied; }
+          if (isFinite(t)) { a.die = clamp(t, -99, 999) - a.mod - a.applied; a.tie = 0; a.init = a.die + a.mod + a.applied; }
         } else {
           var nm = input.value.replace(/\s+/g, ' ').trim().slice(0, 24);
           if (nm) a.name = nm;
@@ -3360,6 +3522,19 @@ body {
     else lastTap = { el: c.b, t: now };
   });
   $('initBodyRows').addEventListener('keydown', function (e) {
+    if (e.altKey && e.key === 'ArrowDown') {
+      var c0 = initCellOf(e);
+      var row = c0 ? c0.b.closest('tr') : null;
+      if (row && canDelay(row)) {
+        e.preventDefault();
+        var order = initOrder().rolled;
+        var focusId = row._a.id;
+        delayActor(row._a, order[order.indexOf(row._a) + 1]);
+        var back = $('initBodyRows').querySelector('tr[data-id="' + focusId + '"] [data-f="name"]');
+        if (back) back.focus();
+      }
+      return;
+    }
     if (e.key !== 'Enter' && e.key !== 'F2') return;
     var c = initCellOf(e);
     if (c) { e.preventDefault(); startInitEdit(c.b, c.a, c.f); }
