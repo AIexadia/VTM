@@ -126,6 +126,8 @@ body {
 .changelog ul ul { margin-top: 4px; }
 .changelog li { line-height: 1.4; }
 .changelog .none { margin: 0; color: var(--muted); }
+#changelogSrc { margin: 14px 0 0; font-size: 0.8rem; color: var(--muted); }
+#changelogSrc:empty { display: none; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .modal-head h2 { margin: 0; font: 700 1.6rem/1.1 var(--font-display); }
 .set-sec { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px 28px; align-items: start; padding-top: 16px; border-top: 1px solid var(--line); }
@@ -319,6 +321,9 @@ body {
 @media (max-width: 480px) { .init-actions { grid-template-columns: 1fr 1fr; } .init-actions #initClear { grid-column: 1 / -1; } }
 .init-actions .roll { grid-column: 1 / -1; }
 .init-actions .btn-sec { height: 44px; padding: 0 10px; }
+.init-actions .roll.rerun { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line-strong); }
+.init-actions .roll.rerun:hover { background: var(--line); color: var(--fg); }
+.init-actions .roll.rerun.confirm { background: var(--danger-fill); border-color: var(--danger-fill); color: #fff; font-size: 1.1rem; }
 .init-actions .btn-sec.confirm { background: var(--danger-fill); border-color: var(--danger-fill); color: #fff; }
 .init-actions .btn-sec:disabled, .init-actions .roll:disabled { opacity: 0.5; cursor: not-allowed; }
 .init-wrap { overflow-x: auto; }
@@ -775,6 +780,10 @@ body {
                 <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 6-3 1-4 4 .5 4-1.5 1.5-4.5-4.5L3 21M9 8l-1 3 5 5"></path></svg>
                 <span class="opt-word" aria-hidden="true">Persistent rolls</span>
               </button>
+            <button type="button" class="opt" id="initFresh" aria-pressed="false" aria-label="Fresh initiative: everyone, Persistent actors included, rolls initiative again at the start of every round." data-tip="Fresh initiative: everyone, Persistent actors included, rolls initiative again at the start of every round.">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14-4.5L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4.5L20 15M20 20v-5h-5"></path></svg>
+              <span class="opt-word" aria-hidden="true">Fresh initiative</span>
+            </button>
             </div>
           </div>
           <p class="init-turn" id="initTurn" aria-live="polite">Add actors, then roll for initiative.</p>
@@ -830,6 +839,7 @@ body {
       </button>
     </div>
     <div class="changelog" id="changelogBody"></div>
+    <p class="hint" id="changelogSrc" role="status"></p>
   </div>
 </div>
 <div class="modal-back" id="settingsBack" hidden>
@@ -961,7 +971,7 @@ body {
   }
 
   var st = { pool: 6, diff: 6, spec: false, botch: true, want: 3, module: 'damage', presetsOpen: true, rollOnLoad: false, sound: true, dmgPool: 4, dmgDiff: 6, dmgSpec: false, dmgBotch: false, dmgBonus: true, dmgPlanOpen: false, dmgPresetsOpen: true, dmgRollOnLoad: false, mod: 0, dmgMod: 0, modOn: true, dmgModOn: true, accent: '', tint: '', botchLock: true, instant: false, cookieRefresh: true, quickBtn: true, showAvg: true, touched: [], wide: true, presetsMods: false, dmgPresetsMods: false, wordToggles: true, botchPrev: true, dmgBotchPrev: false, m20: true, diffInput: false, dmgDiffInput: false, dMod: 0, dmgDMod: 0, dModOn: true, dmgDModOn: true, presetsH: 180, dmgPresetsH: 180, presetsRecent: false, dmgPresetsRecent: false };
-  st.showMain = true; st.simple = false; st.showDamage = true; st.showProb = true; st.showInit = true; st.initPersist = false;
+  st.showMain = true; st.simple = false; st.showDamage = true; st.showProb = true; st.showInit = true; st.initPersist = false; st.initFresh = false;
   st.ini = { actors: [], round: 1, turn: 0, seq: 1, started: false };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
@@ -991,7 +1001,7 @@ body {
       ['dmgSpec', 'dmgBotch', 'dmgBonus', 'dmgPlanOpen', 'dmgPresetsOpen', 'dmgRollOnLoad', 'presetsRecent', 'dmgPresetsRecent', 'modOn', 'dmgModOn', 'dModOn', 'dmgDModOn', 'm20', 'diffInput', 'dmgDiffInput', 'botchLock', 'botchPrev', 'dmgBotchPrev', 'instant', 'cookieRefresh', 'quickBtn', 'showAvg', 'wide', 'presetsMods', 'dmgPresetsMods', 'wordToggles'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
-      ['showMain', 'simple', 'showDamage', 'showProb', 'showInit', 'initPersist'].forEach(function (k) {
+      ['showMain', 'simple', 'showDamage', 'showProb', 'showInit', 'initPersist', 'initFresh'].forEach(function (k) {
         if (typeof saved[k] === 'boolean') st[k] = saved[k];
       });
       if (saved.ini && Array.isArray(saved.ini.actors)) {
@@ -2811,6 +2821,8 @@ body {
 
   /* Initiative option: Persistent actors roll along with everyone else. */
   setPressed('initPersist', st.initPersist);
+  setPressed('initFresh', st.initFresh);
+  $('initFresh').addEventListener('click', function () { st.initFresh = !st.initFresh; setPressed('initFresh', st.initFresh); save(); });
   $('initPersist').addEventListener('click', function () { st.initPersist = !st.initPersist; setPressed('initPersist', st.initPersist); save(); });
 
   /* Initiative tracker */
@@ -2841,7 +2853,10 @@ body {
   /* A bonus or penalty set during a round only counts in the totals from the next round on. */
   function startNextRound() {
     ini.round++;
+    prepSound();
+    playSound();   // the same dice sound as rolling initiative
     ini.actors.forEach(function (a) { if (a.applied !== a.bonus) { a.applied = a.bonus; recompute(a); } });
+    if (st.initFresh) ini.actors.forEach(rollActor);   // Fresh initiative: everyone rolls again, Persistent actors included
   }
   /* Sync: a host shares the tracker through a small relay server. Joiners get a read-only view without the Mod column.
      Put the address of your deployed sync server here, for example 'wss://vtm-sync.your-name.workers.dev'. */
@@ -3137,6 +3152,8 @@ body {
     if (cur && curAt >= 0) { turnEl.textContent = ''; turnEl.appendChild(document.createTextNode('Now acting: ')); var sg = document.createElement('strong'); sg.textContent = cur.name; turnEl.appendChild(sg); }
     else turnEl.textContent = ord.all.length ? 'Roll for initiative to start the order.' : 'Add actors, then roll for initiative.';
     $('initRoll').disabled = !ini.actors.length;
+    $('initRoll').classList.toggle('rerun', !!ini.started);
+    if (!ini.started && rollTimer) stopRollConfirm();
     $('initNext').disabled = !ord.rolled.length;
     var lastUp = curAt >= 0 && curAt === ord.rolled.length - 1;
     $('initNext').textContent = lastUp ? 'End round' : 'Next turn';
@@ -3155,11 +3172,26 @@ body {
     var row = $('initBodyRows').querySelector('tr[data-id="' + a.id + '"]');
     if (row) { if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest' }); startInitEdit(row.querySelector('[data-f="name"]'), a, 'name'); }
   });
+  var rollTimer = 0;
+  function stopRollConfirm() {
+    window.clearTimeout(rollTimer);
+    rollTimer = 0;
+    $('initRoll').classList.remove('confirm');
+    $('initRoll').textContent = 'Roll initiative';
+  }
   $('initRoll').addEventListener('click', function () {
     if (!ini.actors.length) return;
+    // Once the turns have started, rolling again throws the encounter away, so ask first.
+    if (ini.started && !rollTimer) {
+      $('initRoll').classList.add('confirm');
+      $('initRoll').textContent = 'Click again to roll anew and reset rounds';
+      rollTimer = window.setTimeout(stopRollConfirm, 4000);
+      return;
+    }
+    stopRollConfirm();
     prepSound();
     ini.actors.forEach(function (a) { a.applied = a.bonus; });   // a bonus set before the roll counts from round 1
-    ini.actors.forEach(function (a) { if (!a.persistent || st.initPersist) rollActor(a); });   // otherwise persistent actors are entered or rolled one by one
+    ini.actors.forEach(function (a) { if (!a.persistent || st.initPersist || st.initFresh) rollActor(a); });   // otherwise persistent actors are entered or rolled one by one
     ini.round = 1;
     ini.started = false;
     var first = initOrder().rolled[0];
@@ -3556,8 +3588,10 @@ body {
     try { window.location.reload(); } catch (e) { $('wipeStatus').textContent = 'All saved data was deleted. Reload the page to start fresh.'; }
   });
 
-  /* Changelog dialog. Replace the text below with the new changelog whenever it changes.
-     Lines starting with V are version headings, "-" lines are bullets, and tab-indented lines nest. */
+  /* Changelog dialog. The text is read from README.md in a GitHub repository. Set CHANGELOG_REPO to 'owner/repo'
+     (or 'owner/repo@branch', or a full address to a raw text file). The built-in copy below is only a fallback for when
+     GitHub cannot be reached. Lines starting with V are version headings, "-" lines are bullets, and indented lines nest. */
+  var CHANGELOG_REPO = 'AIexadia/VTM';
   var CHANGELOG = `V1.0
 -First version of the Web App
 
@@ -3629,16 +3663,29 @@ V1.5
 	-It is possible to "Host" an initiative tracker, so that those that join with the code get to see the tracker as well.
 -Added a new subsection to the settings menu called "Modules", which enables and disables modules.
 -Added "Main Roller" toggle in the settings menu, under "UI Options". This turns off the main roller, which in turn lets users enable the new "Simple Roller" toggle. It also hides the Probability module, and when both the main roller and simple roller are off, the extra modules treat the "Wide Aspect" toggle as always off.`;
-  (function () {
-    var body = $('changelogBody');
+  function parseChangelog(text) {
     var sections = [], cur = null;
-    CHANGELOG.split(/\r?\n/).forEach(function (line) {
-      if (!line.trim()) return;
-      if (/^V\d/i.test(line.trim()) && !/^\s/.test(line)) { cur = { title: line.trim(), items: [] }; sections.push(cur); return; }
-      if (!cur) return;
-      var depth = (line.match(/^[\t ]*/)[0].replace(/ {2,4}/g, '\t').length);
-      cur.items.push({ depth: depth, text: line.replace(/^[\t ]*-?\s*/, '') });
+    String(text).split(/\r?\n/).forEach(function (raw) {
+      if (!raw.trim()) return;
+      var line = raw.replace(/\s+$/, '');
+      var plain = line.replace(/^#{1,6}\s*/, '').replace(/^\*\*(.*)\*\*$/, '$1').trim();
+      if (!/^\s/.test(line) && !/^[-*+]\s?/.test(line) && (/^v\d/i.test(plain) || /^\d+(\.\d+)+\b/.test(plain))) {
+        cur = { title: plain, items: [] };
+        sections.push(cur);
+        return;
+      }
+      if (!cur) return;   // anything before the first version, such as a README title, is skipped
+      var lead = line.match(/^[\t ]*/)[0];
+      var depth = (lead.match(/\t/g) || []).length + Math.floor(lead.replace(/\t/g, '').length / 2);
+      var txt = line.slice(lead.length).replace(/^[-*+]\s*/, '').replace(/\*\*(.+?)\*\*/g, '$1').replace(/`([^`]+)`/g, '$1');
+      if (txt) cur.items.push({ depth: depth, text: txt });
     });
+    return sections;
+  }
+  function renderChangelog(text) {
+    var body = $('changelogBody');
+    body.textContent = '';
+    var sections = parseChangelog(text);
     if (!sections.length) {
       var none = document.createElement('p');
       none.className = 'none';
@@ -3671,8 +3718,43 @@ V1.5
       wrap.appendChild(root);
       body.appendChild(wrap);
     });
-  })();
-  function openChangelog() { $('changelogBack').hidden = false; $('changelogClose').focus(); }
+  }
+  function changelogUrl() {
+    var r = String(CHANGELOG_REPO || '').trim();
+    if (!r) return '';
+    if (/^https?:\/\//i.test(r)) return r;
+    var m = r.match(/^([\w.-]+)\/([\w.-]+)(?:@(.+))?$/);
+    return m ? 'https://raw.githubusercontent.com/' + m[1] + '/' + m[2] + '/' + (m[3] || 'HEAD') + '/README.md' : '';
+  }
+  var CL_KEY = 'vtm-changelog', clText = CHANGELOG, clFetchedAt = 0, clBusy = false;
+  function clNote(t) { $('changelogSrc').textContent = t || ''; }
+  try {
+    var savedCl = JSON.parse(localStorage.getItem(CL_KEY) || 'null');
+    if (savedCl && typeof savedCl.text === 'string' && savedCl.text.length < 200000) { clText = savedCl.text; clNote('Saved copy from GitHub'); }
+    else if (changelogUrl()) clNote('Built-in copy');
+  } catch (err) { if (changelogUrl()) clNote('Built-in copy'); }
+  renderChangelog(clText);
+  function loadChangelog() {
+    var url = changelogUrl();
+    if (!url || clBusy || typeof fetch !== 'function' || Date.now() - clFetchedAt < 300000) return;
+    clBusy = true;
+    var ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = window.setTimeout(function () { if (ctl) ctl.abort(); }, 8000);
+    fetch(url, ctl ? { signal: ctl.signal } : {}).then(function (res) {
+      if (!res.ok) throw new Error('status ' + res.status);
+      return res.text();
+    }).then(function (text) {
+      if (!text || text.length > 200000 || !parseChangelog(text).length) throw new Error('no changelog in that file');
+      clFetchedAt = Date.now();
+      clNote('Loaded from GitHub');
+      if (text !== clText) { clText = text; renderChangelog(clText); }
+      try { localStorage.setItem(CL_KEY, JSON.stringify({ text: text, t: clFetchedAt })); } catch (err) {}
+    }).catch(function () {
+      clNote(clText === CHANGELOG ? 'Built-in copy. GitHub could not be reached.' : 'Saved copy. GitHub could not be reached.');
+    }).then(function () { window.clearTimeout(timer); clBusy = false; });
+  }
+  loadChangelog();
+  function openChangelog() { $('changelogBack').hidden = false; $('changelogClose').focus(); loadChangelog(); }
   function closeChangelog() { $('changelogBack').hidden = true; $('changelogBtn').focus(); }
   $('changelogBtn').addEventListener('click', openChangelog);
   $('changelogClose').addEventListener('click', closeChangelog);
@@ -3728,4 +3810,5 @@ V1.5
 })();
 </script>
 
+</body></html>
 </body></html>
