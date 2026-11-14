@@ -460,6 +460,86 @@ body {
   .die.rolling { animation: none; }
   .result, .track, .track::after, .tab .chev, .pre-toggle .chev { transition: none; }
 }
+/* RULES-MODULE:BEGIN css */
+.rules-back { position: fixed; inset: 0; z-index: 110; display: flex; flex-direction: column; background: var(--bg); color: var(--fg); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.rules-back[hidden], #rulesBtn[hidden] { display: none; }
+.rules-bar { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line-strong); background: var(--surface); }
+.rules-bar h2 { margin: 0; flex: 1; min-width: 0; font: 700 1.15rem/1.2 var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rules-main { flex: 1; min-height: 0; display: flex; }
+.rules-side { flex: none; width: 340px; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line-strong); background: var(--surface); }
+.rules-search { flex: none; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.rules-search { display: flex; gap: 8px; align-items: center; }
+.rules-search .rb { flex: none; width: 38px; height: 38px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 700 1.1rem/1 var(--font-body); cursor: pointer; }
+.rules-search .rb:disabled { opacity: 0.4; cursor: not-allowed; }
+.rules-search .rb:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.rules-search input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--well); color: var(--fg); font: 400 1rem/1.2 var(--font-body); }
+.rules-results { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 12px 18px; display: flex; flex-direction: column; gap: 14px; }
+.rl-group { display: flex; flex-direction: column; gap: 6px; }
+.rl-book { margin: 6px 0 -4px; font: 700 0.75rem/1.2 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; width: 100%; padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 700 0.98rem/1.25 var(--font-body); text-align: left; cursor: pointer; }
+.rl-head small, .rl-chip small { flex: none; font: 400 0.78rem/1.2 var(--font-data); color: var(--muted); }
+.rl-sub { background: var(--surface); font-weight: 600; margin-top: 4px; }
+.rl-more { margin-left: 2px; padding: 0 6px; border-left: 1px solid var(--line-strong); color: var(--accent-text); font: 700 1rem/1 var(--font-body); }
+.rl-ctx { margin: -2px 2px 0; font-size: 0.78rem; color: var(--muted); }
+.rl-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rl-chip { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--fg); font: 400 0.92rem/1.2 var(--font-body); cursor: pointer; text-align: left; }
+.rl-head:hover, .rl-chip:hover { border-color: var(--accent-text); }
+.rl-head:focus-visible, .rl-chip:focus-visible, .rules-search input:focus-visible, .rules-bar button:focus-visible, .rules-bar input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.rl-empty { margin: 4px 2px; color: var(--muted); font-size: 0.95rem; }
+.rules-view { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--well); }
+.rules-tools { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.rules-tools button, .rules-bar button.rb { min-width: 36px; height: 36px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--fg); font: 600 0.85rem/1 var(--font-body); cursor: pointer; }
+.rules-tools button:disabled { opacity: 0.45; cursor: not-allowed; }
+.rules-tools input { width: 64px; height: 36px; padding: 0 6px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--well); color: var(--fg); font: 500 0.95rem/1 var(--font-data); text-align: center; }
+.rules-tools .of { color: var(--muted); font: 400 0.85rem/1 var(--font-data); }
+.rules-tools .sp { flex: 1; }
+.rules-pane { flex: 1; min-height: 0; overflow: auto; padding: 10px; text-align: center; }
+.rules-pane canvas { display: inline-block; max-width: none; background: #fff; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45); }
+.rules-empty { max-width: 420px; margin: 8vh auto 0; padding: 0 14px; display: flex; flex-direction: column; gap: 12px; align-items: center; text-align: center; }
+.rules-empty p { margin: 0; color: var(--muted); }
+.rules-empty .pick { padding: 10px 16px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: var(--on-accent); font: 700 1rem/1.2 var(--font-body); cursor: pointer; }
+@media (max-width: 799px) {
+  .rules-side { width: 100%; border-right: 0; }
+  .rules-back[data-view="page"] .rules-side { display: none; }
+  .rules-back[data-view="index"] .rules-view { display: none; }
+}
+@media (min-width: 800px) { .rules-tools .only-mobile { display: none; } }
+.rules-pop { position: absolute; z-index: 5; top: calc(env(safe-area-inset-top, 0px) + 54px); right: max(12px, env(safe-area-inset-right, 0px)); width: min(340px, calc(100vw - 24px)); display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+.rules-pop[hidden] { display: none; }
+.rp-h { margin: 0; font: 700 0.75rem/1.2 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rp-row { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.rp-row input { flex: none; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); }
+.rp-row span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rp-row b { font: 600 0.95rem/1.25 var(--font-body); }
+.rp-row small { font: 400 0.8rem/1.3 var(--font-body); color: var(--muted); }
+.rp-stat { margin: 0; font: 400 0.8rem/1.3 var(--font-data); color: var(--muted); }
+.rb2 { align-self: flex-start; padding: 7px 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 600 0.85rem/1 var(--font-body); cursor: pointer; }
+.rb2:disabled { opacity: 0.45; cursor: not-allowed; }
+.rules-pop input:focus-visible, .rb2:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.rules-status { flex: none; padding: 6px 12px; border-bottom: 1px solid var(--line); background: var(--surface-2); color: var(--muted); font: 400 0.8rem/1.3 var(--font-data); }
+.rules-status[hidden] { display: none; }
+.rl-term { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--fg); font: 600 0.92rem/1.2 var(--font-body); cursor: pointer; text-align: left; }
+.rl-term small { font: 400 0.78rem/1.2 var(--font-data); color: var(--muted); }
+.rl-hit { display: flex; flex-direction: column; gap: 3px; width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); font: 400 0.85rem/1.35 var(--font-body); text-align: left; cursor: pointer; }
+.rl-hit b { font: 600 0.78rem/1.2 var(--font-data); color: var(--accent-text); }
+.rl-hit mark { background: transparent; color: var(--accent-text); font-weight: 700; }
+.rl-term:hover, .rl-hit:hover { border-color: var(--accent-text); }
+.rl-term:focus-visible, .rl-hit:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+#rulesBtn.rules-word { width: auto; padding: 0 14px; font: 600 0.9rem/1 var(--font-body); white-space: nowrap; }
+.rules-sep { flex: none; align-self: center; width: 1px; height: 24px; margin: 0 12px; background: var(--line-strong); }
+.rules-sep[hidden] { display: none; }
+@media (max-width: 620px) { .top { flex-direction: column-reverse; align-items: stretch; } .top-btns { justify-content: flex-end; } }
+.rules-linkrow { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.rules-linkrow[hidden] { display: none; }
+.lr-line { display: flex; gap: 6px; }
+.lr-line input { flex: 1; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--well); color: var(--fg); font: 400 0.9rem/1 var(--font-data); }
+.lr-line button { flex: none; height: 36px; padding: 0 14px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: var(--on-accent); font: 700 0.9rem/1 var(--font-body); cursor: pointer; }
+.lr-line button:disabled { opacity: 0.5; cursor: not-allowed; }
+.lr-line input:focus-visible, .lr-line button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.lr-msg { margin: 0; color: var(--muted); font: 400 0.8rem/1.35 var(--font-body); }
+.lr-msg.bad { color: var(--danger, #e0707a); }
+.rules-empty .pick.alt { background: var(--surface); color: var(--fg); border-color: var(--line-strong); }
+/* RULES-MODULE:END css */
 </style>
 
 <main class="wrap">
@@ -469,6 +549,10 @@ body {
       <p>Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.</p>
     </div>
     <div class="top-btns">
+      <!-- RULES-MODULE:BEGIN button -->
+      <button type="button" class="sound-btn rules-word" id="rulesBtn" aria-haspopup="dialog" title="Open the rulebook">Rule Book</button>
+      <span class="rules-sep" id="rulesSep" aria-hidden="true"></span>
+      <!-- RULES-MODULE:END button -->
       <button type="button" class="sound-btn" id="soundBtn" aria-pressed="true" aria-label="Sound" title="Sound on">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M11 5L6 9H3v6h3l5 4V5z"></path>
@@ -899,6 +983,61 @@ body {
     </div>
   </section>
 </main>
+<!-- RULES-MODULE:BEGIN overlay -->
+<div class="rules-back" id="rulesBack" data-view="index" role="dialog" aria-modal="true" aria-labelledby="rulesTitle" hidden>
+  <div class="rules-bar">
+    <h2 id="rulesTitle">Rules</h2>
+    <button type="button" class="sound-btn" id="rulesSet" aria-label="Search settings" title="Search settings" aria-haspopup="true" aria-expanded="false">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+    </button>
+    <button type="button" class="sound-btn" id="rulesClose" aria-label="Close rules" title="Close">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </button>
+  </div>
+  <div class="rules-pop" id="rulesPop" role="group" aria-label="Search settings" hidden>
+    <p class="rp-h">What searches look in</p>
+    <label class="rp-row"><input type="checkbox" id="rulesOptIndex"><span><b>Headings index</b><small>Chapters, disciplines, powers, merits, rituals and so on.</small></span></label>
+    <label class="rp-row"><input type="checkbox" id="rulesOptActs"><span><b>Terms and actions</b><small>Terms that open a paragraph, such as Block, Dodge, Parry, Sweep or Torpor, with their page.</small></span></label>
+    <label class="rp-row"><input type="checkbox" id="rulesOptTerms"><span><b>Other bold terms</b><small>Bold labels found in tables and stat lines, such as Accuracy or Difficulty.</small></span></label>
+    <label class="rp-row"><input type="checkbox" id="rulesOptText"><span><b>Full text of the book</b><small>Ranked page search. Built on this device from your own PDF and kept here; nothing is uploaded or shared.</small></span></label>
+    <p class="rp-stat" id="rulesTextStat"></p>
+    <button type="button" class="rb2" id="rulesTextRebuild">Rebuild the text search</button>
+  </div>
+  <div class="rules-main">
+    <aside class="rules-side" aria-label="Rules index">
+      <div class="rules-search"><button type="button" class="rb" id="rulesBack1" aria-label="Back to the previous search" title="Back to the previous search" disabled>&#8592;</button><input type="search" id="rulesQuery" placeholder="Search the index: Disciplines, Celerity, Merits..." aria-label="Search the rules index" autocomplete="off"></div>
+      <div class="rules-status" id="rulesStatus" hidden></div>
+      <div class="rules-results" id="rulesResults"></div>
+    </aside>
+    <section class="rules-view" aria-label="Rulebook page">
+      <div class="rules-tools">
+        <button type="button" class="only-mobile" id="rulesToIndex">Index</button>
+        <button type="button" id="rulesPrev" aria-label="Previous page" title="Previous page">&#9664;</button>
+        <input type="text" inputmode="numeric" id="rulesPage" aria-label="Page number" autocomplete="off">
+        <span class="of" id="rulesOf"></span>
+        <button type="button" id="rulesNext" aria-label="Next page" title="Next page">&#9654;</button>
+        <button type="button" id="rulesMode" title="Switch between the book's printed page numbers and the PDF's own page numbers">Book pages</button>
+        <span class="sp"></span>
+        <button type="button" id="rulesZoomOut" aria-label="Zoom out" title="Zoom out">&minus;</button>
+        <button type="button" id="rulesFit" title="Fit to width">Fit</button>
+        <button type="button" id="rulesZoomIn" aria-label="Zoom in" title="Zoom in">+</button>
+        <button type="button" id="rulesChange" title="Choose a different PDF file">Change PDF</button>
+        <button type="button" id="rulesLink" title="Download the PDF from a web link instead (for devices that cannot pick files)">From link</button>
+        <input type="file" id="rulesFile" accept="application/pdf,.pdf" hidden>
+      </div>
+      <div class="rules-linkrow" id="rulesLinkRow" hidden>
+        <div class="lr-line">
+          <input type="url" id="rulesUrl" inputmode="url" placeholder="https://...link to the rulebook PDF" aria-label="Link to the rulebook PDF" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button type="button" id="rulesUrlGo">Load</button>
+        </div>
+        <p class="lr-msg" id="rulesUrlMsg">The link has to be a direct link to the PDF file, and the site hosting it has to allow other sites to download it. The file is saved on this device only.</p>
+      </div>
+      <div class="rules-pane" id="rulesPane"></div>
+    </section>
+  </div>
+</div>
+<!-- RULES-MODULE:END overlay -->
+
 <div class="modal-back" id="changelogBack" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="changelogTitle" id="changelogDlg">
     <div class="modal-head">
@@ -954,6 +1093,13 @@ body {
         <span class="track" aria-hidden="true"></span>
         <span class="txt"><strong>Instant Results</strong><small>Skip the dice animation and show the result as soon as you roll.</small></span>
       </label>
+      <!-- RULES-MODULE:BEGIN setting -->
+      <label class="switch" for="modRules">
+        <input type="checkbox" role="switch" id="modRules">
+        <span class="track" aria-hidden="true"></span>
+        <span class="txt"><strong>Rule Book</strong><small>Show the Rule Book button (the rulebook index and viewer) at the top.</small></span>
+      </label>
+      <!-- RULES-MODULE:END setting -->
     </section>
     <section class="set-sec" aria-labelledby="modsHead">
       <h3 id="modsHead">Modules</h3>
@@ -4459,6 +4605,467 @@ V1.5
   doRoll(false, true);
 })();
 </script>
+<!-- RULES-MODULE:BEGIN script -->
+<script>
+/* Rules: a searchable index of the rulebook's headings (titles and page numbers only) beside a page viewer.
+   The book itself is never part of this page: each device opens its own PDF once and keeps it in the browser.
+   Self-contained: its own CSS/HTML/script blocks, its own storage keys (vtm-rules, IndexedDB vtm-rules). */
+(function () {
+  'use strict';
+  var KEY = 'vtm-rules', OFFSET = 8;   // printed page = PDF page - 8
+  var BASE = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  var RAW = [[0,"Foreword",3],[0,"Credits",6],[0,"Table Of Contents",7],[0,"Book One: The Riddle",11],[1,"Introduction",13],[2,"What This Book Is",13],[3,"Oh Yeah, The Metric System",14],[2,"Live-Action",14],[3,"Safeguards",15],[2,"What is a Vampire?",15],[3,"The Embrace",17],[3,"The Hunt",17],[3,"The Nocturnal World of the Vampire",18],[3,"The Jyhad",18],[2,"How to Use This Book",19],[3,"Source Material",19],[1,"Chapter One: A World of Darkness",21],[2,"Gothic-Punk",21],[2,"Theme and Mood",22],[3,"Themes",22],[3,"Mood",23],[2,"The Kindred",24],[3,"The Embrace",24],[4,"A Beautiful Corpse",24],[4,"The Beast",24],[3,"The Aristocracy of the Dead",25],[3,"The Jyhad",26],[3,"The Modern Advantage",26],[2,"Social Distinctions",26],[3,"Clans and Sects",27],[3,"Clans",28],[3,"Sects",28],[4,"Autarkis",30],[2,"The Traditions",30],[3,"The First Tradition: The Masquerade",30],[3,"The Second Tradition: The Domain",30],[3,"Traditions: Scroll",31],[3,"The Third Tradition: The Progeny",32],[3,"The Fourth Tradition: The Accounting",32],[3,"The Fifth Tradition: Hospitality",32],[3,"The Sixth Tradition: Destruction",32],[2,"Domains of the Dead",32],[3,"Prince (Camarilla)",32],[3,"Archbishop (Sabbat)",33],[3,"Baron (Anarch Movement)",33],[3,"Other Titles",33],[4,"Camarilla",33],[4,"Sabbat",34],[2,"The Mythology of the Damned",35],[3,"First Vampire, First Murderer",35],[3,"Generation",36],[4,"Diablerie: The Amaranth",36],[3,"Understanding the Generations",36],[4,"Second Generation",36],[4,"Third Generation",37],[4,"Fourth and Fifth Generations",37],[4,"Sixth, Seventh, and Eighth Generations",37],[4,"Ninth and Tenth Generations",37],[4,"Eleventh, Twelfth, and Thirteenth Generations",37],[4,"Fourteenth and Fifteenth Generations",38],[4,"Gehenna",38],[4,"Golconda",38],[2,"Other Denizens of the World of Darkness",38],[3,"Hunters",38],[3,"Werewolves",39],[3,"Magi",39],[3,"The Wild Ones",39],[3,"Ghosts",40],[3,"And Everything Else",40],[2,"Lexicon",40],[3,"Common Parlance",40],[3,"Old Form",42],[3,"Vulgar Argot",43],[1,"Chapter Two: Sects and Clans",45],[2,"The Camarilla",46],[3,"Practices",47],[4,"Conclaves",47],[2,"The Sabbat",48],[3,"Practices",50],[4,"Rituals",51],[2,"The Anarch Movement",52],[3,"Practices",53],[4,"Games and Pranks",53],[2,"The Independents",54],[3,"The Clans",54],[4,"The Assamites",54],[4,"The Followers of Set",54],[4,"The Giovanni",55],[4,"The Ravnos",55],[2,"Assamite",56],[2,"Brujah",58],[2,"Followers of Set",60],[2,"Gangrel",62],[2,"Giovanni",64],[2,"Lasombra",66],[2,"Malkavian",68],[2,"Nosferatu",70],[2,"Ravnos",72],[2,"Toreador",74],[2,"Tremere",76],[2,"Tzimisce",78],[2,"Ventrue",80],[2,"Bloodlines",45],[2,"Clans and Characters",45],[0,"Book Two: The Becoming",83],[1,"Chapter Three: Character and Traits",85],[2,"Getting Started",87],[3,"Advancing New Characters",87],[2,"Character Creation Process",88],[3,"Sample Concepts",88],[3,"Clans",88],[3,"Archetypes (Nature and Demeanor)",89],[3,"Disciplines",90],[3,"Backgrounds",90],[3,"Freebie Points",90],[3,"The Storyteller and Character Creation",91],[3,"Step One: Character Concept",91],[4,"Concept",91],[4,"Clan",91],[4,"Nature and Demeanor (Archetypes)",92],[3,"Step Two: Select Attributes",92],[3,"Step Three: Select Abilities",92],[3,"Step Four: Select Advantages",92],[4,"Disciplines",93],[4,"Backgrounds",93],[4,"More Inhuman Vampires",93],[4,"Virtues",93],[3,"Step Five: Last Touches",94],[4,"Humanity",94],[4,"Willpower",94],[4,"Blood Pool",94],[4,"Freebie Points",94],[4,"Spark of Life",94],[2,"Personality Archetypes: Nature and Demeanor",95],[3,"Architect",96],[3,"Autocrat",96],[3,"Bon Vivant",96],[3,"Bravo",96],[3,"Capitalist",96],[3,"Caregiver",97],[3,"Celebrant",97],[3,"Chameleon",97],[3,"Child",97],[3,"Competitor",97],[3,"Conformist",97],[3,"Conniver",98],[3,"Creep Show",98],[3,"Curmudgeon",98],[3,"Dabbler",98],[3,"Deviant",98],[3,"Director",99],[3,"Enigma",99],[3,"Eye of the Storm",99],[3,"Fanatic",99],[3,"Gallant",99],[3,"Guru",99],[3,"Idealist",99],[3,"Judge",100],[3,"Loner",100],[3,"Martyr",100],[3,"Masochist",100],[3,"Monster",100],[3,"Pedagogue",101],[3,"Penitent",101],[3,"Perfectionist",102],[3,"Rebel",102],[3,"Rogue",102],[3,"Sadist",102],[3,"Scientist",102],[3,"Sociopath",103],[3,"Soldier",103],[3,"Survivor",103],[3,"Thrill-Seeker",103],[3,"Traditionalist",103],[3,"Trickster",103],[3,"Visionary",104],[2,"Attributes",104],[3,"Specialties",104],[3,"Physical",104],[4,"Strength",104],[4,"Dexterity",105],[4,"Stamina",105],[3,"Social",105],[4,"Charisma",105],[4,"Manipulation",105],[4,"Appearance",106],[3,"Mental",107],[4,"Perception",107],[4,"Intelligence",107],[4,"Wits",107],[2,"Abilities",108],[3,"Talents",108],[4,"Alertness",108],[4,"Athletics",108],[4,"Awareness",108],[4,"Brawl",109],[4,"Empathy",109],[4,"Expression",109],[4,"Intimidation",110],[4,"Leadership",110],[4,"Streetwise",111],[4,"Subterfuge",111],[4,"Hobby Talent",111],[3,"Skills",111],[4,"Animal Ken",111],[4,"Crafts",112],[4,"Drive",112],[4,"Etiquette",112],[4,"Firearms",112],[4,"Larceny",113],[4,"Melee",113],[4,"Performance",113],[4,"Stealth",113],[4,"Survival",115],[4,"Professional Skill",115],[3,"Knowledges",115],[4,"Academics",115],[4,"Computer",116],[4,"Finance",116],[4,"Investigation",116],[4,"Law",116],[4,"Medicine",117],[4,"Occult",117],[4,"Politics",117],[4,"Science",117],[4,"Technology",118],[4,"Expert Knowledge",118],[2,"Backgrounds",118],[3,"Allies",119],[3,"Alternate Identity",119],[3,"Black Hand Membership",119],[3,"Contacts",120],[3,"Domain",120],[3,"Fame",122],[3,"Generation",122],[3,"Herd",122],[3,"Influence",122],[3,"Mentor",123],[3,"Resources",123],[3,"Retainers",124],[3,"Rituals",125],[3,"Status",126],[3,"Pooling Backgrounds",126],[4,"The Anchor",126],[4,"Using Pooled Backgrounds",127],[4,"Upper Limits",127],[2,"Virtues",127],[3,"Conscience",127],[3,"Self-Control",128],[3,"Courage",128],[2,"Willpower",128],[2,"Blood Pool",129],[2,"Health",129],[3,"Health Levels",130],[2,"Experience",130],[3,"New Traits",131],[3,"Awarding Experience Points",131],[3,"End of Each Chapter",131],[3,"The End of the Story",132],[3,"Experience Costs",132],[2,"Traits",85],[2,"Common Traits and Terms",86],[1,"Chapter Four: Disciplines",135],[2,"Animalism",136],[3,"Storytelling Animals",136],[3,"Feral Whispers",137,"Lv 1"],[3,"Beckoning",138,"Lv 2"],[3,"Quell the Beast",138,"Lv 3"],[3,"Subsume the Spirit",139,"Lv 4"],[3,"Drawing Out the Beast",140,"Lv 5"],[3,"Animal Succulence",140,"Lv 6"],[3,"Shared Soul",141,"Lv 6"],[3,"Species Speech",141,"Lv 6"],[3,"Conquer the Beast",141,"Lv 7"],[3,"Taunt the Caged Beast",141,"Lv 8"],[3,"Unchain the Beast",142,"Lv 9"],[2,"Auspex",142],[3,"Heightened Senses",142,"Lv 1"],[3,"Aura Perception",143,"Lv 2"],[3,"The Spirit’s Touch",144,"Lv 3"],[3,"Aura Colors",144],[3,"Telepathy",145,"Lv 4"],[3,"Psychic Projection",146,"Lv 5"],[3,"Clairvoyance",147,"Lv 6"],[3,"Prediction",147,"Lv 6"],[3,"Telepathic Communication",147,"Lv 6"],[3,"Karmic Sight",148,"Lv 7"],[3,"Mirror Reflex",149,"Lv 7"],[3,"Psychic Assault",149,"Lv 8"],[3,"False Slumber",149,"Lv 9"],[3,"Seeing the Unseen",150],[2,"Celerity",150],[3,"Celerity 6",150],[4,"Projectile",151,"Lv 6"],[4,"Flower of Death",151,"Lv 7"],[4,"Zephyr",152,"Lv 8"],[2,"Chimerstry",152],[3,"Ignis Fatuus",152,"Lv 1"],[3,"Fata Morgana",152,"Lv 2"],[3,"Apparition",152,"Lv 3"],[3,"Permanency",153,"Lv 4"],[3,"Horrid Reality",153,"Lv 5"],[3,"False Resonance",153,"Lv 6"],[3,"Fatuus Mastery",154,"Lv 6"],[3,"Shared Nightmare",154,"Lv 6"],[3,"Far Fatuus",154,"Lv 7"],[3,"Suspension of Disbelief",154,"Lv 7"],[3,"Synesthesia",154,"Lv 8"],[3,"Mayaparisatya",155,"Lv 9"],[2,"Dementation",155],[3,"Passion",156,"Lv 1"],[3,"The Haunting",156,"Lv 2"],[3,"Eyes of Chaos",156,"Lv 3"],[3,"Voice of Madness",157,"Lv 4"],[3,"Total Insanity",157,"Lv 5"],[3,"Lingering Malaise",158,"Lv 6"],[3,"Shattered Mirror",158,"Lv 6"],[3,"Restructure",158,"Lv 7"],[3,"Personal Scourge",159,"Lv 8"],[3,"Lunatic Eruption",159,"Lv 9"],[2,"Dominate",159],[3,"Eye Contact",160],[3,"Command",160,"Lv 1"],[3,"Mesmerize",160,"Lv 2"],[3,"The Forgetful Mind",161,"Lv 3"],[3,"Conditioning",162,"Lv 4"],[3,"Possession",163,"Lv 5"],[3,"Chain the Psyche",164,"Lv 6"],[3,"Loyalty",164,"Lv 6"],[3,"Obedience",164,"Lv 6"],[3,"Mass Manipulation",164,"Lv 7"],[3,"Still the Mortal Flesh",164,"Lv 7"],[3,"Far Mastery",165,"Lv 8"],[3,"Speak Through the Blood",165,"Lv 9"],[3,"Resisting Dominate",166],[2,"Fortitude",166],[3,"Fortitude 6",166],[4,"Personal Armor",167,"Lv 6"],[4,"Shared Strength",167,"Lv 7"],[4,"Adamantine",167,"Lv 8"],[2,"Necromancy",167],[3,"The Sepulchre Path",168],[4,"Witness of Death",168,"Lv 1"],[4,"Summon Soul",169,"Lv 2"],[4,"Compel Soul",169,"Lv 3"],[4,"Haunting",170,"Lv 4"],[4,"Torment",170,"Lv 5"],[3,"The Ash Path",171],[4,"Shroudsight",171,"Lv 1"],[4,"Lifeless Tongues",171,"Lv 2"],[4,"Dead Hand",171,"Lv 3"],[4,"Ex Nihilo",171,"Lv 4"],[4,"Shroud Mastery",172,"Lv 5"],[3,"The Bone Path",172],[4,"Tremens",172,"Lv 1"],[4,"Apprentice’s Brooms",172,"Lv 2"],[4,"Zombie Statistics",172],[4,"Shambling Hordes",173,"Lv 3"],[4,"Soul Stealing",173,"Lv 4"],[4,"Daemonic Possession",173,"Lv 5"],[3,"The Cenotaph Path",174],[4,"A Touch of Death",174,"Lv 1"],[4,"Reveal the Catene",174,"Lv 2"],[4,"Tread Upon the Grave",175,"Lv 3"],[4,"Death Knell",175,"Lv 4"],[4,"Ephemeral Binding",176,"Lv 5"],[3,"The Corpse in the Monster",176],[4,"Whither Mortis?",176],[4,"Masque of Death",176,"Lv 1"],[4,"Cold of the Grave",177,"Lv 2"],[4,"Curse of Life",177,"Lv 3"],[4,"Gift of the Corpse",177,"Lv 4"],[4,"Gift of Life",178,"Lv 5"],[3,"The Grave’s Decay",179],[4,"Destroy the Husk",179,"Lv 1"],[4,"Rigor Mortis",179,"Lv 2"],[4,"Wither",179,"Lv 3"],[4,"Corrupt the Undead Flesh",180,"Lv 4"],[4,"Dissolve the Flesh",180,"Lv 5"],[3,"Path of the Four Humors",181],[4,"Whispers to the Soul",181,"Lv 1"],[4,"Kiss of the Dark Mother",181,"Lv 2"],[4,"Dark Humors",181,"Lv 3"],[4,"Clutching the Shroud",181,"Lv 4"],[4,"Black Breath",182,"Lv 5"],[3,"Vitreous Path",182],[4,"Eyes of the Dead",182,"Lv 1"],[4,"Aura of Decay",183,"Lv 2"],[4,"Soul Feast",183,"Lv 3"],[4,"Breath of Thanatos",184,"Lv 4"],[4,"Night Cry",184,"Lv 5"],[3,"Necromantic Rituals",185],[4,"Level One Rituals",185],[5,"Call of the Hungry Dead",185],[5,"Eldritch Beacon",185],[5,"Insight",185],[5,"Knowing Stone",185],[5,"Minestra di Morte",185],[5,"Ritual of the Smoking Mirror",186],[4,"Level Two Rituals",187],[5,"Eyes of the Grave",187],[5,"The Hand of Glory",187],[5,"Occhio d’Uomo Morto",187],[5,"Puppet",187],[5,"The Ritual of Pochtli",188],[5,"Two Centimes",188],[4,"Level Three Rituals",188],[5,"Blood Dance",188],[5,"Divine Sign",188],[5,"Din of the Damned",188],[5,"Nightmare Drums",188],[5,"Ritual of The Unearthed Fetter",189],[5,"Tempesta Scudo",189],[4,"Level Four Rituals",189],[5,"Baleful Doll",189],[5,"Bastone Diabolico",189],[5,"Cadaver’s Touch",190],[5,"Peek Past the Shroud",190],[5,"Ritual of Xipe Totec",190],[4,"Level Five Rituals",191],[5,"Chill of Oblivion",191],[5,"Dead Man’s Hand",191],[5,"Esilio",191],[5,"Grasp the Ghostly",192],[2,"Obfuscate",192],[3,"Cloak of Shadows",192,"Lv 1"],[3,"Unseen Presence",193,"Lv 2"],[3,"Mask of a Thousand Faces",193,"Lv 3"],[3,"Vanish from the Mind’s Eye",194,"Lv 4"],[3,"Cloak the Gathering",194,"Lv 5"],[3,"Conceal",194,"Lv 6"],[3,"Mind Blank",194,"Lv 6"],[3,"Soul Mask",195,"Lv 6"],[3,"Cache",195,"Lv 7"],[3,"Veil of Blissful Ignorance",195,"Lv 7"],[3,"Old Friend",195,"Lv 8"],[3,"Create Name",196,"Lv 9"],[2,"Obtenebration",196],[3,"Shadow Play",196,"Lv 1"],[3,"Shroud of Night",197,"Lv 2"],[3,"Arms of the Abyss",197,"Lv 3"],[3,"Black Metamorphosis",197,"Lv 4"],[3,"Tenebrous Form",198,"Lv 5"],[3,"The Darkness Within",199,"Lv 6"],[3,"Shadowstep",199,"Lv 6"],[3,"Shadow Twin",199,"Lv 7"],[3,"Oubliette",200,"Lv 8"],[3,"Ahriman’s Demesne",200,"Lv 9"],[2,"Potence",200],[3,"Potence 6",200],[4,"Imprint",200,"Lv 6"],[4,"Earthshock",201,"Lv 7"],[4,"Flick",201,"Lv 8"],[2,"Presence",201],[3,"Awe",201,"Lv 1"],[3,"Dread Gaze",202,"Lv 2"],[3,"Entrancement",203,"Lv 3"],[3,"Summon",203,"Lv 4"],[3,"Majesty",204,"Lv 5"],[3,"Love",204,"Lv 6"],[3,"Paralyzing Glance",204,"Lv 6"],[3,"Spark of Rage",205,"Lv 6"],[3,"Cooperation",206,"Lv 7"],[3,"Ironclad Command",206,"Lv 8"],[3,"Pulse of the City",206,"Lv 9"],[2,"Protean",207],[3,"Eyes of the Beast",207,"Lv 1"],[3,"Feral Claws",207,"Lv 2"],[3,"Earth Meld",207,"Lv 3"],[3,"Shape of the Beast",208,"Lv 4"],[3,"Mist Form",208,"Lv 5"],[3,"Earth Control",208,"Lv 6"],[3,"Flesh of Marble",209,"Lv 6"],[3,"Restore the Mortal Visage",209,"Lv 7"],[3,"Shape of the Beast’s Wrath",210,"Lv 7"],[3,"Spectral Body",210,"Lv 7"],[3,"Purify the Impaled Beast",211,"Lv 8"],[3,"Inward Focus",211,"Lv 9"],[2,"Quietus",211],[3,"Silence of Death",211,"Lv 1"],[3,"Scorpion’s Touch",211,"Lv 2"],[3,"Dagon’s Call",212,"Lv 3"],[3,"Baal’s Caress",212,"Lv 4"],[3,"Taste of Death",213,"Lv 5"],[3,"Blood Sweat",213,"Lv 6"],[3,"Selective Silence",214,"Lv 6"],[3,"Ripples of the Heart",214,"Lv 6"],[3,"Purification",215,"Lv 6"],[3,"Baal’s Bloody Talons",215,"Lv 7"],[3,"Poison the Well of Life",215,"Lv 7"],[3,"Songs of Distant Vitae",216,"Lv 8"],[3,"Condemn the Sins of the Father",217,"Lv 9"],[2,"Serpentis",217],[3,"The Eyes of the Serpent",217,"Lv 1"],[3,"The Tongue of the Asp",217,"Lv 2"],[3,"The Skin of the Adder",218,"Lv 3"],[3,"The Form of the Cobra",218,"Lv 4"],[3,"The Heart of Darkness",218,"Lv 5"],[3,"Cobra Fangs",219,"Lv 6"],[3,"Divine Image",219,"Lv 7"],[3,"Heart Thief",219,"Lv 8"],[3,"Shadow of Apep",220,"Lv 9"],[2,"Thaumaturgy",220],[3,"Thaumaturgical Paths",220],[3,"The Path of Blood",221],[4,"A Taste for Blood",221,"Lv 1"],[4,"Blood Rage",221,"Lv 2"],[4,"Blood of Potency",221,"Lv 3"],[4,"Theft of Vitae",222,"Lv 4"],[4,"Cauldron of Blood",222,"Lv 5"],[3,"Elemental Mastery",222],[4,"Elemental Strength",222,"Lv 1"],[4,"Wooden Tongues",222,"Lv 2"],[4,"Animate the Unmoving",222,"Lv 3"],[4,"Elemental Form",222,"Lv 4"],[4,"Summon Elemental",223,"Lv 5"],[3,"The Green Path",223],[4,"Herbal Wisdom",223,"Lv 1"],[4,"Speed the Season’s Passing",224,"Lv 2"],[4,"Dance of Vines",224,"Lv 3"],[4,"Verdant Haven",224,"Lv 4"],[4,"Awaken the Forest Giants",225,"Lv 5"],[3,"Hands of Destruction",225],[4,"Decay",225,"Lv 1"],[4,"Gnarl Wood",225,"Lv 2"],[4,"Acidic Touch",225,"Lv 3"],[4,"Atrophy",225,"Lv 4"],[4,"Turn to Dust",226,"Lv 5"],[3,"The Lure of Flames",226],[3,"Neptune’s Might",226],[4,"Eyes of the Sea",227,"Lv 1"],[4,"Prison of Water",227,"Lv 2"],[4,"Blood to Water",227,"Lv 3"],[4,"Flowing Wall",227,"Lv 4"],[4,"Dehydrate",227,"Lv 5"],[3,"Movement of the Mind",228],[3,"The Path of Conjuring",228],[4,"Summon the Simple Form",229,"Lv 1"],[4,"Permanency",229,"Lv 2"],[4,"Magic of the Smith",229,"Lv 3"],[4,"Reverse Conjuration",229,"Lv 4"],[4,"Power Over Life",229,"Lv 5"],[3,"The Path of Corruption",229],[4,"Contradict",229,"Lv 1"],[4,"Subvert",230,"Lv 2"],[4,"Dissociate",231,"Lv 3"],[4,"Addiction",231,"Lv 4"],[4,"Dependence",231,"Lv 5"],[3,"The Path of Mars",232],[4,"War Cry",232,"Lv 1"],[4,"Strike True",232,"Lv 2"],[4,"Wind Dance",232,"Lv 3"],[4,"Fearless Heart",232,"Lv 4"],[4,"Comrades at Arms",232,"Lv 5"],[3,"The Path of Technomancy",232],[4,"Analyze",233,"Lv 1"],[4,"Burnout",233,"Lv 2"],[4,"Encrypt/Decrypt",233,"Lv 3"],[4,"Remote Access",234,"Lv 4"],[4,"Telecommute",234,"Lv 5"],[3,"The Path of the Father’s Vengeance",234],[4,"Zillah’s Litany",234,"Lv 1"],[4,"The Crone’s Pride",235,"Lv 2"],[4,"Feast of Ashes",235,"Lv 3"],[4,"Uriel’s Disfavor",235,"Lv 4"],[4,"Valediction",236,"Lv 5"],[3,"Thaumaturgical Countermagic",236],[3,"Weather Control",236],[3,"Rituals",238],[4,"Level One Rituals",238],[5,"Bind the Accusing Tongue",238],[5,"Blood Rush",238],[5,"Communicate with Kindred Sire",238],[5,"Defense of the Sacred Haven",238],[5,"Deflection of Wooden Doom",239],[5,"Devil’s Touch",239],[5,"Domino of Life",239],[5,"Engaging the Vessel of Transference",239],[5,"Illuminate the Trail of Prey",239],[5,"Incantation of the Shepherd",240],[5,"Purity of Flesh",240],[5,"Wake with Evening’s Freshness",240],[5,"Widow’s Spite",240],[4,"Level Two Rituals",240],[5,"Blood Walk",240],[5,"Burning Blade",240],[5,"Donning the Mask of Shadows",241],[5,"Eyes of the Night Hawk",241],[5,"Machine Blitz",241],[5,"Principal Focus of Vitae Infusion",242],[5,"Recure of the Homeland",242],[5,"Ward Versus Ghouls",242],[5,"Warding Circle versus Ghouls",242],[5,"Other Warding Circle Rituals",242],[4,"Level Three Rituals",243],[5,"Clinging of the Insect",243],[5,"Flesh of Fiery Touch",243],[5,"Incorporeal Passage",244],[5,"Mirror of Second Sight",244],[5,"Pavis of Foul Presence",244],[5,"Sanguine Assistant",244],[5,"Shaft of Belated Quiescence",245],[5,"Ward versus Lupines",245],[4,"Level Four Rituals",245],[5,"Bone of Lies",245],[5,"Firewalker",246],[5,"Heart of Stone",246],[5,"Splinter Servant",246],[5,"Ward versus Kindred",247],[4,"Level Five Rituals",247],[5,"Blood Contract",247],[5,"Enchant Talisman",247],[5,"Escape to a True Friend",247],[5,"Paper Flesh",248],[5,"Ward versus Spirits",248],[2,"Vicissitude",249],[3,"Body Crafts",249],[3,"Malleable Visage",249,"Lv 1"],[3,"Fleshcraft",249,"Lv 2"],[3,"Bonecraft",249,"Lv 3"],[3,"Horrid Form",250,"Lv 4"],[3,"Bloodform",250,"Lv 5"],[3,"Chiropteran Marauder",250,"Lv 6"],[3,"Blood of Acid",251,"Lv 6"],[3,"Cocoon",251,"Lv 7"],[3,"Breath of the Dragon",251,"Lv 8"],[3,"Earth’s Vast Haven",251,"Lv 9"],[2,"Elder Discipline Powers (6 )",135],[2,"Advancing Disciplines",136],[1,"Chapter Five: Rules",253],[2,"The Golden Rule",253],[2,"Rolling Dice",254],[2,"Actions",254],[3,"Reflexive Actions",255],[2,"Ratings",255],[3,"Dice Pools",255],[3,"Multiple Actions",256],[2,"Difficulties",257],[3,"Degrees of Success",257],[3,"Failure",257],[3,"Botches",258],[2,"Automatic Success",258],[3,"Trying It Again",259],[2,"Complications",259],[3,"Extended Actions",259],[3,"Resisted Actions",260],[3,"Teamwork",261],[3,"Using the Storyteller Dice Pool System",261],[2,"Time",262],[2,"Examples of Rolls",262],[1,"Chapter Six: Systems and Drama",265],[2,"Dramatic Systems",265],[3,"Automatic Feats",266],[3,"Physical Feats",266],[3,"Mental Feats",270],[3,"Social Feats",273],[2,"Spending Willpower",274],[3,"Regaining Willpower",275],[2,"Using Blood Pool",276],[3,"Spending Blood Pool",276],[3,"Earning Blood Pool",277],[2,"Combat Systems",279],[3,"Types of Combat",279],[3,"Combat Turns",279],[4,"Stage One: Initiative",279],[4,"Describing the Scene",279],[4,"Stage Two: Attack",280],[4,"Stage Three: Resolution",280],[4,"Damage Types",280],[4,"Soak",280],[4,"Combat Summary Chart",281],[4,"Armor",282],[2,"Combat Maneuvers",282],[3,"General Maneuvers",282],[3,"Defensive Maneuvers",282],[3,"Maneuver Characteristics",283],[3,"Close Combat Maneuvers",283],[3,"Ranged Combat Maneuvers",285],[3,"Maneuver Complications",287],[3,"Close Combat Maneuvers Table",287],[3,"Ranged Combat Maneuvers Table",287],[3,"Armor Chart",288],[3,"Melee Weapons Chart",288],[3,"Ranged Weapons Chart",289],[2,"Health",290],[3,"The Health Chart",290],[3,"Health Levels",290],[3,"Optional Rule: Extras",292],[3,"Applying Damage",292],[3,"Bashing Damage",293],[3,"Lethal Damage",293],[3,"Aggravated Damage",293],[3,"Mortals’ Healing Times",293],[4,"Healing Bashing Damage",293],[4,"Healing Lethal Damage",294],[2,"States of Being",294],[3,"Blood Bond",294],[4,"The Vaulderie",296],[4,"Vinculum Ratings",297],[3,"Derangements",298],[4,"Bipolar Disorder",298],[4,"Bulimia",298],[4,"Fugue",299],[4,"Hysteria",299],[4,"Megalomania",299],[4,"Multiple Personalities",300],[4,"Obsessive-Compulsive",300],[4,"Paranoia",300],[4,"Sanguinary Animism",300],[4,"Schizophrenia",301],[3,"Deterioration",301],[3,"Diablerie",301],[4,"Committing Diablerie",301],[4,"The Rewards of Diablerie",302],[4,"The Perils of Diablerie",302],[3,"Disease",303],[3,"Electrocution",303],[3,"Faith",304],[3,"Falling",304],[3,"Fire and Burns",305],[3,"Frenzy and Rötschreck",305],[4,"The Nature of the Beast",305],[4,"Systems",306],[4,"Roleplaying Frenzy",306],[4,"Rötschreck: The Red Fear",307],[3,"Golconda and Other Means of Salvation",307],[4,"Becoming Mortal",309],[3,"Poisons and Drugs",309],[3,"Sunlight",310],[3,"Temperature Extremes",310],[2,"Example of Play",311],[1,"Chapter Seven: Morality",317],[2,"Degeneration",317],[3,"On the Brink",318],[4,"Using Hierarchies of Sin",318],[4,"Bearing",318],[2,"Humanity",319],[3,"Effects of Humanity",319],[3,"The Downward Spiral",319],[4,"Humanity 10-8",320],[4,"Hierarchy of Sin — Humanity",320],[4,"Humanity 7",320],[4,"Humanity 6-5",320],[4,"Humanity 4",320],[4,"Humanity 3-2",320],[4,"Humanity 1",321],[4,"Humanity 0",321],[2,"Alternate Virtues and Paths of Enlightenment",321],[3,"Systems",321],[4,"Conviction",322],[4,"Instinct",322],[3,"Creating a Path Follower",323],[3,"Switching from Humanity to a Path",323],[2,"The Path of Blood",324],[3,"The Ethics of the Path",324],[3,"History",324],[3,"Current Practices",325],[3,"Path of Blood Hierarchy of Sins",325],[4,"Description of Followers",325],[3,"Following the Path",326],[4,"Path of Blood, Post-Curse",326],[2,"The Path of the Bones",326],[3,"The Ethics of the Path",327],[3,"History",327],[3,"Current Practices",327],[3,"Path of the Bones Hierarchy of Sins",327],[4,"Description of Followers",327],[3,"Following the Path",327],[4,"Path of Death and the Soul",328],[2,"The Path of Caine",328],[3,"The Ethics of the Path",329],[3,"History",329],[3,"Current Practices",329],[3,"Description of Followers",329],[3,"Following the Path",330],[3,"Path of Caine Hierarchy of Sins",330],[2,"The Path of Cathari",331],[3,"The Ethics of the Path",331],[3,"History",331],[3,"Current Practices",331],[3,"Description of Followers",331],[3,"Path of Cathari Hierarchy of Sins",332],[3,"Following the Path",332],[2,"The Path of the Feral Heart",332],[3,"The Ethics of the Path",333],[3,"History",333],[3,"Current Practices",333],[3,"Description of Followers",333],[3,"Following the Path",333],[3,"Path of the Feral Heart Hierarchy of Sins",334],[2,"The Path of Honorable Accord",334],[3,"The Path of Harmony",334],[3,"The Ethics of the Path",335],[3,"History",335],[3,"Current Practices",336],[3,"Path of Honorable Accord Hierarchy of Sins",336],[4,"Description of Followers",336],[3,"Following the Path",336],[2,"The Path of Lilith",337],[3,"The Ethics of the Path",337],[3,"History",337],[3,"Current Practices",338],[3,"Path of Lilith Hierarchy of Sins",338],[4,"Description of Followers",338],[3,"Following the Path",339],[2,"The Path of Metamorphosis",339],[3,"The Ethics of the Path",339],[3,"History",339],[3,"Current Practices",339],[3,"Path of Metamorphosis Hierarchy of Sins",340],[4,"Description of Followers",340],[3,"Following the Path",340],[2,"The Path of Night",340],[3,"The Ethics of the Path",341],[3,"History",341],[3,"Current Practices",342],[3,"Description of Followers",342],[3,"Path of Night Hierarchy of Sins",342],[3,"Following the Path",342],[2,"The Path of Paradox",343],[3,"The Ethics of the Path",343],[3,"History",343],[3,"Current Practices",343],[3,"Description of Followers",343],[3,"Following the Path",343],[3,"Path of Paradox Hierarchy of Sins",344],[2,"The Path of Power and the Inner Voice",344],[3,"The Ethics of the Path",345],[3,"History",345],[3,"Current Practices",345],[3,"Description of Followers",345],[3,"Following the Path",345],[3,"Path of Power and the Inner Voice Hierarchy of Sins",346],[2,"The Path of Typhon",346],[3,"The Ethics of the Path",347],[3,"History",347],[3,"Current Practices",347],[3,"Description of Followers",347],[3,"Following the Path",348],[3,"Path of Typhon Hierarchy of Sins",348],[0,"Book Three: The Permutations",351],[1,"Chapter Eight: Storytelling",353],[2,"The First, Fleeting Glimpse",354],[2,"A Dark and Deadly World",355],[2,"Written in Blood",356],[2,"Courts of Crimson and Alabaster",359],[2,"The Prelude",360],[3,"Questions and Answers",361],[4,"How old are you?",362],[4,"What was unique about your childhood?",362],[4,"What kind of person were you?",362],[4,"What was your first brush with the supernatural?",362],[4,"How did the Embrace change you?",362],[4,"Who was your sire, and how did he treat you?",362],[4,"How did you meet the others in your coterie or pack?",362],[4,"Where is your haven?",362],[4,"Do you retain any connections to your mortal life?",362],[4,"What are your habitual feeding grounds?",362],[4,"What motivates you?",362],[2,"Into the Fire",363],[2,"Creating Stories",364],[3,"Plot",364],[3,"Conflict",364],[3,"Setting and Mood",366],[3,"Scenes",366],[2,"Dancing with the Dead",367],[3,"Ten Pieces of Storytelling Advice",368],[2,"Storytelling Tips and Techniques",369],[3,"Downtimes",369],[3,"Cut Scenes",370],[3,"Flashbacks",371],[3,"Dream Sequences",371],[3,"Parallel Stories",372],[3,"Boot Camp",372],[3,"Hunting Scenes",373],[4,"Quick-And-Dirty Scenes: The One-Roll Method",373],[4,"Detailed Scenes: The Three-Stage Hunt",373],[4,"Poignant Scenes: Flashes of Life",374],[4,"Narrative Scenes: Something Always Goes Wrong",374],[4,"The Impact of Hunger",374],[1,"Chapter Nine: The Others",377],[2,"Witch-Hunters",377],[3,"The Society of Leopold",378],[4,"Inquisitor",379],[4,"True Faith",380],[3,"The U.S. Government",381],[4,"Government Agent",383],[3,"The Arcanum",383],[4,"Arcanum Scholar",384],[3,"Criminals",385],[4,"Criminal Enforcer/Boss",385],[2,"Werewolves",386],[3,"Powers and Weaknesses",386],[4,"Adolescent Werewolf",387],[4,"Veteran Lupine",387],[4,"Elder Shapeshifter",387],[4,"Dangerous Draughts",388],[2,"Magi",388],[3,"Wizards, Witches, and Miracle-workers",388],[3,"Shamans and Yogi",389],[3,"Techno-Freaks",389],[3,"Powers and Weaknesses",389],[4,"Young Cultist",390],[4,"High Wizard",390],[4,"Technological Abomination",390],[2,"Faeries",391],[3,"Powers and Weaknesses",391],[4,"Pooka Trickster",391],[4,"Redcap Warrior",392],[4,"Sidhe Enchantress",392],[2,"Ghosts",392],[3,"Powers and Weaknesses",393],[4,"Recently Deceased",393],[4,"Spectre",393],[4,"Old Soul",394],[2,"Demons",394],[3,"Powers and Weaknesses",395],[4,"Fallen Tempter",395],[4,"Earthbound Defiler in Darkness",395],[2,"Bestiary",396],[3,"Alligator",396],[3,"Bat",396],[3,"Bear",396],[3,"Birds",396],[4,"Small Bird (Finch, Parrot, etc.)",396],[4,"Large Bird (Hawk, Raven, etc.)",396],[3,"Camel",397],[3,"Cats",397],[4,"Bobcat",397],[4,"House Cat",397],[4,"Leopard (Jaguar, Panther, etc.)",397],[4,"Tiger (Lion, etc.)",397],[3,"Chimpanzee",397],[3,"Dogs",397],[4,"Small Dog (Chihuahua, Pug, etc.)",397],[4,"Medium Dog (Beagle, Border Collie, etc.)",397],[4,"Large Dog (German Shepherd, Great Dane, etc.)",398],[3,"Horses",398],[4,"Small Horse (Pony, foal, etc.)",398],[4,"Large Horse (Stallion, Clydesdale, etc.)",398],[3,"Pigs",398],[4,"Small Pig (Domestic Pigs)",398],[4,"Large Pig (Boar)",398],[3,"Rat",398],[3,"Snakes",398],[4,"Constrictor Snake",398],[4,"Poisonous Snake",398],[3,"Spider",399],[3,"Wolf",399],[3,"Packs and Swarms",399],[1,"Chapter Ten: Bloodlines",401],[2,"Bloodlines",402],[3,"Baali",402],[3,"Blood Brothers",404],[3,"Daughters of Cacophony",406],[3,"Gargoyles",408],[3,"Harbingers of Skulls",410],[3,"Kiasyd",412],[3,"Nagaraja",414],[3,"Salubri",416],[3,"Samedi",418],[3,"True Brujah",420],[3,"Ahrimanes",422],[3,"Anda",424],[3,"Cappadocians",426],[3,"Children of Osiris",428],[3,"Lamia",430],[3,"Lhiannan",432],[3,"Noiad",434],[3,"Variations of the Blood",436],[4,"Canonical Changes",436],[4,"Assamite Antitribu",436],[4,"Brujah Antitribu",437],[4,"City Gangrel",437],[4,"Country Gangrel",438],[4,"Malkavian Antitribu",438],[4,"Nosferatu Antitribu",438],[4,"Panders",439],[4,"Ravnos Antitribu",439],[4,"Salubri Antitribu",439],[4,"Serpents of the Light",440],[4,"Toreador Antitribu",440],[4,"Tremere Antitribu",440],[3,"Sabbat Antitribu",436],[4,"Ventrue Antitribu",441],[3,"Other Bloodlines",441],[4,"Assamites",441],[5,"Assamite Sorcerers",441],[5,"Assamite Viziers",442],[4,"Followers of Set",442],[5,"Daitya",442],[5,"Tlacique",443],[5,"Warrior Setites",443],[4,"Gangrel",443],[5,"Mariners",443],[4,"Lasombra",444],[5,"Angellis Ater",444],[5,"Lasombra Antitribu",444],[4,"Malkavians",444],[5,"Dominate Malkavians",444],[4,"Ravnos",445],[5,"Brahman",445],[4,"Salubri",446],[5,"Wu Zao",446],[4,"Tremere",446],[5,"Telyavelic Tremere",446],[4,"Tzimisce",447],[5,"Kolduns",447],[5,"Old Clan Tzimisce",447],[2,"Disciplines",448],[3,"Assamite Sorcery",448],[4,"Awakening of the Steel",448],[5,"Equivalent Assamite Paths and Rituals",448],[5,"Confer with the Blade",449,"Lv 1"],[5,"Grasp of the Mountain",449,"Lv 2"],[5,"Pierce Steel’s Skin",449,"Lv 3"],[5,"Razor’s Shield",450,"Lv 4"],[5,"Strike at the True Flesh",450,"Lv 5"],[3,"Bardo",450],[4,"Restore Humanitas",451,"Lv 1"],[4,"Banishing Sign of Thoth",451,"Lv 2"],[4,"Gift of Apis",451,"Lv 3"],[4,"Pillar of Osiris",451,"Lv 4"],[4,"Paradox",452,"Lv 5"],[4,"Boon of Anubis",452,"Lv 6"],[4,"Bring Forth the Dawn",452,"Lv 7"],[4,"Mummification",452,"Lv 8"],[4,"Ra’s Blessing",452,"Lv 9"],[3,"Daimoinon",453],[4,"Sense the Sin",453,"Lv 1"],[4,"Fear of the Void Below",453,"Lv 2"],[4,"Conflagration",453,"Lv 3"],[4,"Psychomachia",453,"Lv 4"],[4,"Condemnation",454,"Lv 5"],[4,"Concordance",454,"Lv 6"],[4,"Summon the Herald of Topheth",454,"Lv 7"],[4,"Contagion",455,"Lv 8"],[4,"Call the Great Beast",455,"Lv 9"],[3,"Flight",455],[3,"Koldunic Sorcery",456],[4,"The Way of Earth",456],[5,"Grasping Soil",456,"Lv 1"],[5,"Endurance of Stone",456,"Lv 2"],[5,"Hungry Earth",456,"Lv 3"],[5,"Root of Vitality",457,"Lv 4"],[5,"Kupala’s Fury",457,"Lv 5"],[4,"The Way of Wind",457],[5,"Breath of Whispers",457,"Lv 1"],[5,"Biting Gale",457,"Lv 2"],[5,"Breeze of Lethargy",458,"Lv 3"],[5,"Ride the Tempest",458,"Lv 4"],[5,"Tempest",458,"Lv 5"],[4,"The Way of Water",458],[5,"Pool of Lies",458,"Lv 1"],[5,"Watery Haven",459,"Lv 2"],[5,"Fog Over Sea",459,"Lv 3"],[5,"Minions of the Deep",459,"Lv 4"],[5,"Doom Tide",460,"Lv 5"],[4,"The Way of Fire",460],[5,"Fiery Courage",460,"Lv 1"],[5,"Combust",460,"Lv 2"],[5,"Wall of Magma",460,"Lv 3"],[5,"Heat Wave",460,"Lv 4"],[5,"Volcanic Blast",461,"Lv 5"],[3,"Melpominee",461],[4,"The Missing Voice",461,"Lv 1"],[4,"Phantom Speaker",461,"Lv 2"],[4,"Madrigal",461,"Lv 3"],[4,"Siren’s Beckoning",462,"Lv 4"],[4,"Virtuosa",462,"Lv 5"],[4,"Shattering Crescendo",462,"Lv 6"],[4,"Persistent Echo",462,"Lv 7"],[3,"Mytherceria",463],[4,"Folderol",463,"Lv 1"],[4,"Fae Sight",463,"Lv 2"],[4,"Aura Absorption",463,"Lv 3"],[4,"Chanjelin Ward",463,"Lv 4"],[4,"The Riddle Phantastique",464,"Lv 5"],[4,"Steal the Mind",464,"Lv 6"],[4,"Absorb the Mind",464,"Lv 7"],[4,"The Grandest Trick",465,"Lv 8"],[3,"Obeah",465],[4,"Sense Vitality",465,"Lv 1"],[4,"Anesthetic Touch",466,"Lv 2"],[4,"Corpore Sano",467,"Lv 3"],[4,"Shepherd’s Watch",467,"Lv 4"],[4,"Mens Sana",467,"Lv 5"],[4,"Unburdening the Bestial Soul",467,"Lv 6"],[4,"Renewed Vigor",468,"Lv 7"],[4,"Safe Passage",468,"Lv 8"],[4,"Unburden the Flesh-Clad Soul",469,"Lv 9"],[3,"Ogham",469],[4,"Consecrate the Grove",469,"Lv 1"],[4,"Crimson Woad",470,"Lv 2"],[4,"Inscribe the Curse",470,"Lv 3"],[4,"Moon and Sun",470,"Lv 4"],[4,"Drink Dry the Earth",471,"Lv 5"],[4,"Inscribe the Forgotten Names",471,"Lv 6"],[3,"Sanguinus",471],[4,"Brother’s Blood",472,"Lv 1"],[4,"Octopod",472,"Lv 2"],[4,"Gestalt",472,"Lv 3"],[4,"Walk of Caine",473,"Lv 4"],[4,"Coagulated Entity",473,"Lv 5"],[3,"Spiritus",473],[4,"Aid from Spirits",474,"Lv 1"],[4,"Summon Spirit Beasts",474,"Lv 2"],[4,"Aspect of the Beast",474,"Lv 3"],[4,"Engling Fury",475,"Lv 4"],[4,"The Wild Beast",475,"Lv 5"],[3,"Temporis",475],[4,"Hourglass of the Mind",475,"Lv 1"],[4,"Recurring Contemplation",475,"Lv 2"],[4,"Leaden Moment",476,"Lv 3"],[4,"Patience of the Norns",476,"Lv 4"],[4,"Clotho’s Gift",477,"Lv 5"],[4,"Kiss of Lachesis",477,"Lv 6"],[4,"Cheat the Fates",477,"Lv 7"],[4,"Clio’s Kiss",478,"Lv 8"],[4,"Tangle Atropos’ Hand",479,"Lv 9"],[3,"Thanatosis",479],[4,"Hag’s Wrinkles",479,"Lv 1"],[4,"Putrefaction",479,"Lv 2"],[4,"Ashes to Ashes",479,"Lv 3"],[4,"Withering",480,"Lv 4"],[4,"Necrosis",481,"Lv 5"],[4,"Creeping Infection",481,"Lv 6"],[4,"Dust to Dust",481,"Lv 7"],[4,"Putrescent Servitude",481,"Lv 8"],[3,"Valeren",482],[4,"Sense Vitality",482,"Lv 1"],[4,"Anesthetic Touch",482,"Lv 2"],[4,"Burning Touch",482,"Lv 3"],[4,"Armor of Caine’s Fury",482,"Lv 4"],[4,"Vengeance of Samiel",482,"Lv 5"],[4,"Blissful Agony",483,"Lv 6"],[3,"Visceratika",483],[4,"Skin of the Chameleon",483,"Lv 1"],[4,"Scry the Hearthstone",483,"Lv 2"],[4,"Bond with the Mountain",484,"Lv 3"],[4,"Armor of Terra",484,"Lv 4"],[4,"Flow Within the Mountain",484,"Lv 5"],[2,"Playing Bloodlines",401],[2,"History and Vampires",401],[1,"Appendix",487],[2,"Merits and Flaws",487],[3,"Merits",487],[4,"Acute Sense",487,"1 pt"],[4,"Ambidextrous",488,"1 pt"],[4,"Bruiser",488,"1 pt"],[4,"Catlike Balance",488,"1 pt"],[4,"Early Riser",488,"1 pt"],[4,"Eat Food",488,"1 pt"],[4,"Friendly Face",488,"1 pt"],[4,"Blush of Health",488,"2 pt"],[4,"Enchanting Voice",488,"2 pt"],[4,"Daredevil",488,"3 pt"],[4,"Efficient Digestion",488,"3 pt"],[4,"Huge Size",488,"4 pt"],[4,"Coldly Logical",492,"1 pt"],[4,"Common Sense",492,"1 pt"],[4,"Concentration",492,"1 pt"],[4,"Introspection",492,"1 pt"],[4,"Language",492,"1 pt"],[4,"Time Sense",492,"1 pt"],[4,"Useful Knowledge",492,"1 pt"],[4,"Code of Honor",492,"2 pt"],[4,"Computer Aptitude",492,"2 pt"],[4,"Eidetic Memory",492,"2 pt"],[4,"Light Sleeper",493,"2 pt"],[4,"Natural Linguist",493,"2 pt"],[4,"Calm Heart",493,"3 pt"],[4,"Iron Will",493,"3 pt"],[4,"Precocious",493,"3 pt"],[4,"Elysium Regular",495,"1 pt"],[4,"Former Ghoul",495,"1 pt"],[4,"Harmless",495,"1 pt"],[4,"Natural Leader",495,"1 pt"],[4,"Prestigious Sire",496,"1 pt"],[4,"Protégé",496,"1 pt"],[4,"Rep",496,"1 pt"],[4,"Sabbat Survivor",496,"1 pt"],[4,"Boon",496,"1-6 pt"],[4,"Bullyboy",496,"2 pt"],[4,"Old Pal",496,"2 pt"],[4,"Lawman’s Friend",496,"2 pt"],[4,"Open Road",496,"2 pt"],[4,"Sanctity",496,"2 pt"],[4,"Scholar of Enemies",497,"2 pt"],[4,"Scholar of Others",497,"2 pt"],[4,"Friend of the Underground",497,"3 pt"],[4,"Mole",497,"3 pt"],[4,"Rising Star",497,"3 pt"],[4,"Broken Bond",497,"4 pt"],[4,"Clan Friendship",497,"4 pt"],[4,"Primogen/Bishop Friendship",497,"4 pt"],[4,"Deceptive Aura",501,"1 pt"],[4,"Healing Touch",501,"1 pt"],[4,"Inoffensive to Animals",501,"1 pt"],[4,"Medium",501,"2 pt"],[4,"Magic Resistance",501,"2 pt"],[4,"Hidden Diablerie",501,"3 pt"],[4,"Lucky",501,"3 pt"],[4,"Oracular Ability",501,"3 pt"],[4,"Spirit Mentor",501,"3 pt"],[4,"True Love",501,"4 pt"],[4,"Additional Discipline",502,"5 pt"],[4,"Unbondable",502,"5 pt"],[4,"Nine Lives",502,"6 pt"],[4,"True Faith",502,"7 pt"],[3,"Flaws",488],[4,"Hard of Hearing",488,"1 pt"],[4,"Short",489,"1 pt"],[4,"Smell of the Grave",489,"1 pt"],[4,"Tic/Twitch",489,"1 pt"],[4,"Fourteenth Generation",489,"2 pt"],[4,"Fifteenth Generation",489,"4 pt"],[4,"Disfigured",489,"2 pt"],[4,"Dulled Bite",489,"2 pt"],[4,"Infectious Bite",489,"2 pt"],[4,"One Eye",489,"2 pt"],[4,"Vulnerability to Silver",490,"2 pt"],[4,"Addiction",490,"3 pt"],[4,"Child",490,"3 pt"],[4,"Deformity",490,"3 pt"],[4,"Glowing Eyes",490,"3 pt"],[4,"Lame",490,"3 pt"],[4,"Lazy",490,"3 pt"],[4,"Monstrous",490,"3 pt"],[4,"Permanent Fangs",490,"3 pt"],[4,"Permanent Wound",490,"3 pt"],[4,"Slow Healing",491,"3 pt"],[4,"Disease Carrier",491,"4 pt"],[4,"Deaf",491,"4 pt"],[4,"Mute",491,"4 pt"],[4,"Thin Blood",491,"4 pt"],[4,"Flesh of the Corpse",491,"5 pt"],[4,"Infertile Vitae",492,"5 pt"],[4,"Blind",492,"6 pt"],[4,"Deep Sleeper",493,"1 pt"],[4,"Impatient",493,"1 pt"],[4,"Nightmares",493,"1 pt"],[4,"Prey Exclusion",493,"1 pt"],[4,"Shy",493,"1 pt"],[4,"Soft-Hearted",493,"1 pt"],[4,"Speech Impediment",493,"1 pt"],[4,"Unconvinced",493,"1 pt"],[4,"Amnesia",494,"2 pt"],[4,"Lunacy",494,"2 pt"],[4,"Phobia",494,"2 pt"],[4,"Short Fuse",494,"2 pt"],[4,"Stereotype",494,"2 pt"],[4,"Territorial",494,"2 pt"],[4,"Thirst for Innocence",494,"2 pt"],[4,"Vengeful",494,"2 pt"],[4,"Victim of the Masquerade",494,"2 pt"],[4,"Weak-Willed",494,"3 pt"],[4,"Conspicuous Consumption",494,"4 pt"],[4,"Guilt-Wracked",494,"4 pt"],[4,"Flashbacks",495,"6 pt"],[4,"Botched Presentation",497,"1 pt"],[4,"Dark Secret",497,"1 pt"],[4,"Expendable",497,"1 pt"],[4,"Incomplete Understanding",498,"1 pt"],[4,"Infamous Sire",498,"1 pt"],[4,"Mistaken Identity",498,"1 pt"],[4,"New Arrival",498,"1 pt"],[4,"New Kid",498,"1 pt"],[4,"Recruitment Target",498,"1 pt"],[4,"Sire’s Resentment",498,"1 pt"],[4,"Special Responsibility",498,"1 pt"],[4,"Sympathizer",498,"1 pt"],[4,"Enemy",498,"1-5 pt"],[4,"Bound",498,"2 pt"],[4,"Catspaw",498,"2 pt"],[4,"Escaped Target",499,"2 pt"],[4,"Failure",499,"2 pt"],[4,"Masquerade Breaker",499,"2 pt"],[4,"Hunted",499,"4 pt"],[4,"Old Flame",499,"2 pt"],[4,"Rival Sires",499,"2 pt"],[4,"Uppity",500,"2 pt"],[4,"Disgrace to the Blood",500,"3 pt"],[4,"Former Prince",500,"3 pt"],[4,"Hunted Like a Dog",500,"3 pt"],[4,"Narc",500,"3 pt"],[4,"Sleeping With the Enemy",500,"3 pt"],[4,"Clan Enmity",500,"4 pt"],[4,"Loathsome Regnant",500,"4 pt"],[4,"Overextended",500,"4 pt"],[4,"Probationary Sect Member",501,"4 pt"],[4,"Laughingstock",501,"5 pt"],[4,"Red List",501,"7 pt"],[4,"Cast No Reflection",502,"1 pt"],[4,"Cold Breeze",502,"1 pt"],[4,"Repulsed by Garlic",502,"1 pt"],[4,"Touch of Frost",502,"1 pt"],[4,"Cursed",502,"1-5 pt"],[4,"Beacon of the Unholy",502,"2 pt"],[4,"Deathsight",502,"2 pt"],[4,"Eerie Presence",503,"2 pt"],[4,"Lord of the Flies",503,"2 pt"],[4,"Can’t Cross Running Water",503,"3 pt"],[4,"Haunted",503,"3 pt"],[4,"Repelled by Crosses",503,"3 pt"],[4,"Grip of the Damned",503,"4 pt"],[4,"Dark Fate",503,"5 pt"],[4,"Light-Sensitive",503,"5 pt"],[2,"Ghouls",504],[3,"Types of Ghouls",504],[4,"Vassals",504],[4,"Independents",504],[4,"Revenants",504],[3,"Creating a Ghoul",505],[4,"Step One: Character Concept",505],[3,"Character Creation Process",505],[4,"Freebie Points",505],[4,"Step Two: Select Attributes",506],[4,"Step Three: Select Abilities",506],[4,"Step Four: Select Advantages",507],[4,"Step Five: Last Touches",507],[4,"Experience Costs",507],[4,"I Was Embraced Yesterday",508],[3,"Rules",508],[4,"Revenants",508],[4,"Blood Bond",508],[4,"Disciplines",508],[4,"Aging",508],[4,"Healing",509],[4,"Frenzy",509],[4,"Clan Weaknesses",509],[4,"Overdosing",510],[4,"Withdrawal",510],[3,"War Ghouls",510],[4,"Szlachta",510],[4,"Vozhd",510],[3,"Revenant Families",511],[4,"Bratovitch",511],[4,"Ducheski",511],[4,"Grimaldi",512],[4,"Obertus",512],[4,"Oprichniki",512],[4,"Zantosa",513],[4,"Others",514],[2,"Sabbat Ritae",515],[3,"Auctoritas Ritae",515],[4,"The Blood Bath",515],[4,"The Blood Feast",515],[4,"Creation Rites",516],[4,"Fire Dance",516],[4,"Games of Instinct",516],[4,"Monomacy",517],[4,"Sermons of Caine",518],[4,"The War Party",518],[4,"The Wild Hunt",518],[3,"Ignoblis Ritae",519],[4,"Acceptance Ritus",519],[4,"Contrition Ritus",519],[4,"Stealth Ritus",519],[4,"Sun Dance",519],[0,"Game Terms Glossary",521],[0,"Index",522],[0,"Character Sheet",527],[1,"A Storytelling Game of Personal Horror",528]];   // [depth, title, PDF page]
+  var DEFAULT_URL = 'https://github.com/AIexadia/vtm-rules/blob/8f967351591b4209a1c4ffee13668ab607761dce/V20%20-%20Core%20Rulebook%20(2).pdf';   // where the rulebook PDF comes from by default
+  var TERMS = [["Ability",286],["Accuracy",284],["Accuracy",285],["Accuracy",286],["Advantages",86],["Anarchs",57],["Anarchs",59],["Anarchs",61],["Anarchs",63],["Anarchs",65],["Anarchs",67],["Anarchs",69],["Anarchs",71],["Anarchs",73],["Anarchs",75],["Anarchs",77],["Anarchs",79],["Anarchs",81],["Attack",396],["Attack",397],["Attack",398],["Attack",399],["Attribute",456],["Attribute",457],["Attribute",458],["Attribute",460],["Awakening [Perception, Humanity/Path]",270],["Backgrounds",510],["Basic Beliefs",324],["Basic Beliefs",326],["Basic Beliefs",328],["Basic Beliefs",331],["Basic Beliefs",332],["Basic Beliefs",334],["Basic Beliefs",337],["Basic Beliefs",339],["Basic Beliefs",340],["Basic Beliefs",343],["Basic Beliefs",344],["Basic Beliefs",346],["Bearing",324],["Bearing",326],["Bearing",328],["Bearing",331],["Bearing",332],["Bearing",334],["Bearing",337],["Bearing",339],["Bearing",340],["Bearing",343],["Bearing",344],["Bearing",346],["Bearing",526],["Bearing",527],["Blood Per Turn",526],["Blood Per Turn",527],["Blood Pool",399],["Brujah",57],["Brujah",61],["Brujah",63],["Brujah",65],["Brujah",67],["Brujah",69],["Brujah",71],["Brujah",73],["Brujah",75],["Brujah",77],["Brujah",79],["Brujah",81],["Brujah",421],["Caitiff",40],["Caitiff",57],["Caitiff",59],["Caitiff",61],["Caitiff",63],["Caitiff",65],["Caitiff",67],["Caitiff",69],["Caitiff",71],["Caitiff",73],["Caitiff",75],["Caitiff",77],["Caitiff",79],["Caitiff",81],["Carousing [Charisma + Empathy]",273],["Clan",86],["Common Abilities",326],["Common Abilities",328],["Common Abilities",330],["Common Abilities",332],["Common Abilities",333],["Common Abilities",336],["Common Abilities",339],["Common Abilities",340],["Common Abilities",342],["Common Abilities",343],["Common Abilities",345],["Common Abilities",348],["Computer Use [Intelligence/Wits + Computer]",271],["Damage",284],["Damage",285],["Damage",286],["Difficulty",284],["Difficulty",285],["Difficulty",286],["Don’t",369],["Equivalent Disciplines",387],["Equivalent Disciplines",390],["Equivalent Disciplines",391],["Equivalent Disciplines",392],["Equivalent Disciplines",393],["Equivalent Disciplines",394],["Equivalent Disciplines",395],["Faith",395],["Fast-Talk [Manipulation + Subterfuge]",273],["Flank and Rear Attacks",282],["Flaws",510],["Followers of Set",57],["Followers of Set",59],["Followers of Set",63],["Followers of Set",65],["Followers of Set",67],["Followers of Set",69],["Followers of Set",71],["Followers of Set",73],["Followers of Set",75],["Followers of Set",77],["Followers of Set",79],["Followers of Set",81],["Followers of Set",403],["Followers of Set",405],["Followers of Set",421],["Followers of Set",429],["Gangrel",57],["Gangrel",59],["Gangrel",61],["Gangrel",65],["Gangrel",67],["Gangrel",69],["Gangrel",71],["Gangrel",73],["Gangrel",75],["Gangrel",77],["Gangrel",79],["Gangrel",81],["Gangrel",423],["Generation",86],["Giovanni",57],["Giovanni",59],["Giovanni",61],["Giovanni",63],["Giovanni",67],["Giovanni",69],["Giovanni",71],["Giovanni",73],["Giovanni",75],["Giovanni",77],["Giovanni",79],["Giovanni",81],["Giovanni",407],["Giovanni",411],["Giovanni",415],["Giovanni",417],["Giovanni",419],["Giovanni",514],["Glamour",391],["Glamour",392],["Gnosis",387],["Health",86],["Health Levels",396],["Health Levels",397],["Health Levels",398],["Health Levels",399],["Humanity",383],["Humanity",384],["Humanity",385],["Humanity",387],["Humanity",390],["Humanity",391],["Humanity",392],["Humanity",393],["Humanity",394],["Humanity",395],["Humanity",510],["Humanity",511],["Intrusion [Dexterity/Perception + Larceny]",268],["Investigation [Perception + Investigation]",272],["Lasombra",57],["Lasombra",59],["Lasombra",61],["Lasombra",63],["Lasombra",65],["Lasombra",69],["Lasombra",71],["Lasombra",73],["Lasombra",75],["Lasombra",77],["Lasombra",79],["Lasombra",81],["Levels",397],["Levels",398],["Malkavian",57],["Malkavian",59],["Malkavian",61],["Malkavian",63],["Malkavian",65],["Malkavian",67],["Malkavian",71],["Malkavian",73],["Malkavian",75],["Malkavian",77],["Malkavian",79],["Malkavian",81],["Minor temperature change",237],["Moderate temperature change",237],["Nosferatu",57],["Nosferatu",59],["Nosferatu",61],["Nosferatu",63],["Nosferatu",65],["Nosferatu",67],["Nosferatu",69],["Nosferatu",73],["Nosferatu",75],["Nosferatu",77],["Nosferatu",79],["Nosferatu",81],["Note",136],["Note",196],["Note",217],["Note",249],["Note",275],["Note",277],["Note",306],["Note",379],["Note",390],["Note",396],["Note",397],["Note",398],["Note",399],["Passion Pool",393],["Passion Pool",394],["Performance [Charisma + Performance]",274],["Preferred Disciplines",326],["Preferred Disciplines",328],["Preferred Disciplines",330],["Preferred Disciplines",334],["Preferred Disciplines",337],["Preferred Disciplines",339],["Preferred Disciplines",340],["Preferred Disciplines",342],["Preferred Disciplines",344],["Preferred Disciplines",346],["Preferred Disciplines",348],["Pursuit [Dexterity + Athletics/Drive]",269],["Quintessence",390],["Ravnos",57],["Ravnos",59],["Ravnos",61],["Ravnos",63],["Ravnos",65],["Ravnos",67],["Ravnos",69],["Ravnos",71],["Ravnos",75],["Ravnos",77],["Ravnos",79],["Ravnos",81],["Ravnos",403],["Ravnos",409],["Ravnos",413],["Repair [Dexterity/Perception + Crafts]",272],["Servants of Anushin-Rawan",514],["Shadowing [Dexterity + Stealth/Drive]",270],["Sneaking [Dexterity + Stealth]",270],["Suggested Professional Skills",115],["Swimming [Stamina + Athletics]",270],["Throwing [Dexterity + Athletics]",270],["Toreador",59],["Toreador",61],["Toreador",63],["Toreador",65],["Toreador",67],["Toreador",69],["Toreador",71],["Toreador",73],["Toreador",77],["Toreador",79],["Toreador",81],["Toreador",407],["Tracking [Perception + Survival]",273],["Traits",286],["Tremere",57],["Tremere",59],["Tremere",61],["Tremere",63],["Tremere",65],["Tremere",67],["Tremere",69],["Tremere",71],["Tremere",73],["Tremere",75],["Tremere",79],["Tremere",81],["Tremere",409],["Tremere",417],["Tzimisce",57],["Tzimisce",59],["Tzimisce",61],["Tzimisce",63],["Tzimisce",65],["Tzimisce",67],["Tzimisce",69],["Tzimisce",71],["Tzimisce",73],["Tzimisce",75],["Tzimisce",77],["Tzimisce",81],["Vampire",87],["Ventrue",57],["Ventrue",59],["Ventrue",61],["Ventrue",63],["Ventrue",65],["Ventrue",67],["Ventrue",69],["Ventrue",71],["Ventrue",73],["Ventrue",75],["Ventrue",77],["Ventrue",79],["Virtues",324],["Virtues",326],["Virtues",328],["Virtues",331],["Virtues",332],["Virtues",334],["Virtues",337],["Virtues",339],["Virtues",340],["Virtues",343],["Virtues",344],["Virtues",346],["Virtues",510],["Virtues",511],["Weaknesses",57],["Weaknesses",59],["Weaknesses",61],["Weaknesses",63],["Weaknesses",65],["Weaknesses",67],["Weaknesses",69],["Weaknesses",71],["Weaknesses",73],["Weaknesses",75],["Weaknesses",77],["Weaknesses",79],["Weaknesses",81],["Weaknesses",360]];   // [other bold term (tables, fields...), PDF page]
+  var ACTS = [["A Classic Experience",13,5],["A Zeitgeist",13,5],["A Thank You",14,5],["No Touching",15,8],["No Weapons",15,8],["Play in a Designated Area",15,8],["Know When to Stop",15,8],["The Masquerade",22,19],["The Sins of the Father",22,19],["A War of Ages",23,19],["Inherent Conflict",23,19],["Conspiracy",23,19],["Apocalypse",23,19],["Sensual",23,20],["Mysterious",23,20],["Dangerous",23,20],["Eerie",23,20],["Fledgling",27,27],["Neonate",27,27],["Ancilla",27,27],["Elder",27,27],["Methuselah",27,27],["Antediluvian",27,28],["Harpy",33,46],["Keeper of Elysium",33,46],["Scourge",33,46],["Sheriff",33,46],["Primogen",33,46],["Justicar",34,44],["Ductus",34,47],["Templar",35,47],["Bishop",35,47],["Priscus",35,47],["Cardinal",35,47],["Regent",35,47],["Anarch Movement, The",40,70],["Becoming, The",40,70],["Book of Nod, The",40,70],["Camarilla, The",40,70],["Clan",41,68],["Elysium",41,68],["Final Death, The",41,68],["Gehenna",41,68],["Hunger, The",41,70],["Inconnu",41,70],["Jyhad, The",41,70],["Kindred",41,70],["Kiss, The",41,70],["Lupine",41,70],["Lush",41,70],["Life, The",41,70],["Man, The",41,70],["Masquerade, The",41,70],["Prince",41,70],["Rogue",41,70],["Sabbat, The",41,70],["Amaranth",42,71],["Antediluvian",42,71],["Cainite",42,71],["Canaille",42,71],["Cauchemar",42,71],["Cunctator",42,71],["Footpad",42,71],["Gentry",42,71],["Golconda",42,71],["Humanitas",42,71],["Leech",42,71],["Lextalionis",42,71],["Papillon",42,71],["Siren",42,71],["Suspire",42,71],["Third Mortal, The",43,71],["Wight",43,71],["Witch-hunter",43,71],["Whig",43,71],["Alleycat",43,72],["Black Hand",43,72],["Blister",43,72],["Butterfly",43,72],["Casanova",43,72],["Change, The",43,72],["Damned, The",43,72],["Farmer",43,72],["Headhunter",43,72],["Lick",43,72],["Rack, The",43,72],["Rake",43,72],["Sandman",43,72],["Stalker",43,72],["Tease",43,72],["Vegetary",43,72],["Traditional Strongholds",46,74],["Traditional Strongholds",48,77],["Assamite",59,88],["Assamite",61,88],["Assamite",63,88],["Assamite",65,88],["Camarilla and Sabbat",65,88],["Assamite",69,88],["Assamite",71,88],["Nature",86,261],["Demeanor",86,261],["Concept",86,261],["Name",86,261],["Player",86,261],["Chronicle",86,261],["Humanity/Path",86,261],["Experience",86,261],["Willpower",86,261],["Blood Pool",86,261],["Example",126,243],["Example",127,244],["One Point — Automatic",131,257],["One Point — Learning Curve",131,257],["One Point — Roleplaying",131,257],["One Point — Heroism",132,257],["One Point — Success",132,258],["One Point — Danger",132,258],["One Point — Wisdom",132,258],["Obfuscate",150,290],["Chimerstry",150,290],["Other Powers",150,290],["Mortals",166,334],["Vampires",166,334],["Nature",166,334],["Botches",166,334],["Fog",237,567],["Light breeze",237,567],["Rain or snow",237,567],["High Winds",237,567],["Storm",237,567],["Lightning Strike",237,567],["Example",256,636],["Example",257,639],["Example",258,640],["Example",259,642],["Example",260,644],["Getting to Your Feet",266,652],["Movement",266,652],["Readying a Weapon",266,652],["Starting a Car",266,652],["Yielding",266,652],["Driving [Dexterity/Wits + Drive]",266,653],["Carrying Capacity [Strength]",267,653],["Hunting [Various]",267,653],["Lifting/Breaking [Strength]",268,653],["Opening/Closing [Strength]",269,653],["Creation [variable]",271,654],["Oration [Charisma + Leadership]",274,655],["Seduction [variable]",274,655],["Max Trait Rating",278,660],["Blood Pool Max",278,660],["Blood Points/Turn",278,660],["Close Combat",279,662],["Ranged Combat",279,662],["Close Combat",280,666],["Ranged Combat",280,666],["Bashing",280,668],["Lethal",280,668],["Aggravated",280,668],["Aborting Actions",282,673],["Ambush",282,673],["Blind Fighting/Fire",282,673],["Movement",282,673],["Multiple Actions",282,673],["Targeting",282,673],["Block",283,674],["Dodge",283,674],["Parry",283,674],["Traits",283,675],["Accuracy",283,675],["Difficulty",283,675],["Damage",283,675],["Bite",284,676],["Traits",284,676],["Claw",284,676],["Clinch",284,676],["Disarm",284,676],["Hold",284,676],["Kick",284,676],["Ability",284,676],["Multiple Opponents",284,676],["Strike",284,676],["Sweep",284,676],["Tackle",285,676],["Traits",285,676],["Weapon Length",285,676],["Weapon Strike",285,676],["Aiming",285,677],["Automatic Fire",286,677],["Cover",286,677],["Multiple Shots",286,677],["Range",286,677],["Reloading",286,677],["Strafing",286,677],["Three-Round Burst",286,677],["Two Weapons",286,677],["Blinded",287,678],["Dazed",287,678],["Immobilization",287,678],["Knockdown",287,678],["Stake Through Heart",288,678],["Damage",289,678],["Range",289,678],["Rate",289,678],["Capacity",289,678],["Concealment",289,678],["Incapacitated",290,684],["Torpor",291,686],["Final Death",292,686],["First drink",294,696],["Second drink",295,694],["Third drink",295,694],["Alcohol",309,727],["Cocaine/meth/speed",309,727],["Hallucinogens",309,727],["Heroin/morphine/barbiturates",310,727],["Marijuana",310,727],["Poison",310,727],["Salmonella (food poisoning)",310,727],["Blood and Money",355,843],["Conquistadors",359,844],["The Free City",359,844],["Envision the role",359,845],["Paint a picture",360,845],["Choose a name",360,845],["Age",360,845],["Personality",360,845],["Past History",360,845],["Quirks",360,845],["Statistics",360,845],["The Sire’s Ready Hand",363,859],["Spirits of Like Mind",363,859],["The Wild Ones",363,859],["By Your Command",363,859],["The Outcasts",363,859],["Overuse Stereotypes",369,866],["Forget the Payoff",369,866],["Tell Them Everything",369,866],["Abuse Your Power",369,866],["Panic",369,866],["Humanity",379,883],["Equipment",379,883],["Equipment",383,886],["Equipment",384,888],["Equipment",385,890],["Equipment",390,902],["Blood Pool",396,921],["Blood Pool",397,920],["Blood Pool",398,943],["Anyone Not Sabbat",405,953],["Assamites",423,962],["High Clans",425,963],["Low Clans",425,963],["High Clans",427,964],["Low Clans",427,964],["High Clans",431,966],["Low Clans",431,966],["High Clans",433,967],["Low Clans",433,967],["High Clans",435,968],["Low Clans",435,968],["Paths",448,1012],["Rituals",448,1012],["Physical",510,1334],["Social",510,1334],["Mental",510,1334],["Talents",510,1334],["Skills",510,1334],["Knowledges",510,1334],["Physical",511,1332],["Social",511,1332],["Mental",511,1332],["Basarab",514,1343],["Danislav",514,1343],["D’Habi",514,1343],["Enrathi",514,1343],["Krevcheski",514,1343],["Khazi",514,1343],["Marijava",514,1343],["Rafastio",514,1343],["Szantovich",514,1343],["Cowboys and Indians/Cops and Robbers",517,1350],["Dogtagging",517,1350],["Rat Race",517,1350],["Rousing the Beast",517,1350],["Ability",521,1360],["Action",521,1360],["Advantage",521,1360],["Attribute",521,1360],["Botch",521,1360],["Character",521,1360],["Dice Pool",521,1360],["Difficulty",521,1360],["Downtime",521,1360],["Extended Action",521,1360],["Health",521,1360],["Points",521,1360],["Rating",521,1360],["Reflexive Action",521,1360],["Resisted Action",521,1360],["Scene",521,1360],["Simple Action",521,1360],["Storyteller",521,1360],["Trait",521,1360],["Troupe",521,1360],["Willpower",521,1360]];   // [term or action that opens a paragraph (Block, Dodge, Sweep...), PDF page, index of its section]
+  function $(id) { return document.getElementById(id); }
+  var cfg = { show: true, page: 1, zoom: 1, fit: 'width', mode: 'book', index: true, acts: true, terms: true, text: true };
+  try {
+    var s = JSON.parse(localStorage.getItem(KEY));
+    if (s && typeof s === 'object') {
+      if (s.show === false) cfg.show = false;
+      if (s.index === false) cfg.index = false;
+      if (s.acts === false) cfg.acts = false;
+      if (s.terms === false) cfg.terms = false;
+      if (s.text === false) cfg.text = false;
+      if (s.page >= 1) cfg.page = s.page | 0;
+      if (s.zoom >= 0.4 && s.zoom <= 4) cfg.zoom = +s.zoom;
+      if (typeof s.url === 'string' && s.url.length < 600) cfg.url = s.url;
+      if (s.fit === 'width' || s.fit === 'height' || s.fit === 'manual') cfg.fit = s.fit;
+      if (s.mode === 'pdf') cfg.mode = 'pdf';
+    }
+  } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} }
 
-</body></html>
-</body></html>
+  /* ---- index tree ---- */
+  var nodes = RAW.map(function (r, i) { return { i: i, d: r[0], t: r[1], p: r[2], x: r[3] || '', par: null, kids: [], acts: [], k: '' }; });
+  (function () {
+    var st = [];
+    nodes.forEach(function (n) {
+      while (st.length && st[st.length - 1].d >= n.d) st.pop();
+      n.par = st.length ? st[st.length - 1] : null;
+      if (n.par) n.par.kids.push(n);
+      st.push(n);
+      n.k = norm(n.t);
+    });
+  })();
+  ACTS = ACTS.map(function (r) {
+    var par = r[2] >= 0 ? nodes[r[2]] : null, a = { t: r[0], p: r[1], x: '', par: par, kids: [], acts: [], k: '', isAct: true };
+    a.k = ''; if (par) par.acts.push(a);
+    return a;
+  });
+  function kidsOf(n) { return cfg.acts && n.acts.length ? n.kids.concat(n.acts) : n.kids; }
+  function norm(x) { return x.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function desc(n, out) { n.kids.forEach(function (k) { out.push(k); desc(k, out); }); return out; }
+  function isInside(n, a) { for (var p = n.par; p; p = p.par) if (p === a) return true; return false; }
+  function lab(p) { return cfg.mode === 'book' && p > OFFSET ? 'p. ' + (p - OFFSET) : 'PDF ' + p; }
+
+  /* ---- index UI ---- */
+  var resultsEl, queryEl;
+  function mk(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function chip(n, cls) {
+    var b = mk('button', cls || 'rl-chip'); b.type = 'button';
+    b.appendChild(document.createTextNode(n.t.replace(/\s+/g, ' ')));
+    b.appendChild(mk('small', '', (n.x ? n.x + ' \u00b7 ' : '') + lab(n.p)));
+    b.addEventListener('click', function () { go(n.p, true); });
+    if (kidsOf(n).length && cls !== 'rl-head') {
+      var w = mk('span', 'rl-more', '\u203a'); w.title = 'List what is inside ' + n.t; w.setAttribute('role', 'button');
+      w.addEventListener('click', function (e) { e.stopPropagation(); commit(queryEl.value.trim()); queryEl.value = n.t; commit(n.t); renderIndex(); resultsEl.scrollTop = 0; queryEl.focus(); });
+      b.appendChild(w);
+    }
+    return b;
+  }
+  function group(n) {
+    var g = mk('div', 'rl-group');
+    g.appendChild(chip(n, 'rl-head'));
+    if (n.par) g.appendChild(mk('div', 'rl-ctx', 'in ' + n.par.t));
+    var ks = kidsOf(n);
+    if (ks.length) { var c = mk('div', 'rl-chips'); ks.forEach(function (k) { c.appendChild(chip(k)); }); g.appendChild(c); }
+    return g;
+  }
+  function renderIndex() {
+    var q = queryEl.value.trim(), box = resultsEl;
+    box.textContent = '';
+    if (!q) {
+      var lone = [];
+      nodes.forEach(function (n) {
+        if (n.d === 0 && kidsOf(n).length) {
+          box.appendChild(mk('div', 'rl-book', n.t));
+          kidsOf(n).forEach(function (c) { box.appendChild(group(c)); });
+        } else if (n.d === 0) lone.push(n);
+      });
+      if (lone.length) { var g = mk('div', 'rl-group'); g.appendChild(mk('div', 'rl-book', 'Front and back matter')); var c = mk('div', 'rl-chips'); lone.forEach(function (n) { c.appendChild(chip(n)); }); g.appendChild(c); box.appendChild(g); }
+      return;
+    }
+    var toks = norm(q).replace(/"/g, ' ').split(/\s+/).filter(Boolean);
+    var hits = cfg.index ? nodes.filter(function (n) { return toks.every(function (t) { return n.k.indexOf(t) >= 0; }); }) : [];
+    var groups = hits.filter(function (n) { return kidsOf(n).length; });
+    var leaves = hits.filter(function (n) { return !kidsOf(n).length && !groups.some(function (g) { return n.par === g; }); });
+    groups.forEach(function (n) { box.appendChild(group(n)); });
+    if (leaves.length) {
+      var lg = mk('div', 'rl-group');
+      if (groups.length) lg.appendChild(mk('div', 'rl-book', 'Other entries'));
+      leaves.forEach(function (n) { lg.appendChild(chip(n, 'rl-head')); if (n.par) lg.appendChild(mk('div', 'rl-ctx', 'in ' + n.par.t)); });
+      box.appendChild(lg);
+    }
+    firstHit = groups.length ? groups[0] : leaves[0] || null;
+    function termGroup(list, title) {
+      var th = list.filter(function (r) { var k = norm(r[0]); return toks.every(function (t) { return k.indexOf(t) >= 0; }); });
+      th.sort(function (a, b) { return norm(a[0]).indexOf(toks[0]) - norm(b[0]).indexOf(toks[0]); });
+      if (!th.length) return 0;
+      var tg = mk('div', 'rl-group'); tg.appendChild(mk('div', 'rl-book', title));
+      var tc = mk('div', 'rl-chips');
+      th.slice(0, 40).forEach(function (r) {
+        var b = mk('button', 'rl-term'); b.type = 'button';
+        b.appendChild(document.createTextNode(r[0])); b.appendChild(mk('small', '', lab(r[1])));
+        b.addEventListener('click', function () { go(r[1], true); });
+        tc.appendChild(b);
+      });
+      tg.appendChild(tc); box.appendChild(tg);
+      if (!firstHit) firstHit = { p: th[0][1] };
+      return th.length;
+    }
+    function actGroup() {
+      var ah = ACTS.filter(function (a) { if (!a.k) a.k = norm(a.t); return toks.every(function (t) { return a.k.indexOf(t) >= 0; }); });
+      ah.sort(function (a, b) { return a.k.indexOf(toks[0]) - b.k.indexOf(toks[0]); });
+      if (!ah.length) return 0;
+      var ag = mk('div', 'rl-group'); ag.appendChild(mk('div', 'rl-book', 'Terms and actions'));
+      ah.slice(0, 40).forEach(function (a) { ag.appendChild(chip(a, 'rl-head')); if (a.par) ag.appendChild(mk('div', 'rl-ctx', 'in ' + a.par.t)); });
+      box.appendChild(ag);
+      if (!firstHit) firstHit = { p: ah[0].p };
+      return ah.length;
+    }
+    var th = (cfg.acts ? actGroup() : 0) + (cfg.terms ? termGroup(TERMS, 'Other bold terms') : 0);
+    var nt = 0;
+    if (cfg.text) {
+      if (textState === 'ready') {
+        var res = textSearch(q);
+        nt = res.length;
+        if (res.length) {
+          var xg = mk('div', 'rl-group'); xg.appendChild(mk('div', 'rl-book', 'In the text' + (res.length >= 25 ? ' (best 25 pages)' : '')));
+          res.forEach(function (r) {
+            var b = mk('button', 'rl-hit'); b.type = 'button';
+            b.appendChild(mk('b', '', lab(r.p) + (r.n > 1 ? ' \u00b7 ' + r.n + ' matches' : '')));
+            var sn = mk('span'); snippet(sn, r); b.appendChild(sn);
+            b.addEventListener('click', function () { go(r.p, true); });
+            xg.appendChild(b);
+          });
+          box.appendChild(xg);
+          if (!firstHit) firstHit = { p: res[0].p };
+        }
+      } else if (textState === 'building') box.appendChild(mk('p', 'rl-empty', 'Building the text search from your PDF (this happens once)...'));
+      else if (textState === 'none') box.appendChild(mk('p', 'rl-empty', 'Open the rulebook PDF to search its full text.'));
+    }
+    if (!groups.length && !leaves.length && !th && !nt && textState !== 'building') box.appendChild(mk('p', 'rl-empty', 'Nothing found for "' + q + '".' + (!cfg.index || !cfg.acts || !cfg.terms || !cfg.text ? ' Some search sources are switched off in the settings (gear button). ' : ' ') + 'Try a shorter word, or type a page number into the page box.'));
+  }
+  var firstHit = null;
+  /* Search history: the Back arrow returns to the previous search (and where it was scrolled to). */
+  var hist = [], committed = '', commitTimer = 0;
+  function backBtn() { $('rulesBack1').disabled = !hist.length; }
+  function commit(q) {
+    clearTimeout(commitTimer);
+    if (q === committed) return;
+    hist.push({ q: committed, y: resultsEl.scrollTop });
+    if (hist.length > 60) hist.shift();
+    committed = q; backBtn();
+  }
+  function goBack() {
+    if (!hist.length) return;
+    clearTimeout(commitTimer);
+    var h = hist.pop(); committed = h.q; queryEl.value = h.q; renderIndex(); resultsEl.scrollTop = h.y; backBtn(); queryEl.focus();
+  }
+
+  /* ---- full-text search (built locally from the user's own PDF; cached in this browser only) ---- */
+  var textState = 'none', pageRaw = [], pageNorm = [], inv = null, avgLen = 1, curSig = '', building = 0;
+  var STOP = { the: 1, a: 1, an: 1, of: 1, to: 1, and: 1, or: 1, in: 1, on: 1, is: 1, it: 1, for: 1, at: 1, as: 1, by: 1, be: 1, with: 1 };
+  function stem(w) {
+    if (w.length > 5 && /ing$/.test(w)) return w.slice(0, -3);
+    if (w.length > 4 && /ed$/.test(w)) return w.slice(0, -2);
+    if (w.length > 4 && /es$/.test(w)) return w.slice(0, -2);
+    if (w.length > 3 && /s$/.test(w) && !/ss$/.test(w)) return w.slice(0, -1);
+    return w;
+  }
+  function words(s) { return s.match(/[a-z0-9']+/g) || []; }
+  function idbKey(key) { return idb().then(function (db) { return new Promise(function (res, rej) { var q = db.transaction('files').objectStore('files').get(key); q.onsuccess = function () { res(q.result || null); }; q.onerror = function () { rej(q.error); }; }); }); }
+  function idbSet(key, val) { return idb().then(function (db) { return new Promise(function (res, rej) { var t = db.transaction('files', 'readwrite'); t.objectStore('files').put(val, key); t.oncomplete = res; t.onerror = function () { rej(t.error); }; }); }); }
+  function idbDel(key) { return idb().then(function (db) { return new Promise(function (res) { var t = db.transaction('files', 'readwrite'); t.objectStore('files').delete(key); t.oncomplete = res; t.onerror = res; }); }); }
+  function status(text) { var e = $('rulesStatus'); e.hidden = !text; e.textContent = text || ''; $('rulesTextStat').textContent = text || ({ ready: 'Text search is ready (' + pageRaw.length + ' pages).', none: 'Text search needs the PDF to be opened first.', off: 'Text search is off.', building: '' }[textState] || ''); }
+  function setIndex(pages) {
+    pageRaw = pages.map(function (t) { return t.replace(/\s+/g, ' ').trim(); });
+    pageNorm = pageRaw.map(function (t) { return ' ' + words(norm(t)).join(' ') + ' '; });
+    inv = {}; var sum = 0;
+    pageNorm.forEach(function (t, i) {
+      var ws = words(t); sum += ws.length;
+      ws.forEach(function (w) { var s = stem(w), e = inv[s] || (inv[s] = {}); e[i + 1] = (e[i + 1] || 0) + 1; });
+    });
+    avgLen = Math.max(1, sum / pageNorm.length); pageNorm.forEach(function (t, i) { pageNorm[i] = { s: t, len: Math.max(1, words(t).length) }; });
+    textState = 'ready'; status('');
+  }
+  function ensureText(force) {
+    if (!cfg.text) { textState = 'off'; status(''); return; }
+    if (!pdf) { textState = 'none'; status(''); return; }
+    if (textState === 'ready' && !force) return;
+    if (building) return;
+    var my = building = ++token2, sig = curSig + ':' + total;
+    textState = 'building'; $('rulesTextRebuild').disabled = true;
+    (force ? idbDel('text') : Promise.resolve()).then(function () { return idbKey('text').catch(function () { return null; }); }).then(function (c) {
+      if (c && c.sig === sig && c.pages && c.pages.length === total) return c.pages;
+      var out = [], doc = pdf;
+      function step(i) {
+        if (i > total) return Promise.resolve(out);
+        if (doc !== pdf) return Promise.reject(new Error('changed'));
+        status('Building the text search: page ' + i + ' of ' + total + '...');
+        return doc.getPage(i).then(function (pg) { return pg.getTextContent(); }).then(function (tc) {
+          out.push(tc.items.map(function (it) { return it.str + (it.hasEOL ? ' ' : ''); }).join(' '));
+          return step(i + 1);
+        });
+      }
+      return step(1).then(function (pages) { idbSet('text', { sig: sig, pages: pages }).catch(function () {}); return pages; });
+    }).then(function (pages) { if (my !== building) return; building = 0; $('rulesTextRebuild').disabled = false; setIndex(pages); if (!$('rulesBack').hidden && queryEl.value.trim()) renderIndex(); },
+      function () { if (my !== building) return; building = 0; $('rulesTextRebuild').disabled = false; textState = 'none'; status('The text search could not be built.'); });
+  }
+  var token2 = 0;
+  function textSearch(q) {
+    var phr = [], rest = q.replace(/"([^"]+)"/g, function (m0, p) { var w = words(norm(p)); if (w.length) phr.push(' ' + w.join(' ') + ' '); return ' '; });
+    var ws = words(norm(rest)), keep = ws.filter(function (w) { return !STOP[w]; });
+    if (!keep.length) keep = ws;
+    var terms = keep.map(stem);
+    if (!terms.length && !phr.length) return [];
+    var N = pageNorm.length, k1 = 1.2, bb = 0.75, score = {}, cnt = {}, need = {};
+    terms.forEach(function (t) {
+      var e = inv[t] || {}, df = Object.keys(e).length, idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
+      Object.keys(e).forEach(function (p) { var f = e[p], len = pageNorm[p - 1].len; score[p] = (score[p] || 0) + idf * f * (k1 + 1) / (f + k1 * (1 - bb + bb * len / avgLen)); need[p] = (need[p] || 0) + 1; cnt[p] = (cnt[p] || 0) + f; });
+    });
+    var pages = Object.keys(score).filter(function (p) { return need[p] === terms.length; });
+    if (!pages.length && !phr.length && terms.length > 1) pages = Object.keys(score);
+    if (phr.length) {
+      var base = terms.length ? pages : pageNorm.map(function (x, i) { return String(i + 1); });
+      pages = base.filter(function (p) { return phr.every(function (ph) { return pageNorm[p - 1].s.indexOf(ph) >= 0; }); });
+      pages.forEach(function (p) { score[p] = (score[p] || 0) + 5; cnt[p] = (cnt[p] || 0) || phr.reduce(function (a, ph) { return a + pageNorm[p - 1].s.split(ph).length - 1; }, 0); });
+    }
+    return pages.sort(function (a, b) { return score[b] - score[a] || a - b; }).slice(0, 25).map(function (p) { return { p: +p, n: cnt[p] || 1, w: phr.length ? phr[0].trim().split(' ')[0] : keep[0], all: keep.concat(phr.join(' ').trim().split(' ').filter(Boolean)) }; });
+  }
+  function snippet(el, r) {
+    var raw = pageRaw[r.p - 1] || '', lo = norm(raw), at = -1, hit = '';
+    r.all.some(function (w) { var j = lo.indexOf(stem(w)); if (j >= 0) { at = j; hit = w; return true; } return false; });
+    if (at < 0) { el.textContent = raw.slice(0, 120) + '...'; return; }
+    var a = Math.max(0, at - 55), b = Math.min(raw.length, at + 95);
+    if (a > 0) { var sp = raw.indexOf(' ', a); if (sp >= 0 && sp < at) a = sp + 1; }
+    var part = raw.slice(a, b), pl = lo.slice(a, b), pos = 0;
+    el.appendChild(document.createTextNode((a > 0 ? '...' : '')));
+    var re = new RegExp('(' + r.all.map(function (w) { return stem(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ")[a-z0-9']*", 'gi'), mt;
+    while ((mt = re.exec(pl))) {
+      if (mt.index > pos) el.appendChild(document.createTextNode(part.slice(pos, mt.index)));
+      var mk2 = document.createElement('mark'); mk2.textContent = part.slice(mt.index, mt.index + mt[0].length); el.appendChild(mk2);
+      pos = mt.index + mt[0].length; if (!mt[0].length) re.lastIndex++;
+    }
+    el.appendChild(document.createTextNode(part.slice(pos) + (b < raw.length ? '...' : '')));
+  }
+
+  /* ---- PDF loading ---- */
+  var pdf = null, total = 0, loading = null, pendingBlob = null;
+  function script(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = function () { rej(new Error('Could not load ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  function lib() {
+    if (window.pdfjsLib) return Promise.resolve();
+    return script(BASE + 'pdf.min.js').then(function () { return script(BASE + 'pdf.worker.min.js'); }).then(function () {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = BASE + 'pdf.worker.min.js';
+    });
+  }
+  function idb() {
+    return new Promise(function (res, rej) {
+      var r = indexedDB.open('vtm-rules', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('files'); };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+  }
+  function idbGet() { return idb().then(function (db) { return new Promise(function (res, rej) { var q = db.transaction('files').objectStore('files').get('pdf'); q.onsuccess = function () { res(q.result || null); }; q.onerror = function () { rej(q.error); }; }); }); }
+  function idbPut(blob) { return idb().then(function (db) { return new Promise(function (res, rej) { var t = db.transaction('files', 'readwrite'); t.objectStore('files').put(blob, 'pdf'); t.oncomplete = res; t.onerror = function () { rej(t.error); }; }); }); }
+  function openBlob(blob, keep) {
+    msg('Opening the rulebook...');
+    return Promise.all([lib(), blob.arrayBuffer()]).then(function (r) {
+      return window.pdfjsLib.getDocument({ data: r[1] }).promise;
+    }).then(function (doc) {
+      if (pdf) try { pdf.destroy(); } catch (e) {}
+      pdf = doc; total = doc.numPages; curSig = blob.size + ''; textState = 'none'; building = 0; token2++; ensureText(false);
+      if (keep) idbPut(blob).catch(function () {});
+      go(cfg.page, false);
+    }).catch(function (e) { msg('That file could not be opened as a PDF.' + (e && e.message ? ' (' + e.message + ')' : ''), true); });
+  }
+  function linkRow(show) { var r = $('rulesLinkRow'); r.hidden = show === false ? true : !(show === true || r.hidden); if (!r.hidden) { if (!$('rulesUrl').value) $('rulesUrl').value = cfg.url || DEFAULT_URL; $('rulesUrl').focus(); } }
+  function linkMsg(t, bad) { var e = $('rulesUrlMsg'); e.textContent = t; e.className = 'lr-msg' + (bad ? ' bad' : ''); }
+  function fromLink() {
+    var u = $('rulesUrl').value.trim(), go2 = $('rulesUrlGo');
+    if (!/^https?:\/\//i.test(u)) { linkMsg('Paste a full link that starts with https://', true); return; }
+    if (location.protocol === 'https:' && /^http:/i.test(u)) { linkMsg('This page is secure, so the link has to start with https://', true); return; }
+    u = u.replace(/^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/(?:blob|raw)\/(.+?)(?:\?.*)?$/i, 'https://raw.githubusercontent.com/$1/$2/$3');   // a GitHub file page -> the raw file (which allows downloads)
+    u = u.replace(/^(https?:\/\/www\.dropbox\.com\/[^?#]+)\?(?:[^#]*&)?dl=0.*$/i, '$1?raw=1');
+    cfg.url = u; save(); go2.disabled = true; linkMsg('Connecting...');
+    fetch(u, { mode: 'cors', credentials: 'omit' }).then(function (r) {
+      if (!r.ok) throw new Error('The server answered ' + r.status + '.');
+      var len = +r.headers.get('content-length') || 0, got = 0, parts = [];
+      if (!r.body || !r.body.getReader) return r.blob();
+      var rd = r.body.getReader();
+      return (function pump() { return rd.read().then(function (x) {
+        if (x.done) return new Blob(parts, { type: 'application/pdf' });
+        parts.push(x.value); got += x.value.length;
+        linkMsg('Downloading ' + (got / 1048576).toFixed(1) + (len ? ' of ' + (len / 1048576).toFixed(1) : '') + ' MB...');
+        return pump();
+      }); })();
+    }).then(function (blob) {
+      return blob.slice(0, 5).text().then(function (h) {
+        if (h.indexOf('%PDF') !== 0) throw new Error('That link did not give a PDF file (it may be a web page, such as a sharing page). Use a direct link to the file.');
+        linkMsg('Opening...'); linkRow(false); return openBlob(blob, true);
+      });
+    }).catch(function (e) {
+      linkMsg(e instanceof TypeError ? 'Could not download it. Either the link is wrong, or the site does not allow other sites to download from it (many file-sharing pages, including Google Drive, do not). Try a host that allows it, or a direct link to a file you host yourself.' : (e && e.message) || 'Could not download it.', true);
+    }).then(function () { go2.disabled = false; });
+  }
+  var autoTried = false;
+  function restore() {
+    if (pdf || loading) return;
+    loading = idbGet().catch(function () { return null; }).then(function (b) {
+      if (b) return openBlob(b, false);
+      return fetch('rules.pdf').then(function (r) { if (!r.ok || !/pdf/i.test(r.headers.get('content-type') || '')) throw 0; return r.blob(); }).then(function (b2) { return openBlob(b2, false); }).catch(function () {
+        empty();
+        if (autoTried) return;
+        autoTried = true;   // nothing saved on this device yet: fetch the default rulebook right away (once per page load)
+        linkRow(true); $('rulesUrl').value = cfg.url || DEFAULT_URL; fromLink();
+      });
+    }).then(function () { loading = null; });
+  }
+
+  /* ---- page view ---- */
+  var pane, canvas, ctx, token = 0, task = null, cur = cfg.page;
+  function msg(text, bad) {
+    pane.textContent = '';
+    var d = mk('div', 'rules-empty'); d.appendChild(mk('p', '', text)); pane.appendChild(d);
+  }
+  function empty() {
+    pane.textContent = '';
+    var d = mk('div', 'rules-empty');
+    d.appendChild(mk('p', '', 'Get the V20 core rulebook (PDF) to read pages here. It is about 57 MB, so use Wi-Fi if you can. It is saved on this device and only needs downloading once. The index on the left works without it.'));
+    var b = mk('button', 'pick', 'Download the rulebook'); b.type = 'button'; b.id = 'rulesGet';
+    b.addEventListener('click', function () { linkRow(true); $('rulesUrl').value = DEFAULT_URL; fromLink(); });
+    d.appendChild(b);
+    var b3 = mk('button', 'pick alt', 'Open a PDF file from this device'); b3.type = 'button';
+    b3.addEventListener('click', function () { $('rulesFile').click(); });
+    d.appendChild(b3);
+    var b2 = mk('button', 'pick alt', 'Use a different link'); b2.type = 'button';
+    b2.addEventListener('click', function () { linkRow(true); });
+    d.appendChild(b2); pane.appendChild(d);
+    updateBar();
+  }
+  function clamp(p) { return Math.max(1, Math.min(total || 9999, p | 0)); }
+  function shown(p) { return cfg.mode === 'book' && p > OFFSET ? p - OFFSET : p; }
+  function updateBar() {
+    $('rulesPage').value = shown(cur);
+    $('rulesOf').textContent = total ? (cfg.mode === 'book' ? 'of ' + (total - OFFSET) : 'of ' + total) : '';
+    $('rulesMode').textContent = cfg.mode === 'book' ? 'Book pages' : 'PDF pages';
+    $('rulesPrev').disabled = !pdf || cur <= 1;
+    $('rulesNext').disabled = !pdf || cur >= total;
+  }
+  function go(p, toView) {
+    cur = pdf ? clamp(p) : Math.max(1, p | 0);
+    cfg.page = cur; save(); updateBar();
+    if (toView) $('rulesBack').setAttribute('data-view', 'page');
+    if (!pdf) { if (!loading) empty(); return; }
+    draw();
+  }
+  function draw() {
+    var my = ++token;
+    pdf.getPage(cur).then(function (page) {
+      if (my !== token) return;
+      var b = page.getViewport({ scale: 1 }), avail = Math.max(240, pane.clientWidth - 24);
+      var fw = avail / b.width, css = cfg.fit === 'height' ? Math.max(240, pane.clientHeight - 24) / b.height : cfg.fit === 'width' ? fw : fw * cfg.zoom;
+      effZoom = css / fw; var dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      var vp = page.getViewport({ scale: css * dpr });
+      if (!canvas || !canvas.parentNode) { pane.textContent = ''; canvas = document.createElement('canvas'); ctx = canvas.getContext('2d'); pane.appendChild(canvas); }
+      if (task) try { task.cancel(); } catch (e) {}
+      canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
+      canvas.style.width = Math.floor(vp.width / dpr) + 'px'; canvas.style.height = Math.floor(vp.height / dpr) + 'px';
+      canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', 'Rulebook page ' + shown(cur));
+      task = page.render({ canvasContext: ctx, viewport: vp });
+      task.promise.then(function () { pane.scrollTop = 0; }, function () {});
+    }).catch(function () {});
+  }
+  var effZoom = 1;
+  var FITS = { width: ['Width', 'Fit to width (click: fit to height)'], height: ['Height', 'Fit to height (click: back to your own zoom)'], manual: ['Zoom', 'Your own zoom (click: fit to width)'] };
+  function fitBtn() { var f = FITS[cfg.fit]; $('rulesFit').textContent = f[0]; $('rulesFit').title = f[1]; $('rulesFit').setAttribute('aria-label', f[1]); }
+  function zoom(f) { cfg.zoom = Math.max(0.4, Math.min(4, f)); cfg.fit = 'manual'; save(); fitBtn(); if (pdf) draw(); }
+  function cycleFit() { cfg.fit = cfg.fit === 'manual' ? 'width' : cfg.fit === 'width' ? 'height' : 'manual'; save(); fitBtn(); if (pdf) draw(); }
+
+  /* ---- open / close / wiring ---- */
+  function open() {
+    $('rulesBack').hidden = false;
+    updateBar(); renderIndex();
+    if (!pdf) restore(); else draw();
+    queryEl.focus();
+  }
+  function close() { $('rulesPop').hidden = true; $('rulesBack').hidden = true; $('rulesBtn').focus(); }
+  function applyShow() { $('rulesBtn').hidden = !cfg.show; $('rulesSep').hidden = !cfg.show; $('modRules').checked = cfg.show; if (!cfg.show && !$('rulesBack').hidden) close(); }
+  function init() {
+    pane = $('rulesPane'); resultsEl = $('rulesResults'); queryEl = $('rulesQuery');
+    $('rulesBtn').addEventListener('click', open);
+    function pop(show) { $('rulesPop').hidden = !show; $('rulesSet').setAttribute('aria-expanded', show ? 'true' : 'false'); }
+    function syncOpts() { $('rulesOptIndex').checked = cfg.index; $('rulesOptActs').checked = cfg.acts; $('rulesOptTerms').checked = cfg.terms; $('rulesOptText').checked = cfg.text; $('rulesTextRebuild').hidden = !cfg.text; status(textState === 'building' ? $('rulesStatus').textContent : ''); }
+    $('rulesSet').addEventListener('click', function (e) { e.stopPropagation(); pop($('rulesPop').hidden); });
+    $('rulesPop').addEventListener('click', function (e) { e.stopPropagation(); });
+    $('rulesBack').addEventListener('click', function () { pop(false); });
+    [['rulesOptIndex', 'index'], ['rulesOptActs', 'acts'], ['rulesOptTerms', 'terms'], ['rulesOptText', 'text']].forEach(function (o) {
+      $(o[0]).addEventListener('change', function () {
+        cfg[o[1]] = this.checked; save();
+        if (o[1] === 'text') { if (cfg.text) { textState = pdf ? (textState === 'ready' ? 'ready' : 'none') : 'none'; ensureText(false); } else { textState = 'off'; building = 0; $('rulesStatus').hidden = true; } }
+        syncOpts(); renderIndex();
+      });
+    });
+    $('rulesTextRebuild').addEventListener('click', function () { if (!pdf) { textState = 'none'; status('Open the PDF first.'); return; } textState = 'none'; ensureText(true); });
+    syncOpts();
+    $('rulesClose').addEventListener('click', close);
+    $('rulesToIndex').addEventListener('click', function () { $('rulesBack').setAttribute('data-view', 'index'); queryEl.focus(); });
+    $('rulesPrev').addEventListener('click', function () { go(cur - 1, false); });
+    $('rulesNext').addEventListener('click', function () { go(cur + 1, false); });
+    $('rulesZoomIn').addEventListener('click', function () { zoom(effZoom * 1.25); });
+    $('rulesZoomOut').addEventListener('click', function () { zoom(effZoom / 1.25); });
+    $('rulesFit').addEventListener('click', cycleFit); fitBtn();
+    $('rulesMode').addEventListener('click', function () { cfg.mode = cfg.mode === 'book' ? 'pdf' : 'book'; save(); updateBar(); renderIndex(); });
+    $('rulesChange').addEventListener('click', function () { $('rulesFile').click(); });
+    $('rulesLink').addEventListener('click', function () { linkRow(); });
+    $('rulesUrlGo').addEventListener('click', fromLink);
+    $('rulesUrl').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); fromLink(); } });
+    $('rulesFile').addEventListener('change', function () { var f = this.files && this.files[0]; this.value = ''; if (f) openBlob(f, true); });
+    $('rulesPage').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      var n = parseInt(this.value, 10);
+      if (isFinite(n)) go(cfg.mode === 'book' ? n + OFFSET : n, false); else updateBar();
+    });
+    $('rulesPage').addEventListener('focus', function () { this.select(); });
+    queryEl.addEventListener('input', function () { renderIndex(); clearTimeout(commitTimer); commitTimer = setTimeout(function () { commit(queryEl.value.trim()); }, 900); });
+    $('rulesBack1').addEventListener('click', goBack);
+    queryEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { commit(queryEl.value.trim()); if (firstHit && queryEl.value.trim()) go(firstHit.p, true); } });
+    document.addEventListener('keydown', function (e) {
+      if ($('rulesBack').hidden) return;
+      if (e.key === 'Escape') { e.preventDefault(); if (!$('rulesPop').hidden) { pop(false); $('rulesSet').focus(); } else close(); return; }
+      if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); goBack(); return; }
+      var typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement && document.activeElement.tagName);
+      if (e.key === '/' && !typing) { e.preventDefault(); $('rulesBack').setAttribute('data-view', 'index'); queryEl.focus(); return; }
+      if (typing) return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(cur + 1, false); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(cur - 1, false); }
+    });
+    $('modRules').addEventListener('change', function () { cfg.show = this.checked; save(); applyShow(); });
+    window.addEventListener('resize', function () { if (pdf && !$('rulesBack').hidden) draw(); });
+    applyShow();
+  }
+  init();
+  window.vtmRules = { open: open, close: close, go: function (p) { go(p, true); } };
+})();
+</script>
+<!-- RULES-MODULE:END script -->
+
+</body></html></body></html>

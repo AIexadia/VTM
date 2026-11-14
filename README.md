@@ -100,3 +100,6 @@ V1.5.4
 	-Persistent tag moved out of the submenu, and made back into it's own button on the normal context menu.
 	-Hidden Actor Names are numbered in order accounting for revealed actors.
 -Fixed some "Hover over" text.
+
+V1.6
+-Added "Rule Book" button to the top right of the page. This let's you load the core rule book PDF for VTM v20, and it acts as a PDF Viewer of it, with built-in indexes for ease of search.
