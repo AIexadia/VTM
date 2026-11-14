@@ -276,6 +276,10 @@ body {
 .ctx-sub { position: absolute; left: calc(100% + 4px); min-width: 180px; padding: 4px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface-2); box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; }
 .ctx-sub.flip { left: auto; right: calc(100% + 4px); }
 .ctx-sub[hidden] { display: none; }
+.ctx-sub.stack { left: 10px; right: auto; min-width: 0; width: calc(100% - 10px); }
+/* Hover/focus/tap help text: one floating bubble, kept inside the screen and above everything else */
+.tip-pop { position: fixed; z-index: 200; left: 0; top: 0; width: max-content; max-width: min(280px, calc(100vw - 16px)); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); font: 400 0.85rem/1.35 var(--font-body); letter-spacing: 0; text-align: left; white-space: normal; pointer-events: none; opacity: 0; transition: opacity 0.12s; }
+.tip-pop.show { opacity: 1; }
 .ctx button.ck-item { display: flex; align-items: center; gap: 10px; }
 .ck { flex: none; width: 16px; height: 16px; display: inline-grid; place-items: center; border: 1.5px solid var(--line-strong); border-radius: 4px; background: var(--surface); }
 .ck-item.on .ck { background: var(--accent); border-color: var(--accent); }
@@ -284,7 +288,6 @@ body {
 .preset-grip::before { content: ""; width: 44px; height: 4px; border-radius: 2px; background: var(--line-strong); }
 .preset-grip:hover::before, .preset-grip.active::before, .preset-grip:focus-visible::before { background: var(--accent); }
 .pre-opts { display: flex; gap: 8px; align-items: center; }
-.opt.tip-right::after { left: auto; right: 0; }
 .field-head { display: flex; align-items: center; gap: 8px; min-height: 26px; }
 .mod { display: flex; align-items: center; gap: 6px; margin-left: auto; }
 .mod-label { font: 600 0.7rem/1 var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -302,9 +305,6 @@ body {
 .tab-h { margin: 0; display: flex; font-weight: inherit; }
 .tab { display: inline-flex; align-items: center; gap: 12px; max-width: 100%; padding: 12px 18px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); color: var(--fg); font: 700 1.4rem/1 var(--font-display); letter-spacing: 0.01em; cursor: pointer; position: relative; }
 .tab:hover { background: var(--surface-2); }
-.tab::after { content: attr(data-tip); position: absolute; left: 0; top: calc(100% + 8px); width: max-content; max-width: min(280px, 70vw); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 400 0.85rem/1.35 var(--font-body); letter-spacing: 0; text-align: left; white-space: normal; pointer-events: none; opacity: 0; transform: translateY(-2px); transition: opacity 0.12s, transform 0.12s; z-index: 20; }
-.tab.tip-right::after { left: auto; right: 0; }
-.tab:hover::after, .tab:focus-visible::after { opacity: 1; transform: none; }
 .tab .chev { width: 14px; height: 14px; flex: none; transition: transform 0.15s; }
 .tab[aria-expanded="true"] { background: var(--bg); border-top: 3px solid var(--accent); border-bottom-color: var(--bg); border-radius: 10px 10px 0 0; padding-top: 10px; margin-bottom: -1px; z-index: 1; }
 .tab[aria-expanded="true"]:hover { background: var(--bg); }
@@ -444,8 +444,6 @@ body {
 .wrap.words .init-opts .opt { width: 84px; min-width: 0; height: 46px; padding: 3px 6px; white-space: normal; text-align: center; font: 600 0.78rem/1.15 var(--font-body); }
 .opt[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .opt[aria-pressed="true"]:hover { filter: brightness(1.1); }
-.opt::after { content: attr(data-tip); position: absolute; left: 0; bottom: calc(100% + 8px); width: max-content; max-width: min(240px, 70vw); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); color: var(--fg); font: 400 0.85rem/1.35 var(--font-body); text-align: left; white-space: normal; pointer-events: none; opacity: 0; transform: translateY(2px); transition: opacity 0.12s, transform 0.12s; z-index: 20; }
-.opt:hover::after, .opt:focus-visible::after { opacity: 1; transform: none; }
 .prob .net { font-size: clamp(3.5rem, 11vw, 5.25rem); }
 .prob .unit { max-width: 18ch; }
 .prob .kicker { font-size: clamp(1.3rem, 3vw, 1.7rem); }
@@ -460,7 +458,7 @@ body {
 .bars li.current .meter span { background: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   .die.rolling { animation: none; }
-  .result, .track, .track::after, .tab .chev, .pre-toggle .chev, .opt::after { transition: none; }
+  .result, .track, .track::after, .tab .chev, .pre-toggle .chev { transition: none; }
 }
 </style>
 
@@ -891,6 +889,7 @@ body {
             <button type="button" class="btn-sec" data-k="name" title="Sort by name. Press again to reverse.">Name</button>
             <button type="button" class="btn-sec" data-k="cel" title="Sort by Celerity users. Press again to reverse.">Celerity</button>
             <button type="button" class="btn-sec" data-k="mod" title="Sort by modifier. Press again to reverse.">Mod</button>
+            <button type="button" class="btn-sec" data-k="type" title="Sort by actor type: Players, then Enemies, then the rest. Press again to reverse.">Actor Type</button>
           </div>
           <ul class="ap-list" id="actorsList"></ul>
           <p class="hint ap-empty" id="actorsEmpty"></p>
@@ -1081,10 +1080,11 @@ body {
           var nm = String(p.name || '').replace(/\s+/g, ' ').trim().slice(0, 24);
           if (!nm || pnames[nm.toLowerCase()]) return;
           pnames[nm.toLowerCase()] = true;
-          st.actorPresets.push({ name: nm, cel: p.cel === true, rev: p.rev === true, mod: isFinite(+p.mod) ? clamp(Math.round(+p.mod), -99, 99) : 0 });
+          var ty = p.type === 'player' || p.type === 'enemy' ? p.type : '';
+          st.actorPresets.push({ name: nm, cel: p.cel === true, type: ty, rev: !ty && p.rev === true, mod: isFinite(+p.mod) ? clamp(Math.round(+p.mod), -99, 99) : 0 });
         });
       }
-      if (/^(name|cel|mod)$/.test(saved.actorSort)) st.actorSort = saved.actorSort;
+      if (/^(name|cel|mod|type)$/.test(saved.actorSort)) st.actorSort = saved.actorSort;
       if (typeof saved.actorDesc === 'boolean') st.actorDesc = saved.actorDesc;
       if (saved.ini && Array.isArray(saved.ini.actors)) {
         var seen = {}, seq = 1;
@@ -1097,7 +1097,7 @@ body {
           var die = isFinite(+a.die) ? clamp(Math.round(+a.die), -199, 999) : (rolled ? Math.round(+a.init) - mod - applied : 0);
           seen[+a.id] = true;
           seq = Math.max(seq, +a.id + 1);
-          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied : null, persistent: a.persistent === true, reveal: a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0 });
+          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0 });
         });
         st.ini.seq = seq;
         var usedEn = {};
@@ -1909,9 +1909,11 @@ body {
     w.hidden = false;
     b.setAttribute('aria-expanded', 'true');
     w.style.top = (b.offsetTop - 5) + 'px';
-    w.classList.remove('flip');
+    w.classList.remove('flip', 'stack');
     var r = w.getBoundingClientRect();
-    if (r.right > window.innerWidth - 8) w.classList.add('flip');   // no room on the right
+    if (r.right > window.innerWidth - 8) { w.classList.add('flip'); r = w.getBoundingClientRect(); }   // no room on the right
+    if (r.left < 8) { w.classList.remove('flip'); w.classList.add('stack'); w.style.top = (b.offsetTop + b.offsetHeight + 2) + 'px'; r = w.getBoundingClientRect(); }   // no room on the left either: drop below
+    if (r.bottom > window.innerHeight - 8) w.style.top = (parseFloat(w.style.top) - (r.bottom - window.innerHeight + 8)) + 'px';
   }
   function openContextMenu(x, y, items, back) {
     if (!ctxEl) {
@@ -1930,7 +1932,7 @@ body {
         var cur = document.activeElement;
         var sub = cur && cur.closest ? cur.closest('.ctx-sub') : null;
         var scope = sub || ctxEl;
-        var btns = Array.prototype.filter.call(scope.children, function (c) { return c.tagName === 'BUTTON'; });
+        var btns = Array.prototype.filter.call(scope.children, function (c) { return c.tagName === 'BUTTON' && !c.hidden; });
         var at = btns.indexOf(cur);
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -1965,6 +1967,7 @@ body {
         w.className = 'ctx-sub';
         w.setAttribute('role', 'menu');
         w.hidden = true;
+        var paints = [];
         it.sub.forEach(function (si) {
           var sb = document.createElement('button');
           sb.type = 'button';
@@ -1975,9 +1978,10 @@ body {
           box.setAttribute('aria-hidden', 'true');
           sb.appendChild(box);
           sb.appendChild(document.createTextNode(si.label));
-          function paint() { var on = !!si.checked(); sb.setAttribute('aria-checked', on ? 'true' : 'false'); sb.classList.toggle('on', on); }
+          function paint() { var on = !!si.checked(); sb.setAttribute('aria-checked', on ? 'true' : 'false'); sb.classList.toggle('on', on); sb.hidden = !!si.hidden && !!si.hidden(); }
+          paints.push(paint);
           paint();
-          sb.addEventListener('click', function () { si.run(); paint(); sb.focus(); });
+          sb.addEventListener('click', function () { si.run(); paints.forEach(function (f) { f(); }); sb.focus(); });
           w.appendChild(sb);
         });
         ctxEl.appendChild(w);
@@ -2707,6 +2711,35 @@ body {
     updateDmg();
   }
 
+  /* Floating help bubbles for every [data-tip] control: shown on hover, keyboard focus or a tap, placed above or below and clamped to the screen. */
+  (function () {
+    var pop = document.createElement('div'), cur = null, timer = 0;
+    pop.className = 'tip-pop'; pop.setAttribute('role', 'tooltip'); pop.id = 'tipPop';
+    document.body.appendChild(pop);
+    function hide() { clearTimeout(timer); cur = null; pop.classList.remove('show'); }
+    function show(el) {
+      var t = el.getAttribute('data-tip');
+      if (!t) return;
+      clearTimeout(timer); cur = el;
+      pop.textContent = t;
+      var r = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight, vw = document.documentElement.clientWidth, vh = window.innerHeight;
+      var left = Math.max(8, Math.min(r.left, vw - pw - 8));
+      var top = r.top - ph - 8;                       // above by default
+      if (top < 8) top = r.bottom + 8;                // no room above: below
+      if (top + ph > vh - 8) top = Math.max(8, vh - ph - 8);
+      pop.style.left = left + 'px'; pop.style.top = top + 'px';
+      pop.classList.add('show');
+    }
+    function target(e) { return e.target && e.target.closest ? e.target.closest('[data-tip]') : null; }
+    document.addEventListener('pointerover', function (e) { if (e.pointerType === 'touch') return; var el = target(e); if (el) show(el); else if (cur) hide(); });
+    document.addEventListener('pointerout', function (e) { if (e.pointerType !== 'touch' && cur && !(e.relatedTarget && cur.contains(e.relatedTarget))) hide(); });
+    document.addEventListener('pointerdown', function (e) { var el = target(e); if (e.pointerType === 'touch' && el) { show(el); timer = setTimeout(hide, 2600); } else hide(); });
+    document.addEventListener('focusin', function (e) { var el = target(e); if (el && e.target.matches && e.target.matches(':focus-visible')) show(el); });
+    document.addEventListener('focusout', function (e) { if (cur && target(e) === cur) hide(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
+    window.addEventListener('scroll', function () { if (cur) show(cur); }, true);   // follow the control while the page scrolls
+    window.addEventListener('resize', function () { if (cur) show(cur); });
+  })();
   function setPressed(id, on) {
     $(id).setAttribute('aria-pressed', on ? 'true' : 'false');
   }
@@ -3001,7 +3034,15 @@ body {
     while (used[k]) k++;
     return k;
   }
-  function pubName(a) { return a.reveal ? a.name : 'Enemy [' + a.en + ']'; }
+  /* A new encounter closes the gaps: hidden actors take Enemy [1], [2], ... in their current order; revealed ones are numbered after them. */
+  function renumberEnemies() {
+    var order = ini.actors.slice().sort(function (x, y) { return x.en - y.en || x.id - y.id; });
+    var hidden = order.filter(function (a) { return !isRev(a); }), shown = order.filter(function (a) { return isRev(a); });
+    hidden.concat(shown).forEach(function (a, i) { a.en = i + 1; });
+  }
+  /* Players are always revealed; anyone else is revealed only when the host says so. */
+  function isRev(a) { return a.type === 'player' || !!a.reveal; }
+  function pubName(a) { return isRev(a) ? a.name : 'Enemy [' + a.en + ']'; }
   function fmtMod(n) { return (n < 0 ? MINUS : '+') + Math.abs(n); }
   /* The total is the roll plus the modifier plus the bonus or penalty. */
   function recompute(a) { if (a.init !== null) a.init = a.die + a.mod + a.applied; }
@@ -3323,7 +3364,7 @@ body {
       nb.setAttribute('aria-label', a.name + (a.persistent ? ', persistent' : '') + '. Press Enter to rename, or the menu key for more options.');
       nb.title = 'Double-click to rename. Right-click for more options.' + (tr.className === 'current' && curAt < ord.rolled.length - 1 && !ini.celerity ? ' Hold, then drag down to delay.' : '');
       t2.appendChild(nb);
-      if (hostInfo && !a.reveal) {
+      if (hostInfo && !isRev(a)) {
         var hint = document.createElement('span');
         hint.className = 'ini-enemy';
         hint.textContent = pubName(a);
@@ -3428,7 +3469,7 @@ body {
 
   $('initAdd').addEventListener('click', function () {
     if (ini.actors.length >= 60) { setTurnMsg('That is the most actors the tracker holds.'); return; }
-    var a = { id: ini.seq++, name: 'Actor ' + (ini.actors.length + 1), mod: 0, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false, reveal: false, en: nextEn(), base: '', cel: false, ca: 0 };
+    var a = { id: ini.seq++, name: 'Actor ' + (ini.actors.length + 1), mod: 0, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false, type: '', reveal: false, en: nextEn(), base: '', cel: false, ca: 0 };
     ini.actors.push(a);
     initChanged();
     var row = $('initBodyRows').querySelector('tr[data-id="' + a.id + '"]');
@@ -3464,6 +3505,7 @@ body {
     }
     if (!ini.actors.length) return;
     stopRollConfirm();
+    renumberEnemies();
     ini.encounter = true;   // nothing is rolled yet: that happens when the round starts
     ini.round = 1;
     ini.started = false;
@@ -3534,7 +3576,7 @@ body {
     return -1;
   }
   function saveActorPreset(a) {
-    var p = { name: (a.base || a.name).slice(0, 24), cel: !!a.cel, rev: !!a.reveal, mod: a.mod };
+    var p = { name: (a.base || a.name).slice(0, 24), cel: !!a.cel, type: a.type, rev: !a.type && !!a.reveal, mod: a.mod };
     var i = presetAt(p.name);
     if (i >= 0) actorPresets[i] = p;
     else if (actorPresets.length < 300) actorPresets.push(p);
@@ -3547,7 +3589,8 @@ body {
     var i = presetAt(a.name);
     if (i < 0) return;
     actorPresets[i].cel = !!a.cel;
-    actorPresets[i].rev = !!a.reveal;
+    actorPresets[i].type = a.type;
+    actorPresets[i].rev = !a.type && !!a.reveal;
     actorPresets[i].mod = a.mod;
     renderActors();
   }
@@ -3565,7 +3608,7 @@ body {
       }
       base = p.name;
     }
-    ini.actors.push({ id: ini.seq++, name: name, base: base, mod: p.mod, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false, reveal: !!p.rev, en: nextEn(), cel: p.cel, ca: 0 });
+    ini.actors.push({ id: ini.seq++, name: name, base: base, mod: p.mod, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false, type: p.type || '', reveal: !p.type && !!p.rev, en: nextEn(), cel: p.cel, ca: 0 });
     initChanged();
     $('actorsMsg').textContent = 'Added ' + name;
   }
@@ -3573,9 +3616,10 @@ body {
     var q = $('actorsSearch').value.trim().toLowerCase();
     var arr = actorPresets.filter(function (p) { return !q || p.name.toLowerCase().indexOf(q) >= 0; });
     var dir = st.actorDesc ? -1 : 1;
+    function typeRank(p) { return p.type === 'player' ? 0 : p.type === 'enemy' ? 1 : 2; }
     function byName(a, b) { var x = a.name.toLowerCase(), y = b.name.toLowerCase(); return x < y ? -1 : x > y ? 1 : 0; }
     arr.sort(function (a, b) {
-      var r = st.actorSort === 'cel' ? (b.cel ? 1 : 0) - (a.cel ? 1 : 0) : st.actorSort === 'mod' ? b.mod - a.mod : byName(a, b);
+      var r = st.actorSort === 'cel' ? (b.cel ? 1 : 0) - (a.cel ? 1 : 0) : st.actorSort === 'mod' ? b.mod - a.mod : st.actorSort === 'type' ? typeRank(a) - typeRank(b) : byName(a, b);
       return r ? r * dir : byName(a, b);
     });
     return arr;
@@ -3586,7 +3630,7 @@ body {
     Array.prototype.forEach.call(document.querySelectorAll('#actorsPop .ap-sort button'), function (b) {
       var on = b.getAttribute('data-k') === st.actorSort;
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
-      b.textContent = { name: 'Name', cel: 'Celerity', mod: 'Mod' }[b.getAttribute('data-k')] + (on ? (st.actorDesc ? ' \u25bc' : ' \u25b2') : '');
+      b.textContent = { name: 'Name', cel: 'Celerity', mod: 'Mod', type: 'Actor Type' }[b.getAttribute('data-k')] + (on ? (st.actorDesc ? ' \u25bc' : ' \u25b2') : '');
     });
     var rows = sortedPresets();
     rows.forEach(function (p) {
@@ -3598,6 +3642,7 @@ body {
       var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = p.name;
       b.appendChild(nm);
       if (p.cel) { var tg = document.createElement('span'); tg.className = 'tag'; tg.textContent = 'Celerity'; b.appendChild(tg); }
+      if (p.type) { var ty2 = document.createElement('span'); ty2.className = 'tag'; ty2.textContent = p.type === 'player' ? 'Player' : 'Enemy'; b.appendChild(ty2); }
       if (p.rev) { var tr2 = document.createElement('span'); tr2.className = 'tag'; tr2.textContent = 'Revealed'; b.appendChild(tr2); }
       var md = document.createElement('span'); md.className = 'md'; md.textContent = fmtMod(p.mod);
       md.title = 'Initiative modifier';
@@ -3670,10 +3715,12 @@ body {
     openContextMenu(x, y, [
       { label: a.init === null ? 'Roll initiative' : 'Re-roll initiative', run: function () { rollActor(a); initChanged(); } },
       { label: 'Set Tags', sub: [
-        { label: 'Persistent', checked: function () { return a.persistent; }, run: function () { a.persistent = !a.persistent; initChanged(); } },
+        { label: 'Player', checked: function () { return a.type === 'player'; }, run: function () { a.type = a.type === 'player' ? '' : 'player'; a.reveal = false; autoUpdate(a); initChanged(); } },
+        { label: 'Enemy', checked: function () { return a.type === 'enemy'; }, run: function () { a.type = a.type === 'enemy' ? '' : 'enemy'; autoUpdate(a); initChanged(); } },
         { label: 'Celerity User', checked: function () { return a.cel; }, run: function () { a.cel = !a.cel; if (!a.cel) a.ca = 0; autoUpdate(a); initChanged(); } },
-        { label: 'Reveal Name', checked: function () { return a.reveal; }, run: function () { a.reveal = !a.reveal; autoUpdate(a); initChanged(); } }
+        { label: 'Reveal Name', hidden: function () { return a.type === 'player'; }, checked: function () { return a.reveal; }, run: function () { a.reveal = !a.reveal; autoUpdate(a); initChanged(); } }
       ] },
+      { label: a.persistent ? 'Remove Persistent' : 'Set as Persistent', run: function () { a.persistent = !a.persistent; initChanged(); } },
       { label: 'Save as Preset', run: function () { saveActorPreset(a); },
         hold: function (b) {   // a name already on the list asks once more, without closing the menu
           if (b.getAttribute('data-sure') || presetAt(a.base || a.name) < 0) return false;

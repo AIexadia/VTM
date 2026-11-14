@@ -91,3 +91,12 @@ V1.5.3
 		-Made it so that remote clients can't see an unrevealed actor's name, and instead show as "Enemy [X]", the X being number of enemy.
 	-Moved all tag related actor toggles to their own submenu within the context menu.
 	-Added an Auto Update option to the tracker, when enabled, it automatically updates presets with changes on the tracker (but not if they're duplicates of actors).
+
+V1.5.4
+-Initiative Tracker Changes:
+	-Added 2 more Actor Tags.
+		-Player: Always revealed, doesn't store nor show the Reveal tag.
+		-Enemy: Always hidden, doesn't store the reveal tag, but can be manually revealed mid-encounter.
+	-Persistent tag moved out of the submenu, and made back into it's own button on the normal context menu.
+	-Hidden Actor Names are numbered in order accounting for revealed actors.
+-Fixed some "Hover over" text.
