@@ -1052,6 +1052,33 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 /* Discipline clan toggle (Free-form edit and XP mode) */
 .cm-tag.tag-btn { font: 600 0.68rem/1.2 var(--font-data); border: 1px dashed var(--line-strong); cursor: pointer; }
 .cm-tag.tag-btn:hover, .cm-tag.tag-btn:focus-visible { border-color: var(--accent); color: var(--fg); }
+/* Account: a summary line in Settings, the rest in its own overlay */
+.acct-sum { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.acct-sum-txt { color: var(--muted); }
+.modal-back.acct-back { z-index: 110; }
+.acct-dlg { width: min(520px, 100%); }
+.acct-dlg .acct-box { gap: 14px; }
+.acct-who { display: flex; flex-direction: column; gap: 2px; }
+.acct-who b { font-size: 1.1rem; font-weight: 600; }
+.acct-pid { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.acct-pid-lbl { font: 600 0.72rem/1 var(--font-data); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.acct-pid-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.acct-pid-row b { font-size: 1.5rem; letter-spacing: 0.14em; color: var(--fg); }
+.acct-pid .hint { margin: 0; }
+/* Right-click Rule Book menu */
+.cm-ctx { position: fixed; z-index: 400; min-width: 200px; max-width: min(320px, calc(100vw - 16px)); display: flex; flex-direction: column; padding: 6px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); }
+.cm-ctx button { display: flex; justify-content: space-between; gap: 12px; padding: 8px 10px; border: 0; border-radius: 6px; background: none; color: var(--fg); font: inherit; font-size: 0.92rem; text-align: left; cursor: pointer; }
+.cm-ctx button:hover, .cm-ctx button:focus-visible { background: var(--surface-2); outline: none; }
+.cm-ctx .muted { color: var(--muted); white-space: nowrap; }
+.cm-ctx-note { margin: 4px 8px; font-size: 0.88rem; color: var(--muted); }
+[data-bk] { cursor: context-menu; }
+.pick-lbl[data-pick] { cursor: pointer; }
+/* Random Character Generator */
+.cm-modal label.chk { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 12px; cursor: pointer; }
+.cm-modal label.chk input { width: 18px; height: 18px; accent-color: var(--accent); }
+.cm-modal label.chk small { flex-basis: 100%; margin-left: 26px; }
+.cm-modal .fld small { display: block; margin-top: 4px; font-size: 0.82rem; }
+.cm-tag { margin-left: 6px; padding: 1px 6px; border: 1px solid var(--line); border-radius: 999px; font: 500 0.68rem/1.4 var(--font-data); color: var(--muted); vertical-align: middle; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -1605,6 +1632,19 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     <p class="hint" id="changelogSrc" role="status"></p>
   </div>
 </div>
+<!-- CHARACTERS-MODULE:BEGIN account-dialog -->
+<div class="modal-back acct-back" id="acctBack" hidden>
+  <div class="modal acct-dlg" role="dialog" aria-modal="true" aria-labelledby="acctTitle" id="acctDlg">
+    <div class="modal-head">
+      <h2 id="acctTitle">Account</h2>
+      <button type="button" class="sound-btn" id="acctClose" aria-label="Close account" title="Close">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
+    </div>
+    <div class="acct-box" id="acctBox"></div>
+  </div>
+</div>
+<!-- CHARACTERS-MODULE:END account-dialog -->
 <div class="modal-back" id="settingsBack" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" id="settingsDlg">
     <div class="modal-head">
@@ -1616,7 +1656,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 <!-- CHARACTERS-MODULE:BEGIN account -->
     <section class="set-sec" aria-labelledby="acctHead">
       <h3 id="acctHead">Account</h3>
-      <div class="acct-box" id="acctBox"></div>
+      <div class="acct-sum"><span class="acct-sum-txt" id="acctSum">Not signed in.</span><button type="button" class="reset-btn" id="acctOpen" aria-haspopup="dialog">Account…</button></div>
     </section>
 <!-- CHARACTERS-MODULE:END account -->
     <section class="set-sec" aria-labelledby="rulesHead">
@@ -6164,7 +6204,7 @@ V1.5
     applyShow();
   }
   init();
-  window.vtmRules = { open: open, close: close, go: function (p) { go(p, true); } };
+  window.vtmRules = { open: open, close: close, go: function (p) { go(p, true); }, index: RAW };   // CHARACTERS-MODULE: index for page links
 })();
 </script>
 <!-- CHARACTERS-MODULE:BEGIN script -->
@@ -6596,7 +6636,7 @@ V1.5
     /* In Play, Attribute/Ability/Virtue names can be picked to build a dice pool for the roller. */
     var pick = ctx.pick && PICKABLE[kind(p)], picked = pick && (pb.a === p || pb.b === p);
     var name = pick ? '<span class="pick-lbl" data-pick="' + esc(p) + '" role="button" tabindex="0" aria-pressed="' + !!picked + '" title="Pick for a roll">' + esc(labelOf(c, p)) + '</span>' : esc(labelOf(c, p));
-    return '<div class="trait' + (picked ? ' picked' : '') + '"><span class="tn"><span class="cm-nm">' + name + (tags || '') + noteBtn(c, p, labelOf(c, p), ctx.notes) + '</span>' + specHTML(c, p, ctx) + '</span>' +
+    return '<div class="trait' + (picked ? ' picked' : '') + '"><span class="tn"><span class="cm-nm" data-bk="trait:' + esc(p) + '">' + name + (tags || '') + noteBtn(c, p, labelOf(c, p), ctx.notes) + '</span>' + specHTML(c, p, ctx) + '</span>' +
       dotsHTML(c, p, ctx.live(p)) + (rm || '') + '</div>';
   }
   function ctr(sp, al) {
@@ -6609,11 +6649,12 @@ V1.5
       return '<button type="button" data-act="prio" data-k="' + k + '" data-g="' + g + '" data-i="' + j + '" aria-pressed="' + (i === j) + '" title="' + names[j] + ': ' + n + ' dots">' + n + '</button>';
     }).join('') + '</span>';
   }
+  var BK_FLD = { 'info.nature': 'nature', 'info.demeanor': 'demeanor' };
   function fld(c, label, path, value, extra, ed) {
-    return '<label class="fld"><span class="cm-lbl">' + label + (c ? noteBtn(c, path, label, ed !== false) : '') + '</span><input data-f="' + path + '" value="' + esc(value) + '"' + (extra || '') + '></label>';
+    return '<label class="fld"><span class="cm-lbl"' + (BK_FLD[path] ? ' data-bk="' + BK_FLD[path] + '"' : '') + '>' + label + (c ? noteBtn(c, path, label, ed !== false) : '') + '</span><input data-f="' + path + '" value="' + esc(value) + '"' + (extra || '') + '></label>';
   }
   function clanSelect(c) {
-    return '<label class="fld"><span class="cm-lbl">Clan' + noteBtn(c, 'info.clan', 'Clan', true) + '</span><select data-f="info.clan" data-rr><option value="">Choose…</option>' +
+    return '<label class="fld"><span class="cm-lbl" data-bk="clan">Clan' + noteBtn(c, 'info.clan', 'Clan', true) + '</span><select data-f="info.clan" data-rr><option value="">Choose…</option>' +
       Object.keys(CLANS).map(function (k) { return '<option' + (c.info.clan === k ? ' selected' : '') + '>' + esc(k) + '</option>'; }).join('') + '</select></label>';
   }
   function addCtl(k, ph, list, d) {
@@ -6668,7 +6709,7 @@ V1.5
       '<dl class="info-view">' + items.map(function (x) {
         var v = x[1] ? I[x[1]] : ord(I.generation);
         var shown = (x[1] && x[1] !== 'clan') ? dblF('info.' + x[1], v, esc(v || '—'), { label: x[0], list: (x[1] === 'nature' || x[1] === 'demeanor') ? 'dl-arch' : '' }) : esc(v || '—');
-        return '<div><dt>' + x[0] + '</dt><dd>' + shown + (x[1] ? noteBtn(c, 'info.' + x[1], x[0], notesEd) : '') + '</dd></div>';
+        return '<div><dt' + ({ clan: ' data-bk="clan"', nature: ' data-bk="nature"', demeanor: ' data-bk="demeanor"' }[x[1]] || '') + '>' + x[0] + '</dt><dd>' + shown + (x[1] ? noteBtn(c, 'info.' + x[1], x[0], notesEd) : '') + '</dd></div>';
       }).join('') + '</dl></section>';
   }
   function attrSection(c, ctx, wizard) {
@@ -6770,12 +6811,13 @@ V1.5
   }
   function mfSection(c, editable) {
     function list(k, label) {
-      var arr = c[k], h = '<div class="col"><div class="col-head"><h3>' + label + '</h3><span class="ctr">' + sum(arr, function (m) { return +m.cost || 0; }) + ' pts</span></div>';
+      var arr = c[k], h = '<div class="col"><div class="col-head"><h3 data-bk="mfhead">' + label + '</h3><span class="ctr">' + sum(arr, function (m) { return +m.cost || 0; }) + ' pts</span></div>';
       if (!arr.length) h += '<p class="muted small">None.</p>';
       arr.forEach(function (m, i) {
         var nb = noteBtn(c, 'arr:' + k + ':' + m.id, m.name || label.slice(0, -1), editable);
-        if (editable) h += '<div class="row-ed"><input data-f="' + k + '.' + i + '.name" value="' + esc(m.name) + '" placeholder="Name" aria-label="' + label + ' name"><input type="number" min="1" max="7" data-f="' + k + '.' + i + '.cost" data-num data-rr value="' + esc(m.cost) + '" aria-label="Points">' + nb + '<button type="button" class="x-btn" data-act="rmArr" data-k="' + k + '" data-i="' + i + '" aria-label="Remove">×</button></div>';
-        else h += '<div class="trait"><span class="tn"><span class="cm-nm">' + esc(m.name || 'Unnamed') + nb + '</span></span><span class="ctr">' + esc(m.cost) + '</span></div>';
+        var bm = mfFind(k, m.name), mk = bm ? ' <span class="cm-tag" title="' + bm.kind + ' ' + label.slice(0, -1).toLowerCase() + ', ' + mfCost(bm) + ' in the book">' + bm.kind + '</span>' : '';
+        if (editable) h += '<div class="row-ed"><input data-f="' + k + '.' + i + '.name" value="' + esc(m.name) + '" placeholder="Name (pick from the book or type)" list="dl-' + k + '" aria-label="' + label + ' name"><input type="number" min="1" max="7" data-f="' + k + '.' + i + '.cost" data-num data-rr value="' + esc(m.cost) + '" aria-label="Points">' + nb + '<button type="button" class="x-btn" data-act="rmArr" data-k="' + k + '" data-i="' + i + '" aria-label="Remove">×</button></div>';
+        else h += '<div class="trait"><span class="tn"><span class="cm-nm" data-bk="' + (k === 'merits' ? 'merit' : 'flaw') + ':' + esc(m.name) + '">' + esc(m.name || 'Unnamed') + mk + nb + '</span></span><span class="ctr">' + esc(m.cost) + '</span></div>';
       });
       if (editable) h += '<div class="add"><button type="button" class="btn small" data-act="addArr" data-k="' + k + '">Add ' + label.slice(0, -1).toLowerCase() + '</button></div>';
       return h + '</div>';
@@ -6933,11 +6975,11 @@ V1.5
     var fort = c.disc.Fortitude || 0, sta = phys(c, 'stamina'), arm = wornArmor(c), ar = arm ? (+arm.rating || 0) : 0, ap = arm ? (+arm.penalty || 0) : 0;
     var hung = hungry(c) ? '<span class="hungry" title="Blood pool is below 7 − ' + esc(virtLabel(c, 'selfControl')) + ' (' + (7 - c.virt.selfControl) + ')">Hungry</span>' : '';
     var out = '<section class="card"><div class="card-head"><h2>' + esc(c.info.name || 'Unnamed') + '</h2><span class="inline">' + actingTag(c) + (c.info.clan ? '<span class="chip">' + esc(c.info.clan) + ' · ' + ord(c.info.generation) + '</span>' : '') + '<button type="button" class="btn small" data-act="toInit">Add to Initiative</button></span></div><div class="vit-grid">' +
-      '<div class="vit"><h3 class="sub">Health</h3><div class="htable">' + boxes + '</div><div class="status">' + esc(status) + '</div>' +
+      '<div class="vit"><h3 class="sub" data-bk="health">Health</h3><div class="htable">' + boxes + '</div><div class="status">' + esc(status) + '</div>' +
       healthButtons(c) + '</div>' +
-      '<div class="vit"><div class="pool-head"><h3 class="sub">Blood pool</h3>' + hung + '<strong>' + c.blood.cur + ' / ' + g.blood + '</strong></div><div class="boxes">' + bloodBoxes + '</div>' +
+      '<div class="vit"><div class="pool-head"><h3 class="sub" data-bk="blood">Blood pool</h3>' + hung + '<strong>' + c.blood.cur + ' / ' + g.blood + '</strong></div><div class="boxes">' + bloodBoxes + '</div>' +
       '<div class="muted small">Up to ' + g.turn + ' per turn' + (turnNow() ? ' · ' + spentNow(c) + ' spent this turn' : '') + '</div><div class="btn-row"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="soak" title="Roll soak">Soak</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
-      '<div class="pool-head" style="margin-top:8px"><h3 class="sub">Willpower</h3><strong>' + c.willpower.cur + ' / ' + c.willpower.perm + '</strong></div><div class="boxes wp">' + wpBoxes + '</div>' +
+      '<div class="pool-head" style="margin-top:8px"><h3 class="sub" data-bk="wp">Willpower</h3><strong>' + c.willpower.cur + ' / ' + c.willpower.perm + '</strong></div><div class="boxes wp">' + wpBoxes + '</div>' +
       '<div class="btn-row"><button class="btn small" data-act="poolAdj" data-k="wp" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="wp" data-d="1">Regain 1</button></div></div>' +
       /* Collapsible like the Damage module's "Average damage expected" row; the summary shows soak and initiative. */
       '<div class="vit"><h3 class="pre-h"><button type="button" class="pre-toggle plan" data-act="qrefToggle" aria-expanded="' + qrefOpen() + '"><span class="plan-label">Quick reference</span>' +
@@ -8215,24 +8257,32 @@ V1.5
     $('mOk').onclick = function () { c.creation.st = parseInt($('stN').value, 10) || 0; closeModal(); commit(); };
     $('stN').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); });
   }
-  function newCharModal() {
+  function newCharModal(pre) {
+    pre = pre && pre.tag != null ? pre : {};
     openModal('<h2>New character</h2>' +
-      '<label class="fld">Name<input id="ncName" placeholder="Can be filled in later"></label>' +
+      '<label class="fld">Name<input id="ncName" placeholder="Can be filled in later" value="' + esc(pre.name || '') + '"></label>' +
       '<div class="choice" role="radiogroup" aria-label="Template"><h3 class="sub">Template</h3>' + TEMPLATES.map(function (t, i) {
         return '<label class="' + (t.ready ? '' : 'off') + '"><input type="radio" name="ncT" value="' + t.id + '"' + (i === 0 ? ' checked' : '') + (t.ready ? '' : ' disabled') + '><span>' + t.name + '<small>' + t.desc + '</small></span></label>';
       }).join('') + '</div>' +
       '<div class="choice" role="radiogroup" aria-label="Start"><h3 class="sub">How to start</h3>' +
       '<label><input type="radio" name="ncS" value="guided" checked><span>Guided creation<small>Step by step, with V20 dot budgets, freebie points and checks.</small></span></label>' +
-      '<label><input type="radio" name="ncS" value="blank"><span>Blank sheet<small>Free-form editing, no limits. Good for copying an existing character.</small></span></label></div>' +
+      '<label><input type="radio" name="ncS" value="blank"><span>Blank sheet<small>Free-form editing, no limits. Good for copying an existing character.</small></span></label>' +
+      '<label><input type="radio" name="ncS" value="random"><span>Random Character Generator<small>A finished, random character. Next you pick the clan, name and XP to spend.</small></span></label></div>' +
       '<div class="choice" role="radiogroup" aria-label="Actor type"><h3 class="sub">In the Initiative tracker</h3>' +
       '<label><input type="radio" name="ncA" value="" checked><span>Neither<small>No actor type.</small></span></label>' +
       '<label><input type="radio" name="ncA" value="player"><span>Player<small>A player\'s character; joiners always see the name.</small></span></label>' +
       '<label><input type="radio" name="ncA" value="enemy"><span>Enemy<small>Joiners see "Enemy [n]" until the name is revealed.</small></span></label></div>' +
       '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Create</button></div>');
+    if (pre.start) document.querySelector('input[name="ncS"][value="' + pre.start + '"]').checked = true;
+    if (pre.tag != null) document.querySelector('input[name="ncA"][value="' + pre.tag + '"]').checked = true;
+    var okLbl = function () { $('mOk').textContent = document.querySelector('input[name="ncS"]:checked').value === 'random' ? 'Next…' : 'Create'; };
+    document.querySelectorAll('input[name="ncS"]').forEach(function (r) { r.addEventListener('change', okLbl); }); okLbl();
     $('mNo').onclick = closeModal;
     $('mOk').onclick = function () {
+      var start = document.querySelector('input[name="ncS"]:checked').value, tid = document.querySelector('input[name="ncT"]:checked').value;
+      if (start === 'random') return genModal({ name: $('ncName').value.trim(), tag: document.querySelector('input[name="ncA"]:checked').value, tmpl: TEMPLATES.filter(function (t) { return t.id === tid; })[0] || TEMPLATES[0] });
       var c = blankKindred($('ncName').value.trim());
-      if (document.querySelector('input[name="ncS"]:checked').value === 'blank') { c.mode = 'edit'; c.creation.done = true; }
+      if (start === 'blank') { c.mode = 'edit'; c.creation.done = true; }
       c.tracker.type = document.querySelector('input[name="ncA"]:checked').value;
       store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
       closeModal(); commit(); window.scrollTo({ top: 0 });
@@ -8969,7 +9019,7 @@ V1.5
     if (rollIt) {
       if (rollIt.data && rollIt.data !== local['blob:roller']) {
         acct.rollerPending = { m: rollIt.m, data: rollIt.data };
-        toast('Your roller settings or presets changed on another device. Open Settings > Account to load them.');
+        toast('Your roller settings or presets changed on another device. Open Settings > Account… to load them.');
       } else acct.known['blob:roller'] = { m: rollIt.m, h: hashStr(rollIt.data || '') };
       delete acct.dirty['blob:roller'];
     }
@@ -9044,18 +9094,32 @@ V1.5
   function signOutLocal(msg) { shCloseAll(); acct = { known: {}, dirty: {}, since: 0 }; saveAcct(); acctState.err = msg || ''; acctState.last = 0; renderAcct(); render(); }
   function fmtPid(p) { p = String(p || ''); return p.length === 8 ? p.slice(0, 4) + '-' + p.slice(4) : p; }
   function ago(t) { var s = Math.round((Date.now() - t) / 1000); return s < 10 ? 'just now' : s < 60 ? s + ' seconds ago' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : 'on ' + new Date(t).toLocaleDateString(); }
+  /* Settings shows a one-line summary; everything else is in the Account overlay on top of Settings. */
+  function renderAcctSum() {
+    var s = $('acctSum'); if (!s) return;
+    s.textContent = !acctReady() ? 'Accounts aren\'t set up on this copy.' : acct.token ? 'Signed in as ' + ((acct.user && acct.user.name) || 'you') + (acct.rollerPending ? ' · roller settings changed on another device' : acctState.busy ? ' · syncing…' : acctState.err ? ' · sync problem' : '') : 'Not signed in.';
+  }
+  function acctOpen() { $('acctBack').hidden = false; acctState.delSure = false; renderAcct(); $('acctClose').focus(); }
+  function acctClose() { $('acctBack').hidden = true; if ($('acctOpen')) $('acctOpen').focus(); }
+  if ($('acctOpen')) {
+    $('acctOpen').addEventListener('click', acctOpen);
+    $('acctClose').addEventListener('click', acctClose);
+    $('acctBack').addEventListener('click', function (e) { if (e.target === this) acctClose(); });
+    $('acctBack').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); acctClose(); } });
+  }
   function renderAcct(msg) {
+    renderAcctSum();
     var el = $('acctBox'); if (!el) return;
     if (!acctReady()) { el.innerHTML = '<p class="hint">Accounts aren\'t set up on this copy of the page yet.</p>'; return; }
     if (!acct.token) {
       el.innerHTML = '<p class="hint">Sign in with Google to keep your characters, settings and presets in your account, on all your devices. The rulebook PDF stays on this device.</p>' +
         '<div id="acctGsi" class="acct-gsi"></div>' + (msg ? '<p class="hint">' + esc(msg) + '</p>' : '') + (acctState.err ? '<p class="hint acct-err">' + esc(acctState.err) + '</p>' : '');
-      if ($('settingsBack') && !$('settingsBack').hidden) renderGsi();
+      if ($('acctBack') && !$('acctBack').hidden) renderGsi();
       return;
     }
     var u = acct.user || {};
-    el.innerHTML = '<p class="acct-who">Signed in as <b>' + esc(u.name || 'you') + '</b>' + (u.email ? ' <span class="hint">' + esc(u.email) + '</span>' : '') + '</p>' +
-      (u.pid ? '<p class="acct-pid">Your player ID <b class="mono">' + esc(fmtPid(u.pid)) + '</b><button type="button" class="reset-btn" data-acct="copyPid">Copy</button><span class="hint">Give it to whoever wants to share a character with you.</span></p>' : '') +
+    el.innerHTML = '<div class="acct-who"><b>' + esc(u.name || 'Signed in') + '</b>' + (u.email ? '<span class="hint">' + esc(u.email) + '</span>' : '') + '</div>' +
+      (u.pid ? '<div class="acct-pid"><span class="acct-pid-lbl">Your player ID</span><div class="acct-pid-row"><b class="mono">' + esc(fmtPid(u.pid)) + '</b><button type="button" class="reset-btn" data-acct="copyPid">Copy</button></div><span class="hint">Give it to anyone who wants to share a character with you.</span></div>' : '') +
       '<p class="hint" id="acctStatus">' + (acctState.busy ? 'Syncing…' : acctState.err ? esc(acctState.err) : acctState.last ? 'Synced ' + ago(acctState.last) + '. Changes sync on their own.' : 'Not synced yet.') + '</p>' +
       (acct.rollerPending ? '<div class="acct-pend"><p class="hint">Your roller settings or presets changed on another device.</p><div class="acct-btns"><button type="button" class="reset-btn" data-acct="applyRoller">Reload with them</button><button type="button" class="reset-btn" data-acct="keepRoller">Keep this device\'s</button></div></div>' : '') +
       '<div class="acct-btns"><button type="button" class="reset-btn" data-acct="sync"' + (acctState.busy ? ' disabled' : '') + '>Sync now</button><button type="button" class="reset-btn" data-acct="out">Sign out</button>' +
@@ -9359,10 +9423,356 @@ V1.5
     }, true);
   };
 
+  /* ================= THE BOOK: page links and Merits & Flaws ================= */
+  /* Uses the Rule Book's headings index ([depth, title, PDF page, extra]): no book text is copied here. */
+  function bookIdx() { return (window.vtmRules && window.vtmRules.index) || []; }
+  function normT(t) { return String(t || '').toLowerCase().replace(/[’']/g, '\'').replace(/^the /, '').replace(/\s+/g, ' ').trim(); }
+  /* Entries under a heading (title at a depth, optionally the first one at or after a page). */
+  function bookSection(title, depth, minPage) {
+    var idx = bookIdx(), out = [];
+    for (var i = 0; i < idx.length; i++) {
+      var e = idx[i];
+      if (e[0] === depth && normT(e[1]) === normT(title) && (!minPage || e[2] >= minPage)) {
+        out.push(e);
+        for (var j = i + 1; j < idx.length && idx[j][0] > depth; j++) out.push(idx[j]);
+        return out;
+      }
+    }
+    return out;
+  }
+  function findIn(list, name) { var n = normT(name); for (var i = 0; i < list.length; i++) if (normT(list[i][1]) === n) return list[i]; return null; }
+  function findAny(name, depth) { var n = normT(name), idx = bookIdx(); for (var i = 0; i < idx.length; i++) if ((depth == null || idx[i][0] === depth) && normT(idx[i][1]) === n) return idx[i]; return null; }
+  /* Merits and Flaws as the book lists them, with cost and kind (Physical, Mental, Social, Supernatural, by section). */
+  var MF = null;
+  function bookMF() {
+    if (MF) return MF;
+    var sec = bookSection('Merits and Flaws', 2), mode = '', out = { merits: [], flaws: [] };
+    sec.forEach(function (e) {
+      if (e[0] === 3) { mode = /^merits$/i.test(e[1]) ? 'merits' : /^flaws$/i.test(e[1]) ? 'flaws' : ''; return; }
+      if (!mode || e[0] !== 4 || !/pt/.test(e[3] || '')) return;
+      var m = String(e[3]).match(/(\d+)(?:\s*-\s*(\d+))?/), lo = m ? +m[1] : 1, hi = m && m[2] ? +m[2] : lo, pg = e[2];
+      var lim = mode === 'merits' ? [488, 493, 497] : [492, 495, 501];
+      var kindName = pg <= lim[0] ? 'Physical' : pg <= lim[1] ? 'Mental' : pg <= lim[2] ? 'Social' : 'Supernatural';
+      out[mode].push({ name: e[1], lo: lo, hi: hi, kind: kindName, page: pg });
+    });
+    if (out.merits.length) MF = out;
+    return out;
+  }
+  function mfFind(k, name) { var n = normT(name); return bookMF()[k].filter(function (x) { return normT(x.name) === n; })[0] || null; }
+  function mfCost(x) { return x.lo === x.hi ? x.lo + ' pt' : x.lo + '–' + x.hi + ' pt'; }
+  function fillMFLists() {
+    var mf = bookMF();
+    ['merits', 'flaws'].forEach(function (k) {
+      var dl = $('dl-' + k); if (!dl) { dl = document.createElement('datalist'); dl.id = 'dl-' + k; document.body.appendChild(dl); }
+      dl.innerHTML = mf[k].map(function (x) { return '<option value="' + esc(x.name) + '" label="' + x.kind + ' · ' + mfCost(x) + '"></option>'; }).join('');
+    });
+  }
+  /* Picking a book Merit/Flaw by name fills in its cost (when none is set yet). */
+  document.addEventListener('change', function (e) {
+    var f = e.target.getAttribute && e.target.getAttribute('data-f'), m = f && f.match(/^(merits|flaws)\.(\d+)\.name$/);
+    if (!m) return;
+    var c = cur(), x = mfFind(m[1], e.target.value), it = c && c[m[1]][+m[2]];
+    if (!x || !it) return;
+    it.name = x.name;
+    if (!(+it.cost > 0)) it.cost = x.lo;
+    commit();
+  });
+  /* Where a thing is in the book: a list of [label, page]. */
+  function bookPages(key) {
+    var c = cur(), i = key.indexOf(':'), kindK = i < 0 ? key : key.slice(0, i), name = i < 0 ? '' : key.slice(i + 1), out = [], e;
+    function add(lbl, ent) { if (ent && !out.some(function (o) { return o[1] === ent[2]; })) out.push([lbl, ent[2]]); }
+    if (kindK === 'trait') {
+      var s = split(name), k = s[0], lbl = labelOf(c, name);
+      if (k === 'attr') add(lbl, findIn(bookSection('Attributes', 2, 100), lbl));
+      else if (k === 'abil') { var sec = bookSection('Abilities', 2, 100); e = findIn(sec, lbl); if (!e) { var g = groupOf(name); e = g && findIn(sec, cap(g)); } add(lbl, e); }
+      else if (k === 'bg') add(lbl, findIn(bookSection('Backgrounds', 2, 100), lbl));
+      else if (k === 'virt') add(lbl, findIn(bookSection('Virtues', 2, 100), lbl) || findAny(lbl, 4));
+      else if (k === 'disc') { add(lbl, findAny(lbl, 2)); }
+      else if (k === 'spath') add(s[1].split('|')[1], findAny(s[1].split('|')[1]));
+      else if (name === 'morality') { var pth = c.morality.path || 'Humanity'; add(pth, /humanity/i.test(pth) ? findAny('Humanity', 2) : findAny(pth, 2) || findAny('The ' + pth, 2)); }
+      else if (name === 'willpower') { add('Willpower', findAny('Willpower', 2)); add('Spending Willpower', findAny('Spending Willpower', 2)); }
+    } else if (kindK === 'merit' || kindK === 'flaw') {
+      var x = mfFind(kindK === 'merit' ? 'merits' : 'flaws', name);
+      if (x) out.push([x.name, x.page]); else add(kindK === 'merit' ? 'Merits' : 'Flaws', findAny(kindK === 'merit' ? 'Merits' : 'Flaws', 3));
+    } else if (kindK === 'mfhead') add('Merits and Flaws', findAny('Merits and Flaws', 2));
+    else if (kindK === 'clan') {
+      var cl = c.info.clan;
+      if (cl && cl !== 'Caitiff') add(cl, findAny(cl, 2));
+      add('Clans', findIn(bookSection('Character Creation Process', 2), 'Clans'));
+    } else if (kindK === 'nature' || kindK === 'demeanor') {
+      var arch = bookSection('Personality Archetypes: Nature and Demeanor', 2), v = c.info[kindK];
+      if (v) add(v, findIn(arch, v));
+      if (arch[0]) add('Nature and Demeanor', arch[0]);
+    } else if (kindK === 'blood') { add('Blood Pool', findAny('Blood Pool', 2)); add('Using Blood Pool', findAny('Using Blood Pool', 2)); }
+    else if (kindK === 'health') { add('Health', findAny('Health', 2)); add('The Health Chart', findAny('The Health Chart', 3)); }
+    else if (kindK === 'wp') { add('Willpower', findAny('Willpower', 2)); add('Spending Willpower', findAny('Spending Willpower', 2)); }
+    return out;
+  }
+  /* Right-click (or long-press) a label: a small menu that opens the Rule Book at that page. */
+  var bookMenu = null;
+  function closeBookMenu() { if (bookMenu) { bookMenu.remove(); bookMenu = null; } }
+  document.addEventListener('contextmenu', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-bk]') : null;
+    if (!t || e.target.closest('input, textarea, select')) return;
+    var pages = bookPages(t.getAttribute('data-bk'));
+    e.preventDefault(); closeBookMenu();
+    var on = window.vtmRules && $('rulesBtn') && !$('rulesBtn').hidden;
+    bookMenu = document.createElement('div');
+    bookMenu.className = 'cm-ctx'; bookMenu.setAttribute('role', 'menu');
+    bookMenu.innerHTML = !on ? '<p class="cm-ctx-note">Turn on the Rule Book in Settings > UI Options to look this up.</p>' :
+      pages.length ? pages.map(function (pg) { return '<button type="button" role="menuitem" data-bkp="' + pg[1] + '">Look up ' + esc(pg[0]) + ' <span class="muted">p. ' + pg[1] + '</span></button>'; }).join('') :
+      '<p class="cm-ctx-note">Not found in the book’s index.</p>';
+    document.body.appendChild(bookMenu); bookMenu._t = Date.now();
+    var w = bookMenu.offsetWidth, h = bookMenu.offsetHeight;
+    bookMenu.style.left = Math.max(8, Math.min(e.clientX, window.innerWidth - w - 8)) + 'px';
+    bookMenu.style.top = Math.max(8, Math.min(e.clientY, window.innerHeight - h - 8)) + 'px';
+    var first = bookMenu.querySelector('button'); if (first) first.focus();
+  });
+  document.addEventListener('click', function (e) {
+    if (!bookMenu) return;
+    var b = e.target.closest ? e.target.closest('[data-bkp]') : null;
+    if (b) { window.vtmRules.open(); window.vtmRules.go(+b.getAttribute('data-bkp')); }
+    closeBookMenu();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && bookMenu) { e.stopPropagation(); closeBookMenu(); } }, true);
+  window.addEventListener('scroll', function (e) { if (bookMenu && Date.now() - bookMenu._t > 300 && !bookMenu.contains(e.target)) closeBookMenu(); }, true);
+  window.addEventListener('resize', closeBookMenu);
+
+  /* ================= RANDOM CHARACTER GENERATOR ================= */
+  /* Builds a finished Kindred by the V20 creation budgets (7/5/3, 13/9/5, 3 Disciplines, 5 Backgrounds, 7 Virtues,
+     15 freebies), leaning on what fits the clan, then spends any XP the user gives it. Only Aesthetics are filled in Details. */
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function rnd(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+  function chance(p) { return Math.random() < p; }
+  /* Weighted pick: items are [value, weight]. */
+  function wpick(items) {
+    var t = sum(items, function (x) { return x[1]; }), r = Math.random() * t;
+    for (var i = 0; i < items.length; i++) { r -= items[i][1]; if (r < 0) return items[i][0]; }
+    return items.length ? items[items.length - 1][0] : null;
+  }
+  /* What fits each clan: attribute group order (most likely first), favored traits, Backgrounds, archetypes, concepts. */
+  var GEN_FIT = {
+    'Assamite': { attr: ['physical', 'mental', 'social'], fa: ['dexterity', 'wits', 'perception', 'stamina'], ab: ['alertness', 'athletics', 'brawl', 'stealth', 'melee', 'firearms', 'investigation', 'larceny', 'occult', 'academics'], bg: ['Mentor', 'Resources', 'Contacts', 'Status'], arch: ['Soldier', 'Judge', 'Survivor', 'Traditionalist', 'Loner', 'Perfectionist', 'Fanatic'], con: ['Assassin', 'Bodyguard', 'Mercenary', 'Scholar of the old ways', 'Thief'], nat: ['Syrian', 'Iraqi', 'Iranian', 'Egyptian', 'Moroccan', 'Turkish', 'Jordanian', 'Lebanese'] },
+    'Brujah': { attr: ['physical', 'social', 'mental'], fa: ['strength', 'dexterity', 'stamina', 'charisma'], ab: ['brawl', 'athletics', 'intimidation', 'streetwise', 'leadership', 'melee', 'drive', 'firearms', 'politics', 'academics'], bg: ['Allies', 'Contacts', 'Herd', 'Resources'], arch: ['Rebel', 'Bravo', 'Idealist', 'Visionary', 'Competitor', 'Fanatic', 'Bon Vivant'], con: ['Activist', 'Biker', 'Philosopher', 'Punk musician', 'Street fighter', 'Union organizer'], nat: ['American', 'English', 'Greek', 'Irish', 'Mexican', 'Spanish'] },
+    'Followers of Set': { attr: ['social', 'mental', 'physical'], fa: ['manipulation', 'charisma', 'wits', 'appearance'], ab: ['subterfuge', 'empathy', 'streetwise', 'occult', 'larceny', 'expression', 'academics', 'finance', 'stealth', 'etiquette'], bg: ['Contacts', 'Herd', 'Resources', 'Retainers', 'Influence'], arch: ['Conniver', 'Deviant', 'Guru', 'Bon Vivant', 'Fanatic', 'Trickster', 'Pedagogue'], con: ['Cult leader', 'Drug dealer', 'Fixer', 'Nightclub owner', 'Occultist', 'Smuggler'], nat: ['Egyptian', 'American', 'Sudanese', 'Ethiopian', 'Brazilian', 'Nigerian'] },
+    'Gangrel': { attr: ['physical', 'mental', 'social'], fa: ['stamina', 'dexterity', 'strength', 'perception'], ab: ['survival', 'animalken', 'athletics', 'brawl', 'alertness', 'stealth', 'intimidation', 'drive', 'medicine', 'awareness'], bg: ['Allies', 'Herd', 'Mentor', 'Contacts'], arch: ['Loner', 'Survivor', 'Rebel', 'Monster', 'Soldier', 'Thrill-Seeker', 'Curmudgeon'], con: ['Drifter', 'Hunter', 'Park ranger', 'Trucker', 'Veteran', 'Wilderness guide'], nat: ['American', 'Canadian', 'Romanian', 'Russian', 'Australian', 'Norwegian'] },
+    'Giovanni': { attr: ['mental', 'social', 'physical'], fa: ['intelligence', 'manipulation', 'wits', 'perception'], ab: ['occult', 'finance', 'academics', 'etiquette', 'subterfuge', 'medicine', 'investigation', 'politics', 'law', 'leadership'], bg: ['Resources', 'Influence', 'Retainers', 'Status', 'Herd'], arch: ['Capitalist', 'Director', 'Traditionalist', 'Autocrat', 'Scientist', 'Perfectionist', 'Conformist'], con: ['Banker', 'Funeral director', 'Art dealer', 'Family lawyer', 'Mortician', 'Antiquarian'], nat: ['Italian', 'Italian', 'Italian', 'American', 'Swiss', 'Argentine'] },
+    'Lasombra': { attr: ['social', 'mental', 'physical'], fa: ['manipulation', 'charisma', 'wits', 'intelligence'], ab: ['leadership', 'intimidation', 'subterfuge', 'etiquette', 'occult', 'politics', 'brawl', 'melee', 'academics', 'investigation'], bg: ['Status', 'Resources', 'Retainers', 'Influence', 'Allies'], arch: ['Autocrat', 'Director', 'Fanatic', 'Judge', 'Conniver', 'Architect', 'Perfectionist'], con: ['Priest', 'Pack priest', 'Noble', 'Crime boss', 'Diplomat', 'Strategist'], nat: ['Spanish', 'Italian', 'Mexican', 'Colombian', 'Portuguese', 'Argentine'] },
+    'Malkavian': { attr: ['mental', 'social', 'physical'], fa: ['perception', 'wits', 'intelligence', 'charisma'], ab: ['awareness', 'empathy', 'alertness', 'investigation', 'occult', 'subterfuge', 'stealth', 'expression', 'medicine', 'academics'], bg: ['Contacts', 'Allies', 'Herd', 'Mentor'], arch: ['Child', 'Visionary', 'Enigma', 'Trickster', 'Guru', 'Creep Show', 'Eye of the Storm'], con: ['Prophet', 'Psychiatrist', 'Street preacher', 'Conspiracy blogger', 'Performance artist', 'Detective'], nat: ['American', 'English', 'German', 'French', 'Dutch', 'Canadian'] },
+    'Nosferatu': { attr: ['mental', 'physical', 'social'], fa: ['perception', 'wits', 'dexterity', 'stamina'], ab: ['stealth', 'investigation', 'computer', 'streetwise', 'alertness', 'larceny', 'technology', 'survival', 'animalken', 'brawl'], bg: ['Contacts', 'Allies', 'Herd', 'Retainers', 'Mentor'], arch: ['Loner', 'Survivor', 'Architect', 'Curmudgeon', 'Monster', 'Penitent', 'Rogue'], con: ['Information broker', 'Hacker', 'Sewer guide', 'Spy', 'Urban explorer', 'Archivist'], nat: ['American', 'English', 'Russian', 'Chinese', 'French', 'Polish'] },
+    'Ravnos': { attr: ['social', 'physical', 'mental'], fa: ['dexterity', 'manipulation', 'charisma', 'wits'], ab: ['subterfuge', 'larceny', 'streetwise', 'athletics', 'performance', 'empathy', 'stealth', 'drive', 'occult', 'brawl'], bg: ['Contacts', 'Allies', 'Resources', 'Herd'], arch: ['Trickster', 'Rogue', 'Thrill-Seeker', 'Bon Vivant', 'Rebel', 'Chameleon', 'Survivor'], con: ['Con artist', 'Stage magician', 'Gambler', 'Grifter', 'Traveling musician', 'Thief'], nat: ['Indian', 'Romani', 'Hungarian', 'Spanish', 'Pakistani', 'Romanian'] },
+    'Toreador': { attr: ['social', 'mental', 'physical'], fa: ['appearance', 'charisma', 'perception', 'dexterity'], ab: ['expression', 'performance', 'empathy', 'etiquette', 'crafts', 'academics', 'subterfuge', 'leadership', 'awareness', 'politics'], bg: ['Fame', 'Herd', 'Resources', 'Status', 'Influence'], arch: ['Bon Vivant', 'Celebrant', 'Gallant', 'Visionary', 'Perfectionist', 'Child', 'Martyr'], con: ['Painter', 'Musician', 'Dancer', 'Fashion designer', 'Art critic', 'Socialite', 'Poet'], nat: ['French', 'Italian', 'American', 'English', 'Spanish', 'Brazilian'] },
+    'Tremere': { attr: ['mental', 'social', 'physical'], fa: ['intelligence', 'wits', 'perception', 'manipulation'], ab: ['occult', 'academics', 'investigation', 'awareness', 'science', 'etiquette', 'subterfuge', 'politics', 'medicine', 'law'], bg: ['Mentor', 'Resources', 'Status', 'Contacts', 'Retainers'], arch: ['Scientist', 'Architect', 'Pedagogue', 'Conformist', 'Perfectionist', 'Director', 'Traditionalist'], con: ['Occult scholar', 'Professor', 'Researcher', 'Librarian', 'Antiquarian', 'Alchemist'], nat: ['Austrian', 'German', 'Czech', 'Hungarian', 'Romanian', 'American'] },
+    'Tzimisce': { attr: ['mental', 'physical', 'social'], fa: ['intelligence', 'perception', 'stamina', 'manipulation'], ab: ['medicine', 'occult', 'academics', 'intimidation', 'crafts', 'etiquette', 'science', 'leadership', 'animalken', 'survival'], bg: ['Retainers', 'Herd', 'Domain', 'Resources', 'Status'], arch: ['Scientist', 'Architect', 'Autocrat', 'Monster', 'Visionary', 'Deviant', 'Traditionalist'], con: ['Surgeon', 'Sculptor of flesh', 'Old-world noble', 'Pack priest', 'Biologist', 'Tattoo artist'], nat: ['Romanian', 'Hungarian', 'Serbian', 'Slovak', 'Polish', 'Mexican'] },
+    'Ventrue': { attr: ['social', 'mental', 'physical'], fa: ['charisma', 'manipulation', 'intelligence', 'wits'], ab: ['leadership', 'etiquette', 'finance', 'politics', 'law', 'subterfuge', 'intimidation', 'academics', 'expression', 'investigation'], bg: ['Resources', 'Influence', 'Status', 'Retainers', 'Herd'], arch: ['Autocrat', 'Director', 'Capitalist', 'Traditionalist', 'Architect', 'Judge', 'Conformist'], con: ['CEO', 'Politician', 'Lawyer', 'Investment banker', 'Police captain', 'Old-money heir'], nat: ['English', 'American', 'German', 'Swiss', 'French', 'Dutch'] },
+    'Caitiff': { attr: ['physical', 'social', 'mental'], fa: ['wits', 'dexterity', 'stamina', 'manipulation'], ab: ['streetwise', 'alertness', 'brawl', 'subterfuge', 'stealth', 'athletics', 'larceny', 'drive', 'survival', 'empathy'], bg: ['Contacts', 'Allies', 'Herd', 'Resources'], arch: ['Survivor', 'Rebel', 'Loner', 'Rogue', 'Chameleon', 'Child', 'Penitent'], con: ['Runaway', 'Bartender', 'Night-shift nurse', 'Courier', 'Gutter punk', 'Student'], nat: ['American', 'Canadian', 'Mexican', 'English', 'Irish', 'Filipino'], disc: ['Animalism', 'Auspex', 'Celerity', 'Dominate', 'Fortitude', 'Obfuscate', 'Potence', 'Presence'] }
+  };
+  /* Merits and Flaws that suit a clan (names as the book has them; any not found are skipped). */
+  var GEN_MF = {
+    _: { m: ['Acute Sense', 'Common Sense', 'Concentration', 'Eidetic Memory', 'Iron Will', 'Light Sleeper', 'Natural Linguist', 'Time Sense', 'Code of Honor', 'Calm Heart', 'Lucky', 'Ambidextrous', 'Language', 'Useful Knowledge'], f: ['Short Fuse', 'Nightmares', 'Shy', 'Prey Exclusion', 'Hard of Hearing', 'Deep Sleeper', 'Impatient', 'Phobia', 'Vengeful', 'Soft-Hearted', 'Territorial', 'Dark Secret', 'Infamous Sire', 'Sire\'s Resentment', 'Tic/Twitch', 'New Arrival'] },
+    'Assamite': { m: ['Code of Honor', 'Acute Sense', 'Light Sleeper', 'Catlike Balance'], f: ['Vengeful', 'Expendable'] },
+    'Brujah': { m: ['Bruiser', 'Daredevil'], f: ['Short Fuse', 'Vengeful', 'Uppity'] },
+    'Followers of Set': { m: ['Enchanting Voice', 'Friend of the Underground'], f: ['Dark Secret', 'Recruitment Target'] },
+    'Gangrel': { m: ['Bruiser', 'Open Road', 'Acute Sense'], f: ['Short Fuse', 'Territorial'] },
+    'Giovanni': { m: ['Medium', 'Spirit Mentor'], f: ['Haunted', 'Deathsight', 'Smell of the Grave'] },
+    'Lasombra': { m: ['Code of Honor', 'Iron Will', 'Natural Leader'], f: ['Uppity', 'Territorial'] },
+    'Malkavian': { m: ['Medium', 'Oracular Ability', 'Introspection'], f: ['Nightmares', 'Phobia', 'Lunacy'] },
+    'Nosferatu': { m: ['Acute Sense', 'Friend of the Underground', 'Mole'], f: ['Shy', 'Smell of the Grave'] },
+    'Ravnos': { m: ['Lucky', 'Natural Linguist', 'Friendly Face'], f: ['Impatient', 'Escaped Target'] },
+    'Toreador': { m: ['Enchanting Voice', 'Blush of Health', 'Friendly Face'], f: ['Thirst for Innocence', 'Soft-Hearted'] },
+    'Tremere': { m: ['Concentration', 'Eidetic Memory', 'Magic Resistance'], f: ['Dark Secret', 'Unconvinced'] },
+    'Tzimisce': { m: ['Eidetic Memory', 'Concentration', 'Coldly Logical'], f: ['Territorial', 'Infamous Sire'] },
+    'Ventrue': { m: ['Prestigious Sire', 'Natural Leader', 'Elysium Regular'], f: ['Prey Exclusion', 'Uppity'] },
+    'Caitiff': { m: ['Harmless', 'Friendly Face'], f: ['New Arrival', 'Expendable'] }
+  };
+  /* Each clan's signature Discipline: nearly always gets at least a dot. */
+  var GEN_SIG = { 'Assamite': 'Quietus', 'Followers of Set': 'Serpentis', 'Gangrel': 'Protean', 'Giovanni': 'Necromancy', 'Lasombra': 'Obtenebration', 'Malkavian': 'Dementation', 'Ravnos': 'Chimerstry', 'Toreador': 'Presence', 'Tremere': 'Thaumaturgy', 'Tzimisce': 'Vicissitude', 'Ventrue': 'Dominate', 'Brujah': 'Potence', 'Nosferatu': 'Obfuscate' };
+  var GEN_PATHS = { Thaumaturgy: /path of blood/i, Necromancy: /sepulchre/i };
+  var GEN_NAMES = {
+    first: { m: ['Adrian', 'Marcus', 'Elias', 'Julian', 'Victor', 'Daniel', 'Tomas', 'Rafael', 'Nikolai', 'Samuel', 'Malik', 'Owen', 'Luca', 'Hassan', 'Dmitri', 'Felix', 'Gideon', 'Ivan', 'Jonah', 'Kenji'], f: ['Isabel', 'Clara', 'Mira', 'Vivian', 'Lena', 'Sofia', 'Nadia', 'Eleanor', 'Ines', 'Yara', 'Celeste', 'Hannah', 'Ruth', 'Talia', 'Margot', 'Zara', 'Anya', 'Leila', 'Rosa', 'Imogen'] },
+    last: ['Ashford', 'Moreau', 'Vasquez', 'Novak', 'Hale', 'Castellano', 'Kovacs', 'Reyes', 'Lindqvist', 'Okafor', 'Blackwood', 'Marsh', 'Fontaine', 'Weiss', 'Delacroix', 'Petrov', 'Sinclair', 'Haddad', 'Quinn', 'Varga']
+  };
+  var GEN_HAIR = ['Black', 'Dark brown', 'Brown', 'Light brown', 'Auburn', 'Red', 'Blond', 'Platinum blond', 'Gray', 'Silver', 'Shaved', 'Dyed blue', 'Dyed black'];
+  var GEN_EYES = ['Brown', 'Dark brown', 'Hazel', 'Green', 'Blue', 'Gray', 'Amber'];
+
+  /* Spreads n dots over keys (weights), never past cap(key). Returns how many couldn't be placed. */
+  function spread(n, keys, weight, get, put, cap) {
+    while (n > 0) {
+      var open = keys.filter(function (k) { return get(k) < cap(k); });
+      if (!open.length) break;
+      var k = wpick(open.map(function (x) { return [x, weight(x)]; }));
+      put(k, get(k) + 1); n--;
+    }
+    return n;
+  }
+  function genAesthetics(c, fit) {
+    var sx = wpick([['Male', 48], ['Female', 48], ['Nonbinary', 4]]), apparent = rnd(18, 52);
+    var undead = c.info.generation <= 9 ? rnd(80, 400) : c.info.generation <= 11 ? rnd(25, 120) : rnd(1, 45);
+    var cm = sx === 'Male' ? rnd(165, 192) : sx === 'Female' ? rnd(152, 178) : rnd(158, 185), inch = Math.round(cm / 2.54);
+    var kg = Math.round(cm - 100 + rnd(-15, 20) - (sx === 'Female' ? 8 : 0)), lb = Math.round(kg * 2.2046);
+    c.details.aes = {
+      height: Math.floor(inch / 12) + '\'' + (inch % 12) + '" (' + cm + ' cm)', weight: lb + ' lb (' + kg + ' kg)',
+      age: String(apparent + undead), apparent: String(apparent), sex: sx,
+      hair: c.info.clan === 'Nosferatu' ? pick(['None', 'Patchy and thin', 'Wispy gray']) : pick(GEN_HAIR),
+      eyes: pick(GEN_EYES), nationality: pick(fit.nat)
+    };
+  }
+  function generateKindred(opt) {
+    var clan = opt.clan || pick(Object.keys(CLANS)), fit = GEN_FIT[clan], c = blankKindred('');
+    c.info.clan = clan;
+    var nos = clan === 'Nosferatu';
+    if (nos) c.attrs.appearance = 0;
+    c.info.nature = pick(fit.arch);
+    c.info.demeanor = chance(0.35) ? c.info.nature : pick(chance(0.6) ? fit.arch : ARCHETYPES);
+    c.info.concept = pick(fit.con);
+    c.creation.prio = { attr: fit.attr.slice(), abil: ['talents', 'skills', 'knowledges'] };
+    /* Small chance to shuffle the attribute order, so not every Brujah is a brawler first. */
+    if (chance(0.25)) { var a = c.creation.prio.attr; var t = a[1]; a[1] = a[0]; a[0] = t; }
+    /* Abilities: the group with the most favored picks goes first. */
+    var ag = Object.keys(ABIL_GROUPS).map(function (g) { return [g, ABIL_GROUPS[g].filter(function (l) { return fit.ab.indexOf(keyOf(l)) >= 0; }).length + Math.random()]; });
+    c.creation.prio.abil = ag.sort(function (x, y) { return y[1] - x[1]; }).map(function (x) { return x[0]; });
+
+    /* Attributes 7/5/3, Abilities 13/9/5 (no Ability above 3 before freebies). */
+    c.creation.prio.attr.forEach(function (g, i) {
+      var keys = ATTR_GROUPS[g].map(keyOf).filter(function (k) { return !(nos && k === 'appearance'); });
+      spread(CREATION.attr[i], keys, function (k) { return fit.fa.indexOf(k) >= 0 ? 4 - fit.fa.indexOf(k) * 0.5 : 1; },
+        function (k) { return c.attrs[k]; }, function (k, v) { c.attrs[k] = v; }, function () { return 5; });
+    });
+    c.creation.prio.abil.forEach(function (g, i) {
+      spread(CREATION.abil[i], ABIL_GROUPS[g].map(keyOf), function (k) { return fit.ab.indexOf(k) >= 0 ? 6 - fit.ab.indexOf(k) * 0.3 : 0.6; },
+        function (k) { return c.abil[k]; }, function (k, v) { c.abil[k] = v; }, function () { return CREATION.abilCap; });
+    });
+    /* Disciplines: 3 dots among clan Disciplines (Caitiff pick from common ones). */
+    var dl = clan === 'Caitiff' ? fit.disc.slice().sort(function () { return Math.random() - 0.5; }).slice(0, rnd(2, 3)) : CLANS[clan].disc;
+    if (GEN_SIG[clan] && chance(0.9)) c.disc[GEN_SIG[clan]] = 1;
+    spread(CREATION.disc - sum(dl, function (d) { return c.disc[d] || 0; }), dl, function (d) { return d === GEN_SIG[clan] ? 1.6 : 1; }, function (d) { return c.disc[d] || 0; }, function (d, v) { c.disc[d] = v; }, function () { return 3; });
+    /* Backgrounds: 5 dots, mostly the clan's favorites, sometimes a bit of Generation. */
+    var bgKeys = fit.bg.concat(['Generation']);
+    spread(CREATION.bg, bgKeys, function (b) { return b === 'Generation' ? 0.8 : 3 - fit.bg.indexOf(b) * 0.4; },
+      function (b) { return c.bg[b] || 0; }, function (b, v) { c.bg[b] = v; }, function (b) { return b === 'Generation' ? 3 : 4; });
+    /* Virtues: 7 dots on top of the free one each. */
+    spread(CREATION.virt, ['conscience', 'selfControl', 'courage'], function () { return 1; }, function (k) { return c.virt[k]; }, function (k, v) { c.virt[k] = v; }, function () { return 5; });
+    syncDerived(c);
+
+    /* Merits and Flaws (optional): one Flaw sometimes, one Merit sometimes, from the book's list. */
+    if (opt.mf) {
+      var mf = bookMF(), lists = GEN_MF[clan] || { m: [], f: [] };
+      var fpool = lists.f.concat(GEN_MF._.f).map(function (n) { return mfFind('flaws', n); }).filter(function (x) { return x && x.lo <= 3; });
+      var mpool = lists.m.concat(GEN_MF._.m).map(function (n) { return mfFind('merits', n); }).filter(function (x) { return x && x.lo <= 3; });
+      if (fpool.length && chance(0.55)) { var fl = pick(fpool); c.flaws.push({ id: rid(), name: fl.name, cost: fl.lo }); }
+      if (mpool.length && chance(0.6)) { var mr = pick(mpool.filter(function (x) { return !c.flaws.some(function (f) { return normT(f.name) === normT(x.name); }); })); if (mr) c.merits.push({ id: rid(), name: mr.name, cost: mr.lo }); }
+    }
+    /* Freebie points (15 plus Flaws, minus Merits), weighted toward what fits. */
+    var fb = c.creation.fb, guard = 0;
+    function fbTry(p, cost) {
+      var left = fbBudget(c) - fbSpent(c);
+      if (cost > left) return false;
+      setVal(c, p, val(c, p) + 1); fb[p] = (fb[p] || 0) + 1; return true;
+    }
+    while (fbBudget(c) - fbSpent(c) > 0 && guard++ < 200) {
+      var left = fbBudget(c) - fbSpent(c), opts = [];
+      fit.fa.forEach(function (k) { if (c.attrs[k] < 5 && left >= 5) opts.push(['attr.' + k, 3]); });
+      fit.ab.forEach(function (k) { if (c.abil[k] < 4 && left >= 2) opts.push(['abil.' + k, 2]); });
+      dl.forEach(function (d) { if ((c.disc[d] || 0) < 3 && left >= 7) opts.push(['disc.' + d, 2.5]); });
+      fit.bg.forEach(function (b) { if ((c.bg[b] || 0) < 5 && left >= 1) opts.push(['bg.' + b, 1.2]); });
+      ['conscience', 'selfControl', 'courage'].forEach(function (k) { if (c.virt[k] < 5 && left >= 2) opts.push(['virt.' + k, 0.6]); });
+      if (c.morality.dots < 9 && left >= 2) opts.push(['morality', 1]);
+      if (c.willpower.perm < 9 && left >= 1) opts.push(['willpower', 1.6]);
+      if (!opts.length) break;
+      var p = wpick(opts);
+      fbTry(p, FB_COST[kind(p)]);
+      syncDerived(c);
+    }
+    if (c.bg.Generation) c.info.generation = 13 - Math.min(5, c.bg.Generation);
+    /* Sorcery: a primary path, and a first ritual for Thaumaturgy. */
+    SORCERY.forEach(function (d) {
+      if (!(c.disc[d] > 0)) return;
+      var so = ensureSorc(c, d), L = (SORC_LISTS[d] && SORC_LISTS[d].paths) || [];
+      so.primary = (L.filter(function (n) { return GEN_PATHS[d].test(n); })[0]) || L[0] || '';
+      var rit = ((SORC_LISTS[d] && SORC_LISTS[d].rituals) || []).filter(function (r) { return r[1] === 1; });
+      if (rit.length) c.rituals.push({ id: rid(), name: pick(rit)[0], level: 1, disc: d });
+    });
+    /* Finish creation: blood rolled (1d10, capped by Generation), Willpower full. */
+    syncDerived(c);
+    c.blood.cur = Math.min(rnd(1, 10), genInfo(c).blood); c.creation.bloodSet = true;
+    c.creation.done = true; c.creation.step = STEPS.length - 1; c.creation.seen = STEPS.length - 1;
+    c.mode = 'play'; c.willpower.cur = c.willpower.perm;
+
+    /* Name: given, or one from the generator's list. */
+    var sx = c.details.aes.sex;
+    genAesthetics(c, fit);
+    sx = c.details.aes.sex;
+    c.info.name = opt.name || (pick(GEN_NAMES.first[sx === 'Male' ? 'm' : sx === 'Female' ? 'f' : pick(['m', 'f'])]) + ' ' + pick(GEN_NAMES.last));
+
+    /* XP: logged as earned, then spent trait by trait at V20 costs, each purchase in the XP log. */
+    var xp = Math.max(0, Math.floor(+opt.xp || 0));
+    if (xp) {
+      var t0 = Date.now();
+      c.xp.log.push({ type: 'earn', id: rid(), date: today(), amount: xp, notes: 'Starting XP (random character)', flags: {}, t: t0 });
+      var n = 0, tries = 0;
+      while (tries++ < 600) {
+        var av = xpAvail(c), cand = [];
+        var add = function (p, w) {
+          var v = val(c, p), k = kind(p);
+          if (v >= Math.min(maxFor(c, p), k === 'attr' || k === 'abil' || k === 'disc' ? 5 : 10)) return;
+          if (k === 'virt' && v >= 5) return;
+          if (p === 'attr.appearance' && nos) return;
+          var cost = xpStep(c, p, v); if (cost <= av) cand.push([[p, cost], w]);
+        };
+        fit.fa.forEach(function (k) { add('attr.' + k, 1.5); });
+        Object.keys(c.attrs).forEach(function (k) { if (fit.fa.indexOf(k) < 0) add('attr.' + k, 0.2); });
+        fit.ab.forEach(function (k, i) { add('abil.' + k, 2.2 - i * 0.12); });
+        Object.keys(c.abil).forEach(function (k) { if (fit.ab.indexOf(k) < 0 && c.abil[k] > 0) add('abil.' + k, 0.4); });
+        dl.forEach(function (d) { add('disc.' + d, 3); });
+        if (clan !== 'Caitiff' && xp >= 30) DISCIPLINES.forEach(function (d) { if (dl.indexOf(d) < 0 && c.disc[d] > 0) add('disc.' + d, 0.8); });
+        SORCERY.forEach(function (d) {
+          var so = c.sorc[d]; if (!so || c.disc[d] < 2) return;
+          var cap2 = spathCap(c, d), L = (SORC_LISTS[d] && SORC_LISTS[d].paths || []).filter(function (x) { return x !== so.primary; });
+          var have = Object.keys(so.paths);
+          have.forEach(function (pn) { if (so.paths[pn] < cap2) add('spath.' + d + '|' + pn, 1); });
+          if (!have.length && L.length && cap2 >= 1) { var np = pick(L); if (7 <= av) cand.push([['spath.' + d + '|' + np, 7], 1]); }
+        });
+        add('willpower', 0.8);
+        add('morality', 0.3);
+        if (!cand.length) break;
+        var ch = wpick(cand), pp = ch[0], cst = ch[1], from = val(c, pp);
+        setVal(c, pp, from + 1);
+        if (kind(pp) === 'willpower') c.willpower.cur += 1;
+        if (kind(pp) === 'disc' && SORCERY.indexOf(split(pp)[1]) >= 0) { var sd = split(pp)[1], so2 = ensureSorc(c, sd); if (!so2.primary) so2.primary = (SORC_LISTS[sd] && SORC_LISTS[sd].paths[0]) || ''; }
+        c.xp.log.push({ type: 'spend', p: pp, label: labelOf(c, pp), from: from, to: from + 1, cost: cst, t: t0 + (++n) });
+      }
+    }
+    c.ui = { tab: 'play' };
+    return c;
+  }
+  function genModal(base) {
+    var clans = Object.keys(CLANS);
+    openModal('<h2>Random Character Generator</h2><p class="muted small">Rolls a finished ' + esc(base.tmpl.name) + ' by the V20 creation rules, leaning on what fits the clan. Backstory and Story Progression stay empty; only Aesthetics are filled in Details.</p>' +
+      '<label class="fld">Name<input id="gnName" placeholder="Leave blank for a random name" value="' + esc(base.name) + '"></label>' +
+      '<label class="fld">Clan<select id="gnClan"><option value="">Random</option>' + clans.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></label>' +
+      '<label class="fld">XP to spend<input type="number" id="gnXp" min="0" step="1" value="0" inputmode="numeric"><small class="muted">Logged as earned XP, then spent on traits that fit the character. 0 for a fresh neonate.</small></label>' +
+      '<label class="chk"><input type="checkbox" id="gnMF" checked> Include Merits &amp; Flaws</label>' +
+      '<div class="acts"><button type="button" class="btn" id="mBack">Back</button><span style="flex:1"></span><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Generate</button></div>', 'cm-gen');
+    $('gnName').focus();
+    $('mNo').onclick = closeModal;
+    $('mBack').onclick = function () { newCharModal({ name: $('gnName').value, tag: base.tag, start: 'random' }); };
+    $('mOk').onclick = function () {
+      var xp = parseInt($('gnXp').value, 10);
+      if (isNaN(xp) || xp < 0) { $('gnXp').focus(); return toast('XP must be 0 or more.'); }
+      var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, xp: Math.min(xp, 2000), mf: $('gnMF').checked });
+      c.template = base.tmpl.id; c.tracker.type = base.tag;
+      store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
+      closeModal(); commit(); window.scrollTo({ top: 0 });
+      var left = xpAvail(c);
+      toast(c.info.name + ', ' + c.info.clan + ', is ready' + (xp ? ' (' + (xp - left) + ' XP spent' + (left ? ', ' + left + ' left' : '') + ')' : '') + '.');
+    };
+    ['gnName', 'gnXp'].forEach(function (id) { $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); }); });
+  }
+
   function fillLists() {
     function opts(arr) { return arr.map(function (x) { return '<option value="' + esc(x) + '">'; }).join(''); }
     $('dl-disc').innerHTML = opts(DISCIPLINES); $('dl-bg').innerHTML = opts(BACKGROUNDS);
-    $('dl-arch').innerHTML = opts(ARCHETYPES); $('dl-path').innerHTML = opts(PATHS);
+    $('dl-arch').innerHTML = opts(ARCHETYPES); $('dl-path').innerHTML = opts(PATHS); fillMFLists();
     $('dl-armor').innerHTML = ARMOR_CLASSES.map(function (a) { return '<option value="' + esc(a[0]) + '">Rating ' + a[1] + ', penalty ' + a[2] + '</option>'; }).join('');
   }
   fillLists();
@@ -9371,7 +9781,7 @@ V1.5
   render();
   setTimeout(encounterTick, 0);
   /* Exposed for testing and for the future merge into the Dice Roller. */
-  window.VTMChars = { store: store, cur: cur, val: val, render: render, disc: disc, sorcLists: SORC_LISTS, attackMods: attackMods, dmgPool: dmgPool, bookWeapons: bookW };
+  window.VTMChars = { store: store, cur: cur, val: val, render: render, disc: disc, sorcLists: SORC_LISTS, attackMods: attackMods, dmgPool: dmgPool, bookWeapons: bookW, generate: generateKindred, issues: issues };
 })();
 </script>
 <!-- CHARACTERS-MODULE:END script -->

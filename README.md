@@ -136,3 +136,11 @@ V2.1
 	-Out-of-clan Disciplines added during character creation now count as clan Disciplines (except for Caitiff).
 	-Disciplines can be marked as clan (or out-of-clan) in Free-form edit and XP mode.
 -Fixed Celerity Actions not showing on an actor's initiative mod.
+
+V2.2
+-Settings Changes:
+	-Account options moved into their own "Account…" overlay, with a cleaner Player ID display.
+-Character Manager Changes:
+	-Merits & Flaws can be picked from the book's list, filling in their cost.
+	-Right-clicking a trait, Background, Merit, Flaw, Clan, Nature, Demeanor, or the Health / Blood Pool / Willpower labels opens a menu linking to its page in the Rule Book.
+	-Added the Random Character Generator as a new character option (pick a clan or random, a name, and XP to spend).
