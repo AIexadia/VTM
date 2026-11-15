@@ -121,3 +121,18 @@ V2.0
 V2.0.1
 -Character Managed Changes:
 	-Added the ability to share and sync characters with other users by using a code.
+
+V2.1
+-General Changes:
+	-The Initiative Tracker, Character module, and Character Manager now require being signed in.
+-Initiative Tracker Changes:
+	-Removed the "Add new actor" button.
+	-Added a "Rolls" section, letting the host call for rolls and see their results.
+	-Added a roll "History" for the host.
+-Character Manager Changes:
+	-Characters are now shared by Player ID instead of codes.
+	-Users can share up to 3 characters at a time.
+	-Hosts can now edit a joiner's character if it's already shared with them.
+	-Out-of-clan Disciplines added during character creation now count as clan Disciplines (except for Caitiff).
+	-Disciplines can be marked as clan (or out-of-clan) in Free-form edit and XP mode.
+-Fixed Celerity Actions not showing on an actor's initiative mod.

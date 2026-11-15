@@ -1014,6 +1014,44 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 .share-who small { color: var(--muted); font-size: 0.82rem; overflow-wrap: anywhere; }
 .share-row select { height: 32px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); color: var(--fg); font: inherit; font-size: 0.9rem; }
 .share-who { align-items: flex-start; text-align: left; }
+/* Called rolls */
+.ini-rolls { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 4px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.ini-rolls[hidden] { display: none; }
+.ir-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ir-head .label { margin-right: auto; }
+.ir-head .btn-sec { height: 36px; padding: 0 12px; font-size: 0.9rem; }
+.ir-head .btn-sec:disabled { opacity: 0.45; cursor: not-allowed; }
+.ir-diff { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--muted); }
+.ir-diff b { min-width: 1.6em; text-align: center; font: 600 1rem/1 var(--font-data); color: var(--fg); }
+.ir-status { margin: 0; font-size: 0.9rem; }
+.ir-status.ir-you { padding: 6px 10px; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; background: var(--well); }
+.ir-last { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.ir-last > .label { flex-basis: 100%; }
+.rh-who { font-weight: 600; }
+.rh-kind { color: var(--muted); font-size: 0.88rem; }
+.rh-res { margin-left: auto; font: 600 1rem var(--font-data); color: var(--accent); }
+.rh-res.botch { color: var(--danger); }
+.rh-dl { flex-basis: 100%; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 4px 0 0; font-size: 0.86rem; }
+.rh-dl dt { color: var(--muted); }
+.rh-dl dd { margin: 0; overflow-wrap: anywhere; }
+.rolls-pop .rh-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.rh-item { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
+.rh-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.rh-when { flex-basis: 100%; color: var(--muted); font-size: 0.8rem; }
+.rh-foot { display: flex; justify-content: flex-end; }
+.rh-foot .btn-sec.confirm { background: var(--danger-fill); border-color: var(--danger-fill); color: #fff; }
+.diff-locked { opacity: 0.55; pointer-events: none; }
+.diff-lock-note { margin: 0 0 6px; color: var(--accent); }
+#initAdd { display: none !important; }
+/* Sign-in gate */
+.init-panel.cm-locked > *:not(.cm-lock) { display: none !important; }
+.cm-lock[hidden] { display: none; }
+.cm-gate { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.cm-gate h2 { margin: 0; }
+.cm-gate p { margin: 0; max-width: 48ch; }
+/* Discipline clan toggle (Free-form edit and XP mode) */
+.cm-tag.tag-btn { font: 600 0.68rem/1.2 var(--font-data); border: 1px dashed var(--line-strong); cursor: pointer; }
+.cm-tag.tag-btn:hover, .cm-tag.tag-btn:focus-visible { border-color: var(--accent); color: var(--fg); }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -1455,6 +1493,10 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
             <tbody id="initBodyRows"></tbody>
           </table>
         </div>
+        <!-- CHARACTERS-MODULE:BEGIN rolls -->
+        <div class="ini-rolls" id="iniRolls" aria-live="polite"></div>
+        <div class="actors-pop rolls-pop" id="rollsPop" role="dialog" aria-label="Roll history" hidden><div class="ap-head"><strong>Roll history</strong><button type="button" class="btn-sec ap-x" id="rollsClose" aria-label="Close the roll history">&times;</button></div><div class="rh-list" id="rollsList"></div><div class="rh-foot"><button type="button" class="btn-sec" id="rollsClear">Clear history</button></div></div>
+<!-- CHARACTERS-MODULE:END rolls -->
         <div class="init-foot"><button type="button" class="btn-sec" id="actorsBtn" aria-expanded="false" aria-controls="actorsPop" title="Your character sheets: add the original or a duplicate to the encounter">Actors list</button></div>
         <div class="actors-pop" id="actorsPop" role="dialog" aria-label="Actors list" hidden>
           <div class="ap-head"><strong>Actors list</strong><button type="button" class="btn-sec ap-x" id="actorsClose" aria-label="Close the actors list">&times;</button></div>
@@ -1797,6 +1839,9 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
         st.ini.encounter = typeof saved.ini.encounter === 'boolean' ? saved.ini.encounter : (st.ini.live || st.ini.actors.some(function (q) { return q.init !== null; }));
         if (st.ini.live) st.ini.encounter = true;
         st.ini.eid = isFinite(+saved.ini.eid) ? +saved.ini.eid : 0;   // CHARACTERS-MODULE
+        st.ini.rolls = Array.isArray(saved.ini.rolls) ? saved.ini.rolls.filter(function (r) { return r && typeof r === 'object'; }).slice(-200) : [];
+        st.ini.rseq = isFinite(+saved.ini.rseq) ? +saved.ini.rseq : st.ini.rolls.length;
+        st.ini.call = saved.ini.call && typeof saved.ini.call === 'object' && saved.ini.call.target ? saved.ini.call : null;
       }
     }
   } catch (e) {}
@@ -2100,6 +2145,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   var curRoll = null;   // the finished roll in the tray, which Single Roll can add dice to or take dice from
   function doRoll(animate, sample) {
     if (timer) { clearInterval(timer); timer = null; }
+    if (lockedDiff()) applyDiffLock();   // CHARACTERS-MODULE: a called roll keeps the Storyteller's difficulty
     if (animate) prepSound();
     var n = effPool();
     if (n < 1) return;
@@ -2116,7 +2162,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
       values.forEach(function (v, idx) { settle(idx, v, roll); });
       showResult(roll, values);
       curRoll.ready = true;
-      if (animate) { playSound(); noteRoll(roll, values); }
+      if (animate) { playSound(); noteRoll(roll, values); onRolled('main', roll, values); }
       return;
     }
 
@@ -2146,6 +2192,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
         showResult(roll, values);
         if (curRoll && curRoll.values === values) curRoll.ready = true;
         noteRoll(roll, values);
+        onRolled('main', roll, values);   // CHARACTERS-MODULE
       }
     }, 70);
   }
@@ -3458,6 +3505,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   }
 
   function rollDamage(animate, sample) {
+    if (lockedDiff()) applyDiffLock();   // CHARACTERS-MODULE
     var total = dmgTotal();
     if (total < 1) return;
     var roll = {
@@ -3485,7 +3533,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     dmgBoard.run(values, roll, animate,
       function () { $('dmgResult').classList.add('stale'); },
       playSound,
-      function () { showDmgResult(roll, values); });
+      function () { showDmgResult(roll, values); if (animate && !sample) onRolled('damage', roll, values); });
   }
 
   var dmgChipHtml = '';
@@ -3745,7 +3793,8 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     a.mod = clamp(Math.round(+p.mod || 0), -99, 99); a.cd = clamp(Math.round(+p.cd || 0), 0, 10); a.mn = String(p.mn || '').slice(0, 80);
     a.wnd = clamp(Math.round(+p.wnd || 0), -10, 0); if (!ini.live) a.wndA = a.wnd;
     a.cel = !!p.cel; if (!a.cel) a.ca = 0; else if (a.cd && a.ca > a.cd) a.ca = a.cd;
-    if (p.type !== undefined) { var was = a.type; a.type = p.type || ''; if (a.type === 'player') a.reveal = false; else if (!a.type) a.reveal = !!p.rev; else if (was !== 'enemy') a.reveal = false; }
+    if (a.ow) { a.type = 'player'; a.reveal = false; }   // a joiner's character is always a Player
+    else if (p.type !== undefined) { var was = a.type; a.type = p.type || ''; if (a.type === 'player') a.reveal = false; else if (!a.type) a.reveal = !!p.rev; else if (was !== 'enemy') a.reveal = false; }
   }
   /* CHARACTERS-MODULE:END ini-extra */
   function recompute(a) { syncIx(a); if (a.init !== null) a.init = a.die + a.mod + a.applied + a.ix; }
@@ -3816,6 +3865,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
      Put the address of your deployed sync server here, for example 'wss://vtm-sync.your-name.workers.dev'. */
   var SYNC_URL = 'wss://vtm-sync.alexadia.com';
   var hostWs = null, hostInfo = null, watchWs = null, remote = null, hostRetry = 0, syncPing = 0;
+  var rollCtx = null, dmgCtx = null, joinCall = null;   // CHARACTERS-MODULE: what the next roll is (from a sheet), and a call aimed at this joiner
   var ROLLER_LOCAL = ['ini', 'pool', 'diff', 'mod', 'dMod', 'dmgPool', 'dmgDiff', 'dmgMod', 'dmgDMod', 'want', 'action', 'spec', 'dmgSpec', 'botch', 'dmgBotch', 'botchPrev', 'dmgBotchPrev', 'diffInput', 'dmgDiffInput', 'module', 'presetsOpen', 'dmgPresetsOpen', 'dmgPlanOpen', 'presetsH', 'dmgPresetsH', 'actorSort', 'actorDesc', 'actorPresets', 'sound'];   // CHARACTERS-MODULE: this device and this moment (current roll, open panels, sound), not synced to the account
   window.vtmSyncUrl = SYNC_URL;   // CHARACTERS-MODULE: the account API lives on the same server
   /* CHARACTERS-MODULE:BEGIN join-state */
@@ -3841,17 +3891,20 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
       (by[a.ow] = by[a.ow] || []).push({ k: a.id, cid: a.rc || '', mod: a.mod, mn: a.mn || '', wnd: a.wnd || 0, ix: a.ix || 0, cd: a.cd || 0, ca: a.ca || 0, cu: a.cu || 0, cel: !!a.cel, ap: a.applied || 0 });
     });
     Object.keys(privSent).forEach(function (pid) { if (!by[pid]) by[pid] = []; });
+    var ct = ini.call && ini.call.target !== 'host' ? ini.call.target : null;
+    if (ct && !by[ct]) by[ct] = [];
     Object.keys(by).forEach(function (pid) {
-      var text = JSON.stringify(by[pid]);
+      var msg = { rows: by[pid], call: ct === pid ? { d: ini.call.diff || 0, n: ini.call.name } : null }, text = JSON.stringify(msg);
       if (privSent[pid] === text) return;
       privSent[pid] = text;
-      try { hostWs.send(JSON.stringify({ t: 'priv', to: pid, s: { rows: by[pid] } })); } catch (e) {}
+      try { hostWs.send(JSON.stringify({ t: 'priv', to: pid, s: msg })); } catch (e) {}
     });
   }
   /* Host: what a joiner asks for, checked here. They can only touch their own actors. */
   function onJoinerAct(pid, a) {
     if (!a || typeof a !== 'object' || !/^[a-f0-9]{16,64}$/.test(String(pid))) return;
-    if (a.k === 'add' || a.k === 'sheet') { if (window.cmRemoteSheet) window.cmRemoteSheet(pid, a.sheet, a.k === 'add'); return; }
+    if (a.k === 'add' || a.k === 'sheet') { if (window.cmRemoteSheet) window.cmRemoteSheet(pid, a.sheet, a.k === 'add', a.sid); return; }
+    if (a.k === 'roll') { joinerRolled(pid, a.rec); return; }
     var act = actorOf(+a.id);
     if (!act || act.ow !== pid) return;
     if (a.k === 'cel') {
@@ -3898,6 +3951,8 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     return {
       r: ini.round,
       l: ini.live, e: ini.encounter ? (ini.eid || 1) : 0,   // CHARACTERS-MODULE
+      cr: ini.call ? { n: ini.call.pub || ini.call.name, d: ini.call.diff || 0, own: !!ini.call.own } : null,
+      lr: lastPub(),
       c: curAt >= 0 ? pubName(cur) : '',
       z: ini.celerity,
       rows: ord.all.map(function (a) {
@@ -3971,7 +4026,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 
   function leaveWatching(note) {
     var w = watchWs;
-    watchWs = null; remote = null; mineRows = {};
+    watchWs = null; remote = null; mineRows = {}; setJoinCall(null);
     if (window.cmInitChanged) window.cmInitChanged();   // CHARACTERS-MODULE
     if (w) { try { w.close(); } catch (err) {} }
     syncMsg(note || '');
@@ -4003,6 +4058,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
       } else if (m.t === 'priv' && ws === watchWs) {   // CHARACTERS-MODULE: this joiner's own actors
         mineRows = {};
         (m.s && Array.isArray(m.s.rows) ? m.s.rows : []).slice(0, 60).forEach(function (x) { if (x && isFinite(+x.k)) mineRows[+x.k] = x; });
+        setJoinCall(m.s && m.s.call ? { diff: clamp(Math.round(+m.s.call.d || 0), 0, 30), name: String(m.s.call.n || '').slice(0, 24) } : null);
         renderRemote();
       } else if (m.t === 'closed' && ws === watchWs) {
         leaveWatching(m.reason === 'host-closed' ? 'The host closed the room.' : 'The host left, so the room closed.');
@@ -4020,6 +4076,180 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   $('syncCode').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); joinRoom(); } });
   $('syncCode').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
   $('syncLeave').addEventListener('click', function () { leaveWatching('You left the room.'); });
+  /* CHARACTERS-MODULE:BEGIN called-rolls */
+/* ---- Called rolls ----
+     The Storyteller (the host, or anyone running the tracker) calls for a roll from whoever is acting, with a base
+     difficulty, or calls their own roll. The next roll by the one called is recorded: joiners see the outcome (successes,
+     damage to apply, damage soaked), the host sees everything (traits, Specialty, pool, modifiers, difficulty). Rolls
+     made without a call stay private. While a roll with a difficulty is called, the roller's difficulty is locked. */
+  if (!isFinite(+st.callDiff)) st.callDiff = 6;
+  var KIND_LBL = { generic: 'Generic roll', damage: 'Damage roll', soak: 'Soak roll' };
+  function escH(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
+  /* The difficulty the Storyteller set for this page's next roll, or 0. */
+  function lockedDiff() {
+    if (!ini) return 0;   // the page's first sample rolls happen before the tracker is set up
+    if (watchWs) return joinCall && joinCall.diff ? joinCall.diff : 0;
+    return ini.call && ini.call.target === 'host' && ini.call.diff ? ini.call.diff : 0;
+  }
+  var lockNote = null, wasLocked = 0;
+  function applyDiffLock() {
+    var d = lockedDiff();
+    if (d) {
+      if (d > 10 && st.m20) { st.diff = clamp(d, 2, 30); st.diffInput = true; } else st.diff = clamp(d, 2, 10);
+      st.dmgDiff = clamp(d, 2, 10);
+      syncControls(); syncDmg();
+    }
+    ['chips', 'diffInBox', 'diffPlus', 'dmgChips', 'dmgDiffInBox', 'dmgDiffPlus'].forEach(function (id) {
+      var el = $(id); if (!el) return;
+      el.classList.toggle('diff-locked', !!d);
+      Array.prototype.forEach.call(el.querySelectorAll('input, button'), function (x) { x.disabled = !!d; });
+      if (el.tagName === 'BUTTON') el.disabled = !!d || el.hidden;
+    });
+    if (!lockNote) { lockNote = document.createElement('p'); lockNote.className = 'hint diff-lock-note'; $('chips').parentNode.insertBefore(lockNote, $('chips')); }
+    lockNote.hidden = !d;
+    lockNote.textContent = d ? 'The Storyteller called for this roll at difficulty ' + d + '. Modifiers still apply.' : '';
+    if (d && d !== wasLocked && window.cmToast) window.cmToast('The Storyteller is calling for your roll, difficulty ' + d + '.');
+    wasLocked = d;
+  }
+  function setJoinCall(c) {
+    var had = joinCall;
+    joinCall = c;
+    if (!c && had && window.cmToast) { /* answered or cancelled */ }
+    applyDiffLock();
+    renderRollPanel();
+  }
+  /* Everything about a roll that the host may see. */
+  function rollRecord(kind, roll, values, ctx) {
+    var s = score(values, roll), c = ctx || null, rec = {
+      kind: kind, by: c ? c.char : '', traits: c ? c.traits : '', note: c ? c.note : '', auto: c ? c.auto : [],
+      spec: !!roll.spec, pool: roll.pool, mod: roll.mod || 0, bonus: roll.bonus || 0, action: roll.action || 1,
+      diff: roll.full, baseDiff: roll.baseDiff, dMod: roll.dMod || 0, net: s.net, botch: !!s.botched, ones: s.ones || 0
+    };
+    if (kind === 'damage') { rec.base = st.dmgPool; if (c) rec.manualPool = (st.dmgPool - c.pool) + ((roll.mod || 0) - (c.mod || 0)); }
+    else { rec.base = roll.basePool; if (c) { rec.manualPool = (roll.basePool - c.pool) + ((roll.mod || 0) - (c.mod || 0)); rec.manualDiff = (roll.dMod || 0) - (c.dmod || 0) + (lockedDiff() ? 0 : roll.baseDiff - c.diff); } }
+    return rec;
+  }
+  function onRolled(kind, roll, values) {
+    var ctx = kind === 'damage' ? dmgCtx : rollCtx;
+    if (kind === 'main') kind = ctx && ctx.kind === 'soak' ? 'soak' : 'generic';
+    var rec = rollRecord(kind, roll, values, ctx);
+    if (kind === 'soak') rollCtx = null;   // a soak setup is used once
+    if (watchWs) {
+      if (!joinCall) return;               // nobody called for it: it stays private
+      joinAct({ k: 'roll', rec: rec });
+      joinCall = null; applyDiffLock(); renderRollPanel();
+      return;
+    }
+    if (!ini.call || ini.call.target !== 'host') return;
+    recordRoll(ini.call, rec);
+  }
+  function recordRoll(call, rec) {
+    rec.who = call.name; rec.pub = call.pub || call.name; rec.called = call.diff || 0; rec.own = !!call.own;
+    rec.ts = Date.now(); rec.round = ini.round; ini.rseq = (ini.rseq || 0) + 1; rec.id = ini.rseq;
+    ini.rolls = (ini.rolls || []).concat([rec]).slice(-200);
+    ini.call = null;
+    initChanged(); applyDiffLock();
+  }
+  /* Host: a joiner's roll, checked and cleaned (it came from someone else's page). */
+  function joinerRolled(pid, r) {
+    if (!r || typeof r !== 'object' || !ini.call || ini.call.target !== pid) return;
+    function n(v, lo, hi) { v = Math.round(+v); return isFinite(v) ? clamp(v, lo, hi) : 0; }
+    function t(v, len) { return String(v == null ? '' : v).slice(0, len); }
+    var rec = { kind: KIND_LBL[r.kind] ? r.kind : 'generic', by: t(r.by, 40), traits: t(r.traits, 120), note: t(r.note, 120),
+      auto: Array.isArray(r.auto) ? r.auto.slice(0, 12).map(function (x) { return t(x, 60); }) : [],
+      spec: !!r.spec, pool: n(r.pool, 0, 99), base: n(r.base, 0, 99), mod: n(r.mod, -99, 99), bonus: n(r.bonus, -99, 99), action: n(r.action, 1, 9),
+      diff: n(r.diff, 2, 30), baseDiff: n(r.baseDiff, 2, 30), dMod: n(r.dMod, -20, 20), net: n(r.net, -99, 99), botch: !!r.botch, ones: n(r.ones, 0, 99) };
+    if (r.manualPool != null) rec.manualPool = n(r.manualPool, -99, 99);
+    if (r.manualDiff != null) rec.manualDiff = n(r.manualDiff, -30, 30);
+    recordRoll(ini.call, rec);
+  }
+  function resultText(rec) {
+    if (rec.botch) return 'Botch';
+    if (rec.kind === 'damage') return rec.net + ' damage to apply';
+    if (rec.kind === 'soak') return rec.net + ' damage soaked';
+    return rec.net === 0 ? 'Failure' : rec.net + (rec.net === 1 ? ' success' : ' successes');
+  }
+  function lastPub() {
+    var r = (ini.rolls || [])[ini.rolls ? ini.rolls.length - 1 : 0];
+    return r ? { id: r.id, n: r.pub || r.who, k: r.kind, v: r.net, b: !!r.botch } : null;
+  }
+  function sgn(v) { return (v > 0 ? '+' : v < 0 ? MINUS : '±') + Math.abs(v); }
+  /* The host's full view of a roll. */
+  function rollDetail(r) {
+    var pool = [], diff = [];
+    pool.push(r.base + ' base');
+    (r.auto || []).forEach(function (a) { pool.push(a); });
+    if (r.manualPool) pool.push('by hand ' + sgn(r.manualPool));
+    else if (r.manualPool == null && r.mod) pool.push('modifier ' + sgn(r.mod));
+    if (r.bonus) pool.push('bonus dice ' + sgn(r.bonus));
+    if (r.action > 1) pool.push('action ' + r.action + ' (÷' + r.action + ')');
+    diff.push((r.called ? 'called ' + r.called : 'base ' + r.baseDiff));
+    if (r.dMod) diff.push('modifier ' + sgn(r.dMod) + (r.manualDiff ? ' (by hand ' + sgn(r.manualDiff) + ')' : ''));
+    var rows = [
+      ['Traits', (r.traits || 'Set by hand') + (r.note ? ' · ' + r.note : '')],
+      ['Specialty', r.spec ? 'On' : 'Off'],
+      ['Dice pool', r.pool + ' (' + pool.join(', ') + ')'],
+      ['Difficulty', r.diff + ' (' + diff.join(', ') + ')'],
+      ['Result', resultText(r) + (r.ones && !r.botch ? ' · ' + r.ones + ' one' + (r.ones > 1 ? 's' : '') : '')]
+    ];
+    return '<dl class="rh-dl">' + rows.map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + escH(x[1]) + '</dd>'; }).join('') + '</dl>';
+  }
+  function rollHead(r) {
+    return '<span class="rh-who">' + escH(r.who || 'Storyteller') + '</span><span class="rh-kind">' + KIND_LBL[r.kind] + (r.own ? ' · Storyteller\'s own' : '') + '</span><b class="rh-res' + (r.botch ? ' botch' : '') + '">' + escH(resultText(r)) + '</b>';
+  }
+  /* The Rolls box under the tracker. */
+  function renderRollPanel() {
+    var box = $('iniRolls'); if (!box) return;
+    if (watchWs) {
+      var cr = remote && remote.cr, lr = remote && remote.lr, h = '';
+      if (joinCall) h += '<p class="ir-status ir-you"><b>Your roll is called' + (joinCall.diff ? ' at difficulty ' + joinCall.diff : '') + '.</b> Your next roll is shared with the table.</p>';
+      else if (cr) h += '<p class="ir-status">Waiting for ' + escH(cr.n) + ' to roll' + (cr.d ? ' (difficulty ' + cr.d + ')' : '') + '.</p>';
+      if (lr) h += '<div class="ir-last"><span class="label">Last roll</span>' + rollHead({ who: lr.n, kind: KIND_LBL[lr.k] ? lr.k : 'generic', net: lr.v, botch: lr.b }) + '</div>';
+      box.innerHTML = h; box.hidden = !h;
+      return;
+    }
+    if (ini.call && !ini.encounter) { ini.call = null; save(); applyDiffLock(); }
+    var cur = ini.live && ini.turn ? actorOf(ini.turn) : null, call = ini.call, last = (ini.rolls || [])[(ini.rolls || []).length - 1];
+    var hh = '<div class="ir-head"><span class="label">Rolls</span>' +
+      '<span class="ir-diff" title="Base difficulty for the next called roll">Difficulty <button type="button" class="qr-step" data-ir="d" data-d="-1" aria-label="Lower difficulty">' + MINUS + '</button><b>' + st.callDiff + '</b><button type="button" class="qr-step" data-ir="d" data-d="1" aria-label="Raise difficulty">+</button></span>' +
+      '<button type="button" class="btn-sec" data-ir="call"' + (cur && !call ? '' : ' disabled') + ' title="' + (cur ? 'Call for ' + escH(cur.name) + '\'s next roll at this difficulty' : 'Start a round first: the call goes to whoever is acting') + '">Call roll</button>' +
+      '<button type="button" class="btn-sec" data-ir="own"' + (call || !ini.encounter ? ' disabled' : '') + ' title="Your next roll is shown to the table">Call my roll</button>' +
+      '<button type="button" class="btn-sec" data-ir="hist"' + ((ini.rolls || []).length ? '' : ' disabled') + '>History</button></div>';
+    if (call) hh += '<p class="ir-status">' + (call.own ? 'Your next roll will be shown to the table.' : call.target === 'host' ? 'Called: roll for ' + escH(call.name) + ' at difficulty ' + call.diff + '.' : 'Waiting for ' + escH(call.name) + ' to roll at difficulty ' + call.diff + '.') + ' <button type="button" class="linkish" data-ir="cancel">Cancel</button></p>';
+    if (last) hh += '<div class="ir-last"><span class="label">Last roll</span>' + rollHead(last) + rollDetail(last) + '</div>';
+    box.innerHTML = hh; box.hidden = false;
+  }
+  function renderHistory() {
+    var list = $('rollsList'), rolls = (ini.rolls || []).slice().reverse();
+    list.innerHTML = rolls.length ? rolls.map(function (r) {
+      return '<div class="rh-item"><div class="rh-top">' + rollHead(r) + '<span class="rh-when">Round ' + r.round + ' · ' + new Date(r.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</span></div>' + rollDetail(r) + '</div>';
+    }).join('') : '<p class="hint">No called rolls yet.</p>';
+  }
+  $('iniRolls').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-ir]') : null; if (!b || watchWs) return;
+    var k = b.getAttribute('data-ir');
+    if (k === 'd') { st.callDiff = clamp(st.callDiff + (+b.getAttribute('data-d')), 2, st.m20 ? 30 : 10); save(); renderRollPanel(); }
+    else if (k === 'call') {
+      var cur = ini.live && ini.turn ? actorOf(ini.turn) : null; if (!cur) return;
+      ini.call = { target: cur.ow || 'host', actor: cur.id, name: cur.name, pub: pubName(cur), diff: st.callDiff, own: false, ts: Date.now() };
+      initChanged(); applyDiffLock();
+    } else if (k === 'own') {
+      ini.call = { target: 'host', actor: 0, name: 'Storyteller', pub: 'Storyteller', diff: 0, own: true, ts: Date.now() };
+      initChanged(); applyDiffLock();
+    } else if (k === 'cancel') { ini.call = null; initChanged(); applyDiffLock(); }
+    else if (k === 'hist') { renderHistory(); placeRollsPop(); $('rollsPop').hidden = false; $('rollsClose').focus(); }
+  });
+  function placeRollsPop() { var pop = $('rollsPop'); if (pop.parentNode !== $('initPanel')) $('initPanel').appendChild(pop); }
+  $('rollsClose').addEventListener('click', function () { $('rollsPop').hidden = true; });
+  $('rollsClear').addEventListener('click', function () {
+    var b = $('rollsClear');
+    if (!b.classList.contains('confirm')) { b.classList.add('confirm'); b.textContent = 'Click again to clear'; setTimeout(function () { b.classList.remove('confirm'); b.textContent = 'Clear history'; }, 3000); return; }
+    b.classList.remove('confirm'); b.textContent = 'Clear history';
+    ini.rolls = []; initChanged(); renderHistory();
+  });
+  setTimeout(function () { applyDiffLock(); renderRollPanel(); }, 0);
+
+  /* CHARACTERS-MODULE:END called-rolls */
   /* CHARACTERS-MODULE:BEGIN remote-acts */
   $('initBodyRows').addEventListener('click', function (e) {
     if (!watchWs) return;
@@ -4037,6 +4267,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   function renderRemote() {
     if (!remote) return;
     if (window.cmInitChanged) window.cmInitChanged();   // CHARACTERS-MODULE: the joiner's characters follow the host's turns
+    setTimeout(renderRollPanel, 0);
     var body = $('initBodyRows');
     body.textContent = '';
     var rows = Array.isArray(remote.rows) ? remote.rows.slice(0, 60) : [];
@@ -4083,7 +4314,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
         tr.classList.add('mine');
         var info = document.createElement('div');
         info.className = 'rm-mine';
-        info.textContent = 'Yours · Mod ' + fmtMod(mr.mod) + (mr.mn ? ' (' + mr.mn + ')' : '') + (mr.wnd ? ' · wounds ' + fmtMod(mr.wnd) : '') + (mr.ix && mr.ix !== mr.wnd ? ' · Celerity actions ' + fmtMod(mr.ix - (mr.wnd || 0)) : '');
+        info.textContent = 'Yours · Mod ' + fmtMod(mr.mod + (mr.ix || 0)) + ' (' + (mr.mn || 'Dexterity + Wits') + (mr.wnd ? ', wounds ' + fmtMod(mr.wnd) : '') + (mr.ix && mr.ix !== mr.wnd ? ', Celerity actions ' + fmtMod(mr.ix - (mr.wnd || 0)) : '') + ')';
         t2.appendChild(info);
         if (mr.cel && !remote.l) {
           var rc2 = t2.querySelector('.ini-cel');
@@ -4129,7 +4360,8 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   }
 
   function renderInit() {
-    if (window.cmInitChanged) window.cmInitChanged();   // CHARACTERS-MODULE: every tracker change (Undo included) redraws here
+    if (window.cmInitChanged) window.cmInitChanged();
+    setTimeout(renderRollPanel, 0);   // CHARACTERS-MODULE: every tracker change (Undo included) redraws here
     if (watchWs) return;   // a joiner is looking at the host's table instead
     undoWatch();
     var ord = initOrder();
@@ -4142,7 +4374,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
       var td0 = document.createElement('td');
       td0.colSpan = 5;
       td0.className = 'none';
-      td0.textContent = 'No actors yet. Press Add new actor to start.';
+      td0.textContent = 'No actors yet. Add characters from the Actors list below.';
       tr0.appendChild(td0);
       body.appendChild(tr0);
     }
@@ -4214,7 +4446,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
       mb.type = 'button';
       mb.className = 'ini-cell mono';
       mb.setAttribute('data-f', 'mod');
-      mb.textContent = fmtMod(a.mod);
+      mb.textContent = fmtMod(a.mod + (a.ch || a.cd ? (a.ix || 0) : 0));   // CHARACTERS-MODULE: Celerity actions and wounds show here
       mb.setAttribute('aria-label', 'Initiative modifier ' + fmtMod(a.mod) + '. Press Enter to edit.');
       mb.title = a.ch ? 'From the character sheet: ' + (a.mn || 'Dexterity + Wits') + (a.wnd ? '. Wounds ' + a.wnd : '') + '. Celerity dots used for extra actions that turn don\'t count.' : 'Double-click to edit the initiative modifier';
       t3.appendChild(mb);
@@ -5287,11 +5519,13 @@ V1.5
     mainOn: function () { return st.showMain; },
     setMain: function (o) {
       st.pool = clamp(o.pool, 1, MAX_POOL);
-      var d = Math.round(o.diff || 6);
+      var d = Math.round(o.diff || 6), lk = lockedDiff();
+      if (lk) { st.dMod = clamp((o.dmod || 0) + (o.tdiff || 0), -8, 8); if (st.dMod) st.dModOn = true; d = lk; }   // the Storyteller set the difficulty: targeting goes on as a modifier
+      else { st.dMod = clamp(o.dmod || 0, -8, 8); if (st.dMod) st.dModOn = true; }
       if (d > 10 && st.m20) { st.diff = clamp(d, 2, 30); st.diffInput = true; } else st.diff = clamp(d, 2, 10);
       st.spec = !!o.spec;
       st.mod = clamp(o.mod || 0, -20, 20); if (st.mod) st.modOn = true;
-      st.dMod = clamp(o.dmod || 0, -8, 8); if (st.dMod) st.dModOn = true;
+      rollCtx = o.ctx ? { kind: o.ctx.kind === 'soak' ? 'soak' : 'generic', char: String(o.ctx.char || '').slice(0, 40), traits: String(o.ctx.traits || '').slice(0, 120), note: String(o.ctx.note || '').slice(0, 120), auto: (o.ctx.auto || []).map(function (x) { return String(x).slice(0, 60); }).slice(0, 12), pool: st.pool, mod: st.mod, diff: st.diff, dmod: st.dMod } : null;
       syncControls(); save();
       return true;
     },
@@ -5299,6 +5533,8 @@ V1.5
     setDamage: function (o) {
       st.dmgPool = clamp(o.pool, 0, MAX_POOL); st.dmgDiff = clamp(o.diff || 6, 2, 10); st.dmgSpec = !!o.spec;
       st.dmgMod = clamp(o.mod || 0, -20, 20); if (st.dmgMod) st.dmgModOn = true;
+      dmgCtx = o.ctx ? { char: String(o.ctx.char || '').slice(0, 40), traits: String(o.ctx.traits || '').slice(0, 120), note: String(o.ctx.note || '').slice(0, 120), auto: (o.ctx.auto || []).map(function (x) { return String(x).slice(0, 60); }).slice(0, 12), pool: st.dmgPool, mod: st.dmgMod } : null;
+      if (lockedDiff()) applyDiffLock();
       syncDmg(); save();
     },
     openModule: function (name) {
@@ -5369,7 +5605,7 @@ V1.5
     syncActor: function (ch, p) {
       var changed = false;
       ini.actors.forEach(function (a) {
-        if (a.ch !== ch || (a.mod === p.mod && a.cd === (p.cd || 0) && a.wnd === (p.wnd || 0) && a.mn === (p.mn || '') && a.cel === !!p.cel && a.type === (p.type || '') && (a.type === 'enemy' || a.reveal === (!p.type && !!p.rev)))) return;
+        if (a.ch !== ch || (a.mod === p.mod && a.cd === (p.cd || 0) && a.wnd === (p.wnd || 0) && a.mn === (p.mn || '') && a.cel === !!p.cel && (a.ow ? a.type === 'player' : a.type === (p.type || '') && (a.type === 'enemy' || a.reveal === (!p.type && !!p.rev))))) return;
         linkSet(a, p); recompute(a); changed = true;
       });
       if (changed) initChanged();
@@ -6071,7 +6307,7 @@ V1.5
       virt: { conscience: 1, selfControl: 1, courage: 1 },
       virtNames: { conscience: 'Conscience', selfControl: 'Self-Control' },
       morality: { name: 'Humanity', dots: 2 }, willpower: { perm: 1, cur: 1 },
-      blood: { cur: 0 }, health: { b: 0, l: 0, a: 0 }, boost: { strength: 0, dexterity: 0, stamina: 0 }, tracker: { type: '', rev: false },
+      blood: { cur: 0 }, health: { b: 0, l: 0, a: 0 }, boost: { strength: 0, dexterity: 0, stamina: 0 }, tracker: { type: '', rev: false }, clanExtra: [],
       merits: [], flaws: [], weapons: [], armor: [], xp: { base: 0, log: [] }, enotes: {},
       details: { aes: {}, bgx: {}, poss: [], other: '' },
       backstory: { story: '', facts: '' }, journal: [],
@@ -6182,7 +6418,10 @@ V1.5
     if (creating(c)) return 5;
     return Math.max(5, genInfo(c).max);
   }
-  function inClan(c, d) { var cl = CLANS[c.info.clan]; return !!(cl && cl.disc.indexOf(d) >= 0); }
+  /* Clan Disciplines: the clan's own, plus any this character treats as clan (added during creation, or marked later).
+     Caitiff have no clan Disciplines, so nothing is added for them. */
+  function baseClan(c, d) { var cl = CLANS[c.info.clan]; return !!(cl && cl.disc.indexOf(d) >= 0); }
+  function inClan(c, d) { return baseClan(c, d) || (c.info.clan !== 'Caitiff' && (c.clanExtra || []).indexOf(d) >= 0); }
   function stExtra(c, d) { return (c.creation.extra || []).indexOf(d) >= 0; }
   function canStartWith(c, d) { return c.info.clan === 'Caitiff' || inClan(c, d) || stExtra(c, d); }
   function groupOf(p) {
@@ -6459,11 +6698,12 @@ V1.5
     var ks = discKeys(c);
     if (!ks.length) h += '<p class="muted small">' + (c.info.clan === 'Caitiff' ? 'Caitiff can start with any Disciplines. Add them below.' : 'No Disciplines yet.') + '</p>';
     ks.forEach(function (d) {
-      var tag = '';
-      if (inClan(c, d)) tag = ' <span class="cm-tag">clan</span>';
+      var tag = '', flip = ctx.addPath && !creating(c) && c.info.clan && c.info.clan !== 'Caitiff' && !baseClan(c, d);
+      if (flip) tag = ' <button type="button" class="cm-tag tag-btn" data-act="clanToggle" data-d="' + esc(d) + '" title="' + (inClan(c, d) ? 'Click to make it out-of-clan again' : 'Click to treat it as a clan Discipline') + '">' + (inClan(c, d) ? 'clan' : 'out-of-clan') + '</button>';
+      else if (inClan(c, d)) tag = ' <span class="cm-tag"' + (baseClan(c, d) ? '' : ' title="Not one of the clan\'s own, but counted as a clan Discipline"') + '>clan</span>';
       else if (creating(c) && stExtra(c, d)) tag = ' <span class="cm-tag st" title="Added with the Storyteller\'s permission">ST-approved</span>';
       else if (c.info.clan && c.info.clan !== 'Caitiff') tag = ' <span class="cm-tag' + (creating(c) && alloc(c, 'disc.' + d) > 0 && !canStartWith(c, d) ? ' warn' : '') + '">out-of-clan</span>';
-      var canRm = ctx.rm && !(creating(c) && inClan(c, d));
+      var canRm = ctx.rm && !(creating(c) && baseClan(c, d));
       h += row(c, 'disc.' + d, ctx, tag, canRm ? rmBtn('disc', d) : '');
     });
     if (opts.add) h += addCtl('disc', 'Add Discipline', 'dl-disc');
@@ -7392,11 +7632,27 @@ V1.5
 
   /* ================= RENDER ================= */
   function activeTab() { var c = cur(); return c ? ((c.ui && c.ui.tab) || 'sheet') : null; }
+  /* Initiative, the Character module and Characters need an account (Settings > Account). */
+  function gated() { return !signedIn(); }
+  function gateCard(what) {
+    return '<section class="card cm-gate"><h2>Sign in to use ' + what + '</h2><p class="muted">Characters, the Initiative tracker and sharing work with your account, so your sheets follow you between devices and you can play with others. Signing in takes a moment with Google.</p>' +
+      '<button type="button" class="btn primary" data-act="openSettings">Open Settings to sign in</button></section>';
+  }
+  function applyGate() {
+    var on = gated(), p = $('initPanel');
+    if (p) {
+      p.classList.toggle('cm-locked', on);
+      var note = $('cmInitGate');
+      if (on && !note) { note = document.createElement('div'); note.id = 'cmInitGate'; note.className = 'cm cm-lock'; p.insertBefore(note, p.firstChild); }
+      if (note) { note.hidden = !on; note.innerHTML = on ? gateCard('the Initiative tracker') : ''; }
+      if (on && $('actorsPop')) $('actorsPop').hidden = true;
+    }
+  }
   function renderBar() {
+    if (gated()) { $('cmBar').innerHTML = ''; return; }
     var c0 = cur(), tmp = isTemp(c0), recv = isReceived(c0), has = store.order.length > 0 || (store.synced || []).length > 0 || tmp, own = has && !tmp && !recv, signed = signedIn();
     $('cmBar').innerHTML = (has ? '<label class="vh" for="charSel">Character</label><select id="charSel">' + charOptions(true) + '</select>' : '') +
       '<div class="bar-btns"><button type="button" class="btn primary" data-act="newChar">New character</button>' +
-      (signed ? '<button type="button" class="btn" data-act="joinShare" title="Add a character someone shared with you, with their code">Add shared</button>' : '') +
       (own || recv ? '<button type="button" class="btn" data-act="dup" title="' + (recv ? 'Make your own separate copy' : 'Make a copy') + '">Duplicate</button>' : '') +
       '<button type="button" class="btn" data-act="import">Import</button>' +
       (own && signed ? '<button type="button" class="btn' + (isShared(c0) ? ' toggle" aria-pressed="true' : '') + '" data-act="share" title="Share this sheet with other players">' + (isShared(c0) ? 'Sharing' : 'Share') + '</button>' : '') +
@@ -7435,6 +7691,7 @@ V1.5
   }
   function renderSheet() {
     var c = cur(), main = $('cmSheet');
+    if (gated()) { main.innerHTML = gateCard('Characters'); return; }
     if (!c) {
       main.innerHTML = '<section class="card cm-empty"><h2>No characters yet</h2><p class="muted">Start a new Kindred with the guided creation, open a blank sheet to fill in freely, or import a saved character.</p><button type="button" class="btn primary" data-act="newChar">New character</button></section>';
       return;
@@ -7460,7 +7717,7 @@ V1.5
       try { if (ie.tagName === 'TEXTAREA' || ie.type === 'text' || !ie.type) { var n = ie.value.length; ie.setSelectionRange(n, n); } } catch (e) {}
     }
   }
-  function render() { hideTip(); var c = cur(); renderBar(); renderTabs(c); renderModes(c); renderSheet(); renderPick(); renderModule(); }
+  function render() { hideTip(); applyGate(); var c = gated() ? null : cur(); renderBar(); renderTabs(c); renderModes(c); renderSheet(); renderPick(); renderModule(); }
   function commit() { save(); render(); }
 
   /* ================= DOT CLICKS ================= */
@@ -7598,6 +7855,13 @@ V1.5
       secretT = now;
       if (++secretN >= 5) { secretN = 0; stFreebiesModal(); }
     },
+    clanToggle: function (el) {
+      var c = cur(), d = el.dataset.d, i = c.clanExtra.indexOf(d);
+      if (baseClan(c, d) || c.info.clan === 'Caitiff') return;
+      if (i >= 0) c.clanExtra.splice(i, 1); else c.clanExtra.push(d);
+      toast(d + (i >= 0 ? ' is out-of-clan again.' : ' now counts as a clan Discipline (XP cost ×5).'));
+      commit();
+    },
     extraDisc: function () {
       var c = cur();
       openModal('<h2>Add another Discipline</h2><p>Starting characters normally put their Discipline dots only into their clan Disciplines. Only add another one if your Storyteller has allowed it.</p>' +
@@ -7611,6 +7875,7 @@ V1.5
         if (inClan(c, n)) return toast(n + ' is already a clan Discipline.');
         if (c.disc[n] == null) c.disc[n] = 0;
         if (c.creation.extra.indexOf(n) < 0) c.creation.extra.push(n);
+        if (c.info.clan !== 'Caitiff' && c.clanExtra.indexOf(n) < 0) c.clanExtra.push(n);   // counts as a clan Discipline from now on
         closeModal(); commit();
       };
       $('exName').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); });
@@ -7667,6 +7932,7 @@ V1.5
       var c = cur(), k = el.dataset.k, key = el.dataset.key, fb = c.creation.fb;
       if (k === 'disc') {
         delete c.disc[key]; delete fb['disc.' + key];
+        c.clanExtra = (c.clanExtra || []).filter(function (x) { return x !== key; }); c.creation.extra = (c.creation.extra || []).filter(function (x) { return x !== key; });
         c.creation.extra = c.creation.extra.filter(function (x) { return x !== key; });
         if (c.sorc[key]) { Object.keys(c.sorc[key].paths).forEach(function (pn) { delete fb['spath.' + key + '|' + pn]; }); delete c.sorc[key]; }
       } else if (k === 'bg') { delete c.bg[key]; delete fb['bg.' + key]; }
@@ -8124,7 +8390,7 @@ V1.5
     var c = cur(), r = R(); if (!c || !pb.a) return;
     if (!r || !r.mainOn()) return toast('Turn on the Main Roller in Settings > Modules to roll from here.');
     var pi = poolInfo(c);
-    r.setMain({ pool: Math.max(1, pi.dice), diff: pb.diff, spec: pb.spec && pi.specs.length > 0, mod: pi.mod, dmod: 0 });
+    r.setMain({ pool: Math.max(1, pi.dice), diff: pb.diff, spec: pb.spec && pi.specs.length > 0, mod: pi.mod, dmod: 0, ctx: { kind: 'generic', char: c.info.name || 'Unnamed', traits: pi.parts.join(' + '), auto: pi.mods } });
     /* Remember the last few pools for one-tap reuse. */
     var rec = (c.ui.recent || []).filter(function (x) { return !(x.a === pb.a && x.b === pb.b); });
     rec.unshift({ a: pb.a, b: pb.b, diff: pb.diff, spec: pb.spec }); c.ui.recent = rec.slice(0, 6); save();
@@ -8141,10 +8407,15 @@ V1.5
     if (woundPenalty(c) === null) return toast((c.info.name || 'This character') + ' is Incapacitated and can\'t attack.');
     var wp = woundPenalty(c), mod = (wp || 0) + (m.attackPoolMod || 0) - (untrained(c, skill) === 'skill' ? 1 : 0);
     var pool = phys(c, 'dexterity') + val(c, skill);
-    disciplineBonus(c, ['attr.dexterity']).forEach(function (x) { mod += x[1]; });   // Celerity adds to Dexterity attacks
-    r.setMain({ pool: Math.max(1, pool), diff: m.diff, spec: false, mod: mod, dmod: 0 });
+    var auto = [];
+    if (wp) auto.push('Wounds ' + wp);
+    if (m.attackPoolMod) auto.push('Armor ' + m.attackPoolMod);
+    if (untrained(c, skill) === 'skill') auto.push('Untrained −1');
+    disciplineBonus(c, ['attr.dexterity']).forEach(function (x) { mod += x[1]; if (x[1]) auto.push(x[0] + ' +' + x[1]); });   // Celerity adds to Dexterity attacks
+    var who = c.info.name || 'Unnamed', note = 'Attack with ' + (w.name || 'a weapon') + (m.target ? ', targeting ' + m.label : '');
+    r.setMain({ pool: Math.max(1, pool), diff: m.diff, tdiff: m.diffMod || 0, spec: false, mod: mod, dmod: 0, ctx: { kind: 'generic', char: who, traits: 'Dexterity ' + phys(c, 'dexterity') + ' + ' + LABELS[split(skill)[1]] + ' ' + val(c, skill), auto: auto, note: note } });
     var dp = dmgPool(c, w.dmg);
-    if (dp != null) r.setDamage({ pool: Math.max(0, dp + m.dmgMod), diff: 6 });
+    if (dp != null) r.setDamage({ pool: Math.max(0, dp + m.dmgMod), diff: 6, ctx: { char: who, traits: (w.name || 'Weapon') + ' ' + w.dmg + (usesStr(w.dmg) && c.disc.Potence ? ' (Potence ' + c.disc.Potence + ')' : ''), auto: m.dmgMod ? ['Targeting/armor ' + (m.dmgMod > 0 ? '+' : '') + m.dmgMod] : [], note: note } });
     var opened = dp != null && r.openModule('damage');
     setView('roller');
     toast((w.name || 'Weapon') + ': Dexterity + ' + LABELS[split(skill)[1]] + (c.disc.Celerity && c.disc.Celerity > celUsedNow(c) ? ' + Celerity ' + (c.disc.Celerity - celUsedNow(c)) : '') + ' at difficulty ' + m.diff + (dp != null ? (opened ? '; damage is ready in the Damage module.' : '; damage is set (the Damage module is off).') : '.'));
@@ -8204,6 +8475,7 @@ V1.5
   /* Character module: the Active Play layout when there's room, a compact one when the module is narrow (container queries). */
   function renderModule() {
     var el = $('cmModule'); if (!el) return;
+    if (gated()) { el.innerHTML = gateCard('the Character module'); return; }
     var c = cur();
     if (!c) { el.innerHTML = '<p class="muted" style="margin:0">No characters yet.</p><div><button type="button" class="btn primary small" data-act="goChars" data-new="1">Create a character</button></div>'; return; }
     syncDerived(c);
@@ -8277,7 +8549,8 @@ V1.5
       bt.onclick = function () {
         var n = +bt.dataset.n, r = R(); closeModal();
         if (!r || !r.mainOn()) return toast('Turn on the Main Roller in Settings > Modules to roll soak.');
-        r.setMain({ pool: n, diff: 6, spec: false, mod: 0, dmod: 0 });
+        var so = opts.filter(function (o) { return o[0] === bt.dataset.soak; })[0] || [];
+        r.setMain({ pool: n, diff: 6, spec: false, mod: 0, dmod: 0, ctx: { kind: 'soak', char: c.info.name || 'Unnamed', traits: so[4] || '', note: so[1] || '' } });
         setView('roller'); r.rollMain();
       };
     });
@@ -8325,6 +8598,7 @@ V1.5
   actions.qrefToggle = function () { store.ui = store.ui || {}; store.ui.qrefOpen = !store.ui.qrefOpen; commit(); };
   actions.pbAct = function (el) { var r = R(); if (r) r.setAction(r.getAction() + (+el.dataset.d)); };
   window.cmActionChanged = function () { renderPick(); renderModule(); };
+  window.cmToast = function (t) { toast(t); };
   actions.pbDiff = function (el) { pb.diff = clamp(pb.diff + (+el.dataset.d), 2, 30); renderPick(); renderModule(); };
   actions.qrTab = function (el) { qr.tab = el.dataset.t; renderModule(); };
   actions.qrSame = function () { store.ui = store.ui || {}; store.ui.qrSame = !store.ui.qrSame; save(); renderModule(); };
@@ -8359,7 +8633,7 @@ V1.5
     var d = sheetForHost(c); if (!d) { toast((c.info.name || 'This sheet') + ' is too big to send to the host.'); return false; }
     var txt = JSON.stringify(d);
     if (kind === 'sheet' && lastPushed[c.id] === txt) return true;
-    if (!r.joinSend({ k: kind, sheet: d })) return false;
+    if (!r.joinSend({ k: kind, sheet: d, sid: isShared(c) ? c.share.sid : undefined })) return false;
     lastPushed[c.id] = txt;
     return true;
   }
@@ -8375,10 +8649,18 @@ V1.5
     c.armor.forEach(function (a) { a.rating = +a.rating || 0; a.penalty = +a.penalty || 0; });
     return c;
   }
-  window.cmRemoteSheet = function (pid, sheet, isAdd) {
+  window.cmRemoteSheet = function (pid, sheet, isAdd, sid) {
     if (!sheet || typeof sheet !== 'object' || !sheet.info || !sheet.attrs || !/^[\w-]{1,40}$/.test(String(sheet.id))) return;
     var r = R(); if (!r || !r.addActor) return;
     var cid = String(sheet.id), id = 'rm-' + pid.slice(0, 8) + '-' + cid, inE = r.linked().indexOf(id) >= 0;
+    /* A shared sheet this host can already edit: use the host's own live copy instead of a read-only one. */
+    var mine = isAdd && typeof sid === 'string' ? charOfSid(sid) : null;
+    if (mine && mine.share.role !== 'view') {
+      if (r.linked().indexOf(mine.id) >= 0) return;
+      var pm = iniPayload(mine, (mine.info.name || 'Unnamed').slice(0, 24)); pm.ow = pid; pm.rc = cid;
+      if (r.addActor(pm)) toast((mine.info.name || 'A joiner\'s character') + ' joined the encounter. You can edit it too.');
+      return;
+    }
     if (!isAdd && !inE) return;   // only sheets already in the encounter are updated
     var c;
     try { c = cleanRemote(normalize(JSON.parse(JSON.stringify(sheet)))); } catch (e) { return; }
@@ -8754,12 +9036,13 @@ V1.5
   function signInWith(cred) {
     acctState.err = ''; renderAcct('Signing in…');
     return api('auth', { credential: cred }).then(function (res) {
-      acct = { token: res.token, user: res.user, known: {}, dirty: {}, since: 0 }; saveAcct();
+      acct = { token: res.token, user: res.user, known: {}, dirty: {}, since: 0 }; saveAcct(); render();
       toast('Signed in as ' + (res.user && res.user.name || 'you') + '. Syncing…');
       return syncNow();
     }, function (e) { acctState.err = 'Sign-in didn\'t work (' + e.message + ').'; renderAcct(); });
   }
-  function signOutLocal(msg) { shCloseAll(); acct = { known: {}, dirty: {}, since: 0 }; saveAcct(); acctState.err = msg || ''; acctState.last = 0; renderAcct(); }
+  function signOutLocal(msg) { shCloseAll(); acct = { known: {}, dirty: {}, since: 0 }; saveAcct(); acctState.err = msg || ''; acctState.last = 0; renderAcct(); render(); }
+  function fmtPid(p) { p = String(p || ''); return p.length === 8 ? p.slice(0, 4) + '-' + p.slice(4) : p; }
   function ago(t) { var s = Math.round((Date.now() - t) / 1000); return s < 10 ? 'just now' : s < 60 ? s + ' seconds ago' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : 'on ' + new Date(t).toLocaleDateString(); }
   function renderAcct(msg) {
     var el = $('acctBox'); if (!el) return;
@@ -8772,6 +9055,7 @@ V1.5
     }
     var u = acct.user || {};
     el.innerHTML = '<p class="acct-who">Signed in as <b>' + esc(u.name || 'you') + '</b>' + (u.email ? ' <span class="hint">' + esc(u.email) + '</span>' : '') + '</p>' +
+      (u.pid ? '<p class="acct-pid">Your player ID <b class="mono">' + esc(fmtPid(u.pid)) + '</b><button type="button" class="reset-btn" data-acct="copyPid">Copy</button><span class="hint">Give it to whoever wants to share a character with you.</span></p>' : '') +
       '<p class="hint" id="acctStatus">' + (acctState.busy ? 'Syncing…' : acctState.err ? esc(acctState.err) : acctState.last ? 'Synced ' + ago(acctState.last) + '. Changes sync on their own.' : 'Not synced yet.') + '</p>' +
       (acct.rollerPending ? '<div class="acct-pend"><p class="hint">Your roller settings or presets changed on another device.</p><div class="acct-btns"><button type="button" class="reset-btn" data-acct="applyRoller">Reload with them</button><button type="button" class="reset-btn" data-acct="keepRoller">Keep this device\'s</button></div></div>' : '') +
       '<div class="acct-btns"><button type="button" class="reset-btn" data-acct="sync"' + (acctState.busy ? ' disabled' : '') + '>Sync now</button><button type="button" class="reset-btn" data-acct="out">Sign out</button>' +
@@ -8782,6 +9066,7 @@ V1.5
     if (!b) { if (e.target.closest && e.target.closest('#settingsBtn')) setTimeout(function () { acctState.delSure = false; renderAcct(); }, 0); return; }
     var k = b.getAttribute('data-acct');
     if (k !== 'del') acctState.delSure = false;
+    if (k === 'copyPid') { var pid = fmtPid(acct.user && acct.user.pid); try { navigator.clipboard.writeText(pid).then(function () { toast('Player ID copied.'); }, function () { toast('Your player ID: ' + pid); }); } catch (err) { toast('Your player ID: ' + pid); } return; }
     if (k === 'sync') syncNow();
     else if (k === 'out') api('logout', {}).catch(function () {}).then(function () { signOutLocal('Signed out. Your data stays on this device and in your account.'); });
     else if (k === 'del') {
@@ -8798,6 +9083,7 @@ V1.5
       delete acct.rollerPending; acct.dirty['blob:roller'] = Date.now(); saveAcct(); renderAcct(); syncNow();
     }
   });
+  actions.openSettings = function () { var b = $('settingsBtn'); if (b) b.click(); };
   /* Keeping up: soon after changes, when the page comes back into view, and a look at the roller now and then. */
   document.addEventListener('visibilitychange', function () { if (!document.hidden && acct.token && Date.now() - acctState.last > 30000) syncNow(); });
   setInterval(function () {
@@ -8809,8 +9095,11 @@ V1.5
   if (apiBase() && window.fetch) {
     fetch(apiBase() + '/api/config').then(function (r) { return r.ok ? r.json() : {}; }).then(function (j) {
       GOOGLE_CLIENT_ID = (j && typeof j.googleClientId === 'string') ? j.googleClientId : '';
-      renderAcct();
-      if (acct.token && acctReady()) { shConnectAll(); syncNow(); }
+      renderAcct(); render();
+      if (acct.token && acctReady()) {
+        shConnectAll(); syncNow();
+        api('me').then(function (r) { if (r && r.user && acct.token) { acct.user = r.user; saveAcct(); renderAcct(); } }, function () {});
+      }
     }, function () { renderAcct(); });
   }
   renderAcct();
@@ -8945,6 +9234,7 @@ V1.5
       var pend = mine && it.role !== 'view' ? (old.share.pending || []) : [];
       applyOps(n, pend);
       keepLocal(n, { id: lid, ui: old && old.ui, spent: old && old.spent, boostSpend: old && old.boostSpend, share: { sid: it.sid, role: it.role, owner: it.owner, v: res.v, u: res.updated, pending: pend } });
+      if (!old && it.role !== 'owner') toast((it.owner || 'Someone') + ' shared ' + (n.info.name || 'a character') + ' with you (' + (it.role === 'edit' ? 'you can edit it' : 'view only') + ').');
       store.chars[lid] = n; shState(it.sid).base = shareDoc(n);
     }, function () {});
   }
@@ -8978,23 +9268,23 @@ V1.5
       });
     }).catch(function () {}).then(function () { shBusy = false; });
   }
-  /* View-only sheets (and anything newly shared) are checked about once a minute while the page is in view. */
-  setInterval(function () { if (signedIn() && !document.hidden) { shConnectAll(); shareReconcile(); } }, 60000);
+  /* View-only sheets, and anything newly shared with this person, are checked every 30 seconds while the page is in view. */
+  setInterval(function () { if (signedIn() && !document.hidden) { shConnectAll(); shareReconcile(); } }, 30000);
   /* Back online: reconnect live sheets and send what waited. */
   window.addEventListener('online', function () { if (!signedIn()) return; Object.keys(shs).forEach(function (sid) { shs[sid].retry = 0; }); shConnectAll(); syncNow(); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden && signedIn()) shConnectAll(); });
   Object.keys(store.chars).forEach(function (id) { var c = store.chars[id]; if (isShared(c)) shState(c.share.sid).base = shareDoc(c); });
 
   /* ---- Sharing dialogs ---- */
-  var shRole = 'edit', shNew = null, shStopSure = false;
+  var shRole = 'edit', shStopSure = false, shMsg = '';
   var ROLE_LBL = { edit: 'Can edit', view: 'View only' };
   function needSignIn() { toast('Sign in first (Settings > Account) to share characters.'); }
   actions.share = function () {
     var c = cur(); if (!c || isTemp(c) || isReceived(c)) return;
     if (!signedIn()) return needSignIn();
     if (isShared(c)) return manageShare(c);
-    openModal('<h2>Share ' + esc(c.info.name || 'this character') + '</h2><p class="muted small">Sharing makes this sheet live. People you give a code to get it under Synced characters. ' +
-      'Changes from you and from anyone who can edit show up for everyone straight away; view-only people get updates about once a minute. You stay the owner and can stop sharing at any time.</p>' +
+    openModal('<h2>Share ' + esc(c.info.name || 'this character') + '</h2><p class="muted small">Sharing makes this sheet live. You add people by their player ID (they find it in Settings > Account), and the sheet shows up in their Synced characters. ' +
+      'Changes from you and from anyone who can edit show up for everyone straight away; view-only people get updates about once a minute. You can share up to 3 characters, and stop sharing at any time.</p>' +
       '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Start sharing</button></div>');
     $('mNo').onclick = closeModal;
     $('mOk').onclick = function () {
@@ -9002,8 +9292,8 @@ V1.5
       api('sheets', { data: shareDoc(c), cid: /^[\w.-]{1,64}$/.test(c.id) ? c.id : undefined }).then(function (res) {
         c.share = { sid: res.sid, role: 'owner', owner: acct.user && acct.user.name || '', v: res.v || 1, pending: [] };
         shState(res.sid).base = shareDoc(c);
-        save(); render(); shConnect(c); shNew = null; manageShare(c);
-      }, function (e) { closeModal(); toast('Couldn\'t start sharing (' + e.message + ').'); });
+        save(); render(); shConnect(c); shMsg = ''; manageShare(c);
+      }, function (e) { closeModal(); toast(e.message === 'too-many' ? 'You can share up to 3 characters. Stop sharing one of them first.' : 'Couldn\'t start sharing (' + e.message + ').'); });
     };
   };
   function manageShare(c) {
@@ -9014,33 +9304,40 @@ V1.5
     });
   }
   function drawShare(c, res) {
-    var people = res.people || [], codes = res.codes || [], sid = c.share.sid;
-    function day(t) { return new Date(t).toLocaleDateString(); }
+    var people = res.people || [], sid = c.share.sid;
     var h = '<h2>Sharing ' + esc(c.info.name || 'this character') + '</h2>' +
-      '<h3 class="sub">Give someone a code</h3><div class="share-new"><span class="seg" role="group" aria-label="What the code allows">' +
-      ['edit', 'view'].map(function (r) { return '<button type="button" data-shr="' + r + '" aria-pressed="' + (shRole === r) + '">' + ROLE_LBL[r] + '</button>'; }).join('') +
-      '</span><button type="button" class="btn primary small" id="shCode">Create code</button></div>' +
-      (shNew ? '<div class="share-code"><b class="mono">' + esc(shNew.code) + '</b><span class="muted small">' + ROLE_LBL[shNew.role] + ' · anyone you give it to, for 7 days</span><button type="button" class="btn small" id="shCopy">Copy</button></div>' : '') +
-      '<p class="muted small">They press <b>Add shared</b> on the Characters page and enter it.</p>' +
+      '<h3 class="sub">Add a player</h3><div class="share-new"><input id="shPid" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Player ID" aria-label="Player ID">' +
+      '<span class="seg" role="group" aria-label="What they may do">' + ['edit', 'view'].map(function (r) { return '<button type="button" data-shr="' + r + '" aria-pressed="' + (shRole === r) + '">' + ROLE_LBL[r] + '</button>'; }).join('') + '</span>' +
+      '<button type="button" class="btn primary small" id="shAdd">Add</button></div>' +
+      '<p class="muted small" id="shMsg">' + (shMsg ? esc(shMsg) : 'They find their player ID in Settings > Account. The sheet appears in their Synced characters within a minute.') + '</p>' +
       '<h3 class="sub">People with access</h3>' + (people.length ? '<div class="share-list">' + people.map(function (p) {
         return '<div class="share-row"><span class="share-who"><b>' + esc(p.name || 'Player') + '</b><small>' + esc(p.email || '') + '</small></span>' +
           '<select data-shp="' + esc(p.uid) + '" aria-label="Access for ' + esc(p.name || 'player') + '">' + ['edit', 'view'].map(function (r) { return '<option value="' + r + '"' + (p.role === r ? ' selected' : '') + '>' + ROLE_LBL[r] + '</option>'; }).join('') + '</select>' +
           '<button type="button" class="x-btn" data-shx="' + esc(p.uid) + '" aria-label="Remove ' + esc(p.name || 'player') + '" title="Remove their access">×</button></div>';
       }).join('') + '</div>' : '<p class="muted small">Nobody yet.</p>') +
-      '<h3 class="sub">Open codes</h3>' + (codes.length ? '<div class="share-list">' + codes.map(function (k) {
-        return '<div class="share-row"><span class="share-who"><b class="mono">' + esc(k.code) + '</b><small>' + ROLE_LBL[k.role] + ' · until ' + day(k.expires) + '</small></span><button type="button" class="x-btn" data-shk="' + esc(k.code) + '" aria-label="Cancel code ' + esc(k.code) + '" title="Cancel this code (people who already used it keep access)">×</button></div>';
-      }).join('') + '</div>' : '<p class="muted small">None.</p>') +
+      (res.limit ? '<p class="muted small">You share ' + res.shared + ' of ' + res.limit + ' characters you can share.</p>' : '') +
       '<div class="acts"><button type="button" class="btn danger' + (shStopSure ? ' solid' : '') + '" id="shStop">' + (shStopSure ? 'Click again: everyone else loses it' : 'Stop sharing') + '</button><button type="button" class="btn primary" id="mNo">Done</button></div>';
-    var m = $('cmModal'), keepScroll = m.scrollTop;
+    var m = $('cmModal'), keepScroll = m.scrollTop, typed = $('shPid') ? $('shPid').value : '';
     openModal(h, 'share-modal'); m.scrollTop = keepScroll;
+    if (typed) $('shPid').value = typed;
     function again() { api('sheets/' + sid + '/access').then(function (r) { drawShare(c, r); }); }
-    $('mNo').onclick = function () { shNew = null; shStopSure = false; closeModal(); };
+    $('mNo').onclick = function () { shStopSure = false; shMsg = ''; closeModal(); };
+    $('shPid').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); });
+    $('shPid').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('shAdd').click(); });
     Array.prototype.forEach.call(m.querySelectorAll('[data-shr]'), function (b) { b.onclick = function () { shRole = b.getAttribute('data-shr'); shStopSure = false; drawShare(c, res); }; });
-    $('shCode').onclick = function () { api('sheets/' + sid + '/code', { role: shRole }).then(function (k) { shNew = k; again(); }, function (e) { toast('Couldn\'t make a code (' + e.message + ').'); }); };
-    if ($('shCopy')) $('shCopy').onclick = function () { var code = shNew.code; try { navigator.clipboard.writeText(code).then(function () { toast('Code copied.'); }, function () { toast('Copy it from the screen: ' + code); }); } catch (e) { toast('Copy it from the screen: ' + code); } };
+    $('shAdd').onclick = function () {
+      var pid = $('shPid').value.replace(/[^A-Z0-9]/g, '');
+      if (pid.length !== 8) { $('shMsg').textContent = 'Player IDs are 8 letters and numbers, like ABCD-1234.'; return; }
+      $('shAdd').disabled = true;
+      api('sheets/' + sid + '/access', { pid: pid, role: shRole }).then(function (r) {
+        shMsg = 'Added ' + (r.name || 'them') + ' (' + ROLE_LBL[shRole].toLowerCase() + ').'; $('shPid').value = ''; again();
+      }, function (e) {
+        $('shAdd').disabled = false;
+        $('shMsg').textContent = e.message === 'no-player' ? 'Nobody has that player ID. Check it with them.' : e.message === 'self' ? 'That\'s your own player ID.' : 'Couldn\'t add them (' + e.message + ').';
+      });
+    };
     Array.prototype.forEach.call(m.querySelectorAll('[data-shp]'), function (s) { s.onchange = function () { api('sheets/' + sid + '/access', { uid: s.getAttribute('data-shp'), role: s.value }).then(again); }; });
     Array.prototype.forEach.call(m.querySelectorAll('[data-shx]'), function (b) { b.onclick = function () { api('sheets/' + sid + '/access', { uid: b.getAttribute('data-shx'), remove: 1 }).then(again); }; });
-    Array.prototype.forEach.call(m.querySelectorAll('[data-shk]'), function (b) { b.onclick = function () { api('sheets/' + sid + '/revoke', { code: b.getAttribute('data-shk') }).then(again); }; });
     $('shStop').onclick = function () {
       if (!shStopSure) { shStopSure = true; drawShare(c, res); return; }
       shStopSure = false;
@@ -9051,31 +9348,6 @@ V1.5
     var sid = c.share.sid;
     return api('sheets/' + sid + '/unshare', {}).then(function () { shClose(sid); delete shs[sid]; delete c.share; save(); render(); });
   }
-  actions.joinShare = function () {
-    if (!signedIn()) return needSignIn();
-    openModal('<h2>Add a shared character</h2><label class="fld">Code<input id="shJoin" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="The 8-letter code you were given"></label>' +
-      '<p class="muted small" id="shJoinMsg">Ask the character\'s owner for a code. The character shows up under Synced characters.</p>' +
-      '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Add</button></div>');
-    $('mNo').onclick = closeModal;
-    $('shJoin').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
-    $('shJoin').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); });
-    $('mOk').onclick = function () {
-      var code = $('shJoin').value.trim();
-      if (code.length < 8) { $('shJoinMsg').textContent = 'Codes are 8 letters and numbers.'; return; }
-      $('mOk').disabled = true;
-      api('sheets/join', { code: code }).then(function (res) {
-        closeModal();
-        shareReconcile().then(function () {
-          var c = res.role === 'owner' ? charOfSid(res.sid) : store.chars['sh-' + res.sid];
-          if (c) { store.cur = c.id; commit(); }
-          toast(res.role === 'owner' ? 'That\'s your own character.' : 'Added ' + (c ? (c.info.name || 'the character') : 'the character') + ' (' + ROLE_LBL[res.role].toLowerCase() + ').');
-        });
-      }, function (e) {
-        $('mOk').disabled = false;
-        $('shJoinMsg').textContent = e.message === 'bad-code' ? 'That code doesn\'t work. It may have expired or been cancelled.' : 'Couldn\'t add it (' + e.message + ').';
-      });
-    };
-  };
   actions.leaveShare = function () {
     var c = cur(); if (!isReceived(c)) return;
     confirmBox('Remove ' + (c.info.name || 'this character') + ' from your Synced characters? The owner can give you a new code if you want it back.', 'Remove', function () {
