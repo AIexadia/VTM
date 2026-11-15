@@ -104,7 +104,7 @@ V1.5.4
 V1.6
 -Added "Rule Book" button to the top right of the page. This let's you load the core rule book PDF for VTM v20, and it acts as a PDF Viewer of it, with built-in indexes for ease of search.
 
-V2
+V2.0
 -General Changes:
 	All numbered input fields now select the whole input when clicked.
 -Rule Book Changes:
@@ -117,3 +117,7 @@ V2
 	-This addition hooks directly into the main roller, including rolls, and even initiative.
 	-Added a new Module called "Character" which let's the user have easy access to a chosen character for the sake of playing and rolling using their attributes.
 -Implemented Account Sign-in and remote data storage. With an account signed in, all settings and data are now stored in server, rather than just your browser/cookies.
+
+V2.0.1
+-Character Managed Changes:
+	-Added the ability to share and sync characters with other users by using a code.

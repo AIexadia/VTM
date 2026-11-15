@@ -1002,6 +1002,18 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 .acct-pend { display: flex; flex-direction: column; gap: 8px; padding: 8px 12px; border-left: 3px solid var(--gold); border-radius: 0 6px 6px 0; background: var(--surface-2); }
 .acct-err { color: var(--danger); }
 .acct-gsi { min-height: 44px; }
+/* Sharing */
+.cm-modal.share-modal { max-width: 560px; }
+.share-new { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.share-code { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; background: var(--well); }
+.share-code b { font-size: 1.35rem; letter-spacing: 0.12em; }
+.share-code .muted { flex: 1 1 160px; }
+.share-list { display: flex; flex-direction: column; gap: 6px; }
+.share-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--well); }
+.share-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.share-who small { color: var(--muted); font-size: 0.82rem; overflow-wrap: anywhere; }
+.share-row select { height: 32px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); color: var(--fg); font: inherit; font-size: 0.9rem; }
+.share-who { align-items: flex-start; text-align: left; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -6041,6 +6053,7 @@ V1.5
     saveT = setTimeout(function () {
       try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) { toast('Couldn\'t save: browser storage is full or blocked.'); }
       syncInitiative();
+      shareChanged();
       acctChanged();
     }, 200);
   }
@@ -6091,7 +6104,8 @@ V1.5
   }
   Object.keys(store.chars).forEach(function (id) { normalize(store.chars[id]); });
   store.order = store.order.filter(function (id) { return store.chars[id]; });
-  if (!store.chars[store.cur]) store.cur = store.order[0] || null;
+  store.synced = (store.synced || []).filter(function (id) { return store.chars[id] && store.order.indexOf(id) < 0; });   // characters others shared with you
+  if (!store.chars[store.cur]) store.cur = store.order[0] || store.synced[0] || null;
 
   /* ================= TRAIT ACCESS ================= */
   function split(p) { var i = p.indexOf('.'); return i < 0 ? [p, ''] : [p.slice(0, i), p.slice(i + 1)]; }
@@ -7379,12 +7393,16 @@ V1.5
   /* ================= RENDER ================= */
   function activeTab() { var c = cur(); return c ? ((c.ui && c.ui.tab) || 'sheet') : null; }
   function renderBar() {
-    var tmp = isTemp(cur()), has = store.order.length > 0 || tmp, own = has && !tmp;
+    var c0 = cur(), tmp = isTemp(c0), recv = isReceived(c0), has = store.order.length > 0 || (store.synced || []).length > 0 || tmp, own = has && !tmp && !recv, signed = signedIn();
     $('cmBar').innerHTML = (has ? '<label class="vh" for="charSel">Character</label><select id="charSel">' + charOptions(true) + '</select>' : '') +
       '<div class="bar-btns"><button type="button" class="btn primary" data-act="newChar">New character</button>' +
-      (own ? '<button type="button" class="btn" data-act="dup">Duplicate</button>' : '') +
+      (signed ? '<button type="button" class="btn" data-act="joinShare" title="Add a character someone shared with you, with their code">Add shared</button>' : '') +
+      (own || recv ? '<button type="button" class="btn" data-act="dup" title="' + (recv ? 'Make your own separate copy' : 'Make a copy') + '">Duplicate</button>' : '') +
       '<button type="button" class="btn" data-act="import">Import</button>' +
-      (own ? '<button type="button" class="btn" data-act="export">Export</button><button type="button" class="btn danger" data-act="del">Delete</button>' : '') +
+      (own && signed ? '<button type="button" class="btn' + (isShared(c0) ? ' toggle" aria-pressed="true' : '') + '" data-act="share" title="Share this sheet with other players">' + (isShared(c0) ? 'Sharing' : 'Share') + '</button>' : '') +
+      (own || recv ? '<button type="button" class="btn" data-act="export">Export</button>' : '') +
+      (own ? '<button type="button" class="btn danger" data-act="del">Delete</button>' : '') +
+      (recv ? '<button type="button" class="btn danger" data-act="leaveShare">Remove</button><span class="chip" title="Shared with you by ' + esc(c0.share.owner || 'its owner') + '">Synced · ' + (c0.share.role === 'edit' ? 'can edit' : 'view only') + '</span>' : '') +
       (tmp ? (isRemote(cur()) ? '<span class="chip" title="A joiner\'s character in your encounter. It updates as they play.">Joiner\'s sheet (read-only)</span>' : '<span class="chip" title="A copy made for this encounter. Changes stay on this copy. Clear actors deletes it unless it is Persistent.">Encounter copy</span>') : '') + '</div>';
   }
   function renderTabs(c) {
@@ -7429,7 +7447,7 @@ V1.5
     else if (t === 'journal') main.innerHTML = journalTab(c);
     else if (t === 'tracker') main.innerHTML = trackerTab(c);
     else main.innerHTML = (c.mode === 'create' && !c.creation.done) ? wizard(c) : fullSheet(c);
-    if (isRemote(c)) main.insertAdjacentHTML('afterbegin', roBanner(c));
+    if (isReadOnly(c)) main.insertAdjacentHTML('afterbegin', roBanner(c));
     /* Keep the current step pill visible when the step bar scrolls sideways on phones. */
     var pill = main.querySelector('.step.cur'), bar = pill && pill.parentNode;
     if (pill) bar.scrollLeft = pill.offsetLeft - bar.offsetLeft - (bar.clientWidth - pill.offsetWidth) / 2;
@@ -7523,15 +7541,16 @@ V1.5
     export: exportModal,
     dup: function () {
       var c = cur(); if (!c) return;
-      var d = JSON.parse(JSON.stringify(c)); d.id = uid(); d.info.name = (c.info.name || 'Unnamed') + ' (copy)'; d.created = Date.now();
-      store.chars[d.id] = d; store.order.splice(store.order.indexOf(c.id) + 1, 0, d.id); store.cur = d.id; xpMode = false; tabEdit = {};
+      var d = JSON.parse(JSON.stringify(c)); d.id = uid(); d.info.name = (c.info.name || 'Unnamed') + ' (copy)'; d.created = Date.now(); delete d.share; delete d.temp;
+      var at = store.order.indexOf(c.id); store.chars[d.id] = d; store.order.splice(at < 0 ? store.order.length : at + 1, 0, d.id); store.cur = d.id; xpMode = false; tabEdit = {};
       commit(); toast('Duplicated.');
     },
     del: function () {
       var c = cur(); if (!c) return;
-      confirmBox('Delete ' + (c.info.name || 'this character') + '? This can\'t be undone. Export first if you want a backup.', 'Delete', function () {
-        delete store.chars[c.id]; store.order = store.order.filter(function (id) { return id !== c.id; }); store.cur = store.order[0] || null; tabEdit = {};
-        commit();
+      var shared = isShared(c) && c.share.role === 'owner';
+      confirmBox('Delete ' + (c.info.name || 'this character') + '? This can\'t be undone. Export first if you want a backup.' + (shared ? '\n\nIt\'s shared, so deleting it also stops sharing it: everyone else loses it too.' : ''), 'Delete', function () {
+        function gone() { delete store.chars[c.id]; store.order = store.order.filter(function (id) { return id !== c.id; }); store.cur = store.order[0] || (store.synced || [])[0] || null; tabEdit = {}; commit(); }
+        if (shared) stopSharing(c).then(gone, function (e) { toast('Couldn\'t stop sharing it, so it wasn\'t deleted (' + e.message + ').'); }); else gone();
       }, true);
     },
     tab: function (el) {
@@ -7993,7 +8012,7 @@ V1.5
       list = list.filter(function (x) { return x && typeof x === 'object' && x.info && x.attrs; });
       if (!list.length) return toast('No characters found in that data.');
       list.forEach(function (x) {
-        normalize(x); delete x.temp;
+        normalize(x); delete x.temp; delete x.share;
         if (store.chars[x.id] || !x.id) x.id = uid();
         store.chars[x.id] = x; store.order.push(x.id); store.cur = x.id;
       });
@@ -8199,7 +8218,7 @@ V1.5
     var fort = c.disc.Fortitude || 0, arm = wornArmor(c), ar = arm ? (+arm.rating || 0) : 0;
     var html = '<div class="mod-head"><label class="vh" for="cmModSel">Active character</label><select id="cmModSel">' + opts + '</select>' + actingTag(c) +
       '<button type="button" class="btn small" data-act="goChars">Open sheet</button><button type="button" class="btn small" data-act="toInit">Add to Initiative</button></div>';
-    if (isRemote(c)) html += roBanner(c);
+    if (isReadOnly(c)) html += roBanner(c);
     html += '<div class="mod-rich">' + vitalsSection(c, true) + '</div>';
     html += '<div class="mod-compact"><div class="mod-sec"><div class="mod-row"><span class="mod-lbl">Health</span><span class="hboxes">' + boxes + '</span></div><span class="muted small">' + esc(status) + '</span>' +
       healthButtons(c) + '</div>' +
@@ -8323,12 +8342,15 @@ V1.5
      while its actor is in the tracker (Clear actors deletes it unless it is Persistent). */
   function isTemp(c) { return !!(c && c.temp); }
   function isRemote(c) { return !!(c && c.temp && c.temp.remote); }
-  function roBanner(c) { return '<p class="cm-ro" role="note"><b>Read-only:</b> ' + esc(c.info.name || 'This character') + ' belongs to a joiner. You see their sheet as they play; they make the changes.</p>'; }
+  function roBanner(c) {
+    if (isRemote(c)) return '<p class="cm-ro" role="note"><b>Read-only:</b> ' + esc(c.info.name || 'This character') + ' belongs to a joiner. You see their sheet as they play; they make the changes.</p>';
+    return '<p class="cm-ro" role="note"><b>View only:</b> ' + esc(c.share.owner || 'The owner') + ' shared ' + esc(c.info.name || 'this character') + ' with you to look at. It updates about once a minute.</p>';
+  }
   /* ---- Joining a host's room ---- */
   /* What a joiner sends the host: the sheet without UI state, trimmed of long text if it would be too big to send. */
   var lastPushed = {};
   function sheetForHost(c) {
-    var d = JSON.parse(JSON.stringify(c)); delete d.ui; delete d.spent; delete d.boostSpend;
+    var d = JSON.parse(JSON.stringify(c)); delete d.ui; delete d.spent; delete d.boostSpend; delete d.share;
     if (JSON.stringify(d).length > 55000) { d.journal = []; d.backstory = { story: '', facts: '' }; d.details.other = ''; d.enotes = {}; }
     return JSON.stringify(d).length > 60000 ? null : d;
   }
@@ -8361,7 +8383,7 @@ V1.5
     var c;
     try { c = cleanRemote(normalize(JSON.parse(JSON.stringify(sheet)))); } catch (e) { return; }
     var old = store.chars[id];
-    c.id = id; c.temp = { remote: pid, of: cid }; c.ui = (old && old.ui) || { tab: 'play' }; c.mode = 'play'; c.creation.done = true;
+    delete c.share; c.id = id; c.temp = { remote: pid, of: cid }; c.ui = (old && old.ui) || { tab: 'play' }; c.mode = 'play'; c.creation.done = true;
     store.chars[id] = c;
     if (isAdd && !inE) {
       var p = iniPayload(c, (c.info.name || 'Unnamed').slice(0, 24)); p.ow = pid; p.rc = cid;
@@ -8374,10 +8396,10 @@ V1.5
   /* Host: a joiner's sheet can be looked at and rolled from, not changed. */
   var RO_ACTS = { tab: 1, qrTab: 1, qrSame: 1, qrAll: 1, qrRecent: 1, pbSend: 1, pbRoll: 1, pbClear: 1, pbDiff: 1, pbAct: 1, qrefToggle: 1, attack: 1, goChars: 1, ruleGo: 1, soak: 1, newChar: 1, import: 1 };
   function roBlock(e) {
-    var c = cur(); if (!isRemote(c) || !e.target.closest || !e.target.closest('#cmView, #cmModule') || e.target.closest('#cmModal, #cmBar')) return false;
+    var c = cur(); if (!isReadOnly(c) || !e.target.closest || !e.target.closest('#cmView, #cmModule') || e.target.closest('#cmModal, #cmBar')) return false;
     var t = e.target, a = t.closest('[data-act]');
     if (e.type === 'click') {
-      if (t.closest('.dots .dot') || (a && !RO_ACTS[a.dataset.act])) { e.preventDefault(); e.stopImmediatePropagation(); toast('This is a joiner\'s sheet: only they can change it.'); return true; }
+      if (t.closest('.dots .dot') || (a && !RO_ACTS[a.dataset.act])) { e.preventDefault(); e.stopImmediatePropagation(); toast(isRemote(c) ? 'This is a joiner\'s sheet: only they can change it.' : 'This sheet is view only.'); return true; }
       return false;
     }
     if (e.type === 'dblclick') { if (t.closest('[data-dbl]')) { e.stopImmediatePropagation(); return true; } return false; }
@@ -8402,9 +8424,14 @@ V1.5
       var x = store.chars[id], sel = id === store.cur && !used; if (sel) used = true;
       return '<option value="' + id + '"' + (sel ? ' selected' : '') + '>' + esc(x.info.name || 'Unnamed') + (x.info.clan ? ' · ' + esc(x.info.clan) : '') + (withCreation && !x.creation.done ? ' (in creation)' : '') + '</option>';
     }
-    var enc = encounterIds();
-    var top = enc.map(opt).join(''), mine = store.order.map(opt).join('');
-    return enc.length ? '<optgroup label="In this encounter">' + top + '</optgroup><hr><optgroup label="Your characters">' + mine + '</optgroup>' : mine;
+    var enc = encounterIds(), syn = (store.synced || []).filter(function (id) { return store.chars[id]; });
+    var top = enc.map(opt).join(''), mine = store.order.map(opt).join(''), shared = syn.map(opt).join('');
+    if (!enc.length && !syn.length) return mine;
+    var parts = [];
+    if (enc.length) parts.push('<optgroup label="In this encounter">' + top + '</optgroup>');
+    if (mine) parts.push('<optgroup label="Your characters">' + mine + '</optgroup>');
+    if (syn.length) parts.push('<optgroup label="Synced characters">' + shared + '</optgroup>');
+    return parts.join('<hr>');
   }
   function turnNow() { var r = R(); if (!r || !r.turnInfo) return null; var t = r.turnInfo(); return t.encounter && t.eid ? t : null; }
   function actingTag(c) { var t = turnNow(); return t && t.live && t.cur === c.id ? '<span class="cm-tag on acting" title="It\'s this character\'s turn in the Initiative tracker">Acting now</span>' : ''; }
@@ -8428,7 +8455,7 @@ V1.5
     var r = R(); if (!r || !r.addActor) return 'The Initiative tracker isn\'t available.';
     var n = dupNumber(c), sfx = ' [' + n + ']';
     var d = JSON.parse(JSON.stringify(c));
-    d.id = uid(); d.temp = { of: c.id, n: n }; d.created = Date.now();
+    d.id = uid(); d.temp = { of: c.id, n: n }; d.created = Date.now(); delete d.share;
     d.info.name = (c.info.name || 'Unnamed').slice(0, 24 - sfx.length) + sfx;
     d.ui = { tab: 'play', recent: (c.ui && c.ui.recent) || [] }; d.spent = null; d.boostSpend = null;
     store.chars[d.id] = d;
@@ -8520,7 +8547,7 @@ V1.5
   var TYPE_LBL = { player: 'Player', enemy: 'Enemy' };
   window.cmActorsList = function (ul, q, sort, desc, join) {
     apLast = [ul, q, sort, desc, join];
-    var ids = store.order.filter(function (id) { return !q || (store.chars[id].info.name || 'Unnamed').toLowerCase().indexOf(q) >= 0; });
+    var ids = store.order.concat(store.synced || []).filter(function (id) { return store.chars[id] && (!q || (store.chars[id].info.name || 'Unnamed').toLowerCase().indexOf(q) >= 0); });
     var dir = desc ? -1 : 1, rank = { player: 0, enemy: 1, '': 2 };
     function nm(x) { return (x.info.name || 'Unnamed').toLowerCase(); }
     function byName(x, y) { return nm(x) < nm(y) ? -1 : nm(x) > nm(y) ? 1 : 0; }
@@ -8533,7 +8560,7 @@ V1.5
     ul.innerHTML = ids.map(function (id) {
       var c = store.chars[id], open = !!apOpen[id], inE = enc.indexOf(id) >= 0, tk = c.tracker || {};
       var tags = (tk.type ? '<span class="tag">' + TYPE_LBL[tk.type] + '</span>' : '') + (!tk.type && tk.rev ? '<span class="tag">Revealed</span>' : '') +
-        (c.disc.Celerity ? '<span class="tag">Celerity ' + c.disc.Celerity + '</span>' : '') + (inE ? '<span class="tag on">In encounter</span>' : '');
+        (c.disc.Celerity ? '<span class="tag">Celerity ' + c.disc.Celerity + '</span>' : '') + (inE ? '<span class="tag on">In encounter</span>' : '') + (isReceived(c) ? '<span class="tag" title="Shared with you by ' + esc(c.share.owner || 'its owner') + '">Synced</span>' : '');
       return '<li class="ap-char"><div class="ap-crow"><button type="button" class="ap-item ap-exp" data-apx="' + id + '" aria-expanded="' + open + '" title="Show a summary">' +
         '<svg class="chev" viewBox="0 0 14 14" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>' +
         '<span class="nm">' + esc(c.info.name || 'Unnamed') + '</span>' + tags + '<span class="md" title="Initiative">' + esc(iniText(c)) + '</span></button>' +
@@ -8556,7 +8583,7 @@ V1.5
       if (msg) msg.textContent = err || ('Added ' + (o ? (c.info.name || 'Unnamed') : 'a duplicate of ' + (c.info.name || 'Unnamed')) + '.');
       window.cmActorsList.apply(null, apLast);
     };
-    return { shown: ids.length, total: store.order.length };
+    return { shown: ids.length, total: store.order.length + (store.synced || []).length };
   };
   /* Tracker tab: how this sheet shows up in the Initiative tracker. Celerity and initiative come from the sheet itself. */
   function trackerTab(c) {
@@ -8609,7 +8636,7 @@ V1.5
   function cmBlob() { return JSON.stringify({ order: store.order, settings: store.settings, ui: store.ui || {} }); }
   function localItems() {
     var out = {};
-    store.order.forEach(function (id) { var c = store.chars[id]; if (c && !c.temp && /^[\w.-]{1,64}$/.test(id)) out['char:' + id] = JSON.stringify(c); });
+    store.order.forEach(function (id) { var c = store.chars[id]; if (c && !c.temp && !c.share && /^[\w.-]{1,64}$/.test(id)) out['char:' + id] = JSON.stringify(c); });
     out['blob:cm'] = cmBlob();
     var rb = rollerBlob(); if (rb) out['blob:roller'] = JSON.stringify(rb);
     return out;
@@ -8630,14 +8657,15 @@ V1.5
       if (d && d > it.m) return;        // changed here later: this device's version goes up next
       if (it.kind === 'char') {
         if (it.deleted) {
-          if (store.chars[it.id] && !store.chars[it.id].temp) {
+          if (store.chars[it.id] && !store.chars[it.id].temp && !store.chars[it.id].share) {
             delete store.chars[it.id]; store.order = store.order.filter(function (x) { return x !== it.id; });
             if (store.cur === it.id) store.cur = store.order[0] || null; changed = true;
           }
           acct.known[k] = { m: it.m, h: '', del: 1 }; delete acct.dirty[k]; return;
         }
+        if (store.chars[it.id] && store.chars[it.id].share) { acct.known[k] = { m: it.m, h: '' }; return; }   // shared: the shared copy counts
         var c; try { c = normalize(JSON.parse(it.data)); } catch (e) { return; }
-        c.id = it.id; delete c.temp;
+        c.id = it.id; delete c.temp; delete c.share;
         store.chars[it.id] = c; if (store.order.indexOf(it.id) < 0) store.order.push(it.id);
         if (!store.cur) store.cur = it.id;
         acct.known[k] = { m: it.m, h: hashStr(JSON.stringify(c)) }; delete acct.dirty[k]; changed = true;
@@ -8704,7 +8732,7 @@ V1.5
       });
     }
     scanDirty();
-    return pullAll().then(pushChanges).then(function () { acctState.last = acct.last = Date.now(); saveAcct(); }, function (e) {
+    return pullAll().then(pushChanges).then(shareReconcile).then(function () { acctState.last = acct.last = Date.now(); saveAcct(); }, function (e) {
       if (e.message !== 'signed-out') acctState.err = 'Couldn\'t sync just now (' + e.message + '). It will try again.';
     }).then(function () {
       acctState.busy = false; renderAcct();
@@ -8731,7 +8759,7 @@ V1.5
       return syncNow();
     }, function (e) { acctState.err = 'Sign-in didn\'t work (' + e.message + ').'; renderAcct(); });
   }
-  function signOutLocal(msg) { acct = { known: {}, dirty: {}, since: 0 }; saveAcct(); acctState.err = msg || ''; acctState.last = 0; renderAcct(); }
+  function signOutLocal(msg) { shCloseAll(); acct = { known: {}, dirty: {}, since: 0 }; saveAcct(); acctState.err = msg || ''; acctState.last = 0; renderAcct(); }
   function ago(t) { var s = Math.round((Date.now() - t) / 1000); return s < 10 ? 'just now' : s < 60 ? s + ' seconds ago' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : 'on ' + new Date(t).toLocaleDateString(); }
   function renderAcct(msg) {
     var el = $('acctBox'); if (!el) return;
@@ -8782,11 +8810,282 @@ V1.5
     fetch(apiBase() + '/api/config').then(function (r) { return r.ok ? r.json() : {}; }).then(function (j) {
       GOOGLE_CLIENT_ID = (j && typeof j.googleClientId === 'string') ? j.googleClientId : '';
       renderAcct();
-      if (acct.token && acctReady()) syncNow();
+      if (acct.token && acctReady()) { shConnectAll(); syncNow(); }
     }, function () { renderAcct(); });
   }
   renderAcct();
   window.vtmAccount = { syncNow: syncNow, signInWith: signInWith, state: function () { return { signedIn: !!acct.token, user: acct.user, last: acctState.last, err: acctState.err, pendingRoller: !!acct.rollerPending }; } };
+
+  /* ================= SHARED SHEETS ================= */
+  /* Sharing makes a character live: whoever has it (through a code) sees the changes. Changes from the owner and
+     editors go out field by field as soon as they're saved, and arrive straight away for everyone else who has the
+     sheet open. View-only people get a fresh copy about once a minute. A shared character leaves the personal account
+     sync: the shared copy is the one that counts. Local-only things (open tab, this turn's blood) are never shared. */
+  var SHARE_LOCAL = { id: 1, share: 1, temp: 1, ui: 1, spent: 1, boostSpend: 1 };
+  var BAD_KEYS = { __proto__: 1, constructor: 1, prototype: 1 };
+  function isShared(c) { return !!(c && c.share && c.share.sid); }
+  function isReceived(c) { return isShared(c) && c.share.role !== 'owner'; }
+  function isReadOnly(c) { return isRemote(c) || (isShared(c) && c.share.role === 'view'); }
+  function isObj(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
+  function signedIn() { return typeof acct !== 'undefined' && !!(acct && acct.token); }
+  function shareDoc(c) { var d = {}; Object.keys(c).forEach(function (k) { if (!SHARE_LOCAL[k]) d[k] = c[k]; }); return JSON.parse(JSON.stringify(d)); }
+  /* The changes between two versions, as [path, new value] steps. Lists are sent whole. */
+  function diffOps(a, b, path, out) {
+    var keys = {};
+    Object.keys(a || {}).forEach(function (k) { keys[k] = 1; }); Object.keys(b || {}).forEach(function (k) { keys[k] = 1; });
+    Object.keys(keys).forEach(function (k) {
+      if ((!path.length && SHARE_LOCAL[k]) || BAD_KEYS[k]) return;
+      var x = a ? a[k] : undefined, y = b ? b[k] : undefined, p = path.concat([k]);
+      if (y === undefined) { if (x !== undefined) out.push({ p: p, d: 1 }); return; }
+      if (isObj(x) && isObj(y) && p.length < 7) { diffOps(x, y, p, out); return; }
+      if (JSON.stringify(x) !== JSON.stringify(y)) out.push({ p: p, v: y });
+    });
+    return out;
+  }
+  function applyOps(doc, ops) {
+    (ops || []).forEach(function (o) {
+      if (!o || !Array.isArray(o.p) || !o.p.length || SHARE_LOCAL[o.p[0]]) return;
+      var t = doc;
+      for (var i = 0; i < o.p.length - 1; i++) { var k = o.p[i]; if (BAD_KEYS[k]) return; if (!isObj(t[k])) t[k] = {}; t = t[k]; }
+      var last = o.p[o.p.length - 1]; if (BAD_KEYS[last]) return;
+      if (o.d === 1) delete t[last]; else t[last] = JSON.parse(JSON.stringify(o.v));
+    });
+  }
+  var shs = {};   // per shared sheet: { ws, base, ready, inflight, seq, retry }
+  function shState(sid) { return shs[sid] || (shs[sid] = { ws: null, base: null, ready: false, inflight: null, seq: 0, retry: 0 }); }
+  function charOfSid(sid) { for (var id in store.chars) { var c = store.chars[id]; if (isShared(c) && c.share.sid === sid) return c; } return null; }
+  /* After every save: what changed on shared sheets this person may edit goes out (and waits if offline). */
+  function shareChanged() {
+    var any = false;
+    Object.keys(store.chars).forEach(function (id) {
+      var c = store.chars[id];
+      if (!isShared(c) || c.share.role === 'view') return;
+      var s = shState(c.share.sid);
+      if (!s.base) { s.base = shareDoc(c); return; }
+      var now = shareDoc(c), ops = diffOps(s.base, now, [], []);
+      if (!ops.length) return;
+      s.base = now; c.share.pending = (c.share.pending || []).concat(ops); any = true;
+      shFlush(c);
+    });
+    if (any) save();
+  }
+  function shFlush(c) {
+    var s = shState(c.share.sid), p = c.share.pending || [];
+    if (!s.ws || s.ws.readyState !== 1 || !s.ready || s.inflight || !p.length) return;
+    s.inflight = p.length; s.seq++;
+    try { s.ws.send(JSON.stringify({ t: 'ops', c: s.seq, ops: p })); } catch (e) { s.inflight = null; }
+  }
+  /* Redraw for changes from others, but not under someone typing: wait until they leave the field. */
+  var shRenderLater = false;
+  function typingHere() { var a = document.activeElement; return !!(a && a.closest && a.closest('#cmView, #cmModule') && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
+  function remoteRender() { if (typingHere()) { shRenderLater = true; return; } render(); }
+  document.addEventListener('focusout', function () { if (shRenderLater) setTimeout(function () { if (shRenderLater && !typingHere()) { shRenderLater = false; render(); } }, 0); });
+  function keepLocal(n, old) {
+    n.id = old.id; n.share = old.share; n.ui = old.ui || { tab: 'play' };
+    if (old.spent) n.spent = old.spent; if (old.boostSpend) n.boostSpend = old.boostSpend;
+    delete n.temp;
+    return n;
+  }
+  function onDoc(c, s, m) {
+    var n; try { n = cleanRemote(normalize(JSON.parse(JSON.stringify(m.data || {})))); } catch (e) { return; }
+    applyOps(n, c.share.pending || []);   // changes made here that the sheet doesn't have yet
+    keepLocal(n, c); n.share.v = m.v;
+    store.chars[c.id] = n; s.base = shareDoc(n); s.ready = true; s.inflight = null;
+    save(); remoteRender(); shFlush(n);
+  }
+  function onOps(c, s, m) {
+    var pend = c.share.pending || [];
+    applyOps(c, m.ops); applyOps(c, pend);   // ours reach the sheet after theirs, so ours win where both changed a field
+    if (s.base) { applyOps(s.base, m.ops); applyOps(s.base, pend); }
+    c.share.v = m.v; save(); remoteRender();
+  }
+  function onAck(c, s, m) {
+    if (m.c !== s.seq || !s.inflight) return;
+    c.share.pending = (c.share.pending || []).slice(s.inflight); s.inflight = null; c.share.v = m.v;
+    save(); shFlush(c);
+  }
+  /* Live connections, for sheets this person owns or may edit. */
+  function shConnect(c) {
+    if (!signedIn() || !isShared(c) || c.share.role === 'view' || !window.WebSocket || !apiBase()) return;
+    var sid = c.share.sid, s = shState(sid);
+    if (s.ws) return;
+    var ws; try { ws = new WebSocket(String(window.vtmSyncUrl).replace(/\/+$/, '') + '/api/sheets/' + sid + '/ws?t=' + acct.token); } catch (e) { return; }
+    s.ws = ws; s.ready = false; s.inflight = null;
+    ws.onmessage = function (e) {
+      if (e.data === 'pong') return;
+      var m; try { m = JSON.parse(e.data); } catch (err) { return; }
+      var cc = charOfSid(sid); if (!cc) { try { ws.close(); } catch (err) {} return; }
+      if (m.t === 'doc') { s.retry = 0; onDoc(cc, s, m); }
+      else if (m.t === 'ops') onOps(cc, s, m);
+      else if (m.t === 'ack') onAck(cc, s, m);
+      else if (m.t === 'gone') s.gone = true;
+      else if (m.t === 'error' && m.reason === 'too-big') { cc.share.pending = []; s.inflight = null; save(); toast('That change would make ' + (cc.info.name || 'the sheet') + ' too big to share.'); }
+    };
+    ws.onclose = function () {
+      if (s.ws !== ws) return;
+      s.ws = null; s.ready = false; s.inflight = null;
+      if (s.gone) { s.gone = false; shareReconcile(); return; }   // access changed: see what's left
+      var cc = charOfSid(sid);
+      if (!cc || !signedIn() || cc.share.role === 'view') return;
+      s.retry = Math.min(s.retry + 1, 6);
+      setTimeout(function () { var c2 = charOfSid(sid); if (c2 && !shState(sid).ws) shConnect(c2); }, 1000 * Math.pow(2, s.retry));
+    };
+  }
+  function shClose(sid) { var s = shs[sid]; if (s && s.ws) { var w = s.ws; s.ws = null; s.ready = false; try { w.close(); } catch (e) {} } }
+  function shConnectAll() { Object.keys(store.chars).forEach(function (id) { shConnect(store.chars[id]); }); }
+  function shCloseAll() { Object.keys(shs).forEach(shClose); }
+  setInterval(function () { Object.keys(shs).forEach(function (sid) { var w = shs[sid].ws; if (w && w.readyState === 1) { try { w.send('ping'); } catch (e) {} } }); }, 30000);
+  /* Which shared sheets this person has, and bringing each one up to date. */
+  var shBusy = false;
+  function fetchSheet(it, lid) {
+    return api('sheets/' + it.sid).then(function (res) {
+      var old = store.chars[lid], n;
+      try { n = cleanRemote(normalize(JSON.parse(JSON.stringify(res.data || {})))); } catch (e) { return; }
+      var mine = old && isShared(old) && old.share.sid === it.sid;
+      var pend = mine && it.role !== 'view' ? (old.share.pending || []) : [];
+      applyOps(n, pend);
+      keepLocal(n, { id: lid, ui: old && old.ui, spent: old && old.spent, boostSpend: old && old.boostSpend, share: { sid: it.sid, role: it.role, owner: it.owner, v: res.v, u: res.updated, pending: pend } });
+      store.chars[lid] = n; shState(it.sid).base = shareDoc(n);
+    }, function () {});
+  }
+  function shareReconcile() {
+    if (!signedIn() || !acctReady() || shBusy) return Promise.resolve();
+    shBusy = true;
+    return api('sheets').then(function (res) {
+      var list = res.sheets || [], seen = {}, jobs = [];
+      list.forEach(function (it) {
+        var lid = it.role === 'owner' && it.cid && /^[\w.-]{1,64}$/.test(it.cid) ? it.cid : 'sh-' + it.sid;
+        seen[it.sid] = lid;
+        var c = store.chars[lid];
+        if (c && isShared(c) && c.share.sid === it.sid) {
+          if (c.share.role !== it.role) { c.share.role = it.role; if (it.role === 'view') { shClose(it.sid); c.share.pending = []; } }
+          c.share.owner = it.owner;
+          if (it.role === 'view' && it.updated > (c.share.u || 0)) jobs.push(fetchSheet(it, lid));
+        } else jobs.push(fetchSheet(it, lid));
+      });
+      Object.keys(store.chars).forEach(function (id) {
+        var c = store.chars[id];
+        if (!isShared(c) || seen[c.share.sid] === id) return;
+        shClose(c.share.sid);
+        if (c.share.role === 'owner') delete c.share;   // not shared any more: just yours again
+        else { delete store.chars[id]; toast((c.info.name || 'A synced character') + ' is no longer shared with you.'); }
+      });
+      return Promise.all(jobs).then(function () {
+        list.forEach(function (it) { var id = seen[it.sid]; if (it.role === 'owner' && store.chars[id] && store.order.indexOf(id) < 0) store.order.push(id); });
+        store.synced = list.filter(function (it) { return it.role !== 'owner'; }).map(function (it) { return seen[it.sid]; }).filter(function (id) { return store.chars[id]; });
+        if (!store.chars[store.cur]) store.cur = store.order[0] || store.synced[0] || null;
+        save(); remoteRender(); shConnectAll();
+      });
+    }).catch(function () {}).then(function () { shBusy = false; });
+  }
+  /* View-only sheets (and anything newly shared) are checked about once a minute while the page is in view. */
+  setInterval(function () { if (signedIn() && !document.hidden) { shConnectAll(); shareReconcile(); } }, 60000);
+  /* Back online: reconnect live sheets and send what waited. */
+  window.addEventListener('online', function () { if (!signedIn()) return; Object.keys(shs).forEach(function (sid) { shs[sid].retry = 0; }); shConnectAll(); syncNow(); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && signedIn()) shConnectAll(); });
+  Object.keys(store.chars).forEach(function (id) { var c = store.chars[id]; if (isShared(c)) shState(c.share.sid).base = shareDoc(c); });
+
+  /* ---- Sharing dialogs ---- */
+  var shRole = 'edit', shNew = null, shStopSure = false;
+  var ROLE_LBL = { edit: 'Can edit', view: 'View only' };
+  function needSignIn() { toast('Sign in first (Settings > Account) to share characters.'); }
+  actions.share = function () {
+    var c = cur(); if (!c || isTemp(c) || isReceived(c)) return;
+    if (!signedIn()) return needSignIn();
+    if (isShared(c)) return manageShare(c);
+    openModal('<h2>Share ' + esc(c.info.name || 'this character') + '</h2><p class="muted small">Sharing makes this sheet live. People you give a code to get it under Synced characters. ' +
+      'Changes from you and from anyone who can edit show up for everyone straight away; view-only people get updates about once a minute. You stay the owner and can stop sharing at any time.</p>' +
+      '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Start sharing</button></div>');
+    $('mNo').onclick = closeModal;
+    $('mOk').onclick = function () {
+      $('mOk').disabled = true;
+      api('sheets', { data: shareDoc(c), cid: /^[\w.-]{1,64}$/.test(c.id) ? c.id : undefined }).then(function (res) {
+        c.share = { sid: res.sid, role: 'owner', owner: acct.user && acct.user.name || '', v: res.v || 1, pending: [] };
+        shState(res.sid).base = shareDoc(c);
+        save(); render(); shConnect(c); shNew = null; manageShare(c);
+      }, function (e) { closeModal(); toast('Couldn\'t start sharing (' + e.message + ').'); });
+    };
+  };
+  function manageShare(c) {
+    openModal('<h2>Sharing ' + esc(c.info.name || 'this character') + '</h2><p class="muted small">Loading…</p>', 'share-modal');
+    api('sheets/' + c.share.sid + '/access').then(function (res) { drawShare(c, res); }, function (e) {
+      openModal('<h2>Sharing</h2><p class="muted small">Couldn\'t load who has it (' + esc(e.message) + ').</p><div class="acts"><button type="button" class="btn" id="mNo">Close</button></div>');
+      $('mNo').onclick = closeModal;
+    });
+  }
+  function drawShare(c, res) {
+    var people = res.people || [], codes = res.codes || [], sid = c.share.sid;
+    function day(t) { return new Date(t).toLocaleDateString(); }
+    var h = '<h2>Sharing ' + esc(c.info.name || 'this character') + '</h2>' +
+      '<h3 class="sub">Give someone a code</h3><div class="share-new"><span class="seg" role="group" aria-label="What the code allows">' +
+      ['edit', 'view'].map(function (r) { return '<button type="button" data-shr="' + r + '" aria-pressed="' + (shRole === r) + '">' + ROLE_LBL[r] + '</button>'; }).join('') +
+      '</span><button type="button" class="btn primary small" id="shCode">Create code</button></div>' +
+      (shNew ? '<div class="share-code"><b class="mono">' + esc(shNew.code) + '</b><span class="muted small">' + ROLE_LBL[shNew.role] + ' · anyone you give it to, for 7 days</span><button type="button" class="btn small" id="shCopy">Copy</button></div>' : '') +
+      '<p class="muted small">They press <b>Add shared</b> on the Characters page and enter it.</p>' +
+      '<h3 class="sub">People with access</h3>' + (people.length ? '<div class="share-list">' + people.map(function (p) {
+        return '<div class="share-row"><span class="share-who"><b>' + esc(p.name || 'Player') + '</b><small>' + esc(p.email || '') + '</small></span>' +
+          '<select data-shp="' + esc(p.uid) + '" aria-label="Access for ' + esc(p.name || 'player') + '">' + ['edit', 'view'].map(function (r) { return '<option value="' + r + '"' + (p.role === r ? ' selected' : '') + '>' + ROLE_LBL[r] + '</option>'; }).join('') + '</select>' +
+          '<button type="button" class="x-btn" data-shx="' + esc(p.uid) + '" aria-label="Remove ' + esc(p.name || 'player') + '" title="Remove their access">×</button></div>';
+      }).join('') + '</div>' : '<p class="muted small">Nobody yet.</p>') +
+      '<h3 class="sub">Open codes</h3>' + (codes.length ? '<div class="share-list">' + codes.map(function (k) {
+        return '<div class="share-row"><span class="share-who"><b class="mono">' + esc(k.code) + '</b><small>' + ROLE_LBL[k.role] + ' · until ' + day(k.expires) + '</small></span><button type="button" class="x-btn" data-shk="' + esc(k.code) + '" aria-label="Cancel code ' + esc(k.code) + '" title="Cancel this code (people who already used it keep access)">×</button></div>';
+      }).join('') + '</div>' : '<p class="muted small">None.</p>') +
+      '<div class="acts"><button type="button" class="btn danger' + (shStopSure ? ' solid' : '') + '" id="shStop">' + (shStopSure ? 'Click again: everyone else loses it' : 'Stop sharing') + '</button><button type="button" class="btn primary" id="mNo">Done</button></div>';
+    var m = $('cmModal'), keepScroll = m.scrollTop;
+    openModal(h, 'share-modal'); m.scrollTop = keepScroll;
+    function again() { api('sheets/' + sid + '/access').then(function (r) { drawShare(c, r); }); }
+    $('mNo').onclick = function () { shNew = null; shStopSure = false; closeModal(); };
+    Array.prototype.forEach.call(m.querySelectorAll('[data-shr]'), function (b) { b.onclick = function () { shRole = b.getAttribute('data-shr'); shStopSure = false; drawShare(c, res); }; });
+    $('shCode').onclick = function () { api('sheets/' + sid + '/code', { role: shRole }).then(function (k) { shNew = k; again(); }, function (e) { toast('Couldn\'t make a code (' + e.message + ').'); }); };
+    if ($('shCopy')) $('shCopy').onclick = function () { var code = shNew.code; try { navigator.clipboard.writeText(code).then(function () { toast('Code copied.'); }, function () { toast('Copy it from the screen: ' + code); }); } catch (e) { toast('Copy it from the screen: ' + code); } };
+    Array.prototype.forEach.call(m.querySelectorAll('[data-shp]'), function (s) { s.onchange = function () { api('sheets/' + sid + '/access', { uid: s.getAttribute('data-shp'), role: s.value }).then(again); }; });
+    Array.prototype.forEach.call(m.querySelectorAll('[data-shx]'), function (b) { b.onclick = function () { api('sheets/' + sid + '/access', { uid: b.getAttribute('data-shx'), remove: 1 }).then(again); }; });
+    Array.prototype.forEach.call(m.querySelectorAll('[data-shk]'), function (b) { b.onclick = function () { api('sheets/' + sid + '/revoke', { code: b.getAttribute('data-shk') }).then(again); }; });
+    $('shStop').onclick = function () {
+      if (!shStopSure) { shStopSure = true; drawShare(c, res); return; }
+      shStopSure = false;
+      stopSharing(c).then(function () { closeModal(); toast((c.info.name || 'The character') + ' isn\'t shared any more. It\'s still yours.'); }, function (e) { toast('Couldn\'t stop sharing (' + e.message + ').'); });
+    };
+  }
+  function stopSharing(c) {
+    var sid = c.share.sid;
+    return api('sheets/' + sid + '/unshare', {}).then(function () { shClose(sid); delete shs[sid]; delete c.share; save(); render(); });
+  }
+  actions.joinShare = function () {
+    if (!signedIn()) return needSignIn();
+    openModal('<h2>Add a shared character</h2><label class="fld">Code<input id="shJoin" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="The 8-letter code you were given"></label>' +
+      '<p class="muted small" id="shJoinMsg">Ask the character\'s owner for a code. The character shows up under Synced characters.</p>' +
+      '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Add</button></div>');
+    $('mNo').onclick = closeModal;
+    $('shJoin').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+    $('shJoin').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); });
+    $('mOk').onclick = function () {
+      var code = $('shJoin').value.trim();
+      if (code.length < 8) { $('shJoinMsg').textContent = 'Codes are 8 letters and numbers.'; return; }
+      $('mOk').disabled = true;
+      api('sheets/join', { code: code }).then(function (res) {
+        closeModal();
+        shareReconcile().then(function () {
+          var c = res.role === 'owner' ? charOfSid(res.sid) : store.chars['sh-' + res.sid];
+          if (c) { store.cur = c.id; commit(); }
+          toast(res.role === 'owner' ? 'That\'s your own character.' : 'Added ' + (c ? (c.info.name || 'the character') : 'the character') + ' (' + ROLE_LBL[res.role].toLowerCase() + ').');
+        });
+      }, function (e) {
+        $('mOk').disabled = false;
+        $('shJoinMsg').textContent = e.message === 'bad-code' ? 'That code doesn\'t work. It may have expired or been cancelled.' : 'Couldn\'t add it (' + e.message + ').';
+      });
+    };
+  };
+  actions.leaveShare = function () {
+    var c = cur(); if (!isReceived(c)) return;
+    confirmBox('Remove ' + (c.info.name || 'this character') + ' from your Synced characters? The owner can give you a new code if you want it back.', 'Remove', function () {
+      api('sheets/' + c.share.sid + '/leave', {}).then(function () {
+        shClose(c.share.sid); delete store.chars[c.id];
+        store.synced = (store.synced || []).filter(function (id) { return id !== c.id; });
+        store.cur = store.order[0] || store.synced[0] || null; commit();
+      }, function (e) { toast('Couldn\'t remove it (' + e.message + ').'); });
+    }, true);
+  };
 
   function fillLists() {
     function opts(arr) { return arr.map(function (x) { return '<option value="' + esc(x) + '">'; }).join(''); }
