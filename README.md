@@ -144,3 +144,21 @@ V2.2
 	-Merits & Flaws can be picked from the book's list, filling in their cost.
 	-Right-clicking a trait, Background, Merit, Flaw, Clan, Nature, Demeanor, or the Health / Blood Pool / Willpower labels opens a menu linking to its page in the Rule Book.
 	-Added the Random Character Generator as a new character option (pick a clan or random, a name, and XP to spend).
+
+V2.3
+-Character Manager Changes:
+	-Replaced the character dropdown with a character browser: character cards with key stats, folders, search and sorting. Synced characters show up there too.
+	-Folders sync between devices with your account.
+	-Random Character Generator:
+		-Its options now use toggles like the Settings menu.
+		-Added Merits & Flaws options: max cost and target points for each.
+		-Added a "Carried equipment" option: up to 3 weapons (including Feral Claws) and armor, when they fit the character.
+	-Feral Claws and other natural weapons attack with Dexterity + Brawl.
+	-Hovering a Background, Merit or Flaw shows a short summary (also shown in its right-click menu).
+	-Disciplines and Backgrounds can be rolled. The Quick Roller's "Other" tab is now "Virtues", and a new "Other" tab holds Disciplines and Backgrounds.
+	-Added a "Defensive Maneuver" button (Block, Dodge, Parry). It and the Soak button now sit under Health.
+-Initiative Tracker Changes:
+	-Celerity actions cost one blood point each (not limited by Generation), and you can't take more than your blood allows.
+	-Right-clicking an actor lets the host call for a roll from them, even when it isn't their turn.
+	-The Start round / Next turn / End round button fills the rest of its row.
+	-The dice sound plays when someone else's rolled result comes in.

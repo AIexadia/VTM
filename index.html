@@ -1079,6 +1079,149 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 .cm-modal label.chk small { flex-basis: 100%; margin-left: 26px; }
 .cm-modal .fld small { display: block; margin-top: 4px; font-size: 0.82rem; }
 .cm-tag { margin-left: 6px; padding: 1px 6px; border: 1px solid var(--line); border-radius: 999px; font: 500 0.68rem/1.4 var(--font-data); color: var(--muted); vertical-align: middle; }
+/* Generator options */
+.cm-gen .gn-row { display: grid; grid-template-columns: minmax(0, 1fr) 9em; gap: 12px; }
+.cm-gen .gn-hint { margin: -4px 0 14px; }
+.cm-gen .switch.gn-sw { margin: 6px 0 10px; }
+.cm-gen .gn-sub { margin: 0 0 14px 60px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.cm-gen .gn-sub[hidden] { display: none; }
+.cm-gen .gn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; }
+.cm-gen .gn-grid .fld { margin: 0; }
+.cm-gen .gn-sub > p { margin: 8px 0 0; }
+.cm-gen .gn-note { margin: -4px 0 12px 60px; }
+@media (max-width: 520px) { .cm-gen .gn-sub, .cm-gen .gn-note { margin-left: 0; } .cm-gen .gn-row { grid-template-columns: 1fr; } }
+
+/* Current character (opens the browser) */
+.cm-cur { display: inline-flex; align-items: center; gap: 10px; min-width: 0; max-width: 100%; padding: 6px 8px 6px 6px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
+.cm-cur:hover { background: var(--surface-2); }
+.cm-cur:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.cm-cur-txt { display: flex; flex-direction: column; min-width: 0; }
+.cm-cur-txt b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-cur-txt small { color: var(--muted); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-cur-go { display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; padding: 4px 9px; border-radius: 8px; background: var(--surface-2); font-size: 0.82rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.lib-av { --h: 270; flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; background: hsl(var(--h) 45% 45% / 0.22); border: 1px solid hsl(var(--h) 45% 60% / 0.5); color: var(--fg); font: 600 0.95rem/1 var(--font-data); letter-spacing: 0.04em; }
+.lib-av[data-none] { background: var(--surface-2); border-color: var(--line); }
+.lib-av.sm { width: 36px; height: 36px; font-size: 0.85rem; border-radius: 9px; }
+
+/* Browser */
+.cm-lib-back { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px; background: rgba(8, 6, 10, 0.72); }
+.cm-lib-back[hidden] { display: none; }
+.cm-lib { position: relative; display: flex; flex-direction: column; width: min(1180px, 100%); height: min(860px, 100%); background: var(--bg, var(--surface)); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5); overflow: hidden; }
+.lib-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 16px 14px 20px; border-bottom: 1px solid var(--line); }
+.lib-head h2 { margin: 0; font-size: 1.4rem; }
+.lib-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1; justify-content: flex-end; }
+.lib-tools input[type="search"] { flex: 1 1 200px; max-width: 320px; }
+.lib-tools select { width: auto; }
+.lib-x { flex: none; }
+.lib-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 230px minmax(0, 1fr); }
+.lib-side { overflow: auto; padding: 12px 8px; border-right: 1px solid var(--line); background: var(--surface); }
+.lib-tree, .lib-tree ul { list-style: none; margin: 0; padding: 0; }
+.lib-smart { margin-top: 10px !important; padding-top: 10px !important; border-top: 1px solid var(--line) !important; }
+.lib-nav { --d: 0; display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px 7px calc(8px + var(--d) * 14px); border: 1px solid transparent; border-radius: 8px; background: none; color: var(--fg); font: inherit; font-size: 0.92rem; text-align: left; cursor: pointer; }
+.lib-nav:hover { background: var(--surface-2); }
+.lib-nav.on { background: var(--surface-2); border-color: var(--line-strong); font-weight: 600; }
+.lib-nav .n { margin-left: auto; font: 0.75rem var(--font-data); color: var(--muted); }
+.lib-nav.drop-on, .lib-crumb.drop-on, .lib-folder.drop-on { outline: 2px dashed var(--accent); outline-offset: -2px; background: var(--surface-2); }
+.lib-main { overflow: auto; padding: 14px 18px 24px; }
+.lib-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 10px; font-size: 0.95rem; }
+.lib-crumb { padding: 4px 8px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+.lib-crumb:hover { color: var(--fg); background: var(--surface-2); }
+.lib-crumb.now { color: var(--fg); font-weight: 600; cursor: default; }
+.lib-sep { color: var(--muted); }
+.lib-h { margin: 14px 0 8px; font: 600 0.72rem/1 var(--font-data); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lib-fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.lib-empty { margin: 24px 0; color: var(--muted); }
+/* A full-size invisible button opens the card or folder; the ⋯ button sits above it. */
+.lib-open { position: absolute; inset: 0; z-index: 0; border: 0; border-radius: inherit; background: none; cursor: pointer; }
+.lib-open:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.lib-more { position: relative; z-index: 1; flex: none; width: 32px; height: 32px; border: 1px solid transparent; border-radius: 8px; background: none; color: var(--muted); font-size: 1.1rem; line-height: 1; cursor: pointer; }
+.lib-more:hover, .lib-more:focus-visible { background: var(--surface-2); border-color: var(--line); color: var(--fg); outline: none; }
+.lib-folder { position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 8px 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.lib-folder:hover { border-color: var(--line-strong); background: var(--surface-2); }
+.lib-folder.editing input { flex: 1; min-width: 0; }
+.lib-fname { display: flex; flex-direction: column; min-width: 0; flex: 1; pointer-events: none; }
+.lib-fname b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-fname small { color: var(--muted); font-size: 0.8rem; }
+.lib-fico { flex: none; width: 30px; height: 24px; position: relative; border-radius: 3px 5px 5px 5px; background: color-mix(in srgb, var(--accent) 55%, var(--surface-2)); pointer-events: none; }
+.lib-fico::before { content: ""; position: absolute; left: 0; top: -4px; width: 12px; height: 6px; border-radius: 3px 3px 0 0; background: inherit; }
+.lib-fico.sm { width: 16px; height: 12px; border-radius: 2px 3px 3px 3px; }
+.lib-fico.sm::before { top: -3px; width: 7px; height: 4px; }
+.lib-home, .lib-share, .lib-swords { flex: none; width: 16px; height: 14px; border-radius: 3px; border: 1.6px solid currentColor; opacity: 0.8; }
+.lib-share { border-radius: 50%; width: 14px; }
+.lib-swords { transform: rotate(45deg); width: 12px; height: 12px; }
+.lib-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); transition: border-color 0.12s, transform 0.12s; }
+.lib-card:hover { border-color: var(--line-strong); }
+.lib-card.cur { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.lib-card.dragging, .lib-folder.dragging { opacity: 0.45; }
+.lib-card > :not(.lib-open) { pointer-events: none; }
+.lib-card .lib-card-top { display: flex; align-items: center; gap: 10px; }
+.lib-card .lib-more { pointer-events: auto; }
+.lib-card-id { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.lib-card-id b { font-size: 1.05rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-card-id small { color: var(--muted); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.lib-tag { padding: 1px 7px; border: 1px solid var(--line); border-radius: 999px; font: 500 0.7rem/1.5 var(--font-data); color: var(--muted); }
+.lib-tag.on { border-color: var(--accent); color: var(--fg); }
+.lib-tag.player { border-color: color-mix(in srgb, #4f9d6a 70%, var(--line)); color: var(--fg); }
+.lib-tag.enemy { border-color: color-mix(in srgb, var(--accent) 80%, var(--line)); color: var(--fg); }
+.lib-tag.warn { border-color: #b08a2e; color: var(--fg); }
+.lib-stats { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 8px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.lib-stats div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.lib-stats dt { font: 600 0.62rem/1 var(--font-data); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-stats dd { margin: 0; font: 600 0.92rem/1.2 var(--font-data); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-stats dd span { color: var(--muted); font-weight: 400; }
+.lib-stats dd.hurt { color: var(--danger, #e0707f); }
+.lib-disc, .lib-path { margin: 0; font-size: 0.82rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-disc { color: var(--fg); opacity: 0.85; }
+.lib-menu { position: fixed; z-index: 95; max-height: min(420px, calc(100vh - 16px)); overflow: auto; }
+.lib-menu button.danger { color: var(--danger, #e0707f); }
+.lib-menu button[disabled] { opacity: 0.55; cursor: default; }
+@media (max-width: 760px) {
+  .cm-lib-back { padding: 0; }
+  .cm-lib { width: 100%; height: 100%; border-radius: 0; border: 0; }
+  .lib-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .lib-side { display: flex; gap: 6px; overflow-x: auto; padding: 8px 10px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .lib-tree, .lib-tree ul, .lib-tree li { display: contents; }
+  .lib-smart { margin: 0 !important; padding: 0 !important; border: 0 !important; }
+  .lib-nav { width: auto; flex: none; padding: 6px 10px; border-color: var(--line); white-space: nowrap; }
+  .lib-tools input[type="search"] { max-width: none; flex-basis: 100%; order: -1; }
+  .lib-tools { justify-content: flex-start; }
+  .lib-head h2 { flex: 1; }
+  .lib-grid { grid-template-columns: 1fr; }
+  .lib-fgrid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .lib-main { padding: 12px; }
+}
+
+.lib-stats abbr { text-decoration: none; }
+.lib-foot { display: flex; align-items: baseline; gap: 10px; margin-top: auto; }
+.lib-foot .lib-disc { flex: 1; min-width: 0; }
+.lib-xp { flex: none; font: 600 0.78rem/1 var(--font-data); color: var(--muted); }
+@media (max-width: 760px) {
+  .lib-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; padding: 10px 12px; }
+  .lib-head .lib-x { grid-column: 2; grid-row: 1; }
+  .lib-tools { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
+  .lib-tools input[type="search"] { grid-column: 1 / -1; max-width: none; }
+  .lib-tools .btn { padding-left: 10px; padding-right: 10px; white-space: nowrap; }
+}
+.cm-ctx-sum { margin: 4px 8px 6px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 0.86rem; line-height: 1.4; color: var(--fg); }
+.hi-sep.wide { margin: 0 4px; }
+.hi-def .btn { white-space: nowrap; }
+/* Tracker buttons: Start round / Next turn / End round takes the room left in its row */
+.init-actions { display: flex; flex-wrap: wrap; }
+.init-actions .roll { flex: 1 1 100%; }
+.init-actions #initNext { flex: 1 1 auto; min-width: 9em; }
+.init-actions #initClear, .init-actions #initUndo { flex: 0 0 auto; padding: 0 18px; }
+/* Defensive Maneuver */
+.cm-def .def-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 4px 0 14px; }
+.cm-def .def-step { display: flex; flex-direction: column; gap: 4px; }
+.cm-def .def-lbl { font: 600 0.72rem/1 var(--font-data); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cm-def .def-step .qr-diff b { min-width: 4.5em; text-align: center; }
+.cm-def .def-step small { font-size: 0.78rem; }
+.cm-def .soak-opt small { display: block; }
+@media (max-width: 420px) { .cm-def .def-steps { grid-template-columns: 1fr; } }
+.hicons .hi-sep.wide { display: none; }
+.hicons .hi-def { margin-left: auto; padding-left: 10px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -3828,11 +3971,14 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   /* Celerity dots spent on extra actions this turn don't add to initiative; set before the round, fixed while it runs. */
   function celUsed(a) { return a.cd ? Math.min(a.cd, ini.live ? (a.cu || 0) : a.ca) : 0; }
   function syncIx(a) { a.ix = a.ch || a.cd ? (a.wndA || 0) - celUsed(a) : 0; }
+  /* Most Celerity actions an actor can take: its Celerity dots, and one blood point each (a linked sheet sends its blood as bl). */
+  function celMax(a) { var m = a.cd || 9; if (a.bl != null) m = Math.min(m, a.bl); return m; }
   /* A linked actor's wound penalty counts from the next round (like a bonus), or at once between rounds. */
   function linkSet(a, p) {
     a.mod = clamp(Math.round(+p.mod || 0), -99, 99); a.cd = clamp(Math.round(+p.cd || 0), 0, 10); a.mn = String(p.mn || '').slice(0, 80);
     a.wnd = clamp(Math.round(+p.wnd || 0), -10, 0); if (!ini.live) a.wndA = a.wnd;
-    a.cel = !!p.cel; if (!a.cel) a.ca = 0; else if (a.cd && a.ca > a.cd) a.ca = a.cd;
+    a.bl = p.bl == null ? null : clamp(Math.round(+p.bl || 0), 0, 99);
+    a.cel = !!p.cel; if (!a.cel) a.ca = 0; else if (a.ca > celMax(a)) a.ca = celMax(a);
     if (a.ow) { a.type = 'player'; a.reveal = false; }   // a joiner's character is always a Player
     else if (p.type !== undefined) { var was = a.type; a.type = p.type || ''; if (a.type === 'player') a.reveal = false; else if (!a.type) a.reveal = !!p.rev; else if (was !== 'enemy') a.reveal = false; }
   }
@@ -3888,7 +4034,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   function startRound() {
     if (!ini.actors.length) return false;
     var first = !ini.started;
-    ini.actors.forEach(function (a) { a.cu = a.cd ? Math.min(a.ca, a.cd) : 0; a.wndA = a.wnd || 0; a.applied = a.bonus; recompute(a); });
+    ini.actors.forEach(function (a) { a.cu = a.cd ? Math.min(a.ca, celMax(a)) : 0; a.wndA = a.wnd || 0; a.applied = a.bonus; recompute(a); });
     if (first) ini.actors.forEach(function (a) { if (a.init === null && (!a.persistent || st.initPersist || st.initFresh)) rollActor(a); });   // results entered beforehand stay; Persistent actors wait for theirs
     else if (st.initFresh) ini.actors.forEach(rollActor);   // Fresh initiative: everyone again, Persistent actors included
     var rolled = initOrder().rolled;
@@ -3928,7 +4074,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     var by = {};
     ini.actors.forEach(function (a) {
       if (!a.ow) return;
-      (by[a.ow] = by[a.ow] || []).push({ k: a.id, cid: a.rc || '', mod: a.mod, mn: a.mn || '', wnd: a.wnd || 0, ix: a.ix || 0, cd: a.cd || 0, ca: a.ca || 0, cu: a.cu || 0, cel: !!a.cel, ap: a.applied || 0 });
+      (by[a.ow] = by[a.ow] || []).push({ k: a.id, cid: a.rc || '', mod: a.mod, mn: a.mn || '', wnd: a.wnd || 0, ix: a.ix || 0, cd: a.cd || 0, bl: a.bl == null ? null : a.bl, ca: a.ca || 0, cu: a.cu || 0, cel: !!a.cel, ap: a.applied || 0 });
     });
     Object.keys(privSent).forEach(function (pid) { if (!by[pid]) by[pid] = []; });
     var ct = ini.call && ini.call.target !== 'host' ? ini.call.target : null;
@@ -3949,7 +4095,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     if (!act || act.ow !== pid) return;
     if (a.k === 'cel') {
       if (ini.live || !act.cel) return;
-      act.ca = clamp(Math.round(+a.v || 0), 0, act.cd || 9); recompute(act); initChanged();
+      act.ca = clamp(Math.round(+a.v || 0), 0, celMax(act)); recompute(act); initChanged();
     } else if (a.k === 'delay') {
       var after = actorOf(+a.after);
       if (!after || !ini.live || ini.celerity || ini.turn !== act.id) return;
@@ -4066,7 +4212,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 
   function leaveWatching(note) {
     var w = watchWs;
-    watchWs = null; remote = null; mineRows = {}; setJoinCall(null);
+    watchWs = null; remote = null; mineRows = {}; lrInit = false; setJoinCall(null);
     if (window.cmInitChanged) window.cmInitChanged();   // CHARACTERS-MODULE
     if (w) { try { w.close(); } catch (err) {} }
     syncMsg(note || '');
@@ -4169,6 +4315,8 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     else { rec.base = roll.basePool; if (c) { rec.manualPool = (roll.basePool - c.pool) + ((roll.mod || 0) - (c.mod || 0)); rec.manualDiff = (roll.dMod || 0) - (c.dmod || 0) + (lockedDiff() ? 0 : roll.baseDiff - c.diff); } }
     return rec;
   }
+  /* Rolls this joiner sent (random tokens), so the dice sound only plays for other people's results. */
+  var myRids = [], lrInit = false, seenLr = 0;
   function onRolled(kind, roll, values) {
     var ctx = kind === 'damage' ? dmgCtx : rollCtx;
     if (kind === 'main') kind = ctx && ctx.kind === 'soak' ? 'soak' : 'generic';
@@ -4176,6 +4324,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     if (kind === 'soak') rollCtx = null;   // a soak setup is used once
     if (watchWs) {
       if (!joinCall) return;               // nobody called for it: it stays private
+      rec.rid = Math.random().toString(36).slice(2, 10); myRids = myRids.concat([rec.rid]).slice(-20);
       joinAct({ k: 'roll', rec: rec });
       joinCall = null; applyDiffLock(); renderRollPanel();
       return;
@@ -4201,7 +4350,9 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
       diff: n(r.diff, 2, 30), baseDiff: n(r.baseDiff, 2, 30), dMod: n(r.dMod, -20, 20), net: n(r.net, -99, 99), botch: !!r.botch, ones: n(r.ones, 0, 99) };
     if (r.manualPool != null) rec.manualPool = n(r.manualPool, -99, 99);
     if (r.manualDiff != null) rec.manualDiff = n(r.manualDiff, -30, 30);
+    rec.rid = t(r.rid, 12).replace(/[^a-z0-9]/g, '');
     recordRoll(ini.call, rec);
+    playSound();   // someone else's result arrived
   }
   function resultText(rec) {
     if (rec.botch) return 'Botch';
@@ -4211,7 +4362,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   }
   function lastPub() {
     var r = (ini.rolls || [])[ini.rolls ? ini.rolls.length - 1 : 0];
-    return r ? { id: r.id, n: r.pub || r.who, k: r.kind, v: r.net, b: !!r.botch } : null;
+    return r ? { id: r.id, n: r.pub || r.who, k: r.kind, v: r.net, b: !!r.botch, q: r.rid || '' } : null;
   }
   function sgn(v) { return (v > 0 ? '+' : v < 0 ? MINUS : '±') + Math.abs(v); }
   /* The host's full view of a roll. */
@@ -4242,6 +4393,9 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     var box = $('iniRolls'); if (!box) return;
     if (watchWs) {
       var cr = remote && remote.cr, lr = remote && remote.lr, h = '';
+      /* A new result from the table plays the dice sound, unless it's this joiner's own roll (already heard). */
+      if (!lrInit) { lrInit = true; seenLr = lr ? lr.id : 0; }
+      else if (lr && lr.id !== seenLr) { seenLr = lr.id; if (myRids.indexOf(lr.q) < 0) playSound(); }
       if (joinCall) h += '<p class="ir-status ir-you"><b>Your roll is called' + (joinCall.diff ? ' at difficulty ' + joinCall.diff : '') + '.</b> Your next roll is shared with the table.</p>';
       else if (cr) h += '<p class="ir-status">Waiting for ' + escH(cr.n) + ' to roll' + (cr.d ? ' (difficulty ' + cr.d + ')' : '') + '.</p>';
       if (lr) h += '<div class="ir-last"><span class="label">Last roll</span>' + rollHead({ who: lr.n, kind: KIND_LBL[lr.k] ? lr.k : 'generic', net: lr.v, botch: lr.b }) + '</div>';
@@ -4288,6 +4442,15 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     ini.rolls = []; initChanged(); renderHistory();
   });
   setTimeout(function () { applyDiffLock(); renderRollPanel(); }, 0);
+  /* Actor menu: call for a roll from this actor, whether or not it's their turn. */
+  function iniCallItems(a) {
+    if (watchWs || !ini.encounter) return [];
+    var on = ini.call && !ini.call.own && ini.call.actor === a.id;
+    return [{ label: on ? 'Cancel roll call' : 'Call for a roll (difficulty ' + st.callDiff + ')', run: function () {
+      ini.call = on ? null : { target: a.ow || 'host', actor: a.id, name: a.name, pub: pubName(a), diff: st.callDiff, own: false, ts: Date.now() };
+      initChanged(); applyDiffLock();
+    } }];
+  }
 
   /* CHARACTERS-MODULE:END called-rolls */
   /* CHARACTERS-MODULE:BEGIN remote-acts */
@@ -4360,7 +4523,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
           var rc2 = t2.querySelector('.ini-cel');
           if (rc2) {
             var mm = document.createElement('button'); mm.type = 'button'; mm.className = 'ini-cel-b rm-cel'; mm.setAttribute('data-k', a.k); mm.setAttribute('data-v', (mr.ca || 0) - 1); mm.textContent = MINUS; mm.disabled = !(mr.ca > 0); mm.setAttribute('aria-label', 'One fewer Celerity action');
-            var mp = document.createElement('button'); mp.type = 'button'; mp.className = 'ini-cel-b rm-cel'; mp.setAttribute('data-k', a.k); mp.setAttribute('data-v', (mr.ca || 0) + 1); mp.textContent = '+'; mp.disabled = (mr.ca || 0) >= (mr.cd || 9); mp.setAttribute('aria-label', 'One more Celerity action');
+            var mp = document.createElement('button'); mp.type = 'button'; mp.className = 'ini-cel-b rm-cel'; mp.setAttribute('data-k', a.k); mp.setAttribute('data-v', (mr.ca || 0) + 1); mp.textContent = '+'; mp.disabled = (mr.ca || 0) >= Math.min(mr.cd || 9, mr.bl == null ? 9 : mr.bl); mp.setAttribute('aria-label', 'One more Celerity action');
             var num = rc2.querySelector('.num'); rc2.insertBefore(mm, num); rc2.appendChild(mp);
             rc2.title = 'Celerity actions: set them before the round starts';
           }
@@ -4471,7 +4634,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
           var ci = document.createElement('input'); ci.type = 'number'; ci.className = 'ini-cel-n'; ci.min = '0'; ci.max = '9'; ci.step = '1'; ci.value = a.ca;
           ci.setAttribute('inputmode', 'numeric'); ci.setAttribute('aria-label', 'Celerity actions for ' + a.name);
           var cp = document.createElement('button'); cp.type = 'button'; cp.className = 'ini-cel-b'; cp.setAttribute('data-d', '1'); cp.textContent = '+';
-          cp.setAttribute('aria-label', 'One more Celerity action for ' + a.name); cp.disabled = a.ca >= (a.cd || 9);
+          cp.setAttribute('aria-label', 'One more Celerity action for ' + a.name); cp.disabled = a.ca >= celMax(a); if (a.bl != null && a.bl < (a.cd || 9) && a.ca >= a.bl) cp.title = 'Each Celerity action costs a blood point: only ' + a.bl + ' left';
           cc.appendChild(cm); cc.appendChild(ci); cc.appendChild(cp);
           cc.title = 'Celerity actions: set them before the round starts';
         } else {
@@ -4818,7 +4981,8 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     var a = tr._a;
     if (!a) return;
     openContextMenu(x, y, [
-      { label: a.init === null ? 'Roll initiative' : 'Re-roll initiative', run: function () { rollActor(a); initChanged(); } },
+      { label: a.init === null ? 'Roll initiative' : 'Re-roll initiative', run: function () { rollActor(a); initChanged(); } }
+    ].concat(iniCallItems(a), [
       { label: 'Set Tags', sub: [
         { label: 'Player', checked: function () { return a.type === 'player'; }, run: function () { a.type = a.type === 'player' ? '' : 'player'; a.reveal = false; autoUpdate(a); initChanged(); } },
         { label: 'Enemy', checked: function () { return a.type === 'enemy'; }, run: function () { a.type = a.type === 'enemy' ? '' : 'enemy'; autoUpdate(a); initChanged(); } },
@@ -4827,7 +4991,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
       ] },
       { label: a.persistent ? 'Remove Persistent' : 'Set as Persistent', run: function () { a.persistent = !a.persistent; initChanged(); } },
       { label: 'Delete', danger: true, run: function () { deleteActor(a); } }
-    ], tr.querySelector('.ini-cell'));
+    ]), tr.querySelector('.ini-cell'));
   }
   var initHeld = 0;
   $('initBodyRows').addEventListener('contextmenu', function (e) {
@@ -5065,7 +5229,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   function celSet(tr, v) {
     var a = tr && tr._a;
     if (!a || !a.cel || ini.live) return;
-    a.ca = clamp(Math.round(v), 0, a.cd || 9);
+    a.ca = clamp(Math.round(v), 0, celMax(a));
     recompute(a);
     initChanged();
   }
@@ -5557,6 +5721,7 @@ V1.5
   /* Lets the Character Manager set up rolls, damage and Initiative actors. */
   window.vtmRoller = {
     mainOn: function () { return st.showMain; },
+    lockedDiff: function () { return lockedDiff(); },
     setMain: function (o) {
       st.pool = clamp(o.pool, 1, MAX_POOL);
       var d = Math.round(o.diff || 6), lk = lockedDiff();
@@ -5645,7 +5810,7 @@ V1.5
     syncActor: function (ch, p) {
       var changed = false;
       ini.actors.forEach(function (a) {
-        if (a.ch !== ch || (a.mod === p.mod && a.cd === (p.cd || 0) && a.wnd === (p.wnd || 0) && a.mn === (p.mn || '') && a.cel === !!p.cel && (a.ow ? a.type === 'player' : a.type === (p.type || '') && (a.type === 'enemy' || a.reveal === (!p.type && !!p.rev))))) return;
+        if (a.ch !== ch || (a.mod === p.mod && a.cd === (p.cd || 0) && (a.bl == null ? null : a.bl) === (p.bl == null ? null : p.bl) && a.wnd === (p.wnd || 0) && a.mn === (p.mn || '') && a.cel === !!p.cel && (a.ow ? a.type === 'player' : a.type === (p.type || '') && (a.type === 'enemy' || a.reveal === (!p.type && !!p.rev))))) return;
         linkSet(a, p); recompute(a); changed = true;
       });
       if (changed) initChanged();
@@ -6636,7 +6801,7 @@ V1.5
     /* In Play, Attribute/Ability/Virtue names can be picked to build a dice pool for the roller. */
     var pick = ctx.pick && PICKABLE[kind(p)], picked = pick && (pb.a === p || pb.b === p);
     var name = pick ? '<span class="pick-lbl" data-pick="' + esc(p) + '" role="button" tabindex="0" aria-pressed="' + !!picked + '" title="Pick for a roll">' + esc(labelOf(c, p)) + '</span>' : esc(labelOf(c, p));
-    return '<div class="trait' + (picked ? ' picked' : '') + '"><span class="tn"><span class="cm-nm" data-bk="trait:' + esc(p) + '">' + name + (tags || '') + noteBtn(c, p, labelOf(c, p), ctx.notes) + '</span>' + specHTML(c, p, ctx) + '</span>' +
+    return '<div class="trait' + (picked ? ' picked' : '') + '"><span class="tn"><span class="cm-nm" data-bk="trait:' + esc(p) + '"' + (kind(p) === 'bg' && sumOf('bg', split(p)[1]) ? ' data-sum="' + esc(sumOf('bg', split(p)[1])) + '"' : '') + '>' + name + (tags || '') + noteBtn(c, p, labelOf(c, p), ctx.notes) + '</span>' + specHTML(c, p, ctx) + '</span>' +
       dotsHTML(c, p, ctx.live(p)) + (rm || '') + '</div>';
   }
   function ctr(sp, al) {
@@ -6816,8 +6981,8 @@ V1.5
       arr.forEach(function (m, i) {
         var nb = noteBtn(c, 'arr:' + k + ':' + m.id, m.name || label.slice(0, -1), editable);
         var bm = mfFind(k, m.name), mk = bm ? ' <span class="cm-tag" title="' + bm.kind + ' ' + label.slice(0, -1).toLowerCase() + ', ' + mfCost(bm) + ' in the book">' + bm.kind + '</span>' : '';
-        if (editable) h += '<div class="row-ed"><input data-f="' + k + '.' + i + '.name" value="' + esc(m.name) + '" placeholder="Name (pick from the book or type)" list="dl-' + k + '" aria-label="' + label + ' name"><input type="number" min="1" max="7" data-f="' + k + '.' + i + '.cost" data-num data-rr value="' + esc(m.cost) + '" aria-label="Points">' + nb + '<button type="button" class="x-btn" data-act="rmArr" data-k="' + k + '" data-i="' + i + '" aria-label="Remove">×</button></div>';
-        else h += '<div class="trait"><span class="tn"><span class="cm-nm" data-bk="' + (k === 'merits' ? 'merit' : 'flaw') + ':' + esc(m.name) + '">' + esc(m.name || 'Unnamed') + mk + nb + '</span></span><span class="ctr">' + esc(m.cost) + '</span></div>';
+        if (editable) h += '<div class="row-ed"' + (sumOf(k, m.name) ? ' data-sum="' + esc(sumOf(k, m.name)) + '"' : '') + '><input data-f="' + k + '.' + i + '.name" value="' + esc(m.name) + '" placeholder="Name (pick from the book or type)" list="dl-' + k + '" aria-label="' + label + ' name"><input type="number" min="1" max="7" data-f="' + k + '.' + i + '.cost" data-num data-rr value="' + esc(m.cost) + '" aria-label="Points">' + nb + '<button type="button" class="x-btn" data-act="rmArr" data-k="' + k + '" data-i="' + i + '" aria-label="Remove">×</button></div>';
+        else h += '<div class="trait"><span class="tn"><span class="cm-nm" data-bk="' + (k === 'merits' ? 'merit' : 'flaw') + ':' + esc(m.name) + '"' + (sumOf(k, m.name) ? ' data-sum="' + esc(sumOf(k, m.name)) + '"' : '') + '>' + esc(m.name || 'Unnamed') + mk + nb + '</span></span><span class="ctr">' + esc(m.cost) + '</span></div>';
       });
       if (editable) h += '<div class="add"><button type="button" class="btn small" data-act="addArr" data-k="' + k + '">Add ' + label.slice(0, -1).toLowerCase() + '</button></div>';
       return h + '</div>';
@@ -6836,7 +7001,7 @@ V1.5
   var CONCEAL = { P: 'Pocket', J: 'Jacket', T: 'Trenchcoat', N: 'Not concealable' };
   function weaponLine(c, w) {
     var pool = dmgPool(c, w.dmg), dm = w.kind === 'ranged' ? (pool != null ? pool + ' dice' : esc(w.dmg)) : esc(w.dmg) + (pool != null ? ' (' + pool + ' dice' + (usesStr(w.dmg) && c.disc.Potence ? ', with Potence ' + c.disc.Potence : '') + ')' : '');
-    var parts = [w.kind === 'ranged' ? 'Ranged' : 'Melee', 'Diff ' + esc(w.diff), dm + ' ' + (DMG_T[w.type] || '')];
+    var parts = [w.kind === 'ranged' ? 'Ranged' : w.natural ? 'Brawl' : 'Melee', 'Diff ' + esc(w.diff), dm + ' ' + (DMG_T[w.type] || '')];
     if (w.kind === 'ranged') { if (w.range) parts.push('Range ' + esc(w.range)); if (w.rate) parts.push('Rate ' + esc(w.rate)); if (w.capacity) parts.push('Capacity ' + esc(w.capacity)); }
     if (w.conceal) parts.push('Conceal ' + esc(w.conceal));
     return parts.join(' · ');
@@ -6849,6 +7014,7 @@ V1.5
     if (w.blunt) n.push('Blunt: bashing unless aimed at the head, which makes it lethal.');
     if (w.stake) n.push('Aimed at the heart (difficulty 9) with 3+ health levels of damage, it paralyzes a vampire.');
     if (w.auto) n.push('Can fire three-round bursts, full auto and sprays.');
+    if (w.natural) n.push('Natural weapon: attacks with Dexterity + Brawl.');
     return n;
   }
   function armorLine(a) { var pn = +a.penalty || 0; return 'Rating ' + (+a.rating || 0) + ' · ' + (pn ? 'Penalty −' + pn : 'No penalty'); }
@@ -6952,7 +7118,8 @@ V1.5
       return '<button type="button" class="hicon heal k-' + t + '" data-act="heal" data-t="' + t + '" data-tip="' + tip + '" aria-label="' + tip + '"' + (dis ? ' disabled' : '') + '>' + svg(HEART + HMARK[t]) + '</button>';
     }
     return '<div class="hicons"><span class="hi-grp" role="group" aria-label="Damage">' + dmg('b') + dmg('l') + dmg('a') + '</span><span class="hi-sep" aria-hidden="true"></span>' +
-      '<span class="hi-grp" role="group" aria-label="Heal">' + heal('b', !h.b) + heal('l', !h.l) + heal('a', !h.a) + heal('n', !h.b && !h.l) + '</span></div>';
+      '<span class="hi-grp" role="group" aria-label="Heal">' + heal('b', !h.b) + heal('l', !h.l) + heal('a', !h.a) + heal('n', !h.b && !h.l) + '</span>' +
+      '<span class="hi-sep wide" aria-hidden="true"></span><span class="hi-grp hi-def" role="group" aria-label="Defense"><button type="button" class="btn small" data-act="soak">Soak</button><button type="button" class="btn small" data-act="defend">Defensive Maneuver</button></span></div>';
   }
   function qrefOpen() { return !!(store.ui && store.ui.qrefOpen); }
   function vitalsSection(c, bare) {
@@ -6978,7 +7145,7 @@ V1.5
       '<div class="vit"><h3 class="sub" data-bk="health">Health</h3><div class="htable">' + boxes + '</div><div class="status">' + esc(status) + '</div>' +
       healthButtons(c) + '</div>' +
       '<div class="vit"><div class="pool-head"><h3 class="sub" data-bk="blood">Blood pool</h3>' + hung + '<strong>' + c.blood.cur + ' / ' + g.blood + '</strong></div><div class="boxes">' + bloodBoxes + '</div>' +
-      '<div class="muted small">Up to ' + g.turn + ' per turn' + (turnNow() ? ' · ' + spentNow(c) + ' spent this turn' : '') + '</div><div class="btn-row"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="soak" title="Roll soak">Soak</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
+      '<div class="muted small">Up to ' + g.turn + ' per turn' + (turnNow() ? ' · ' + spentNow(c) + ' spent this turn' : '') + '</div><div class="btn-row"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
       '<div class="pool-head" style="margin-top:8px"><h3 class="sub" data-bk="wp">Willpower</h3><strong>' + c.willpower.cur + ' / ' + c.willpower.perm + '</strong></div><div class="boxes wp">' + wpBoxes + '</div>' +
       '<div class="btn-row"><button class="btn small" data-act="poolAdj" data-k="wp" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="wp" data-d="1">Regain 1</button></div></div>' +
       /* Collapsible like the Damage module's "Average damage expected" row; the summary shows soak and initiative. */
@@ -7693,7 +7860,10 @@ V1.5
   function renderBar() {
     if (gated()) { $('cmBar').innerHTML = ''; return; }
     var c0 = cur(), tmp = isTemp(c0), recv = isReceived(c0), has = store.order.length > 0 || (store.synced || []).length > 0 || tmp, own = has && !tmp && !recv, signed = signedIn();
-    $('cmBar').innerHTML = (has ? '<label class="vh" for="charSel">Character</label><select id="charSel">' + charOptions(true) + '</select>' : '') +
+    var cc = c0 ? '<button type="button" class="cm-cur" data-act="libOpen" aria-haspopup="dialog" title="Browse your characters">' + avatar(c0, 'sm') +
+      '<span class="cm-cur-txt"><b>' + esc(c0.info.name || 'Unnamed') + '</b><small>' + esc([c0.info.clan || 'No clan', ord(c0.info.generation) + ' Gen'].join(' · ') + (!c0.creation.done ? ' · in creation' : '')) + '</small></span>' +
+      '<span class="cm-cur-go"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 6h6l2 2h8v10H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Browse</span></button>' : '';
+    $('cmBar').innerHTML = (has ? cc : '') +
       '<div class="bar-btns"><button type="button" class="btn primary" data-act="newChar">New character</button>' +
       (own || recv ? '<button type="button" class="btn" data-act="dup" title="' + (recv ? 'Make your own separate copy' : 'Make a copy') + '">Duplicate</button>' : '') +
       '<button type="button" class="btn" data-act="import">Import</button>' +
@@ -7759,7 +7929,7 @@ V1.5
       try { if (ie.tagName === 'TEXTAREA' || ie.type === 'text' || !ie.type) { var n = ie.value.length; ie.setSelectionRange(n, n); } } catch (e) {}
     }
   }
-  function render() { hideTip(); applyGate(); var c = gated() ? null : cur(); renderBar(); renderTabs(c); renderModes(c); renderSheet(); renderPick(); renderModule(); }
+  function render() { hideTip(); applyGate(); var c = gated() ? null : cur(); renderBar(); renderTabs(c); renderModes(c); renderSheet(); renderPick(); renderModule(); if (libOpen) { if (gated()) closeLib(); else renderLib(); } }
   function commit() { save(); render(); }
 
   /* ================= DOT CLICKS ================= */
@@ -7835,20 +8005,21 @@ V1.5
   /* ================= ACTIONS ================= */
   var secretN = 0, secretT = 0;
   var actions = {
-    newChar: newCharModal,
+    newChar: function () { libDest = ''; newCharModal(); },
+    libOpen: function () { openLib(); },
     import: importModal,
     export: exportModal,
     dup: function () {
       var c = cur(); if (!c) return;
       var d = JSON.parse(JSON.stringify(c)); d.id = uid(); d.info.name = (c.info.name || 'Unnamed') + ' (copy)'; d.created = Date.now(); delete d.share; delete d.temp;
-      var at = store.order.indexOf(c.id); store.chars[d.id] = d; store.order.splice(at < 0 ? store.order.length : at + 1, 0, d.id); store.cur = d.id; xpMode = false; tabEdit = {};
+      var at = store.order.indexOf(c.id); store.chars[d.id] = d; if (folderOf(c.id)) placeIn(d.id, folderOf(c.id)); store.order.splice(at < 0 ? store.order.length : at + 1, 0, d.id); store.cur = d.id; xpMode = false; tabEdit = {};
       commit(); toast('Duplicated.');
     },
     del: function () {
       var c = cur(); if (!c) return;
       var shared = isShared(c) && c.share.role === 'owner';
       confirmBox('Delete ' + (c.info.name || 'this character') + '? This can\'t be undone. Export first if you want a backup.' + (shared ? '\n\nIt\'s shared, so deleting it also stops sharing it: everyone else loses it too.' : ''), 'Delete', function () {
-        function gone() { delete store.chars[c.id]; store.order = store.order.filter(function (id) { return id !== c.id; }); store.cur = store.order[0] || (store.synced || [])[0] || null; tabEdit = {}; commit(); }
+        function gone() { delete store.chars[c.id]; delete store.lib.place[c.id]; delete store.libSeen[c.id]; store.order = store.order.filter(function (id) { return id !== c.id; }); store.cur = store.order[0] || (store.synced || [])[0] || null; tabEdit = {}; commit(); }
         if (shared) stopSharing(c).then(gone, function (e) { toast('Couldn\'t stop sharing it, so it wasn\'t deleted (' + e.message + ').'); }); else gone();
       }, true);
     },
@@ -8214,7 +8385,7 @@ V1.5
   /* ================= TOOLTIP (notes) ================= */
   var tipEl = $('cmTip'), tipPinned = null;
   function showTip(el, pin) {
-    var txt = el.getAttribute('data-note'); if (!txt) return;
+    var txt = el.getAttribute('data-note') || el.getAttribute('data-sum'); if (!txt) return;
     tipEl.textContent = txt; tipEl.hidden = false;
     var r = el.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight;
     var left = clamp(r.left + r.width / 2 - w / 2, 8, Math.max(8, window.innerWidth - w - 8));
@@ -8225,8 +8396,8 @@ V1.5
     tipPinned = pin ? el : null;
   }
   function hideTip() { if (tipEl) tipEl.hidden = true; tipPinned = null; }
-  document.addEventListener('mouseover', function (e) { var b = e.target.closest && e.target.closest('.note-btn.has'); if (b && !tipPinned) showTip(b, false); });
-  document.addEventListener('mouseout', function (e) { var b = e.target.closest && e.target.closest('.note-btn.has'); if (b && !tipPinned && (!e.relatedTarget || !b.contains(e.relatedTarget))) hideTip(); });
+  document.addEventListener('mouseover', function (e) { var b = e.target.closest && e.target.closest('.note-btn.has, [data-sum]'); if (b && !tipPinned && !(b.hasAttribute('data-sum') && e.target.closest('.note-btn'))) showTip(b, false); });
+  document.addEventListener('mouseout', function (e) { var b = e.target.closest && e.target.closest('.note-btn.has, [data-sum]'); if (b && !tipPinned && (!e.relatedTarget || !b.contains(e.relatedTarget))) hideTip(); });
   document.addEventListener('focusin', function (e) { if (e.target.classList && e.target.classList.contains('note-btn') && e.target.classList.contains('has')) showTip(e.target, false); });
   document.addEventListener('focusout', function (e) { if (e.target.classList && e.target.classList.contains('note-btn') && !tipPinned) hideTip(); });
   window.addEventListener('scroll', function () { hideTip(); }, { passive: true });
@@ -8282,6 +8453,7 @@ V1.5
       var start = document.querySelector('input[name="ncS"]:checked').value, tid = document.querySelector('input[name="ncT"]:checked').value;
       if (start === 'random') return genModal({ name: $('ncName').value.trim(), tag: document.querySelector('input[name="ncA"]:checked').value, tmpl: TEMPLATES.filter(function (t) { return t.id === tid; })[0] || TEMPLATES[0] });
       var c = blankKindred($('ncName').value.trim());
+      if (libDest) { placeIn(c.id, libDest); libDest = ''; }
       if (start === 'blank') { c.mode = 'edit'; c.creation.done = true; }
       c.tracker.type = document.querySelector('input[name="ncA"]:checked').value;
       store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
@@ -8361,7 +8533,7 @@ V1.5
 
   /* ---- Pool builder: pick up to two traits, send them to the main roller ---- */
   var pb = { a: null, b: null, diff: 6, spec: false };
-  var PICKABLE = { attr: 1, abil: 1, virt: 1, willpower: 1, morality: 1 };
+  var PICKABLE = { attr: 1, abil: 1, virt: 1, willpower: 1, morality: 1, disc: 1, bg: 1 };
   /* Willpower and Humanity/Path are rolled on their own (V20): picking one clears the other trait, and
      picking anything else drops them. Returns true when the trait was added. */
   var SOLO = { willpower: 1, morality: 1 };
@@ -8453,7 +8625,7 @@ V1.5
   function attack(c, w) {
     var r = R();
     if (!r || !r.mainOn()) return toast('Turn on the Main Roller in Settings > Modules to attack from here.');
-    var skill = w.kind === 'ranged' ? 'abil.firearms' : 'abil.melee', m = attackMods(w, c);
+    var skill = w.kind === 'ranged' ? 'abil.firearms' : w.natural ? 'abil.brawl' : 'abil.melee', m = attackMods(w, c);
     if (woundPenalty(c) === null) return toast((c.info.name || 'This character') + ' is Incapacitated and can\'t attack.');
     var wp = woundPenalty(c), mod = (wp || 0) + (m.attackPoolMod || 0) - (untrained(c, skill) === 'skill' ? 1 : 0);
     var pool = phys(c, 'dexterity') + val(c, skill);
@@ -8483,7 +8655,7 @@ V1.5
   function iniPayload(c, name) {
     var i = iniInfo(c);
     var tk = c.tracker || {}, joiner = !!(c.temp && c.temp.remote);
-    return { name: name, mod: i.mod, type: joiner ? 'player' : tk.type || '', cel: i.cel > 0, rev: !tk.type && !!tk.rev, ch: c.id, cd: i.cel, mn: i.note, wnd: i.wp };
+    return { name: name, mod: i.mod, type: joiner ? 'player' : tk.type || '', cel: i.cel > 0, rev: !tk.type && !!tk.rev, ch: c.id, cd: i.cel, bl: c.blood.cur + celPaidNow(c), mn: i.note, wnd: i.wp };
   }
   /* After each save, characters already in the tracker pick up new wounds, Celerity or Dexterity/Wits. */
   function syncInitiative() {
@@ -8506,13 +8678,19 @@ V1.5
   }
   function quickRollHTML(c) {
     var h = '<div class="qr-top"><span class="mod-lbl">Quick roll</span><span class="inline"><button type="button" class="btn small toggle qr-same" data-act="qrSame" aria-pressed="' + !!(store.ui && store.ui.qrSame) + '" data-tip="Off: picking an Attribute switches to Abilities (and back) for faster picks. On: stay on the same tab.">Same Type</button><span class="seg mini qr-tabs" role="group" aria-label="Trait type">' +
-      [['attr', 'Attributes'], ['abil', 'Abilities'], ['other', 'Other']].map(function (t) { return '<button type="button" data-act="qrTab" data-t="' + t[0] + '" aria-pressed="' + (qr.tab === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</span></span></div>';
+      [['attr', 'Attributes'], ['abil', 'Abilities'], ['virt', 'Virtues'], ['other', 'Other']].map(function (t) { return '<button type="button" data-act="qrTab" data-t="' + t[0] + '" aria-pressed="' + (qr.tab === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</span></span></div>';
     var groups = '';
     if (qr.tab === 'attr') Object.keys(ATTR_GROUPS).forEach(function (g) { groups += qrGroup(c, cap(g), ATTR_GROUPS[g].map(function (l) { return 'attr.' + keyOf(l); })); });
     else if (qr.tab === 'abil') {
       Object.keys(ABIL_GROUPS).forEach(function (g) { groups += qrGroup(c, cap(g), ABIL_GROUPS[g].map(function (l) { return 'abil.' + keyOf(l); }).filter(function (p) { return qr.all || val(c, p) > 0 || pb.a === p || pb.b === p; })); });
       if (!groups) groups = '<p class="muted small" style="margin:0">No Abilities with dots yet.</p>';
-    } else groups = qrGroup(c, 'Virtues', ['virt.conscience', 'virt.selfControl', 'virt.courage']) + qrGroup(c, 'Other', ['willpower', 'morality']);
+    } else if (qr.tab === 'virt') groups = qrGroup(c, 'Virtues', ['virt.conscience', 'virt.selfControl', 'virt.courage']) + qrGroup(c, 'Willpower & ' + esc(c.morality.name || 'Humanity'), ['willpower', 'morality']);
+    else {
+      var has = function (p) { return val(c, p) > 0 || pb.a === p || pb.b === p; };
+      groups = qrGroup(c, 'Disciplines', Object.keys(c.disc).sort().map(function (d) { return 'disc.' + d; }).filter(has)) +
+        qrGroup(c, 'Backgrounds', Object.keys(c.bg).sort().map(function (b) { return 'bg.' + b; }).filter(has));
+      if (!groups) groups = '<p class="muted small" style="margin:0">No Disciplines or Backgrounds with dots yet.</p>';
+    }
     h += '<div class="qr-grid">' + groups + '</div>';
     if (qr.tab === 'abil') h += '<div><button type="button" class="linkish small" data-act="qrAll">' + (qr.all ? 'Only show Abilities with dots' : 'Show all Abilities (to roll untrained)') + '</button></div>';
     var rec = (c.ui.recent || []).filter(function (x) { return x.a; });
@@ -8544,7 +8722,7 @@ V1.5
     html += '<div class="mod-rich">' + vitalsSection(c, true) + '</div>';
     html += '<div class="mod-compact"><div class="mod-sec"><div class="mod-row"><span class="mod-lbl">Health</span><span class="hboxes">' + boxes + '</span></div><span class="muted small">' + esc(status) + '</span>' +
       healthButtons(c) + '</div>' +
-      '<div class="mod-sec"><div class="mod-row flexwrap"><span class="mod-lbl">Blood</span><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1" aria-label="Spend blood">−</button><b class="mono">' + c.blood.cur + ' / ' + g.blood + '</b><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1" aria-label="Add blood">+</button><button class="btn small" data-act="soak">Soak</button><button class="btn small" data-act="boost">Boost</button>' + (hungry(c) ? '<span class="hungry">Hungry</span>' : '') + '</div>' + boostLine(c) +
+      '<div class="mod-sec"><div class="mod-row flexwrap"><span class="mod-lbl">Blood</span><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1" aria-label="Spend blood">−</button><b class="mono">' + c.blood.cur + ' / ' + g.blood + '</b><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1" aria-label="Add blood">+</button><button class="btn small" data-act="boost">Boost</button>' + (hungry(c) ? '<span class="hungry">Hungry</span>' : '') + '</div>' + boostLine(c) +
       '<div class="mod-row"><span class="mod-lbl">Willpower</span><button class="btn small" data-act="poolAdj" data-k="wp" data-d="-1" aria-label="Spend Willpower">−</button><b class="mono">' + c.willpower.cur + ' / ' + c.willpower.perm + '</b><button class="btn small" data-act="poolAdj" data-k="wp" data-d="1" aria-label="Regain Willpower">+</button></div>' +
       '<div class="small muted">Soak ' + (phys(c, 'stamina') + fort + ar) + ' bashing/lethal · ' + (fort + ar) + ' fangs/claws · ' + fort + ' fire/sun · Initiative ' + iniText(c) + '</div></div></div>';
     html += '<div class="mod-sec">' + quickRollHTML(c) + '</div>';
@@ -8605,6 +8783,66 @@ V1.5
       };
     });
   };
+  /* Defensive Maneuver (V20 p. 282): Block (Dexterity + Brawl), Dodge (Dexterity + Athletics), Parry (Dexterity + Melee),
+     rolled at once in the main roller as the defense in a resisted roll. Difficulty 6 unless the Storyteller called the roll
+     (then it's locked, and only modifiers change). Defending all turn: each defense after the first loses one die. */
+  var dfs = null;
+  var DEF_OPTS = [
+    ['block', 'Block', 'abil.brawl', 'Hand-to-hand bashing attacks. Lethal and aggravated ones only with Fortitude or worn armor.'],
+    ['dodge', 'Dodge', 'abil.athletics', 'Any attack, as long as there\'s room to move (or cover to reach, in a gunfight).'],
+    ['parry', 'Parry', 'abil.melee', 'Brawl or Melee attacks, with a weapon. Beating a Brawl attack with a lethal weapon can hurt the attacker.']
+  ];
+  actions.defend = function () { var c = cur(); if (!c) return; dfs = { diff: 6, dmod: 0, mod: 0, prior: 0 }; defendModal(c); };
+  function defendPool(c, o) {
+    var skill = o[2], wp = woundPenalty(c), arm = wornArmor(c), ap = arm ? (+arm.penalty || 0) : 0, auto = [], mod = 0;
+    if (wp) { mod += wp; auto.push('Wounds ' + wp); }
+    if (ap) { mod -= ap; auto.push('Armor −' + ap); }
+    if (untrained(c, skill) === 'skill') { mod -= 1; auto.push('Untrained −1'); }
+    disciplineBonus(c, ['attr.dexterity']).forEach(function (x) { mod += x[1]; if (x[1]) auto.push(x[0] + ' +' + x[1]); });
+    if (dfs.prior) { mod -= dfs.prior; auto.push('Full defense, defense ' + (dfs.prior + 1) + ' −' + dfs.prior); }
+    var base = phys(c, 'dexterity') + val(c, skill);
+    return { base: base, mod: mod, total: base + mod + dfs.mod, auto: auto, traits: 'Dexterity ' + phys(c, 'dexterity') + ' + ' + LABELS[split(skill)[1]] + ' ' + val(c, skill) };
+  }
+  function defendModal(c) {
+    var r = R(), lk = r && r.lockedDiff ? r.lockedDiff() : 0, incap = woundPenalty(c) === null;
+    var diff = lk || dfs.diff, eff = clamp(diff + dfs.dmod, 2, 10);
+    var step = function (k, lbl, v, hint, dis) {
+      return '<div class="def-step"><span class="def-lbl">' + lbl + '</span><span class="qr-diff"><button type="button" class="qr-step" data-dstep="' + k + '" data-d="-1" aria-label="Lower ' + lbl + '"' + (dis ? ' disabled' : '') + '>−</button><b>' + v + '</b><button type="button" class="qr-step" data-dstep="' + k + '" data-d="1" aria-label="Raise ' + lbl + '"' + (dis ? ' disabled' : '') + '>+</button></span>' + (hint ? '<small class="muted">' + hint + '</small>' : '') + '</div>';
+    };
+    var sg = function (n) { return (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n); };
+    var hasWeapon = c.weapons.some(function (w) { return w.equipped && w.kind === 'melee' && !w.natural; });
+    openModal('<h2>Defensive Maneuver</h2><p class="muted small">Rolled at once in the main roller, against the attacker\'s successes. Wound penalties, armor and Celerity are added for you.</p>' +
+      (incap ? '<p class="untrained-warn">' + esc(c.info.name || 'This character') + ' is Incapacitated and can\'t defend.</p>' : '') +
+      '<div class="def-steps">' +
+        step('diff', 'Difficulty', diff, lk ? 'Called by the Storyteller' : '', !!lk) +
+        step('dmod', 'Difficulty mod', sg(dfs.dmod), eff !== diff ? 'Rolls at ' + eff : '') +
+        step('mod', 'Dice mod', sg(dfs.mod), '') +
+        step('prior', 'Full defense', dfs.prior ? 'Defense ' + (dfs.prior + 1) : 'First', 'Defending all turn: −1 die per earlier defense') +
+      '</div><div class="soak-opts">' + DEF_OPTS.map(function (o) {
+        var p = defendPool(c, o), note = o[0] === 'parry' && !hasWeapon ? ' No melee weapon equipped.' : o[0] === 'block' && !(c.disc.Fortitude || wornArmor(c)) ? ' Bashing only, without Fortitude or armor.' : '';
+        return '<button type="button" class="soak-opt" data-def="' + o[0] + '"' + (incap || p.total < 1 ? ' disabled' : '') + '><span><b>' + o[1] + '</b><small>' + esc(p.traits) + (p.auto.length || dfs.mod ? ' · ' + esc(p.auto.concat(dfs.mod ? ['Mod ' + sg(dfs.mod)] : []).join(', ')) : '') + '</small><small>' + esc(o[3] + note) + '</small></span><span class="soak-n">' + Math.max(0, p.total) + '<small>dice</small></span></button>';
+      }).join('') + '</div><div class="acts"><button type="button" class="btn" id="mNo">Cancel</button></div>', 'cm-def');
+    $('mNo').onclick = closeModal;
+    Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-dstep]'), function (b) {
+      b.onclick = function () {
+        var k = b.dataset.dstep, d = +b.dataset.d;
+        if (k === 'diff') dfs.diff = clamp(dfs.diff + d, 2, 10);
+        else if (k === 'dmod') dfs.dmod = clamp(dfs.dmod + d, -8, 8);
+        else if (k === 'mod') dfs.mod = clamp(dfs.mod + d, -20, 20);
+        else dfs.prior = clamp(dfs.prior + d, 0, 9);
+        defendModal(c);
+        var again = $('cmModal').querySelector('[data-dstep="' + k + '"][data-d="' + d + '"]'); if (again && !again.disabled) again.focus();
+      };
+    });
+    Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-def]'), function (bt) {
+      bt.onclick = function () {
+        var o = DEF_OPTS.filter(function (x) { return x[0] === bt.dataset.def; })[0], p = defendPool(c, o), r2 = R(); closeModal();
+        if (!r2 || !r2.mainOn()) return toast('Turn on the Main Roller in Settings > Modules to roll defenses.');
+        r2.setMain({ pool: Math.max(1, p.base), diff: dfs.diff, spec: false, mod: p.mod + dfs.mod, dmod: dfs.dmod, ctx: { kind: 'generic', char: c.info.name || 'Unnamed', traits: p.traits, auto: p.auto, note: 'Defensive maneuver: ' + o[1] } });
+        setView('roller'); r2.rollMain();
+      };
+    });
+  }
   /* Boost: spend blood to raise Strength, Dexterity or Stamina for the scene (V20 p. 268). One turn's spending at most
      (per-turn limit from Generation); dots above the generational maximum + 1 only last 3 turns after spending stops; cap 10.
      A negative step ends boosted dots early (no blood back). */
@@ -8726,7 +8964,7 @@ V1.5
     if (store.view === 'chars' && cur() === c) renderSheet();
   };
   /* Host: a joiner's sheet can be looked at and rolled from, not changed. */
-  var RO_ACTS = { tab: 1, qrTab: 1, qrSame: 1, qrAll: 1, qrRecent: 1, pbSend: 1, pbRoll: 1, pbClear: 1, pbDiff: 1, pbAct: 1, qrefToggle: 1, attack: 1, goChars: 1, ruleGo: 1, soak: 1, newChar: 1, import: 1 };
+  var RO_ACTS = { tab: 1, qrTab: 1, qrSame: 1, qrAll: 1, qrRecent: 1, pbSend: 1, pbRoll: 1, pbClear: 1, pbDiff: 1, pbAct: 1, qrefToggle: 1, attack: 1, goChars: 1, ruleGo: 1, soak: 1, defend: 1, newChar: 1, import: 1 };
   function roBlock(e) {
     var c = cur(); if (!isReadOnly(c) || !e.target.closest || !e.target.closest('#cmView, #cmModule') || e.target.closest('#cmModal, #cmBar')) return false;
     var t = e.target, a = t.closest('[data-act]');
@@ -8767,6 +9005,7 @@ V1.5
   }
   function turnNow() { var r = R(); if (!r || !r.turnInfo) return null; var t = r.turnInfo(); return t.encounter && t.eid ? t : null; }
   function actingTag(c) { var t = turnNow(); return t && t.live && t.cur === c.id ? '<span class="cm-tag on acting" title="It\'s this character\'s turn in the Initiative tracker">Acting now</span>' : ''; }
+  function celPaidNow(c, t) { t = t || turnNow(); var p = c.celPaid; return t && t.live && p && p.eid === t.eid && p.round === t.round ? p.n : 0; }
   function celUsedNow(c) { var r = R(); return r && r.celUsed ? r.celUsed(c.id) : 0; }
   /* Blood spent this turn (one tracker round), for the per-turn limit set by Generation. */
   function spentNow(c) { var t = turnNow(), s = c.spent; return t && s && s.eid === t.eid && s.round === t.round ? s.n : 0; }
@@ -8813,6 +9052,16 @@ V1.5
       PHYS.forEach(function (k) { var lim = Math.max(free, c.attrs[k]); if (phys(c, k) > lim) { cut += phys(c, k) - lim; c.boost[k] = lim - c.attrs[k]; } });
       c.boostSpend = null; changed = true;
       if (cut) toast((c.info.name || 'Unnamed') + ': ' + cut + ' boosted dot' + (cut > 1 ? 's' : '') + ' above ' + free + ' wore off (3 turns without spending blood).');
+    });
+    /* Celerity (V20 p. 150): each extra action costs a blood point, paid when the round starts, beyond the Generation
+       per-turn limit. Joiners pay for their own characters on their own device. */
+    if (t && t.live) Object.keys(store.chars).forEach(function (id) {
+      var c = store.chars[id]; if (isRemote(c) || isReadOnly(c)) return;
+      var used = celUsedNow(c), paid = celPaidNow(c, t);
+      if (used <= paid) return;
+      var d = Math.min(used - paid, c.blood.cur);
+      c.blood.cur -= d; c.celPaid = { eid: t.eid, round: t.round, n: used }; changed = true;
+      if (d) toast((c.info.name || 'Unnamed') + ' spent ' + d + ' blood on Celerity (' + used + ' extra action' + (used > 1 ? 's' : '') + ').');
     });
     if (changed) save();
     renderBar(); renderModule();
@@ -8965,7 +9214,7 @@ V1.5
   }
   /* What this device has, as text per item. */
   function rollerBlob() { var r = R(); return r && r.rollerSnapshot ? { st: r.rollerSnapshot(), presets: r.presetsRaw() } : null; }
-  function cmBlob() { return JSON.stringify({ order: store.order, settings: store.settings, ui: store.ui || {} }); }
+  function cmBlob() { return JSON.stringify({ order: store.order, settings: store.settings, ui: store.ui || {}, lib: { folders: (store.lib || {}).folders || [], place: (store.lib || {}).place || {} } }); }
   function localItems() {
     var out = {};
     store.order.forEach(function (id) { var c = store.chars[id]; if (c && !c.temp && !c.share && /^[\w.-]{1,64}$/.test(id)) out['char:' + id] = JSON.stringify(c); });
@@ -9012,6 +9261,7 @@ V1.5
         store.order = ord;
         if (b.settings) { store.settings = b.settings; if (!store.settings.touched) store.settings.touched = {}; }
         if (b.ui) store.ui = b.ui;
+        if (b.lib) { store.lib = b.lib; normLib(); }
         changed = true;
       }
       acct.known['blob:cm'] = { m: cmIt.m, h: hashStr(cmIt.data || '') }; delete acct.dirty['blob:cm'];
@@ -9423,6 +9673,197 @@ V1.5
     }, true);
   };
 
+  /* ================= SHORT SUMMARIES: Backgrounds, Merits, Flaws ================= */
+  /* One-line summaries written for this app (not the book's text), shown on hover and in the right-click menu. */
+  var SUMS = {
+    bg: {
+      'Allies': 'Mortals who help you willingly (friends, family, an organization); more dots mean more or stronger allies.',
+      'Alternate Identity': 'A second identity with papers and a believable history; higher ratings hold up to closer scrutiny.',
+      'Black Hand Membership': 'Sabbat only: you belong to the Black Hand and can call on its members for help.',
+      'Contacts': 'People who feed you information: a few major contacts plus minor ones you can roll to reach.',
+      'Domain': 'Territory you control for feeding; adds dice to hunting there and makes it harder for others to intrude.',
+      'Fame': 'Recognition in mortal society; opens doors and lowers Social difficulties, but makes you easy to find.',
+      'Generation': 'How close your blood is to Caine: each dot lowers your Generation from 13th, raising blood pool and trait limits.',
+      'Herd': 'Mortals you can feed from safely; adds dice to hunting rolls.',
+      'Influence': 'Pull over mortal institutions (police, politics, business) to sway events in the city.',
+      'Mentor': 'An older Kindred who advises and protects you; higher ratings mean a more powerful patron.',
+      'Resources': 'Wealth and income: from just getting by to a fortune, with a monthly allowance.',
+      'Retainers': 'Loyal servants (often ghouls) who work for you.',
+      'Rituals': 'Sabbat only: you know the ritae and can lead them, as a pack priest needs to.',
+      'Status': 'Standing among the Kindred of your sect; adds weight to your word in Kindred society.'
+    },
+    merits: {
+      'Acute Sense': 'One sense is unusually sharp: −2 difficulty on rolls that use it.',
+      'Ambidextrous': 'No penalty for using your off hand.',
+      'Bruiser': 'You look menacing: lower difficulty to intimidate people who haven\'t seen you fight.',
+      'Catlike Balance': '−2 difficulty on balance rolls.',
+      'Early Riser': 'You wake earlier and need less rest than other Kindred.',
+      'Eat Food': 'You can eat and taste food to pass as human (no nourishment, and it comes back up later).',
+      'Friendly Face': 'You remind people of someone they like: −1 difficulty on fitting Social rolls with strangers.',
+      'Blush of Health': 'You look alive: warm color and skin, so you pass as human more easily.',
+      'Enchanting Voice': 'Your voice commands attention: −2 difficulty to persuade, charm or command by speaking.',
+      'Daredevil': 'Risky non-combat stunts get +3 dice and one botch die ignored.',
+      'Efficient Digestion': 'Feeding gives an extra blood point for every two taken (up to your max).',
+      'Huge Size': 'Very large: an extra Bruised health level and bonuses to feats of size.',
+      'Coldly Logical': 'You see through emotional coloring: −1 difficulty on related rolls.',
+      'Common Sense': 'The Storyteller warns you when you\'re about to do something foolish.',
+      'Concentration': 'Distractions (noise, lights, odd positions) don\'t penalize you.',
+      'Introspection': '+2 Perception dice against someone who shares your Nature or Demeanor.',
+      'Language': 'You know one extra language per purchase.',
+      'Time Sense': 'You always know roughly what time it is.',
+      'Useful Knowledge': 'Expertise an elder finds interesting, which keeps you useful (and protected) to them.',
+      'Code of Honor': 'A personal code: +2 dice on Willpower and Virtue rolls when acting by it.',
+      'Computer Aptitude': '−2 difficulty on rolls involving computers.',
+      'Eidetic Memory': 'You recall what you see and hear in perfect detail.',
+      'Light Sleeper': 'You wake instantly and alertly, ignoring daytime dice limits from Humanity or Path.',
+      'Natural Linguist': '+3 dice on language rolls; each Language Merit gives two languages.',
+      'Calm Heart': '+2 dice to resist frenzy. Not for Brujah.',
+      'Iron Will': 'Mind-affecting powers (Dominate, Dementation, magic) are at +3 difficulty against you.',
+      'Precocious': 'You learn Abilities in half the time and at half the XP cost.',
+      'Elysium Regular': 'You\'re a fixture at Elysium, so the city\'s movers and shakers know you.',
+      'Former Ghoul': 'You were a ghoul first: −1 difficulty on some Social rolls with neonates and on Kindred lore.',
+      'Harmless': 'Everyone sees you as no threat, which keeps you safe (until you prove otherwise).',
+      'Natural Leader': '+2 dice on Leadership rolls. Needs Charisma 3+.',
+      'Prestigious Sire': 'Your sire\'s great status rubs off on you, for better or worse.',
+      'Protégé': 'Your sire praised you before the Embrace: −1 difficulty on Social rolls with those who heard.',
+      'Rep': 'Your reputation, good or bad, is known beyond your own sect.',
+      'Sabbat Survivor': 'You lived through a Sabbat attack: −1 difficulty on Perception rolls about the Sabbat.',
+      'Boon': 'Someone owes you a favor; the cost sets how powerful they are.',
+      'Bullyboy': 'You\'re muscle for the Sheriff or Bishop, with the access and leeway that brings.',
+      'Old Pal': 'A friend from your mortal life was Embraced with you, and you look out for each other.',
+      'Lawman’s Friend': 'The Sheriff or Bishop likes you: minor offenses are overlooked and you get warnings.',
+      'Open Road': 'You travel safely between cities and have havens waiting along the way.',
+      'Sanctity': 'You seem pure and innocent: you\'re trusted and tend to get lighter punishments.',
+      'Scholar of Enemies': 'You studied one enemy group: −2 difficulty on non-combat rolls about them.',
+      'Scholar of Others': 'Like Scholar of Enemies, for a group that isn\'t hostile to your sect.',
+      'Friend of the Underground': 'You know the city\'s tunnels and sewers, and the Nosferatu tolerate you there.',
+      'Mole': 'An informer inside an enemy group passes you information.',
+      'Rising Star': 'An up-and-comer in your sect: −1 difficulty on Social rolls with Kindred not opposing you.',
+      'Broken Bond': 'You secretly broke a blood bond; your regnant still thinks you\'re bound.',
+      'Clan Friendship': 'One other clan likes you: −2 difficulty on friendly Social rolls with them.',
+      'Primogen/Bishop Friendship': 'The city\'s rulers value your opinion and consult you.',
+      'Deceptive Aura': 'Your aura is bright and colorful, so aura reading shows you as mortal.',
+      'Healing Touch': 'You can close feeding wounds with a touch instead of licking them.',
+      'Inoffensive to Animals': 'Animals don\'t flee from or attack you on sight.',
+      'Medium': 'You can sense and talk with ghosts.',
+      'Magic Resistance': 'Magic aimed at you is at +2 difficulty, helpful or not; you can never learn sorcery.',
+      'Hidden Diablerie': 'Diablerie leaves no black streaks in your aura.',
+      'Lucky': 'Reroll three failed rolls (botches included) per story, once each.',
+      'Oracular Ability': 'You read signs and omens for hints about the future.',
+      'Spirit Mentor': 'A ghostly companion advises and sometimes helps you.',
+      'True Love': 'A mortal you truly love; they steady you, but they\'re also a weakness.',
+      'Additional Discipline': 'One extra Discipline counts as a clan Discipline (XP costs too). Not for Caitiff.',
+      'Unbondable': 'You can\'t be blood bound. Not for Tremere.',
+      'Nine Lives': 'When a roll would kill you, it\'s rerolled; you have nine such chances.',
+      'True Faith': 'One dot of True Faith: holy power that adds dice to Willpower and Virtue rolls. Needs Humanity 9+.'
+    },
+    flaws: {
+      'Hard of Hearing': '+2 difficulty on rolls that depend on hearing.',
+      'Short': 'Very short: trouble with things made for adults, and half running speed.',
+      'Smell of the Grave': 'You smell of damp earth: +1 difficulty on Social rolls with mortals.',
+      'Tic/Twitch': 'A telltale nervous habit under stress; suppressing it costs a Willpower point.',
+      'Fourteenth Generation': 'Recently Embraced by a 13th-Generation sire: only 8 of your 10 blood points can power Disciplines, healing and boosts.',
+      'Fifteenth Generation': 'Very weak blood: most uses cost double blood, and you can\'t make ghouls, blood bonds or childer.',
+      'Disfigured': '+2 difficulty on Social rolls; Appearance 2 at most.',
+      'Dulled Bite': 'Your fangs never fully formed: feeding needs another way to draw blood, or double successes.',
+      'Infectious Bite': 'You can\'t lick feeding wounds closed, and they may infect your victims.',
+      'One Eye': '+2 difficulty on sight-based Perception and +1 on depth perception (ranged combat too).',
+      'Vulnerability to Silver': 'Silver weapons deal aggravated damage and its touch pains you.',
+      'Addiction': 'You need a substance (drugs, alcohol, adrenaline) in the blood you drink; it impairs you.',
+      'Child': 'Embraced as a child: limited Physical Attributes and trouble in the adult world.',
+      'Deformity': 'A deformity that hampers some physical actions and Social rolls.',
+      'Glowing Eyes': 'Eyes that glow like a storybook vampire: easier to intimidate, impossible to blend in.',
+      'Lame': 'Damaged legs: quarter walking speed and no running.',
+      'Lazy': 'You avoid effort, so you\'re often unprepared: higher difficulty on unplanned Physical actions.',
+      'Monstrous': 'The Embrace twisted you into a monster: Appearance 0. Not for Nosferatu.',
+      'Permanent Fangs': 'Your fangs never retract; Appearance 3 at most.',
+      'Permanent Wound': 'An Embrace injury that never healed: you rise each night at Wounded.',
+      'Slow Healing': 'Healing costs double blood, and aggravated damage heals far slower.',
+      'Disease Carrier': 'Your blood carries a deadly disease; it costs an extra blood point each night to hold it back.',
+      'Deaf': 'You can\'t hear: +3 difficulty on many Perception rolls.',
+      'Mute': 'You can\'t speak; you communicate by writing or sign language.',
+      'Thin Blood': 'Weak blood: blood costs double, no blood bonds, and siring rarely works.',
+      'Flesh of the Corpse': 'Healed wounds still show as cuts and holes, which makes Social dealings harder.',
+      'Infertile Vitae': 'Anyone you try to Embrace dies.',
+      'Blind': 'You can\'t see: +2 difficulty on Dexterity rolls, and visual cues are lost.',
+      'Deep Sleeper': 'Hard to wake: +2 difficulty on rolls to wake during the day.',
+      'Impatient': 'Forced to wait, you need a Self-Control roll to keep from acting on your own.',
+      'Nightmares': 'Horrible nightmares every day, and their memory can rattle you during the night.',
+      'Prey Exclusion': 'You refuse to feed on one kind of prey; doing it by accident means frenzy and a Humanity roll.',
+      'Shy': '+2 difficulty on Social rolls with strangers, +3 when you\'re the center of attention.',
+      'Soft-Hearted': 'You can\'t bear to cause suffering without a Willpower roll (difficulty 8). Needs Humanity 7+.',
+      'Speech Impediment': 'A stammer or similar: +2 difficulty on verbal communication.',
+      'Unconvinced': 'You don\'t buy your sect\'s core beliefs, and your superiors may notice.',
+      'Amnesia': 'You remember nothing of your past, which may come back to haunt you.',
+      'Lunacy': 'The moon stirs your Beast: +1 to +3 difficulty to avoid frenzy depending on its phase.',
+      'Phobia': 'An overpowering fear: roll Courage when facing it, or retreat.',
+      'Short Fuse': '+2 difficulty to avoid frenzy. Not for Brujah.',
+      'Stereotype': 'You act like a storybook vampire: +2 difficulty on Social rolls with other Kindred.',
+      'Territorial': 'Intruders in your hunting ground force a frenzy roll.',
+      'Thirst for Innocence': 'Innocence fills you with bloodlust: roll Self-Control or frenzy.',
+      'Vengeful': 'You hold a grudge and must pursue revenge when the chance comes.',
+      'Victim of the Masquerade': 'You refuse to believe you\'re a vampire, which makes feeding a struggle.',
+      'Weak-Willed': 'Dominate works on you easily and you\'re at +2 difficulty to resist Social pressure and mind magic.',
+      'Conspicuous Consumption': 'You believe you must eat your victims\' organs too, which usually kills them.',
+      'Guilt-Wracked': 'Feeding fills you with guilt: roll Conscience (difficulty 7) or frenzy each time.',
+      'Flashbacks': 'Old trauma makes your moods unpredictable and your Willpower unreliable.',
+      'Botched Presentation': 'You flubbed meeting the Prince: a Willpower roll just to face them.',
+      'Dark Secret': 'A secret that would make you an outcast if it got out.',
+      'Expendable': 'Someone in power wants you gone and sends you into danger.',
+      'Incomplete Understanding': 'You don\'t really get your sect\'s rules yet, and a mistake is coming.',
+      'Infamous Sire': 'Your sire is distrusted, and so are you.',
+      'Mistaken Identity': 'You look like another Kindred, often one with a bad reputation.',
+      'New Arrival': 'New in town: you know no one, and factions size you up.',
+      'New Kid': 'The newest Embrace in the city, at the bottom of the pecking order.',
+      'Recruitment Target': 'An enemy sect is determined to recruit you, by force if needed.',
+      'Sire’s Resentment': 'Your sire dislikes you and works against you.',
+      'Special Responsibility': 'A thankless duty you volunteered for and can\'t drop without losing face.',
+      'Sympathizer': 'You openly sympathize with your sect\'s enemies and are suspected of treason.',
+      'Enemy': 'Someone wants to harm you; the cost sets how powerful they are.',
+      'Bound': 'You\'re blood bound to another vampire. Not for Sabbat.',
+      'Catspaw': 'You did dirty work for someone powerful, who now wants you quiet (or gone).',
+      'Escaped Target': 'Someone else Embraced the mortal you chose: +2 difficulty to avoid frenzy when you see them.',
+      'Failure': 'You failed badly in a city office and are shunned for it.',
+      'Masquerade Breaker': 'Someone covered up your Masquerade breach and holds it over you.',
+      'Hunted': 'A fanatical hunter pursues you and anyone close to you.',
+      'Old Flame': 'Someone you loved is with the enemy; acting against them needs a roll.',
+      'Rival Sires': 'Two vampires wanted to Embrace you; the one who lost holds it against you and your sire.',
+      'Uppity': 'Your bragging made enemies: +2 difficulty on Social rolls with them.',
+      'Disgrace to the Blood': 'Your sire calls your Embrace a mistake, and everyone knows it.',
+      'Former Prince': 'You once ruled a city; the current Prince sees you as a threat.',
+      'Hunted Like a Dog': 'Another sect or group has marked you for destruction.',
+      'Narc': 'Known as an informer, so those you might inform on hate and mislead you.',
+      'Sleeping With the Enemy': 'An intimate tie to someone in an enemy sect or clan.',
+      'Clan Enmity': 'One other clan dislikes you: +2 difficulty on Social rolls with them.',
+      'Loathsome Regnant': 'You\'re blood bound to someone who mistreats you.',
+      'Overextended': 'You have too many holdings, and others want to cut you down to size.',
+      'Probationary Sect Member': 'A defector still proving yourself: distrusted, even by your allies.',
+      'Laughingstock': 'The Harpies mock you: +2 difficulty on Social rolls in Elysium, +1 elsewhere.',
+      'Red List': 'The Camarilla wants you destroyed; its members attack or call for help on sight.',
+      'Cast No Reflection': 'No reflection, like the vampires of legend. Lasombra have it already.',
+      'Cold Breeze': 'A chill wind follows you: +1 difficulty on Social rolls with mortals.',
+      'Repulsed by Garlic': 'The smell of garlic drives you away unless you pass a Willpower roll.',
+      'Touch of Frost': 'Plants wither near you and your touch is icy.',
+      'Cursed': 'A supernatural curse; the cost sets how bad it is.',
+      'Beacon of the Unholy': 'You radiate evil, and the devout sense it.',
+      'Deathsight': 'The world looks rotten to you: harder for Appearance to sway you, harder to perceive clearly.',
+      'Eerie Presence': 'Mortals sense what you are: +2 difficulty on Social rolls with them.',
+      'Lord of the Flies': 'Flies swarm around you: +1 difficulty on Social rolls, +2 on Stealth.',
+      'Can’t Cross Running Water': 'You can\'t cross running water unless you\'re high above it.',
+      'Haunted': 'An angry spirit, likely an early victim, harasses you.',
+      'Repelled by Crosses': 'A cross makes you flee unless you pass a Willpower roll (difficulty 9).',
+      'Grip of the Damned': 'Your Kiss brings terror instead of ecstasy, so victims fight you while you feed.',
+      'Dark Fate': 'You\'re doomed to Final Death or worse, and you get visions of it.',
+      'Light-Sensitive': 'Sunlight deals double damage, and direct moonlight can hurt you.'
+    }
+  };
+  function sumOf(k, name) {
+    var t = SUMS[k], n = normT(name);
+    if (!t || !name) return '';
+    for (var key in t) if (normT(key) === n) return t[key];
+    return '';
+  }
+
   /* ================= THE BOOK: page links and Merits & Flaws ================= */
   /* Uses the Rule Book's headings index ([depth, title, PDF page, extra]): no book text is copied here. */
   function bookIdx() { return (window.vtmRules && window.vtmRules.index) || []; }
@@ -9519,9 +9960,10 @@ V1.5
     var on = window.vtmRules && $('rulesBtn') && !$('rulesBtn').hidden;
     bookMenu = document.createElement('div');
     bookMenu.className = 'cm-ctx'; bookMenu.setAttribute('role', 'menu');
-    bookMenu.innerHTML = !on ? '<p class="cm-ctx-note">Turn on the Rule Book in Settings > UI Options to look this up.</p>' :
+    var bk = t.getAttribute('data-bk'), sm = t.getAttribute('data-sum') || (/^merit:/.test(bk) ? sumOf('merits', bk.slice(6)) : /^flaw:/.test(bk) ? sumOf('flaws', bk.slice(5)) : /^trait:bg\./.test(bk) ? sumOf('bg', bk.slice(9)) : '');
+    bookMenu.innerHTML = (sm ? '<p class="cm-ctx-sum">' + esc(sm) + '</p>' : '') + (!on ? '<p class="cm-ctx-note">Turn on the Rule Book in Settings > UI Options to look this up.</p>' :
       pages.length ? pages.map(function (pg) { return '<button type="button" role="menuitem" data-bkp="' + pg[1] + '">Look up ' + esc(pg[0]) + ' <span class="muted">p. ' + pg[1] + '</span></button>'; }).join('') :
-      '<p class="cm-ctx-note">Not found in the book’s index.</p>';
+      '<p class="cm-ctx-note">Not found in the book’s index.</p>');
     document.body.appendChild(bookMenu); bookMenu._t = Date.now();
     var w = bookMenu.offsetWidth, h = bookMenu.offsetHeight;
     bookMenu.style.left = Math.max(8, Math.min(e.clientX, window.innerWidth - w - 8)) + 'px';
@@ -9537,6 +9979,300 @@ V1.5
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && bookMenu) { e.stopPropagation(); closeBookMenu(); } }, true);
   window.addEventListener('scroll', function (e) { if (bookMenu && Date.now() - bookMenu._t > 300 && !bookMenu.contains(e.target)) closeBookMenu(); }, true);
   window.addEventListener('resize', closeBookMenu);
+
+  /* ================= CHARACTER BROWSER: cards and folders ================= */
+  /* Folders are pseudo-folders: store.lib.folders [{id, name, parent}] and store.lib.place {charId: folderId}. They sync
+     with the account (the "cm" item). When each character was last opened stays on this device (store.libSeen). */
+  function normLib() {
+    var L = store.lib && typeof store.lib === 'object' ? store.lib : {};
+    L.folders = Array.isArray(L.folders) ? L.folders.filter(function (f) { return f && f.id && typeof f.name === 'string'; }) : [];
+    L.place = L.place && typeof L.place === 'object' ? L.place : {};
+    var ids = {}; L.folders.forEach(function (f) { ids[f.id] = 1; });
+    L.folders.forEach(function (f) { if (!ids[f.parent]) f.parent = ''; });
+    Object.keys(L.place).forEach(function (k) { if (!ids[L.place[k]]) delete L.place[k]; });
+    store.lib = L;
+    if (!store.libSeen || typeof store.libSeen !== 'object') store.libSeen = {};
+    return L;
+  }
+  normLib();
+  var libOpen = false, libDir = '', libQ = '', libMenu = null, libEdit = null, libDest = '', libDrag = null;
+  var CLAN_HUE = { 'Assamite': 150, 'Brujah': 20, 'Followers of Set': 45, 'Gangrel': 95, 'Giovanni': 280, 'Lasombra': 250, 'Malkavian': 300, 'Nosferatu': 120, 'Ravnos': 30, 'Toreador': 330, 'Tremere': 0, 'Tzimisce': 200, 'Ventrue': 220, 'Caitiff': 260 };
+  function folderOf(id) { return store.lib.place[id] || ''; }
+  function folderById(id) { return store.lib.folders.filter(function (f) { return f.id === id; })[0] || null; }
+  function subFolders(pid) { return store.lib.folders.filter(function (f) { return f.parent === pid; }).sort(function (a, b) { return a.name.localeCompare(b.name); }); }
+  function folderPath(id) { var out = [], f = folderById(id), g = 0; while (f && g++ < 50) { out.unshift(f); f = folderById(f.parent); } return out; }
+  function isInside(id, anc) { var f = folderById(id), g = 0; while (f && g++ < 50) { if (f.id === anc) return true; f = folderById(f.parent); } return false; }
+  function placeIn(cid, fid) { if (fid && folderById(fid)) store.lib.place[cid] = fid; else delete store.lib.place[cid]; }
+  /* Characters the browser shows: your own, then ones shared with you. Encounter copies only in their own view. */
+  function libChars() { return store.order.concat((store.synced || []).filter(function (id) { return store.chars[id] && store.order.indexOf(id) < 0; })).filter(function (id) { return store.chars[id] && !store.chars[id].temp; }); }
+  function libCount(fid) { var n = 0, all = libChars(); all.forEach(function (id) { var f = folderOf(id); if (f === fid || isInside(f, fid)) n++; }); return n; }
+  function libSort(ids) {
+    var by = store.libSort || 'name', C = store.chars;
+    var nm = function (id) { return (C[id].info.name || 'Unnamed').toLowerCase(); };
+    return ids.slice().sort(function (a, b) {
+      if (by === 'recent') return (store.libSeen[b] || 0) - (store.libSeen[a] || 0) || nm(a).localeCompare(nm(b));
+      if (by === 'clan') return (C[a].info.clan || '~').localeCompare(C[b].info.clan || '~') || nm(a).localeCompare(nm(b));
+      return nm(a).localeCompare(nm(b));
+    });
+  }
+  function initials(n) { var w = String(n || '?').trim().split(/\s+/); return ((w[0] || '?').charAt(0) + (w.length > 1 ? w[w.length - 1].charAt(0) : '')).toUpperCase(); }
+  function avatar(c, cls) {
+    var h = (CLAN_HUE || {})[c.info.clan];
+    return '<span class="lib-av' + (cls ? ' ' + cls : '') + '"' + (h != null ? ' style="--h:' + h + '"' : ' data-none') + ' aria-hidden="true">' + esc(initials(c.info.name || 'Unnamed')) + '</span>';
+  }
+  function healthWord(c) { var t = Math.min(7, hTotal(c)); return t === 0 ? 'Healthy' : t === 7 ? 'Incap.' : HEALTH[t - 1][0]; }
+  function charCard(id) {
+    var c = store.chars[id], g = genInfo(c), recv = isReceived(c), tmp = isTemp(c), isCur = id === store.cur;
+    var tags = [];
+    if (c.tracker && c.tracker.type) tags.push('<span class="lib-tag ' + c.tracker.type + '">' + (c.tracker.type === 'player' ? 'Player' : 'Enemy') + '</span>');
+    if (recv) tags.push('<span class="lib-tag" title="Shared with you by ' + esc(c.share.owner || 'its owner') + '">Synced · ' + (c.share.role === 'edit' ? 'edit' : 'view') + '</span>');
+    else if (isShared(c)) tags.push('<span class="lib-tag">Sharing</span>');
+    if (tmp) tags.push('<span class="lib-tag">' + (isRemote(c) ? 'Joiner\'s sheet' : 'Encounter copy') + '</span>');
+    if (!c.creation.done) tags.push('<span class="lib-tag warn">In creation</span>');
+    var sub = [c.info.clan || 'No clan', ord(c.info.generation) + ' Gen'].concat(c.info.concept ? [c.info.concept] : []).join(' · ');
+    var discs = Object.keys(c.disc).filter(function (d) { return c.disc[d] > 0; }).sort(function (a, b) { return c.disc[b] - c.disc[a] || a.localeCompare(b); });
+    var hw = healthWord(c), xpA = xpAvail(c);
+    var path = libQ && folderOf(id) ? folderPath(folderOf(id)).map(function (f) { return f.name; }).join(' / ') : '';
+    return '<div class="lib-card' + (isCur ? ' cur' : '') + '" data-cid="' + id + '"' + (tmp ? '' : ' draggable="true"') + '>' +
+      '<button type="button" class="lib-open" data-lib="open" data-id="' + id + '" aria-label="Open ' + esc(c.info.name || 'Unnamed') + (isCur ? ' (open now)' : '') + '"></button>' +
+      '<div class="lib-card-top">' + avatar(c) + '<div class="lib-card-id"><b>' + esc(c.info.name || 'Unnamed') + '</b><small>' + esc(sub) + '</small></div>' +
+      (tmp ? '' : '<button type="button" class="lib-more" data-lib="cardMenu" data-id="' + id + '" aria-label="More for ' + esc(c.info.name || 'Unnamed') + '" aria-haspopup="menu">⋯</button>') + '</div>' +
+      (tags.length || isCur ? '<div class="lib-tags">' + (isCur ? '<span class="lib-tag on">Open now</span>' : '') + tags.join('') + '</div>' : '') +
+      '<dl class="lib-stats">' +
+        '<div><dt>Health</dt><dd class="' + (hTotal(c) ? 'hurt' : '') + '">' + hw + '</dd></div>' +
+        '<div><dt>Blood</dt><dd>' + c.blood.cur + '<span>/' + g.blood + '</span></dd></div>' +
+        '<div><dt><abbr title="Willpower">WP</abbr></dt><dd>' + c.willpower.cur + '<span>/' + c.willpower.perm + '</span></dd></div>' +
+        '<div><dt>' + esc(/humanity/i.test(c.morality.name || 'Humanity') ? 'Humanity' : 'Path') + '</dt><dd>' + c.morality.dots + '</dd></div>' +
+      '</dl>' +
+      '<div class="lib-foot">' + (discs.length ? '<p class="lib-disc">' + discs.slice(0, 3).map(function (d) { return esc(d) + ' ' + c.disc[d]; }).join(' · ') + (discs.length > 3 ? ' · +' + (discs.length - 3) : '') + '</p>' : '<p class="lib-disc muted">No Disciplines</p>') +
+      '<span class="lib-xp" title="XP available">' + xpA + ' XP</span></div>' +
+      (path ? '<p class="lib-path">In ' + esc(path) + '</p>' : '') +
+      '</div>';
+  }
+  function folderTile(f) {
+    var n = libCount(f.id), sf = subFolders(f.id).length;
+    if (libEdit && libEdit.id === f.id) return '<div class="lib-folder editing"><span class="lib-fico" aria-hidden="true"></span><input id="libEditIn" value="' + esc(f.name) + '" aria-label="Folder name" maxlength="60"></div>';
+    return '<div class="lib-folder" data-fid="' + f.id + '" draggable="true">' +
+      '<button type="button" class="lib-open" data-lib="dir" data-id="' + f.id + '" aria-label="Open folder ' + esc(f.name) + '"></button>' +
+      '<span class="lib-fico" aria-hidden="true"></span><span class="lib-fname"><b>' + esc(f.name) + '</b><small>' + n + ' character' + (n === 1 ? '' : 's') + (sf ? ' · ' + sf + ' folder' + (sf === 1 ? '' : 's') : '') + '</small></span>' +
+      '<button type="button" class="lib-more" data-lib="folderMenu" data-id="' + f.id + '" aria-label="More for folder ' + esc(f.name) + '" aria-haspopup="menu">⋯</button></div>';
+  }
+  function sideTree(pid, depth) {
+    return subFolders(pid).map(function (f) {
+      return '<li><button type="button" class="lib-nav' + (libDir === f.id && !libQ ? ' on' : '') + '" data-lib="dir" data-id="' + f.id + '" data-drop="' + f.id + '" style="--d:' + depth + '"' + (libDir === f.id && !libQ ? ' aria-current="true"' : '') + '><span class="lib-fico sm" aria-hidden="true"></span>' + esc(f.name) + '<span class="n">' + libCount(f.id) + '</span></button>' +
+        (subFolders(f.id).length ? '<ul>' + sideTree(f.id, depth + 1) + '</ul>' : '') + '</li>';
+    }).join('');
+  }
+  function libBody() {
+    var all = libChars(), enc = Object.keys(store.chars).filter(function (id) { return isTemp(store.chars[id]); }).concat(encounterIds().filter(function (id) { return !isTemp(store.chars[id]); }));
+    var syn = all.filter(function (id) { return isReceived(store.chars[id]); });
+    if (libDir === ':enc' && !enc.length) libDir = '';
+    if (libDir && libDir.charAt(0) !== ':' && !folderById(libDir)) libDir = '';
+    var nav = '<ul class="lib-tree"><li><button type="button" class="lib-nav' + (!libDir && !libQ ? ' on' : '') + '" data-lib="dir" data-id="" data-drop="" style="--d:0"' + (!libDir && !libQ ? ' aria-current="true"' : '') + '><span class="lib-home" aria-hidden="true"></span>All characters<span class="n">' + all.length + '</span></button>' +
+      (store.lib.folders.length ? '<ul>' + sideTree('', 1) + '</ul>' : '') + '</li></ul>' +
+      '<ul class="lib-tree lib-smart">' +
+      (syn.length ? '<li><button type="button" class="lib-nav' + (libDir === ':shared' && !libQ ? ' on' : '') + '" data-lib="dir" data-id=":shared" style="--d:0"><span class="lib-share" aria-hidden="true"></span>Shared with me<span class="n">' + syn.length + '</span></button></li>' : '') +
+      (enc.length ? '<li><button type="button" class="lib-nav' + (libDir === ':enc' && !libQ ? ' on' : '') + '" data-lib="dir" data-id=":enc" style="--d:0"><span class="lib-swords" aria-hidden="true"></span>In this encounter<span class="n">' + enc.length + '</span></button></li>' : '') + '</ul>';
+    var crumbs, folders = [], cards, empty = '';
+    if (libQ) {
+      var q = libQ.toLowerCase();
+      cards = libSort(all.filter(function (id) { var c = store.chars[id]; return [c.info.name, c.info.clan, c.info.concept, c.info.nature, c.info.demeanor, c.info.player].join(' ').toLowerCase().indexOf(q) >= 0; }));
+      crumbs = '<span class="lib-crumb now">Search: “' + esc(libQ) + '”</span>';
+      if (!cards.length) empty = 'No characters match “' + esc(libQ) + '”.';
+    } else if (libDir === ':shared') {
+      crumbs = '<span class="lib-crumb now">Shared with me</span>'; cards = libSort(syn);
+    } else if (libDir === ':enc') {
+      crumbs = '<span class="lib-crumb now">In this encounter</span>'; cards = enc;
+    } else {
+      var p = folderPath(libDir);
+      crumbs = '<button type="button" class="lib-crumb" data-lib="dir" data-id="" data-drop="">All characters</button>' + p.map(function (f, i) {
+        return '<span class="lib-sep" aria-hidden="true">/</span>' + (i === p.length - 1 ? '<span class="lib-crumb now">' + esc(f.name) + '</span>' : '<button type="button" class="lib-crumb" data-lib="dir" data-id="' + f.id + '" data-drop="' + f.id + '">' + esc(f.name) + '</button>');
+      }).join('');
+      folders = subFolders(libDir);
+      cards = libSort(all.filter(function (id) { return folderOf(id) === libDir; }));
+      if (libEdit && libEdit.isNew && libEdit.parent === libDir) folders = folders.concat([{ id: libEdit.id, name: '', parent: libDir }]);
+      if (!folders.length && !cards.length) empty = libDir ? 'This folder is empty. Drag characters here, or use ⋯ › Move to on a card.' : 'No characters yet. Make one with New character.';
+    }
+    var h = '<nav class="lib-side" aria-label="Folders">' + nav + '</nav><section class="lib-main" aria-label="Characters"><div class="lib-crumbs">' + crumbs + '</div>';
+    if (folders.length) h += '<h3 class="lib-h">Folders</h3><div class="lib-fgrid">' + folders.map(folderTile).join('') + '</div>';
+    if (cards.length) h += (folders.length ? '<h3 class="lib-h">Characters</h3>' : '') + '<div class="lib-grid">' + cards.map(charCard).join('') + '</div>';
+    if (empty) h += '<p class="lib-empty">' + empty + '</p>';
+    return h + '</section>';
+  }
+  function ensureLibDom() {
+    if ($('cmLibBack')) return;
+    var d = document.createElement('div');
+    d.className = 'cm-lib-back cm'; d.id = 'cmLibBack'; d.hidden = true;
+    d.innerHTML = '<div class="cm-lib" role="dialog" aria-modal="true" aria-labelledby="cmLibTitle">' +
+      '<header class="lib-head"><h2 id="cmLibTitle">Characters</h2>' +
+      '<div class="lib-tools"><input type="search" id="libQ" placeholder="Search name, clan, concept…" aria-label="Search characters">' +
+      '<label class="vh" for="libSort">Sort</label><select id="libSort"><option value="name">Name</option><option value="recent">Recently opened</option><option value="clan">Clan</option></select>' +
+      '<button type="button" class="btn" data-lib="newFolder">New folder</button><button type="button" class="btn primary" data-lib="newChar">New character</button></div>' +
+      '<button type="button" class="icon-btn lib-x" data-lib="close" aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></header>' +
+      '<div class="lib-body" id="libBody"></div></div>';
+    document.body.appendChild(d);
+    d.addEventListener('click', libClick);
+    d.addEventListener('mousedown', function (e) { if (e.target === d) d._down = true; });
+    d.addEventListener('mouseup', function (e) { if (e.target === d && d._down) closeLib(); d._down = false; });
+    $('libQ').addEventListener('input', function () { libQ = this.value.trim(); renderLib(); });
+    $('libSort').addEventListener('change', function () { store.libSort = this.value; save(); renderLib(); });
+    d.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        if (!$('cmModalBack').hidden) return;
+        e.stopPropagation(); e.preventDefault();
+        if (libMenu) return closeLibMenu();
+        if (libEdit) { libEdit = null; return renderLib(); }
+        if (libQ) { libQ = ''; $('libQ').value = ''; return renderLib(); }
+        closeLib();
+      }
+    });
+    /* Drag characters and folders onto folders (tiles, the sidebar or the breadcrumbs). */
+    d.addEventListener('dragstart', function (e) {
+      var card = e.target.closest && e.target.closest('[data-cid],[data-fid]'); if (!card) return;
+      libDrag = card.dataset.cid ? { cid: card.dataset.cid } : { fid: card.dataset.fid };
+      e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', card.dataset.cid || card.dataset.fid); } catch (x) {}
+      card.classList.add('dragging');
+    });
+    d.addEventListener('dragend', function () { libDrag = null; d.querySelectorAll('.dragging, .drop-on').forEach(function (x) { x.classList.remove('dragging', 'drop-on'); }); });
+    function dropTarget(e) {
+      var t = e.target.closest && e.target.closest('[data-drop], .lib-folder[data-fid]'); if (!t || !libDrag) return null;
+      var fid = t.hasAttribute('data-drop') ? t.getAttribute('data-drop') : t.dataset.fid;
+      if (libDrag.fid && (fid === libDrag.fid || isInside(fid, libDrag.fid))) return null;
+      return { el: t, fid: fid };
+    }
+    d.addEventListener('dragover', function (e) { var t = dropTarget(e); if (!t) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; d.querySelectorAll('.drop-on').forEach(function (x) { if (x !== t.el) x.classList.remove('drop-on'); }); t.el.classList.add('drop-on'); });
+    d.addEventListener('dragleave', function (e) { var t = e.target.closest && e.target.closest('.drop-on'); if (t && !t.contains(e.relatedTarget)) t.classList.remove('drop-on'); });
+    d.addEventListener('drop', function (e) {
+      var t = dropTarget(e); if (!t) return; e.preventDefault();
+      if (libDrag.cid) moveChar(libDrag.cid, t.fid); else moveFolder(libDrag.fid, t.fid);
+      libDrag = null;
+    });
+  }
+  function renderLib() {
+    if (!libOpen) return;
+    var scroll = document.querySelector('.lib-main'), st = scroll ? scroll.scrollTop : 0;
+    closeLibMenu();
+    $('libBody').innerHTML = libBody();
+    $('libSort').value = store.libSort || 'name';
+    var m = document.querySelector('.lib-main'); if (m) m.scrollTop = st;
+    var inp = $('libEditIn');
+    if (inp) {
+      inp.focus(); inp.select();
+      var done = false, finish = function (keep) {
+        if (done) return; done = true;
+        var name = inp.value.trim().slice(0, 60), ed = libEdit; libEdit = null;
+        if (keep && name) {
+          if (ed.isNew) store.lib.folders.push({ id: ed.id, name: name, parent: ed.parent });
+          else { var f = folderById(ed.id); if (f) f.name = name; }
+          save();
+        }
+        renderLib();
+        var tile = document.querySelector('.lib-folder[data-fid="' + ed.id + '"] .lib-open'); if (tile) tile.focus();
+      };
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); finish(true); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); } });
+      inp.addEventListener('blur', function () { finish(true); });
+    }
+  }
+  function openLib() {
+    ensureLibDom(); libOpen = true; libQ = ''; $('libQ').value = '';
+    var c = cur(); libDir = c && !c.temp ? folderOf(c.id) : (c && c.temp ? ':enc' : '');
+    $('cmLibBack').hidden = false; renderLib();
+    var on = document.querySelector('.lib-card.cur .lib-open') || $('libQ'); if (on) on.focus();
+  }
+  function closeLib() {
+    if (!libOpen) return;
+    libOpen = false; libEdit = null; closeLibMenu(); $('cmLibBack').hidden = true;
+    var b = document.querySelector('#cmBar .cm-cur'); if (b) b.focus();
+  }
+  function openChar(id) {
+    if (!store.chars[id]) return;
+    store.cur = id; store.libSeen[id] = Date.now(); xpMode = false; tabEdit = {}; inline = null;
+    closeLib(); commit(); window.scrollTo({ top: 0 });
+  }
+  function moveChar(cid, fid) {
+    if (!store.chars[cid] || store.chars[cid].temp) return;
+    placeIn(cid, fid); save(); renderLib();
+    var f = folderById(fid); toast((store.chars[cid].info.name || 'Unnamed') + ' moved to ' + (f ? f.name : 'All characters') + '.');
+  }
+  function moveFolder(id, to) {
+    var f = folderById(id); if (!f || id === to || isInside(to, id)) return;
+    f.parent = to && folderById(to) ? to : ''; save(); renderLib();
+  }
+  function deleteFolder(id) {
+    var f = folderById(id); if (!f) return;
+    Object.keys(store.lib.place).forEach(function (k) { if (store.lib.place[k] === id) placeIn(k, f.parent); });
+    store.lib.folders.forEach(function (x) { if (x.parent === id) x.parent = f.parent; });
+    store.lib.folders = store.lib.folders.filter(function (x) { return x.id !== id; });
+    if (libDir === id) libDir = f.parent;
+    save(); renderLib(); toast('Folder “' + f.name + '” deleted. What was in it moved up.');
+  }
+  /* Small menus for cards and folders (Move to, Rename, Delete). */
+  function closeLibMenu() { if (libMenu) { var b = libMenu._from; libMenu.remove(); libMenu = null; if (b && document.body.contains(b)) b.focus(); } }
+  function showLibMenu(btn, html) {
+    if (libMenu) { libMenu.remove(); libMenu = null; }
+    var m = document.createElement('div'); m.className = 'cm-ctx lib-menu'; m.setAttribute('role', 'menu'); m.innerHTML = html; m._from = btn;
+    $('cmLibBack').appendChild(m); libMenu = m;
+    var r = btn.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight;
+    m.style.left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8)) + 'px';
+    m.style.top = (r.bottom + 6 + h > window.innerHeight - 8 ? Math.max(8, r.top - h - 6) : r.bottom + 6) + 'px';
+    var f = m.querySelector('button'); if (f) f.focus();
+  }
+  function moveList(cur0, attr, exclude) {
+    function rows(pid, d) {
+      return subFolders(pid).filter(function (f) { return !exclude || (f.id !== exclude && !isInside(f.id, exclude)); }).map(function (f) {
+        return '<button type="button" role="menuitem" data-lib="' + attr + '" data-to="' + f.id + '" style="padding-left:' + (10 + d * 14) + 'px"' + (f.id === cur0 ? ' disabled' : '') + '><span>' + esc(f.name) + '</span>' + (f.id === cur0 ? '<span class="muted">here</span>' : '') + '</button>' + rows(f.id, d + 1);
+      }).join('');
+    }
+    return '<p class="cm-ctx-note">Move to</p><button type="button" role="menuitem" data-lib="' + attr + '" data-to=""' + (!cur0 ? ' disabled' : '') + '><span>All characters (top level)</span>' + (!cur0 ? '<span class="muted">here</span>' : '') + '</button>' + rows('', 1) +
+      '<button type="button" role="menuitem" data-lib="' + attr + 'New"><span>New folder…</span></button>';
+  }
+  function libClick(e) {
+    var b = e.target.closest ? e.target.closest('[data-lib]') : null;
+    if (libMenu && !(e.target.closest && e.target.closest('.lib-menu'))) { closeLibMenu(); if (b && (b.dataset.lib === 'cardMenu' || b.dataset.lib === 'folderMenu')) return; }
+    if (!b || b.disabled) return;
+    var a = b.dataset.lib, id = b.dataset.id;
+    if (a === 'close') return closeLib();
+    if (a === 'open') return openChar(id);
+    if (a === 'dir') { libDir = id; libQ = ''; $('libQ').value = ''; return renderLib(); }
+    if (a === 'newFolder') { libQ = ''; $('libQ').value = ''; if (libDir.charAt(0) === ':') libDir = ''; libEdit = { id: 'f' + uid().slice(1), isNew: true, parent: libDir }; return renderLib(); }
+    if (a === 'newChar') { libDest = libDir.charAt(0) === ':' ? '' : libDir; closeLib(); return newCharModal(); }
+    if (a === 'cardMenu') {
+      var c = store.chars[id];
+      libMenu = null;
+      showLibMenu(b, '<button type="button" role="menuitem" data-lib="open" data-id="' + id + '"><span>Open</span></button>' + moveList(folderOf(id), 'mvChar').replace(/data-lib="mvChar/g, 'data-id="' + id + '" data-lib="mvChar'));
+      return;
+    }
+    if (a === 'folderMenu') {
+      var f = folderById(id), n = libCount(id);
+      showLibMenu(b, '<button type="button" role="menuitem" data-lib="rename" data-id="' + id + '"><span>Rename</span></button>' +
+        '<button type="button" role="menuitem" data-lib="delFolder" data-id="' + id + '"><span>Delete folder</span></button>' +
+        moveList(f.parent, 'mvFolder', id).replace(/data-lib="mvFolder/g, 'data-id="' + id + '" data-lib="mvFolder'));
+      return;
+    }
+    if (a === 'mvChar') { closeLibMenu(); return moveChar(id, b.dataset.to); }
+    if (a === 'mvFolder') { closeLibMenu(); return moveFolder(id, b.dataset.to); }
+    if (a === 'mvCharNew' || a === 'mvFolderNew') {
+      closeLibMenu();
+      var nf = { id: 'f' + uid().slice(1), name: 'New folder', parent: a === 'mvFolderNew' ? (folderById(id) || {}).parent || '' : (libDir.charAt(0) === ':' ? '' : libDir) };
+      store.lib.folders.push(nf);
+      if (a === 'mvCharNew') placeIn(id, nf.id); else { var mf = folderById(id); if (mf) mf.parent = nf.id; }
+      save(); libDir = nf.parent; libEdit = { id: nf.id }; return renderLib();
+    }
+    if (a === 'rename') { closeLibMenu(); libEdit = { id: id }; return renderLib(); }
+    if (a === 'delFolder') {
+      var fd = folderById(id), cnt = libCount(id), parent = folderById(fd.parent);
+      showLibMenu(b._from || document.querySelector('.lib-folder[data-fid="' + id + '"] .lib-more') || b, '<p class="cm-ctx-note">Delete “' + esc(fd.name) + '”?' + (cnt || subFolders(id).length ? ' What\'s in it moves to ' + esc(parent ? parent.name : 'All characters') + '. No characters are deleted.' : '') + '</p>' +
+        '<button type="button" role="menuitem" class="danger" data-lib="delYes" data-id="' + id + '"><span>Delete folder</span></button><button type="button" role="menuitem" data-lib="menuX"><span>Cancel</span></button>');
+      return;
+    }
+    if (a === 'delYes') { libMenu && (libMenu._from = null); closeLibMenu(); return deleteFolder(id); }
+    if (a === 'menuX') return closeLibMenu();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (!libMenu || (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')) return;
+    var items = [].slice.call(libMenu.querySelectorAll('button:not([disabled])')), i = items.indexOf(document.activeElement);
+    e.preventDefault(); var n = items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length]; if (n) n.focus();
+  });
 
   /* ================= RANDOM CHARACTER GENERATOR ================= */
   /* Builds a finished Kindred by the V20 creation budgets (7/5/3, 13/9/5, 3 Disciplines, 5 Backgrounds, 7 Virtues,
@@ -9617,6 +10353,74 @@ V1.5
       eyes: pick(GEN_EYES), nationality: pick(fit.nat)
     };
   }
+  /* Merits/Flaws that don't fit a generated Kindred, and pairs that can't go together. */
+  var GEN_MF_SKIP = { merits: ['Additional Discipline', 'True Faith', 'Hidden Diablerie'], flaws: ['Fourteenth Generation', 'Fifteenth Generation', 'Thin Blood', 'Child'] };
+  var GEN_MF_CLAN_SKIP = { 'Nosferatu': ['Friendly Face', 'Blush of Health', 'Monstrous'], 'Lasombra': ['Cast No Reflection'] };
+  var GEN_MF_CLASH = [['Light Sleeper', 'Deep Sleeper'], ['Acute Sense', 'Hard of Hearing'], ['Acute Sense', 'Deaf'], ['Acute Sense', 'Blind'], ['Hard of Hearing', 'Deaf'], ['One Eye', 'Blind'], ['Friendly Face', 'Disfigured'], ['Friendly Face', 'Deformity'], ['Huge Size', 'Short'], ['Iron Will', 'Weak-Willed'], ['Harmless', 'Bullyboy'], ['Natural Linguist', 'Speech Impediment']];
+  function genMF(c, k, target, maxCost) {
+    var clan = c.info.clan, fitNames = (GEN_MF[clan] || { m: [], f: [] })[k === 'merits' ? 'm' : 'f'], gen = GEN_MF._[k === 'merits' ? 'm' : 'f'];
+    var skip = GEN_MF_SKIP[k].concat(GEN_MF_CLAN_SKIP[clan] || []).map(normT);
+    var have = function () { return c.merits.concat(c.flaws).map(function (x) { return normT(x.name); }); };
+    var clash = function (n) { var h = have(); return GEN_MF_CLASH.some(function (p) { var a = normT(p[0]), b = normT(p[1]); return (n === a && h.indexOf(b) >= 0) || (n === b && h.indexOf(a) >= 0); }); };
+    var left = target, guard = 0;
+    while (left > 0 && c[k].length < 6 && guard++ < 50) {
+      var room = Math.min(left, maxCost), h = have();
+      var pool = bookMF()[k].filter(function (x) { var n = normT(x.name); return x.lo <= room && skip.indexOf(n) < 0 && h.indexOf(n) < 0 && !clash(n); });
+      if (!pool.length) break;
+      /* Clan picks first, then the common ones; anything else in the book now and then. Exact fits are favored near the end. */
+      var x = wpick(pool.map(function (e) {
+        var n = normT(e.name), w = fitNames.map(normT).indexOf(n) >= 0 ? 8 : gen.map(normT).indexOf(n) >= 0 ? 3 : 0.5;
+        if (room <= 3 && e.lo <= room && e.hi >= room) w *= 2;
+        return [e, w];
+      }));
+      var cost = x.lo === x.hi ? x.lo : rnd(x.lo, Math.min(x.hi, room));
+      c[k].push({ id: rid(), name: x.name, cost: cost }); left -= cost;
+    }
+  }
+  /* Carried equipment: weapons from the book's charts that suit the character's skills and clan, Feral Claws with Protean 2+,
+     and armor when the character is a fighter. */
+  var GEN_SOCIAL = { 'Toreador': 1, 'Ventrue': 1, 'Followers of Set': 1, 'Giovanni': 1, 'Tremere': 1, 'Malkavian': 1 };
+  var GEN_MELEE = { Knife: 4, Club: 2, Sword: 1, Axe: 1, Sap: 1, Stake: 0.6 };
+  var GEN_MELEE_CLAN = { 'Brujah': { Club: 3, Knife: 1 }, 'Gangrel': { Axe: 3, Knife: 1 }, 'Assamite': { Sword: 4, Knife: 2 }, 'Lasombra': { Sword: 2 }, 'Tzimisce': { Knife: 2, Axe: 1 }, 'Nosferatu': { Club: 2, Sap: 2 }, 'Caitiff': { Club: 2, Knife: 1 }, 'Ravnos': { Knife: 3 } };
+  function genWeaponW(c, w) {
+    var n = w.name, k = w.kind, f = c.abil.firearms || 0, wt;
+    if (k === 'melee') wt = (GEN_MELEE[n] || 0.5) + ((GEN_MELEE_CLAN[c.info.clan] || {})[n] || 0);
+    else {
+      wt = /^Pistol, Lt/.test(n) ? 4 : /^Revolver, Lt/.test(n) ? 2 : /^Pistol, Hvy/.test(n) ? (f >= 3 ? 4 : 2) : /^Revolver, Hvy/.test(n) ? 1 :
+        /^SMG, Small/.test(n) ? (f >= 3 ? 1.5 : 0.3) : /^SMG, Large/.test(n) ? (f >= 4 ? 1 : 0.1) : /^Shotgun/.test(n) ? (f >= 2 ? 1.5 : 0.4) :
+        /^Rifle/.test(n) ? ((c.abil.survival || 0) >= 2 || c.info.clan === 'Gangrel' ? 2 : 0.3) : /^Assault/.test(n) ? (f >= 4 ? 0.8 : 0.05) : /crossbow/i.test(n) ? 0.4 : 0.5;
+    }
+    if (GEN_SOCIAL[c.info.clan]) wt *= w.conceal === 'P' || w.conceal === 'J' ? 2 : w.conceal === 'N' ? 0.2 : 0.7;
+    return wt;
+  }
+  function genGear(c, list) {
+    var out = [], ab = c.abil, melee = ab.melee || 0, fire = ab.firearms || 0, brawl = ab.brawl || 0;
+    function take(kind) {
+      var pool = (list || []).filter(function (w) { return w.kind === kind && !out.some(function (o) { return o.base === w.name; }); });
+      if (!pool.length) return;
+      var bw = wpick(pool.map(function (w) { return [w, genWeaponW(c, w)]; }));
+      out.push({ id: rid(), name: bw.name, base: bw.name, kind: bw.kind, diff: 6, dmg: bw.dmg, type: bw.type, conceal: bw.conceal || '', range: bw.range || '', rate: bw.rate || '', capacity: bw.capacity || '', blunt: !!bw.blunt, stake: !!bw.stake, auto: !!bw.auto, equipped: true });
+    }
+    if ((c.disc.Protean || 0) >= 2 && chance(c.info.clan === 'Gangrel' ? 0.9 : 0.7))
+      out.push({ id: rid(), name: 'Feral Claws', kind: 'melee', natural: true, diff: 6, dmg: 'Str+1', type: 'A', conceal: '', equipped: true });
+    /* The stronger skill goes first, so it gets its weapon before the cap of 3. */
+    var order = fire > melee ? ['ranged', 'melee'] : ['melee', 'ranged'];
+    order.forEach(function (k) {
+      var r = k === 'ranged' ? fire : melee;
+      if (r >= 1 && out.length < 3) take(k);
+      if (r >= 3 && out.length < 3 && chance(0.4)) take(k);
+    });
+    if (!out.length && chance(0.35)) take('melee');
+    c.weapons = out.slice(0, 3);
+    /* Armor fits fighters; socialites stick to the lighter classes. */
+    var score = fire + melee + brawl + (ab.athletics || 0), p = score >= 9 ? 0.75 : score >= 6 ? 0.5 : score >= 4 ? 0.2 : 0;
+    if (chance(p)) {
+      var cls = score >= 12 && chance(0.2) ? 3 : fire >= 3 || score >= 9 ? wpick([[1, 1], [2, 2], [2, 2]]) : wpick([[0, 3], [1, 2]]);
+      if (GEN_SOCIAL[c.info.clan]) cls = Math.min(cls, 1);
+      var a = ARMOR_CLASSES[cls];
+      c.armor = [{ id: rid(), name: a[0], rating: a[1], penalty: a[2], equipped: true }];
+    }
+  }
   function generateKindred(opt) {
     var clan = opt.clan || pick(Object.keys(CLANS)), fit = GEN_FIT[clan], c = blankKindred('');
     c.info.clan = clan;
@@ -9654,13 +10458,11 @@ V1.5
     spread(CREATION.virt, ['conscience', 'selfControl', 'courage'], function () { return 1; }, function (k) { return c.virt[k]; }, function (k, v) { c.virt[k] = v; }, function () { return 5; });
     syncDerived(c);
 
-    /* Merits and Flaws (optional): one Flaw sometimes, one Merit sometimes, from the book's list. */
+    /* Merits and Flaws (optional): Flaws first (they pay for Merits), each up to its target points and max cost. */
     if (opt.mf) {
-      var mf = bookMF(), lists = GEN_MF[clan] || { m: [], f: [] };
-      var fpool = lists.f.concat(GEN_MF._.f).map(function (n) { return mfFind('flaws', n); }).filter(function (x) { return x && x.lo <= 3; });
-      var mpool = lists.m.concat(GEN_MF._.m).map(function (n) { return mfFind('merits', n); }).filter(function (x) { return x && x.lo <= 3; });
-      if (fpool.length && chance(0.55)) { var fl = pick(fpool); c.flaws.push({ id: rid(), name: fl.name, cost: fl.lo }); }
-      if (mpool.length && chance(0.6)) { var mr = pick(mpool.filter(function (x) { return !c.flaws.some(function (f) { return normT(f.name) === normT(x.name); }); })); if (mr) c.merits.push({ id: rid(), name: mr.name, cost: mr.lo }); }
+      var fT = clamp(+opt.mf.flawPts || 0, 0, 7), mT = clamp(+opt.mf.meritPts || 0, 0, CREATION.freebies + fT);
+      genMF(c, 'flaws', fT, clamp(+opt.mf.flawMax || 1, 1, 7));
+      genMF(c, 'merits', Math.min(mT, CREATION.freebies + Math.min(7, flawTotal(c))), clamp(+opt.mf.meritMax || 1, 1, 7));
     }
     /* Freebie points (15 plus Flaws, minus Merits), weighted toward what fits. */
     var fb = c.creation.fb, guard = 0;
@@ -9742,31 +10544,75 @@ V1.5
         c.xp.log.push({ type: 'spend', p: pp, label: labelOf(c, pp), from: from, to: from + 1, cost: cst, t: t0 + (++n) });
       }
     }
+    if (opt.gear) genGear(c, opt.weapons);
     c.ui = { tab: 'play' };
     return c;
   }
+  /* The generator's last choices (Merits & Flaws, equipment) are remembered on this device. */
+  function genPrefs() {
+    var d = { mf: true, meritMax: 3, meritPts: 3, flawMax: 3, flawPts: 3, gear: true };
+    try { var p = JSON.parse(localStorage.getItem('vtm-gen') || 'null'); if (p) Object.keys(d).forEach(function (k) { if (p[k] != null) d[k] = p[k]; }); } catch (e) {}
+    return d;
+  }
+  function genSwitch(id, on, title, sub) {
+    return '<label class="switch gn-sw" for="' + id + '"><input type="checkbox" role="switch" id="' + id + '"' + (on ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>' + title + '</strong><small>' + sub + '</small></span></label>';
+  }
+  function genNum(id, label, v, min, max, hint) {
+    return '<label class="fld">' + label + '<input type="number" id="' + id + '" min="' + min + '" max="' + max + '" step="1" value="' + v + '" inputmode="numeric"' + (hint ? ' aria-describedby="' + id + 'H"' : '') + '>' + (hint ? '<small class="muted" id="' + id + 'H">' + hint + '</small>' : '') + '</label>';
+  }
+  function genWeapNote() {
+    var el = $('gnEqNote'); if (!el) return;
+    var st = bookW.state;
+    el.textContent = st === 'ready' ? '' : st === 'error' ? 'The weapons charts couldn\'t be read (' + (bookW.msg || 'no rulebook') + '). Characters still get Feral Claws and armor where they fit.' : 'Reading the weapons charts from the rulebook…';
+    el.hidden = st === 'ready';
+  }
   function genModal(base) {
-    var clans = Object.keys(CLANS);
+    var clans = Object.keys(CLANS), pr = genPrefs();
     openModal('<h2>Random Character Generator</h2><p class="muted small">Rolls a finished ' + esc(base.tmpl.name) + ' by the V20 creation rules, leaning on what fits the clan. Backstory and Story Progression stay empty; only Aesthetics are filled in Details.</p>' +
       '<label class="fld">Name<input id="gnName" placeholder="Leave blank for a random name" value="' + esc(base.name) + '"></label>' +
-      '<label class="fld">Clan<select id="gnClan"><option value="">Random</option>' + clans.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></label>' +
-      '<label class="fld">XP to spend<input type="number" id="gnXp" min="0" step="1" value="0" inputmode="numeric"><small class="muted">Logged as earned XP, then spent on traits that fit the character. 0 for a fresh neonate.</small></label>' +
-      '<label class="chk"><input type="checkbox" id="gnMF" checked> Include Merits &amp; Flaws</label>' +
+      '<div class="gn-row"><label class="fld">Clan<select id="gnClan"><option value="">Random</option>' + clans.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></label>' +
+      genNum('gnXp', 'XP to spend', 0, 0, 2000) + '</div>' +
+      '<p class="muted small gn-hint">XP is logged as earned, then spent on traits that fit the character. 0 makes a fresh neonate.</p>' +
+      genSwitch('gnMF', pr.mf, 'Merits &amp; Flaws', 'Picked from the book\'s list, leaning on what suits the clan.') +
+      '<fieldset class="gn-sub" id="gnMFOpts"' + (pr.mf ? '' : ' hidden') + '><legend class="vh">Merits and Flaws options</legend><div class="gn-grid">' +
+        genNum('gnMMax', 'Max Merit cost', pr.meritMax, 1, 7) + genNum('gnMPts', 'Merit points to spend', pr.meritPts, 0, 22) +
+        genNum('gnFMax', 'Max Flaw cost', pr.flawMax, 1, 7) + genNum('gnFPts', 'Flaw points to gain', pr.flawPts, 0, 7) +
+      '</div><p class="muted small">Flaws give up to 7 extra freebie points. Merits are paid from freebie points, so they can use up to 15 plus what Flaws give.</p></fieldset>' +
+      genSwitch('gnEq', pr.gear, 'Carried equipment', 'Up to 3 weapons (Feral Claws with Protean 2+) and armor, when they fit the character.') +
+      '<p class="muted small gn-note" id="gnEqNote" role="status" hidden></p>' +
       '<div class="acts"><button type="button" class="btn" id="mBack">Back</button><span style="flex:1"></span><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Generate</button></div>', 'cm-gen');
     $('gnName').focus();
-    $('mNo').onclick = closeModal;
-    $('mBack').onclick = function () { newCharModal({ name: $('gnName').value, tag: base.tag, start: 'random' }); };
-    $('mOk').onclick = function () {
+    $('gnMF').addEventListener('change', function () { $('gnMFOpts').hidden = !this.checked; });
+    var startWeapons = function () { if ($('gnEq').checked) { if (bookW.state === 'idle') ensureBookWeapons(); genWeapNote(); } else $('gnEqNote').hidden = true; };
+    $('gnEq').addEventListener('change', startWeapons); startWeapons();
+    var poll = setInterval(function () { if (!$('gnEqNote')) return clearInterval(poll); if ($('gnEq').checked) genWeapNote(); }, 500);
+    var num = function (id, lo, hi) { var v = parseInt($(id).value, 10); return isNaN(v) ? null : clamp(v, lo, hi); };
+    $('mNo').onclick = function () { clearInterval(poll); closeModal(); };
+    $('mBack').onclick = function () { clearInterval(poll); newCharModal({ name: $('gnName').value, tag: base.tag, start: 'random' }); };
+    var go = function () {
       var xp = parseInt($('gnXp').value, 10);
       if (isNaN(xp) || xp < 0) { $('gnXp').focus(); return toast('XP must be 0 or more.'); }
-      var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, xp: Math.min(xp, 2000), mf: $('gnMF').checked });
+      var mf = $('gnMF').checked, gear = $('gnEq').checked;
+      var o = { meritMax: num('gnMMax', 1, 7), meritPts: num('gnMPts', 0, 22), flawMax: num('gnFMax', 1, 7), flawPts: num('gnFPts', 0, 7) };
+      if (mf) for (var k in o) if (o[k] == null) { $(k === 'meritMax' ? 'gnMMax' : k === 'meritPts' ? 'gnMPts' : k === 'flawMax' ? 'gnFMax' : 'gnFPts').focus(); return toast('Fill in the Merits & Flaws numbers.'); }
+      /* Equipment waits for the weapons charts if they're still being read. */
+      if (gear && bookW.state === 'loading') {
+        $('mOk').disabled = true; $('mOk').textContent = 'Waiting for the weapons…';
+        var w = setInterval(function () { if (bookW.state !== 'loading') { clearInterval(w); if ($('mOk')) { $('mOk').disabled = false; go(); } } }, 300);
+        return;
+      }
+      clearInterval(poll);
+      try { localStorage.setItem('vtm-gen', JSON.stringify({ mf: mf, meritMax: o.meritMax, meritPts: o.meritPts, flawMax: o.flawMax, flawPts: o.flawPts, gear: gear })); } catch (e) {}
+      var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, xp: Math.min(xp, 2000), mf: mf ? o : null, gear: gear, weapons: bookW.state === 'ready' ? bookW.list : null });
       c.template = base.tmpl.id; c.tracker.type = base.tag;
       store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
+      if (libDest) { placeIn(c.id, libDest); libDest = ''; }
       closeModal(); commit(); window.scrollTo({ top: 0 });
       var left = xpAvail(c);
       toast(c.info.name + ', ' + c.info.clan + ', is ready' + (xp ? ' (' + (xp - left) + ' XP spent' + (left ? ', ' + left + ' left' : '') + ')' : '') + '.');
     };
-    ['gnName', 'gnXp'].forEach(function (id) { $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); }); });
+    $('mOk').onclick = go;
+    ['gnName', 'gnXp'].forEach(function (id) { $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); }); });
   }
 
   function fillLists() {
