@@ -103,3 +103,17 @@ V1.5.4
 
 V1.6
 -Added "Rule Book" button to the top right of the page. This let's you load the core rule book PDF for VTM v20, and it acts as a PDF Viewer of it, with built-in indexes for ease of search.
+
+V2
+-General Changes:
+	All numbered input fields now select the whole input when clicked.
+-Rule Book Changes:
+	-Added a new "Exact" search button to look for exact words and sentences within the PDF.
+	-Made it possible to select text within the PDF (consequently allowing to copy said selection).
+-Main Roller Changes:
+	-Added an "Action" input field to the roller. This one represents a given action's number in a chain of multiple actions. The final dice pool is divided by this number, rounded down. If the dice pool would be 0 due to this, the action cannot be performed.
+-Added Character Manager:
+	-An entire manager for character sheets that includes everything in the Sheet Template from the book, and more.
+	-This addition hooks directly into the main roller, including rolls, and even initiative.
+	-Added a new Module called "Character" which let's the user have easy access to a chosen character for the sake of playing and rolling using their attributes.
+-Implemented Account Sign-in and remote data storage. With an account signed in, all settings and data are now stored in server, rather than just your browser/cookies.
