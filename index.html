@@ -1014,17 +1014,14 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 .share-who small { color: var(--muted); font-size: 0.82rem; overflow-wrap: anywhere; }
 .share-row select { height: 32px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); color: var(--fg); font: inherit; font-size: 0.9rem; }
 .share-who { align-items: flex-start; text-align: left; }
-/* Called rolls */
+/* Room rolls */
 .ini-rolls { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 4px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
 .ini-rolls[hidden] { display: none; }
 .ir-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .ir-head .label { margin-right: auto; }
 .ir-head .btn-sec { height: 36px; padding: 0 12px; font-size: 0.9rem; }
 .ir-head .btn-sec:disabled { opacity: 0.45; cursor: not-allowed; }
-.ir-diff { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--muted); }
-.ir-diff b { min-width: 1.6em; text-align: center; font: 600 1rem/1 var(--font-data); color: var(--fg); }
 .ir-status { margin: 0; font-size: 0.9rem; }
-.ir-status.ir-you { padding: 6px 10px; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; background: var(--well); }
 .ir-last { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
 .ir-last > .label { flex-basis: 100%; }
 .rh-who { font-weight: 600; }
@@ -1378,6 +1375,123 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
   .rt-col + .rt-col { border-left: 0; }
   .rt-bar button { min-width: 36px; height: 36px; }
 }
+/* XP log: collapsible, paged */
+.xp-log-box > summary { display: flex; align-items: baseline; gap: 10px; cursor: pointer; list-style: none; padding: 4px 0; }
+.xp-log-box > summary::-webkit-details-marker { display: none; }
+.xp-log-box > summary::before { content: "▸"; color: var(--muted); transition: transform 0.15s; display: inline-block; }
+.xp-log-box[open] > summary::before { transform: rotate(90deg); }
+.xp-log-box > summary h3.sub { margin: 0; }
+.xp-log-box > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.xp-pager { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+/* Friends hosting */
+.fr-join { white-space: nowrap; }
+/* Show Progression: dot colours by source */
+:root { --xpc: #5aa7e0; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --xpc: #1f6aa8; } }
+:root[data-theme="light"] { --xpc: #1f6aa8; }
+.dot.pg-x::before { background: var(--xpc); border-color: var(--xpc); }
+.prog-wrap { margin-left: auto; display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+.prog-sw { margin: 0; }
+.pg-legend { display: inline-flex; gap: 12px; font-size: 0.8rem; color: var(--muted); }
+.pg-legend > span { display: inline-flex; align-items: center; gap: 5px; }
+.pg-legend .dot { display: inline-grid; place-items: center; width: 14px; height: 14px; pointer-events: none; }
+.pg-legend .dot::before { width: 11px; height: 11px; }
+@media (max-width: 640px) { .prog-wrap { margin-left: 0; width: 100%; justify-content: space-between; } }
+/* Deterioration */
+.amt.det { color: var(--danger); }
+.xp-det .what b { color: var(--danger); }
+.det-note { margin: 0 0 12px; padding: 8px 12px; border: 1px solid var(--danger); border-radius: 8px; color: var(--fg); font-size: 0.9rem; }
+.pg-det { align-self: center; margin-left: 4px; font: 700 0.75rem/1 var(--font-data); color: var(--danger); white-space: nowrap; }
+/* XP planning */
+.dot.pl::before { background: var(--accent); border-color: var(--accent); }
+.xp-btns { display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.plan-modal { max-width: 620px; }
+.plan-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 55vh; overflow-y: auto; }
+.plan-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); }
+.plan-row.dragging { opacity: 0.5; }
+.plan-row.over { border-color: var(--accent); box-shadow: 0 -2px 0 var(--accent); }
+.plan-grip { cursor: grab; color: var(--muted); font-size: 1.1rem; user-select: none; }
+.plan-txt { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.plan-bad { color: var(--danger); }
+.plan-cost { font: 600 0.85rem/1 var(--font-data); white-space: nowrap; }
+.plan-btns { display: inline-flex; align-items: center; gap: 4px; }
+.plan-btns .fr-ic:disabled { opacity: 0.35; cursor: default; }
+.plan-sum { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 0.95rem; }
+.plan-lack b { color: var(--danger); }
+.plan-ok { color: var(--muted); }
+@media (max-width: 640px) {
+  .plan-row { flex-wrap: wrap; }
+  .plan-txt { flex-basis: calc(100% - 90px); }
+  .plan-btns { width: 100%; justify-content: flex-end; }
+}
+/* Portraits */
+.lib-av.has-img { padding: 0; overflow: hidden; background: var(--surface-2); }
+.lib-av.has-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.info-wrap { display: flex; gap: 18px; align-items: flex-start; }
+.info-wrap > .info-view, .info-wrap > .info-grid { flex: 1; min-width: 0; }
+.portrait { flex: none; width: 132px; height: 132px; padding: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--line-strong); background: var(--surface-2); display: grid; place-items: center; }
+button.portrait { cursor: zoom-in; }
+.portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.portrait.empty { border-style: dashed; color: var(--muted); font: 600 0.85rem/1.3 var(--font-body); cursor: pointer; gap: 2px; align-content: center; }
+.portrait.empty span { font-size: 1.5rem; }
+.portrait.empty:hover { border-color: var(--accent); color: var(--fg); }
+.portrait-ed { flex: none; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.portrait-btns { display: flex; gap: 6px; }
+.img-modal { max-width: 560px; }
+.portrait-big { display: block; width: 100%; max-width: 512px; aspect-ratio: 1; object-fit: cover; border-radius: 12px; margin: 4px auto 0; }
+.crop-modal { max-width: 420px; }
+.crop-wrap { display: grid; place-items: center; margin: 6px 0 10px; }
+#cropCv { border-radius: 10px; cursor: grab; touch-action: none; background: repeating-conic-gradient(var(--surface-2) 0 25%, var(--surface) 0 50%) 0 0 / 20px 20px; box-shadow: 0 0 0 1px var(--line-strong); }
+#cropCv:active { cursor: grabbing; }
+#cropCv:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.crop-zoom input { width: 100%; }
+@media (max-width: 640px) {
+  .info-wrap { flex-direction: column; align-items: center; }
+  .info-wrap > .info-view, .info-wrap > .info-grid { width: 100%; }
+}
+/* Room rolls: notes, each die, Hide Roll */
+.ir-head .label { margin-right: 0; }
+.ir-note { margin-right: auto; color: var(--muted); font-size: 0.82rem; }
+.rh-dice { display: inline-flex; flex-wrap: nowrap; gap: 3px; vertical-align: middle; }
+.rh-d { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 3px; border-radius: 4px; border: 1px solid var(--line-strong); background: var(--bg); font: 600 0.78rem/1 var(--font-data); color: var(--muted); }
+.rh-d.hit { color: var(--fg); border-color: var(--fg); }
+.rh-d.ten { background: var(--fg); color: var(--bg); }
+.rh-d.one { color: var(--danger); border-color: var(--danger); }
+.rh-dmore { position: relative; cursor: help; text-decoration: underline dotted; text-underline-offset: 3px; }
+.rh-dmore:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+.rh-dpop { display: none; position: absolute; left: 0; top: calc(100% + 6px); z-index: 20; width: max-content; max-width: min(320px, 80vw); flex-wrap: wrap; gap: 3px; padding: 8px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3); }
+.rh-dmore:hover .rh-dpop, .rh-dmore:focus .rh-dpop { display: flex; }
+.roll-row { display: flex; gap: 8px; }
+.roll-row > .roll { flex: 1; min-width: 0; }
+.roll-row > .quick { flex: none; width: 76px; }
+.dmg-roll-row > .roll { width: auto; }
+.quick.hide-roll[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.cm-gen .gn-cls-row.gn-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cm-gen #gnGenHint { margin: 6px 0 0; min-height: 1.3em; }
+.roll-row.with-hide > .quick { width: 64px; font-size: 0.82rem; }
+.roll-row.with-hide > .roll { font-size: 1.35rem; padding: 0 6px; }
+/* Details tab: collapsible sections, Backgrounds and Derangements */
+details.fold-sec { display: block; }
+details.fold-sec > * + * { margin-top: 12px; }
+details.fold-sec > summary, details.fold-item > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; border-radius: 6px; }
+details.fold-sec > summary::-webkit-details-marker, details.fold-item > summary::-webkit-details-marker { display: none; }
+details.fold-sec > summary::before, details.fold-item > summary::before { content: "▸"; color: var(--muted); flex: none; display: inline-block; transition: transform 0.15s; }
+details.fold-sec[open] > summary::before, details.fold-item[open] > summary::before { transform: rotate(90deg); }
+details.fold-sec > summary:focus-visible, details.fold-item > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+details.fold-sec:not([open]) { padding-top: 14px; padding-bottom: 14px; }
+details.bgx { display: block; }
+details.bgx > summary h3 { flex: 1; }
+.fold-body { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+details.der { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; background: var(--well); }
+details.der + details.der, details.der + .der { margin-top: 8px; }
+details.der > summary { font-weight: 600; }
+details.der > summary .cm-nm { flex: 1; }
+details.der .book-text p { margin: 0 0 8px; }
+details.der .book-text p:last-child { margin-bottom: 0; }
+details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.der-ed { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--well); }
+.der-ed + .der-ed { margin-top: 8px; }
+.der-ed .row-ed input { flex: 1; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -1503,6 +1617,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
       <div class="roll-row">
         <button class="roll" type="submit" id="rollBtn">Roll</button>
         <button class="quick" type="button" id="quickBtn" aria-label="Roll a single d10, ignoring the pool, difficulty, modifiers, Specialty and Botch" title="Single Roll: one d10, nothing else applies. Shift+click adds a die to the last roll, Shift+right-click removes the last die.">Single<br>Roll</button>
+        <button class="quick hide-roll" type="button" id="hideRollBtn" aria-pressed="false" hidden title="Hide Roll: while on, your rolls aren&#39;t sent to the room. Turns off when you leave the room.">Hide<br>Roll</button>
       </div>
 
       <div class="field presets">
@@ -1674,7 +1789,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
           </div>
         </div>
 
-        <button type="button" class="roll" id="dmgRollBtn">Roll damage</button>
+        <div class="roll-row dmg-roll-row"><button type="button" class="roll" id="dmgRollBtn">Roll damage</button><button class="quick hide-roll" type="button" id="dmgHideRoll" aria-pressed="false" hidden title="Hide Roll: while on, your rolls aren&#39;t sent to the room. Turns off when you leave the room.">Hide<br>Roll</button></div>
 
         <div class="field presets">
           <h3 class="pre-h">
@@ -2188,7 +2303,6 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
         st.ini.eid = isFinite(+saved.ini.eid) ? +saved.ini.eid : 0;   // CHARACTERS-MODULE
         st.ini.rolls = Array.isArray(saved.ini.rolls) ? saved.ini.rolls.filter(function (r) { return r && typeof r === 'object'; }).slice(-200) : [];
         st.ini.rseq = isFinite(+saved.ini.rseq) ? +saved.ini.rseq : st.ini.rolls.length;
-        st.ini.call = saved.ini.call && typeof saved.ini.call === 'object' && saved.ini.call.target ? saved.ini.call : null;
       }
     }
   } catch (e) {}
@@ -2492,7 +2606,6 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
   var curRoll = null;   // the finished roll in the tray, which Single Roll can add dice to or take dice from
   function doRoll(animate, sample) {
     if (timer) { clearInterval(timer); timer = null; }
-    if (lockedDiff()) applyDiffLock();   // CHARACTERS-MODULE: a called roll keeps the Storyteller's difficulty
     if (animate) prepSound();
     var n = effPool();
     if (n < 1) return;
@@ -3852,7 +3965,6 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
   }
 
   function rollDamage(animate, sample) {
-    if (lockedDiff()) applyDiffLock();   // CHARACTERS-MODULE
     var total = dmgTotal();
     if (total < 1) return;
     var roll = {
@@ -4216,7 +4328,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
      Put the address of your deployed sync server here, for example 'wss://vtm-sync.your-name.workers.dev'. */
   var SYNC_URL = 'wss://vtm-sync.alexadia.com';
   var hostWs = null, hostInfo = null, watchWs = null, remote = null, hostRetry = 0, syncPing = 0;
-  var rollCtx = null, dmgCtx = null, joinCall = null;   // CHARACTERS-MODULE: what the next roll is (from a sheet), and a call aimed at this joiner
+  var rollCtx = null, dmgCtx = null;   // CHARACTERS-MODULE: what the next roll is (from a sheet)
   var ROLLER_LOCAL = ['ini', 'pool', 'diff', 'mod', 'dMod', 'dmgPool', 'dmgDiff', 'dmgMod', 'dmgDMod', 'want', 'action', 'spec', 'dmgSpec', 'botch', 'dmgBotch', 'botchPrev', 'dmgBotchPrev', 'diffInput', 'dmgDiffInput', 'module', 'presetsOpen', 'dmgPresetsOpen', 'dmgPlanOpen', 'presetsH', 'dmgPresetsH', 'actorSort', 'actorDesc', 'actorPresets', 'sound'];   // CHARACTERS-MODULE: this device and this moment (current roll, open panels, sound), not synced to the account
   window.vtmSyncUrl = SYNC_URL;   // CHARACTERS-MODULE: the account API lives on the same server
   /* CHARACTERS-MODULE:BEGIN join-state */
@@ -4244,10 +4356,8 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
       (by[a.ow] = by[a.ow] || []).push({ k: a.id, cid: a.rc || '', mod: a.mod, mn: a.mn || '', wnd: a.wnd || 0, ix: a.ix || 0, cd: a.cd || 0, bl: a.bl == null ? null : a.bl, ca: a.ca || 0, cu: a.cu || 0, cel: !!a.cel, ap: a.applied || 0 });
     });
     Object.keys(privSent).forEach(function (pid) { if (!by[pid]) by[pid] = []; });
-    var ct = ini.call && ini.call.target !== 'host' ? ini.call.target : null;
-    if (ct && !by[ct]) by[ct] = [];
     Object.keys(by).forEach(function (pid) {
-      var msg = { rows: by[pid], call: ct === pid ? { d: ini.call.diff || 0, n: ini.call.name, ts: ini.call.ts || 0 } : null }, text = JSON.stringify(msg);
+      var msg = { rows: by[pid] }, text = JSON.stringify(msg);
       if (privSent[pid] === text) return;
       privSent[pid] = text;
       try { hostWs.send(JSON.stringify({ t: 'priv', to: pid, s: msg })); } catch (e) {}
@@ -4291,6 +4401,8 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     if (watching !== !!$('initPanel')._cmWatch) { $('initPanel')._cmWatch = watching; closeActors(false); }   // CHARACTERS-MODULE: the list changes mode
     else renderInit();   // the host's "Enemy" hints come and go with the room
     if (hosting) $('syncHostCode').textContent = hostInfo.code;
+    if (window.cmHostChanged) window.cmHostChanged(hosting ? hostInfo.code : '');   // CHARACTERS-MODULE: tells friends
+    if (typeof renderRollPanel === 'function') renderRollPanel();   // CHARACTERS-MODULE: Hide Roll, room rolls
   }
   function syncOpen(query) {
     if (!SYNC_URL) { syncMsg('Sync has not been set up on this copy of the page yet.'); return null; }
@@ -4312,8 +4424,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     return {
       r: ini.round,
       l: ini.live, e: ini.encounter ? (ini.eid || 1) : 0,   // CHARACTERS-MODULE
-      cr: ini.call ? { n: ini.call.pub || ini.call.name, d: ini.call.diff || 0, own: !!ini.call.own } : null,
-      lr: lastPub(),
+      lr: lastPub(), rh: pubHist(),
       c: curAt >= 0 ? pubName(cur) : '',
       z: ini.celerity,
       rows: ord.all.map(function (a) {
@@ -4387,7 +4498,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
 
   function leaveWatching(note) {
     var w = watchWs;
-    watchWs = null; remote = null; mineRows = {}; lrInit = false; claimSent = false; setJoinCall(null);
+    watchWs = null; remote = null; mineRows = {}; lrInit = false; claimSent = false; $('rollsPop').hidden = true; renderRollPanel();
     if (window.cmInitChanged) window.cmInitChanged();   // CHARACTERS-MODULE
     if (w) { try { w.close(); } catch (err) {} }
     syncMsg(note || '');
@@ -4420,7 +4531,6 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
       } else if (m.t === 'priv' && ws === watchWs) {   // CHARACTERS-MODULE: this joiner's own actors
         mineRows = {};
         (m.s && Array.isArray(m.s.rows) ? m.s.rows : []).slice(0, 60).forEach(function (x) { if (x && isFinite(+x.k)) mineRows[+x.k] = x; });
-        setJoinCall(m.s && m.s.call ? { diff: clamp(Math.round(+m.s.call.d || 0), 0, 30), name: String(m.s.call.n || '').slice(0, 24), ts: +m.s.call.ts || 0 } : null);
         renderRemote();
       } else if (m.t === 'closed' && ws === watchWs) {
         leaveWatching(m.reason === 'host-closed' ? 'The host closed the room.' : 'The host left, so the room closed.');
@@ -4439,40 +4549,30 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
   $('syncCode').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
   $('syncLeave').addEventListener('click', function () { leaveWatching('You left the room.'); });
   /* CHARACTERS-MODULE:BEGIN called-rolls */
-/* ---- Called rolls ----
-     The Storyteller (the host, or anyone running the tracker) calls for a roll from whoever is acting, with a base
-     difficulty, or calls their own roll. The next roll by the one called is recorded: joiners see the outcome (successes,
-     damage to apply, damage soaked), the host sees everything (traits, Specialty, pool, modifiers, difficulty). Rolls
-     made without a call stay private. While a roll with a difficulty is called, the roller's difficulty is locked. */
-  if (!isFinite(+st.callDiff)) st.callDiff = 6;
+/* ---- Room rolls ----
+     While this page is in a room (hosting it, or joined), every roll from the main roller and the damage module goes to
+     the room's roll history, unless Hide Roll is on. The host's rolls show as the Storyteller's; a joiner's show as
+     their character in the tracker (with several, the one active in the Characters module). Joiners see who rolled and
+     the outcome (successes, damage to apply, damage soaked); the host sees everything, each die included. */
   var KIND_LBL = { generic: 'Generic roll', damage: 'Damage roll', soak: 'Soak roll' };
   function escH(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
-  /* The difficulty the Storyteller set for this page's next roll, or 0. */
-  function lockedDiff() {
-    if (!ini) return 0;   // the page's first sample rolls happen before the tracker is set up
-    if (watchWs) return joinCall && joinCall.diff ? joinCall.diff : 0;
-    return ini.call && ini.call.target === 'host' && ini.call.diff ? ini.call.diff : 0;
-  }
-  var lockNote = null, wasLocked = 0;
-  function applyDiffLock() {
-    var d = lockedDiff();
-    if (d) {
-      if (d > 10 && st.m20) { st.diff = clamp(d, 2, 30); st.diffInput = true; } else st.diff = clamp(d, 2, 10);
-      st.dmgDiff = clamp(d, 2, 10);
-      syncControls(); syncDmg();
-    }
-    ['chips', 'diffInBox', 'diffPlus', 'dmgChips', 'dmgDiffInBox', 'dmgDiffPlus'].forEach(function (id) {
-      var el = $(id); if (!el) return;
-      el.classList.toggle('diff-locked', !!d);
-      Array.prototype.forEach.call(el.querySelectorAll('input, button'), function (x) { x.disabled = !!d; });
-      if (el.tagName === 'BUTTON') el.disabled = !!d || el.hidden;
+  function lockedDiff() { return 0; }   // nothing locks the difficulty any more (kept for the Characters module)
+  function inRoom() { return !!(hostInfo || watchWs); }
+  /* Hide Roll: this page's rolls stay private. Off by default, never saved, and off again once the room is left. */
+  var hideRoll = false;
+  function applyHideRoll() {
+    var on = inRoom();
+    if (!on) hideRoll = false;
+    ['hideRollBtn', 'dmgHideRoll'].forEach(function (id) {
+      var b = $(id); if (!b) return;
+      b.hidden = !on; b.setAttribute('aria-pressed', String(hideRoll));
+      b.closest('.roll-row').classList.toggle('with-hide', on);
     });
-    if (!lockNote) { lockNote = document.createElement('p'); lockNote.className = 'hint diff-lock-note'; $('chips').parentNode.insertBefore(lockNote, $('chips')); }
-    lockNote.hidden = !d;
-    lockNote.textContent = d ? 'The Storyteller called for this roll at difficulty ' + d + '. Modifiers still apply.' : '';
-    if (d && d !== wasLocked && window.cmToast) window.cmToast('The Storyteller is calling for your roll, difficulty ' + d + '.');
-    wasLocked = d;
   }
+  ['hideRollBtn', 'dmgHideRoll'].forEach(function (id) {
+    var b = $(id); if (!b) return;
+    b.addEventListener('click', function () { hideRoll = !hideRoll; applyHideRoll(); if (window.cmToast) window.cmToast(hideRoll ? 'Hide Roll is on: your rolls aren\'t sent to the room.' : 'Your rolls are sent to the room again.'); });
+  });
   /* Notification sound (decoded with Web Audio like the dice sound): played to a joiner when the host calls a roll from them. */
   var NOTIFY_B64 = '//uUZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAASAAAVYAAcHBwcHENDQ0NDQ1ZWVlZWampqampqe3t7e3uHh4eHh4eampqamq2tra2trb6+vr6+zc3Nzc3N2dnZ2dnZ4+Pj4+Pn5+fn5+fs7Ozs7PHx8fHx8fb29vb2+/v7+/v7//////8AAAA8TEFNRTMuMTAwBK8AAAAAAAAAADUgJALwjQABzAAAFWBa0jvWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//u0RAAAAAAAf4UAAAgAAA/woAABBiDBK7jVAACmGCTzDiAAAgEEoqAgFAgAAIAAAA8nq83J+phuDvg0MAHL/oY/4Xg2I//cnRhv/////qiNYp/umQIAwIAgEAwgAQAAPEcRPUd8SgGe5P3R/wBA//uPY///3//1RTwgT/dgBWp3EnQ3W1qFpthIjorBCAICVjc1N8qIJicM5qJvcTJAo0AsCC9AW19uZhAKDi88jxdqPdMYNKRRqbTnsgsO4YkKHCGWR9/J974U3q7EKVdNs/krbxztwutyFSyxU4y+UZ2PqS/HO3l32/jEvfeL81O7/5NNZSfKQVZDFIAkF6T9g+bvc7/448sXaS99Ph2X24tYxllqI/+HP////39fv///D9PLHc5SpAhTnDU8S8H4tVJHGAAAOAAqhqgIobsDMIaM4gyAHmGRi4Ys6ZbJoBmYEI2QlYx4HlMDEobMIgk7+WTT1oncK7L6VuZEzEqiYIX6N21xsRUrngEF3+l9uC2D4t/qbqrIhXxOSA0CS/kD5522qM4aljhYGgZAMbi/4f+FvV6Xy2Oay6+8Ntb+k+pLJb3/32prsn1+7UETuVnmf/EpAwgYAAAylDgoBIJBfIhGgAIwNMxGs4OAsiAYbisYqCGYjpSYXgCIQlN3weMWGBMsy9McwLMGw4SaO9gVMPg6B6cZMAKnAoAa4FgQNMRAQQUGQFIgBUELEQEVISYGMpEyAdFirJMBo5gKucevl7GjiRQle0gyQMR8nWTRNpYG//vUZOCABTFIz35vRACdh3mvzPAAG40jW/ndkII0nip/MZAAHYi28OgwfDAdWMQga33oY/Vfb5E0mWqvUIQArOLrVEHFuSWGKrlReW2d41MLtJj9yQQ7CUwC9bYnkisjjDD+Y48/HGgyu//5yJI+QKDswfnn///Wktj////2grtdW/0AAAAAAyGmoZBjP422cDADF28SoXQ4+B3tEvOUNBfaXswgdrxMFrYMaX2lCRDBgS4jiOEnkBao3UeE0SC6Jee5LNJdBVBZnZTzu9Owy798lSwNaXvk/pCC9sUbzv4sLGRr8/Sz5bxsL2uXq3n///4VsMv+rajOOu75BFveH//Pv1uf+/+0+2f/u/j/4EUq/0KEBkVNG7pgG5BcABUAWzIwNPaXqVISKdnwyF/asNTEwXCckfQWWJJzZSTmiJoPEJiJsZJFAwQSV6kdc2Z2U7LNykZJvqR3Z//unpOiy9bJN/9qjVjYzQPG6kjXP9oCkAiCMoytgS0hEL7A5afCyYOWiyphY2G1tCkMOQC+85bE50mlraWH96C8Qowi0WAVAobaJ/iP7Ur6YYmx5zq7cePOvh9sh8nb///hI9Wz/3RH////T9E4Vk8qpz8MFICEDARl0ALRGIFA0MDkd4GERKS7y7l6wwsMYCUhE+5jqlwwpoUHW15nyhz+f+26tylHjXG5v2fqigtfWhQimQ1m3aH3xx6rH///JSc/EjiwCITvqeUYGj08R+yCjBCIyGrNwEhk5WRL5sjAxoGKwavYYbsOub+sPIwQD8iJV8w8i5u72npANPstn7HF6Oglnm3uxIMF+t37f/S3q1UP//nGSB5hYjHmKvkgdQIgOhi3cAgBFDBgMKERMYENIV/BIcSFRNBwAF1VhjsVm6aW08MQ9nuPTUupZZ2rYv2Iaib1JNU3cf36pUieE2dlhr7uI48NnpRkdTf/UgM5rOjpO3/+OiWuzATxmTsC/yBkAQGiBCrYCmpaI1dIazohURSrkpDAhrKKIJirn0LVMN3FYX6x//uURPeAAu1AWX9hoApdp3rf7KwBS5DFT+09DUE2Hms9hJ2YeWNI9eRrX12WLAJjrvc63882lSBIYZLpNIjz7O9bdv1CpJ1MnnOjlUR//Q44m8Xh0Rw7tMHQFBEAgv2ASFBpkPCGL8ktib9HA5lFPjISpSPxVhYS24pvKMW3I2sywGb/5iwWIfSUtn/ZrzFIQ3rVERbqQkgN5MQP9Lm/+aBKj0djiHVP/8qPXMfEL09iDagxI3Fe/wFaD15AxNRQ9lXiEDfSlmKuG2nwVFhVRpGfHGxCOylLdbQoWD6Q836/zd8OVa1baVapqtrNCAkZ/pe3/QeKayiI61/6gkP6V8yEkQhhdCn8ACpG2AA1pYICxnkTbssCxbrioYvxpfEHu00XGSF3Kg7N5LXl6akaAppBSa1etApjyrrRY2tUZDJDsSZKs/qLyan/5kfKNSrwhqgZDjrG4ACdlXZLckhCUuJvgC41ylA5P9gR5xCKxaHKv0JLq0xrwc3cVE4gCxXv//uUZPKAAxFB0vsnHkBZp2pfYedrSxzrSew9TWFBGKm9hJW8d/pvyPGy1pekmpbt+Vqsv4d/DmysgqQNZGwx+VKypOUu8OZDmcfchGao7iBMtwH2VikYXaGtM2D1Jt/nMdMKqHhEPAk3/Gotb5p3OJiSRO9G2fg7T7gO9dbsmWFkAYK/VuHH+ZeB1U8p0JpyVzicp4rMLb5y/x5DOdxS/EUG0fJ4ObLWnrqIoFWfR41SrjxyEb7GioHQAAGbmyRA5OAHLhp+xUQ27kqYNT41qZ9nmotQwEMeUYo+g5OAulL9FSVAQIvpL9J9Ymox5gpUKZGQ6IAAq3DslESgVWWOGnayZMsKPl+SwcolMzAk2FKqKCbVbzKiKEP8xt0f9SXx8XB4KYGYWePxpsULxDypG3jstlUfSIgzsCVvx6+kaoA8ESmEmcsLuQAFRz9T85/1Me44FiahLkal6wHuOqsBOqF5D15PCWfgQJIoqCi3AZO/uEEdo8OA9NR+uounv//t//uEZO4BEnYt0XsJa7hFRCofPYlrB5SDQew86WD8EGZ1l52sR5oPF/6fh0+V5QABuISZ/oUgWmlHBJC+VFhQSHrm06tV6k0i8tIki+S5PHGb+pIvBOjRSugmXC4t1p/W75kUXWcPP////WIzGkjULGAAP+YxkKhokTWoXca6FwwvEw9vH4w+3lxvOcJ8OJc3y9qRuDxP5/cbs9BY3f+yJs0bZxV6ixT////TBIwFABEI8OiD7m6FQGAwBBDLR0Yby0tIwPIyRQya00wI2lgT8iCgbZQcQcdBMLDT4C3sDLgNjAWmBVpHAtUXIOgdYH9YNgYGW4cUDRIGoRSDsHg+cPoJWXwsoE4mQuAcg0cGxsSmLiLR0AcYN1hlXorL6Tx1CPAufEfleTgrcL7igH//ch7+o1P/16uoz/U6b/5Nn/8Tq0QsgBAEA7rIkHzYwEAA//tkRPwBEcYfy+g4aPo0xBnPBwoPBliBN+DhQ6C/EGe9hjWQAAEFkpBZU404mAjFSGezJ2kKb5kwFEyTljgqVm9DbfFMGAGuYJ1tbzVIxaplvVGseL6rZXIq5FJduyKak2u3bv/f5yn/7HO4f8jikUjf/r+uvTOyCFV0opxAIBQmwOPbhoQkMoXLHSBcztJjB12oy10GvTy1DlKSSQjYcKNEydO6ZFFkCFjxQKRsko0Pu9JX+k7pmpJMtv//+g6jI2f///ugcJYvFBSdxCkQaWdmudQBkIMKIggEbtBXgAO4LAwaZylLjmePy1zo1aMU//uUZPoAAhMiTG1hoABAhEk9rKwAEukdR/mpkgF6kmj/M4JAxGBgy0ewXsSlZsdJKZtTIomwNsonDY2Sdc8ozNkP1JGC3TKA8lGBj///spzckv/t/9Jx8JZwafbYaAJMWIc9EAlhKUBIWGZUUaGxNsHgVgxZiHUdWVBFj5gPVuggxPHJTJrecJpgB5dxV+5001w7/G0cEUCoFRwwue///54+xx3///xMRceHQH7QbMIdaQcu2AZbD7TFH32AJCjbfFoEIXdYaZANNtLq//xfiKXp5orFMpTAN08i9jB8AI1B85aJNq391OMIhkRyRhZ///54/NbXv///UlkQVehRE1W5IJADQiYh+CAcJrpghJJv+FGTMEV6PFo8Q2sg8wC3jphtHSXSQYM0HsZdO1JKrSgciMM6CMI4CbLyml9NFkh8EF/uYmpoSpmRWQZJlf//WRQUgmgj///9I1zTcEJUHMVAb3DAZk7YhQBycTFCwKFIS6hYOh8KIHHWmFTkFz/I//uUROuAArQ91H9hoAhbx5p/7DQBSiDzS+ws7WlPn2n9g6a0u6x8xzHpi8Gtv89hCUyPp5985nsSt/VkNCeQARFR8Tp//+ogQXEt///+9B88u24W4UyrZn+GBLoREyRb1mAAcXAOemnE1XGJMoljA30jfpgBTo1fBoM+nZx/sMjITYNtBMlVtR8iFr/oPdBMeTu3//+okf/5DbQIQIhVgh7WlSu0VC39Ch49zRKMxd/lUzQgr5kOeP7pKdVRFO2BvriTKlxsEoMxPu7fNIv/uSDoIRMeSlv//5o9dKqaMLQaU5A5gAApY0QjT1mSGBQuLQ4WWUpFQHFia8OgaSEv6tSOgXhBjBqlfd1A9AxH0Hgx+l1DUItP9LmQ3IRJFLBDpCHDAAEpgpeaxY+DIGLbMDWVG8SCXZNDPXDIGoOvDliVR3GA+p6IVXd2eUHOk4bkwAvAVIplZsvLRScvFr/zUgRJjgZE7BZRTNRR7dZoDBIb8GVIcqfVIyhRMuQWRiNr//uERO2AEtY8z/ssm0hRp6ofZeprSQS1R+wxruEKluh9l6mUV/jNhOiqMsf4NS+5LUoRDEqAVT9tCg2/2wqAWEtUwXAVKyh1bN+xIlKQVImlbR8W010ZABGSeiavAkvPKbZLEBxaHdDiEfhJKP/sa3/nCUCgEFp5UocIlXI/QAA/jIpusIojTMYt2AhkgGNGvdjqiTI2WECA4UJl603Kg5KLek3SS/qrQGCDqzyZy4REySKwABrcctzBAMYJXgCBGPA6Ak+Q9Rj+Jq+dPkmNMEqp9UYAKKpb///UwLsNECZSYCAeZdUd8EODsyyG4LgxbSXNHwxS9JTg4Q4UEHR9CZAnyf//r+mPoc55gqkZCoo+FU8OOeIBjzZxp7Y3caoRR7lVyz7ToDZNf6zBA6Jcn/62/+TQ5dUHZJYJCXoHAAA7qCGDDno3QROhjT6HlT8F//t0ROeBEfUgzvsPazhJBCmvY1NZBwiDQew9TODXkKe9gynMp/9CeAKe/3YKhTNJlASEA4AAFWaulggIDWt022xIA7HE/od/z2UOO///+aDoGhHUAVgpAHLdEX+AJIXLLNxnqmOXPb0v7nS4XkgkR9gILTYAh6CiDqniYeGMTY83CPTat//o6ARD5kxBTUUzLjEwMFVVDdcYAGAAB0ZNCQmj4gwK8RSD6lBgLA4oBAAAeozC0jx0kAG0MOUU6lGgCKt9YxVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tkROqDEakgznsDaxgypBnPYeplBWiBOcBhoWCwkCc8HDQ0VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tURPCBERETTvgvOMgjpAnvAwcLBABRL+BhoWBpCiVsB6hsVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sURPkPMK8TyeGgEzAWQoj5NAVmAAAB/gAAACAIgCMAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAf4AAAAgAAA/wAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV', notifyBuffer = null, notifyLoading = false;
   function playNotify() {
@@ -4488,25 +4588,22 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
         .then(function (b) { notifyBuffer = b; go(); }).catch(function () {}).then(function () { notifyLoading = false; });
     } catch (e) { notifyLoading = false; }
   }
-  function setJoinCall(c) {
-    var had = joinCall;
-    joinCall = c;
-    /* A new call for this player (their turn, or any time from the host's actor menu). */
-    if (c && (!had || had.ts !== c.ts || had.actor !== c.actor)) playNotify();
-    if (!c && had && window.cmToast) { /* answered or cancelled */ }
-    applyDiffLock();
-    renderRollPanel();
-  }
   /* Everything about a roll that the host may see. */
   function rollRecord(kind, roll, values, ctx) {
     var s = score(values, roll), c = ctx || null, rec = {
       kind: kind, by: c ? c.char : '', traits: c ? c.traits : '', note: c ? c.note : '', auto: c ? c.auto : [],
       spec: !!roll.spec, pool: roll.pool, mod: roll.mod || 0, bonus: roll.bonus || 0, action: roll.action || 1,
-      diff: roll.full, baseDiff: roll.baseDiff, dMod: roll.dMod || 0, net: s.net, botch: !!s.botched, ones: s.ones || 0
+      diff: roll.full, baseDiff: roll.baseDiff, dMod: roll.dMod || 0, net: s.net, botch: !!s.botched, ones: s.ones || 0,
+      dice: (values || []).slice(0, 60).map(function (v) { return +v || 0; })
     };
     if (kind === 'damage') { rec.base = st.dmgPool; if (c) rec.manualPool = (st.dmgPool - c.pool) + ((roll.mod || 0) - (c.mod || 0)); }
-    else { rec.base = roll.basePool; if (c) { rec.manualPool = (roll.basePool - c.pool) + ((roll.mod || 0) - (c.mod || 0)); rec.manualDiff = (roll.dMod || 0) - (c.dmod || 0) + (lockedDiff() ? 0 : roll.baseDiff - c.diff); } }
+    else { rec.base = roll.basePool; if (c) { rec.manualPool = (roll.basePool - c.pool) + ((roll.mod || 0) - (c.mod || 0)); rec.manualDiff = (roll.dMod || 0) - (c.dmod || 0) + (roll.baseDiff - c.diff); } }
     return rec;
+  }
+  /* The character active in the Characters module on this page (a joiner's rolls go under it). */
+  function activeChar() {
+    var V = window.VTMChars, c = V && V.store && V.store.chars ? V.store.chars[V.store.cur] : null;
+    return c && !c.temp ? { id: String(c.id || V.store.cur || ''), name: String((c.info && c.info.name) || '') } : { id: '', name: '' };
   }
   /* Rolls this joiner sent (random tokens), so the dice sound only plays for other people's results. */
   var myRids = [], lrInit = false, seenLr = 0, seenRound = -1;
@@ -4515,36 +4612,45 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     if (kind === 'main') kind = ctx && ctx.kind === 'soak' ? 'soak' : 'generic';
     var rec = rollRecord(kind, roll, values, ctx);
     if (kind === 'soak') rollCtx = null;   // a soak setup is used once
+    if (!inRoom() || hideRoll) return;
     if (watchWs) {
-      if (!joinCall) return;               // nobody called for it: it stays private
+      var ac = activeChar(), u = window.vtmAccount && window.vtmAccount.state ? (window.vtmAccount.state().user || {}) : {};
+      rec.ch = ac.id; rec.chn = ac.name; rec.pl = String(u.username || '').slice(0, 24);
       rec.rid = Math.random().toString(36).slice(2, 10); myRids = myRids.concat([rec.rid]).slice(-20);
       joinAct({ k: 'roll', rec: rec });
-      joinCall = null; applyDiffLock(); renderRollPanel();
       return;
     }
-    if (!ini.call || ini.call.target !== 'host') return;
-    recordRoll(ini.call, rec);
+    recordRoll('Storyteller', 'Storyteller', rec);
   }
-  function recordRoll(call, rec) {
-    rec.who = call.name; rec.pub = call.pub || call.name; rec.called = call.diff || 0; rec.own = !!call.own;
-    rec.ts = Date.now(); rec.round = ini.round; ini.rseq = (ini.rseq || 0) + 1; rec.id = ini.rseq;
+  function recordRoll(who, pub, rec) {
+    rec.who = who; rec.pub = pub;
+    rec.ts = Date.now(); rec.round = ini.encounter ? ini.round : 0; ini.rseq = (ini.rseq || 0) + 1; rec.id = ini.rseq;
     ini.rolls = (ini.rolls || []).concat([rec]).slice(-200);
-    ini.call = null;
-    initChanged(); applyDiffLock();
+    initChanged();
+  }
+  /* Host: which tracker character a joiner's roll belongs to. One character: that one. Several: the one active in their
+     Characters module (or the first, if that one isn't in the tracker). None: their active character's name, or their username. */
+  function joinerActor(pid, ch) {
+    var mine = ini.actors.filter(function (a) { return a.ow === pid; });
+    if (mine.length === 1) return mine[0];
+    var hit = ch ? mine.filter(function (a) { return a.ch === ch || a.rc === ch; })[0] : null;
+    return hit || mine[0] || null;
   }
   /* Host: a joiner's roll, checked and cleaned (it came from someone else's page). */
   function joinerRolled(pid, r) {
-    if (!r || typeof r !== 'object' || !ini.call || ini.call.target !== pid) return;
+    if (!r || typeof r !== 'object') return;
     function n(v, lo, hi) { v = Math.round(+v); return isFinite(v) ? clamp(v, lo, hi) : 0; }
     function t(v, len) { return String(v == null ? '' : v).slice(0, len); }
     var rec = { kind: KIND_LBL[r.kind] ? r.kind : 'generic', by: t(r.by, 40), traits: t(r.traits, 120), note: t(r.note, 120),
       auto: Array.isArray(r.auto) ? r.auto.slice(0, 12).map(function (x) { return t(x, 60); }) : [],
       spec: !!r.spec, pool: n(r.pool, 0, 99), base: n(r.base, 0, 99), mod: n(r.mod, -99, 99), bonus: n(r.bonus, -99, 99), action: n(r.action, 1, 9),
-      diff: n(r.diff, 2, 30), baseDiff: n(r.baseDiff, 2, 30), dMod: n(r.dMod, -20, 20), net: n(r.net, -99, 99), botch: !!r.botch, ones: n(r.ones, 0, 99) };
+      diff: n(r.diff, 2, 30), baseDiff: n(r.baseDiff, 2, 30), dMod: n(r.dMod, -20, 20), net: n(r.net, -99, 99), botch: !!r.botch, ones: n(r.ones, 0, 99),
+      dice: Array.isArray(r.dice) ? r.dice.slice(0, 60).map(function (v) { return n(v, 1, 10); }) : [] };
     if (r.manualPool != null) rec.manualPool = n(r.manualPool, -99, 99);
     if (r.manualDiff != null) rec.manualDiff = n(r.manualDiff, -30, 30);
     rec.rid = t(r.rid, 12).replace(/[^a-z0-9]/g, '');
-    recordRoll(ini.call, rec);
+    var a = joinerActor(pid, t(r.ch, 64)), name = a ? a.name : (t(r.chn, 40) || t(r.pl, 24) || 'A player');
+    recordRoll(name, a ? pubName(a) : name, rec);
     playSound();   // someone else's result arrived
   }
   function resultText(rec) {
@@ -4553,11 +4659,19 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     if (rec.kind === 'soak') return rec.net + ' damage soaked';
     return rec.net === 0 ? 'Failure' : rec.net + (rec.net === 1 ? ' success' : ' successes');
   }
-  function lastPub() {
-    var r = (ini.rolls || [])[ini.rolls ? ini.rolls.length - 1 : 0];
-    return r ? { id: r.id, n: r.pub || r.who, k: r.kind, v: r.net, b: !!r.botch, q: r.rid || '' } : null;
-  }
+  /* What joiners get: who rolled and the outcome, nothing else. */
+  function pubRoll(r) { return { id: r.id, n: r.pub || r.who, k: r.kind, v: r.net, b: !!r.botch, q: r.rid || '', r: r.round || 0, t: r.ts || 0 }; }
+  function lastPub() { var r = (ini.rolls || [])[(ini.rolls || []).length - 1]; return r ? pubRoll(r) : null; }
+  function pubHist() { return (ini.rolls || []).slice(-40).map(pubRoll); }
   function sgn(v) { return (v > 0 ? '+' : v < 0 ? MINUS : '±') + Math.abs(v); }
+  /* Each die, as the host sees it. More than fit on one line: a note, with every die shown on hover (or focus). */
+  var DICE_ROW = 12;
+  function diceHTML(r) {
+    var d = r.dice || []; if (!d.length) return '';
+    var chips = d.map(function (v) { return '<span class="rh-d' + (v === 1 ? ' one' : v >= r.diff ? ' hit' : '') + (v === 10 ? ' ten' : '') + '">' + v + '</span>'; }).join('');
+    if (d.length <= DICE_ROW) return '<span class="rh-dice">' + chips + '</span>';
+    return '<span class="rh-dmore" tabindex="0" aria-label="' + d.length + ' dice: ' + d.join(', ') + '">' + d.length + ' dice, too many to list here: hover to see each<span class="rh-dpop" aria-hidden="true">' + chips + '</span></span>';
+  }
   /* The host's full view of a roll. */
   function rollDetail(r) {
     var pool = [], diff = [];
@@ -4570,22 +4684,25 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     diff.push((r.called ? 'called ' + r.called : 'base ' + r.baseDiff));
     if (r.dMod) diff.push('modifier ' + sgn(r.dMod) + (r.manualDiff ? ' (by hand ' + sgn(r.manualDiff) + ')' : ''));
     var rows = [
-      ['Traits', (r.traits || 'Set by hand') + (r.note ? ' · ' + r.note : '')],
+      ['Traits', escH((r.traits || 'Set by hand') + (r.note ? ' · ' + r.note : ''))],
       ['Specialty', r.spec ? 'On' : 'Off'],
-      ['Dice pool', r.pool + ' (' + pool.join(', ') + ')'],
-      ['Difficulty', r.diff + ' (' + diff.join(', ') + ')'],
-      ['Result', resultText(r) + (r.ones && !r.botch ? ' · ' + r.ones + ' one' + (r.ones > 1 ? 's' : '') : '')]
+      ['Dice pool', escH(r.pool + ' (' + pool.join(', ') + ')')],
+      ['Difficulty', escH(r.diff + ' (' + diff.join(', ') + ')')]
     ];
-    return '<dl class="rh-dl">' + rows.map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + escH(x[1]) + '</dd>'; }).join('') + '</dl>';
+    if (r.dice && r.dice.length) rows.push(['Dice', diceHTML(r)]);
+    rows.push(['Result', escH(resultText(r) + (r.ones && !r.botch ? ' · ' + r.ones + ' one' + (r.ones > 1 ? 's' : '') : ''))]);
+    return '<dl class="rh-dl">' + rows.map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + x[1] + '</dd>'; }).join('') + '</dl>';
   }
   function rollHead(r) {
-    return '<span class="rh-who">' + escH(r.who || 'Storyteller') + '</span><span class="rh-kind">' + KIND_LBL[r.kind] + (r.own ? ' · Storyteller\'s own' : '') + '</span><b class="rh-res' + (r.botch ? ' botch' : '') + '">' + escH(resultText(r)) + '</b>';
+    return '<span class="rh-who">' + escH(r.who || 'Storyteller') + '</span><span class="rh-kind">' + KIND_LBL[r.kind] + '</span><b class="rh-res' + (r.botch ? ' botch' : '') + '">' + escH(resultText(r)) + '</b>';
   }
+  function whenTxt(r) { return (r.round ? 'Round ' + r.round + ' · ' : '') + (r.ts ? new Date(r.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''); }
   /* The Rolls box under the tracker. */
   function renderRollPanel() {
     var box = $('iniRolls'); if (!box) return;
+    applyHideRoll();
     if (watchWs) {
-      var cr = remote && remote.cr, lr = remote && remote.lr, h = '';
+      var lr = remote && remote.lr, rh = remote && Array.isArray(remote.rh) ? remote.rh : [], h = '';
       /* A new result from the table plays the dice sound, unless it's this joiner's own roll (already heard). */
       if (!lrInit) { lrInit = true; seenLr = lr ? lr.id : 0; seenRound = remote ? (remote.l ? remote.r : -1) : -1; }
       else {
@@ -4594,42 +4711,38 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
         var rr = remote && remote.l ? remote.r : -1;
         if (rr !== seenRound) { if (rr > 0) playSound(); seenRound = rr; }
       }
-      if (joinCall) h += '<p class="ir-status ir-you"><b>Your roll is called' + (joinCall.diff ? ' at difficulty ' + joinCall.diff : '') + '.</b> Your next roll is shared with the table.</p>';
-      else if (cr) h += '<p class="ir-status">Waiting for ' + escH(cr.n) + ' to roll' + (cr.d ? ' (difficulty ' + cr.d + ')' : '') + '.</p>';
+      h += '<div class="ir-head"><span class="label">Rolls</span><span class="ir-note">' + (hideRoll ? 'Hide Roll is on: yours stay private' : 'Your rolls are shared with the table') + '</span>' +
+        '<button type="button" class="btn-sec" data-ir="hist"' + (rh.length ? '' : ' disabled') + '>History</button></div>';
       if (lr) h += '<div class="ir-last"><span class="label">Last roll</span>' + rollHead({ who: lr.n, kind: KIND_LBL[lr.k] ? lr.k : 'generic', net: lr.v, botch: lr.b }) + '</div>';
-      box.innerHTML = h; box.hidden = !h;
+      box.innerHTML = h; box.hidden = false;
+      if (!$('rollsPop').hidden) renderHistory();
       return;
     }
-    if (ini.call && !ini.encounter) { ini.call = null; save(); applyDiffLock(); }
-    var cur = ini.live && ini.turn ? actorOf(ini.turn) : null, call = ini.call, last = (ini.rolls || [])[(ini.rolls || []).length - 1];
-    var hh = '<div class="ir-head"><span class="label">Rolls</span>' +
-      '<span class="ir-diff" title="Base difficulty for the next called roll">Difficulty <button type="button" class="qr-step" data-ir="d" data-d="-1" aria-label="Lower difficulty">' + MINUS + '</button><b>' + st.callDiff + '</b><button type="button" class="qr-step" data-ir="d" data-d="1" aria-label="Raise difficulty">+</button></span>' +
-      '<button type="button" class="btn-sec" data-ir="call"' + (cur && !call ? '' : ' disabled') + ' title="' + (cur ? 'Call for ' + escH(cur.name) + '\'s next roll at this difficulty' : 'Start a round first: the call goes to whoever is acting') + '">Call roll</button>' +
-      '<button type="button" class="btn-sec" data-ir="own"' + (call || !ini.encounter ? ' disabled' : '') + ' title="Your next roll is shown to the table">Call my roll</button>' +
+    if (!hostInfo && !(ini.rolls || []).length) { box.innerHTML = ''; box.hidden = true; return; }
+    var last = (ini.rolls || [])[(ini.rolls || []).length - 1];
+    var hh = '<div class="ir-head"><span class="label">Rolls</span><span class="ir-note">' + (hostInfo ? (hideRoll ? 'Hide Roll is on: yours stay private' : 'Everyone\'s rolls in the room show here') : 'Rolls are shared while you host a room') + '</span>' +
       '<button type="button" class="btn-sec" data-ir="hist"' + ((ini.rolls || []).length ? '' : ' disabled') + '>History</button></div>';
-    if (call) hh += '<p class="ir-status">' + (call.own ? 'Your next roll will be shown to the table.' : call.target === 'host' ? 'Called: roll for ' + escH(call.name) + ' at difficulty ' + call.diff + '.' : 'Waiting for ' + escH(call.name) + ' to roll at difficulty ' + call.diff + '.') + ' <button type="button" class="linkish" data-ir="cancel">Cancel</button></p>';
     if (last) hh += '<div class="ir-last"><span class="label">Last roll</span>' + rollHead(last) + rollDetail(last) + '</div>';
     box.innerHTML = hh; box.hidden = false;
   }
   function renderHistory() {
-    var list = $('rollsList'), rolls = (ini.rolls || []).slice().reverse();
+    var list = $('rollsList');
+    $('rollsClear').hidden = !!watchWs;
+    if (watchWs) {
+      var rh = (remote && Array.isArray(remote.rh) ? remote.rh : []).slice().reverse();
+      list.innerHTML = rh.length ? rh.map(function (r) {
+        return '<div class="rh-item"><div class="rh-top">' + rollHead({ who: r.n, kind: KIND_LBL[r.k] ? r.k : 'generic', net: r.v, botch: r.b }) + '<span class="rh-when">' + escH(whenTxt({ round: r.r, ts: r.t })) + '</span></div></div>';
+      }).join('') : '<p class="hint">No rolls yet.</p>';
+      return;
+    }
+    var rolls = (ini.rolls || []).slice().reverse();
     list.innerHTML = rolls.length ? rolls.map(function (r) {
-      return '<div class="rh-item"><div class="rh-top">' + rollHead(r) + '<span class="rh-when">Round ' + r.round + ' · ' + new Date(r.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</span></div>' + rollDetail(r) + '</div>';
-    }).join('') : '<p class="hint">No called rolls yet.</p>';
+      return '<div class="rh-item"><div class="rh-top">' + rollHead(r) + '<span class="rh-when">' + escH(whenTxt(r)) + '</span></div>' + rollDetail(r) + '</div>';
+    }).join('') : '<p class="hint">No rolls yet.</p>';
   }
   $('iniRolls').addEventListener('click', function (e) {
-    var b = e.target.closest ? e.target.closest('[data-ir]') : null; if (!b || watchWs) return;
-    var k = b.getAttribute('data-ir');
-    if (k === 'd') { st.callDiff = clamp(st.callDiff + (+b.getAttribute('data-d')), 2, st.m20 ? 30 : 10); save(); renderRollPanel(); }
-    else if (k === 'call') {
-      var cur = ini.live && ini.turn ? actorOf(ini.turn) : null; if (!cur) return;
-      ini.call = { target: cur.ow || 'host', actor: cur.id, name: cur.name, pub: pubName(cur), diff: st.callDiff, own: false, ts: Date.now() };
-      initChanged(); applyDiffLock();
-    } else if (k === 'own') {
-      ini.call = { target: 'host', actor: 0, name: 'Storyteller', pub: 'Storyteller', diff: 0, own: true, ts: Date.now() };
-      initChanged(); applyDiffLock();
-    } else if (k === 'cancel') { ini.call = null; initChanged(); applyDiffLock(); }
-    else if (k === 'hist') { renderHistory(); placeRollsPop(); $('rollsPop').hidden = false; $('rollsClose').focus(); }
+    var b = e.target.closest ? e.target.closest('[data-ir]') : null; if (!b) return;
+    if (b.getAttribute('data-ir') === 'hist') { renderHistory(); placeRollsPop(); $('rollsPop').hidden = false; $('rollsClose').focus(); }
   });
   function placeRollsPop() { var pop = $('rollsPop'); if (pop.parentNode !== $('initPanel')) $('initPanel').appendChild(pop); }
   $('rollsClose').addEventListener('click', function () { $('rollsPop').hidden = true; });
@@ -4639,16 +4752,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     b.classList.remove('confirm'); b.textContent = 'Clear history';
     ini.rolls = []; initChanged(); renderHistory();
   });
-  setTimeout(function () { applyDiffLock(); renderRollPanel(); }, 0);
-  /* Actor menu: call for a roll from this actor, whether or not it's their turn. */
-  function iniCallItems(a) {
-    if (watchWs || !ini.encounter) return [];
-    var on = ini.call && !ini.call.own && ini.call.actor === a.id;
-    return [{ label: on ? 'Cancel roll call' : 'Call for a roll (difficulty ' + st.callDiff + ')', run: function () {
-      ini.call = on ? null : { target: a.ow || 'host', actor: a.id, name: a.name, pub: pubName(a), diff: st.callDiff, own: false, ts: Date.now() };
-      initChanged(); applyDiffLock();
-    } }];
-  }
+  setTimeout(renderRollPanel, 0);
 
   /* CHARACTERS-MODULE:END called-rolls */
   /* CHARACTERS-MODULE:BEGIN remote-acts */
@@ -5179,8 +5283,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     var a = tr._a;
     if (!a) return;
     openContextMenu(x, y, [
-      { label: a.init === null ? 'Roll initiative' : 'Re-roll initiative', run: function () { rollActor(a); initChanged(); } }
-    ].concat(iniCallItems(a), [
+      { label: a.init === null ? 'Roll initiative' : 'Re-roll initiative', run: function () { rollActor(a); initChanged(); } },
       { label: 'Set Tags', sub: [
         { label: 'Player', checked: function () { return a.type === 'player'; }, run: function () { a.type = a.type === 'player' ? '' : 'player'; a.reveal = false; autoUpdate(a); initChanged(); } },
         { label: 'Enemy', checked: function () { return a.type === 'enemy'; }, run: function () { a.type = a.type === 'enemy' ? '' : 'enemy'; autoUpdate(a); initChanged(); } },
@@ -5189,7 +5292,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
       ] },
       { label: a.persistent ? 'Remove Persistent' : 'Set as Persistent', run: function () { a.persistent = !a.persistent; initChanged(); } },
       { label: 'Delete', danger: true, run: function () { deleteActor(a); } }
-    ]), tr.querySelector('.ini-cell'));
+    ], tr.querySelector('.ini-cell'));
   }
   var initHeld = 0;
   $('initBodyRows').addEventListener('contextmenu', function (e) {
@@ -5937,8 +6040,22 @@ V1.5
       st.dmgPool = clamp(o.pool, 0, MAX_POOL); st.dmgDiff = clamp(o.diff || 6, 2, 10); st.dmgSpec = !!o.spec;
       st.dmgMod = clamp(o.mod || 0, -20, 20); if (st.dmgMod) st.dmgModOn = true;
       dmgCtx = o.ctx ? { char: String(o.ctx.char || '').slice(0, 40), traits: String(o.ctx.traits || '').slice(0, 120), note: String(o.ctx.note || '').slice(0, 120), auto: (o.ctx.auto || []).map(function (x) { return String(x).slice(0, 60); }).slice(0, 12), pool: st.dmgPool, mod: st.dmgMod } : null;
-      if (lockedDiff()) applyDiffLock();
       syncDmg(); save();
+    },
+    /* Notifications play this sound (it used to announce called rolls). */
+    playNotify: function () { playNotify(); },
+    hostCode: function () { return hostInfo ? hostInfo.code : ''; },
+    watchCode: function () { return watchWs ? ($('syncWatchCode').textContent || '') : ''; },
+    /* Join a friend's room straight from a notification: opens the Initiative tracker and connects with the code. */
+    join: function (code) {
+      code = String(code || '').toUpperCase();
+      if (hostInfo) return 'hosting';
+      if (watchWs && $('syncWatchCode').textContent === code) { st.module = 'initiative'; if (!st.showInit) { st.showInit = true; applyModules(); } setModule('initiative'); save(); return 'already'; }
+      if (watchWs) leaveWatching('');
+      if (!st.showInit) { st.showInit = true; applyModules(); }
+      st.module = 'initiative'; setModule('initiative'); save();
+      $('syncCode').value = code; joinRoom();
+      return 'joining';
     },
     openModule: function (name) {
       var m = MODULES.filter(function (x) { return x.name === name; })[0];
@@ -6643,6 +6760,10 @@ V1.5
     return { target: t[0], label: t[1], diffMod: t[2], dmgMod: t[3] - armPen, targetDmg: t[3], diff: (+w.diff || 6) + t[2], attackPoolMod: -armPen, armorPenalty: armPen };
   }
   var CREATION = { attr: [7, 5, 3], abil: [13, 9, 5], disc: 3, bg: 5, virt: 7, freebies: 15, flawCap: 7, abilCap: 3 };
+  /* Thin Blood: fewer dots, no freebie points, and no Merits or Flaws but the forced Generation ones (they give nothing). */
+  var CREATION_THIN = { attr: [5, 3, 1], abil: [11, 6, 3], disc: 3, bg: 5, virt: 3, freebies: 0, flawCap: 0, abilCap: 3 };
+  function CR(c) { return c && c.template === 'thin' ? CREATION_THIN : CREATION; }
+  function isThinTpl(c) { return !!c && c.template === 'thin'; }
   var FB_COST = { attr: 5, abil: 2, disc: 7, spath: 7, bg: 1, virt: 2, morality: 2, willpower: 1 };
   var FB_NAMES = { attr: 'Attribute', abil: 'Ability', disc: 'Discipline', spath: 'Secondary path', bg: 'Background', virt: 'Virtue', morality: 'Humanity / Path', willpower: 'Willpower' };
   var STEPS = ['Concept', 'Attributes', 'Abilities', 'Advantages', 'Finishing touches', 'Freebie points'];
@@ -6651,12 +6772,29 @@ V1.5
   var EDIT_TABS = { details: 1, story: 1, journal: 1 };
   var TEMPLATES = [
     { id: 'kindred', name: 'Kindred', desc: 'Vampire: The Masquerade 20th Anniversary', ready: true },
-    { id: 'ghoul', name: 'Ghoul', desc: 'Coming later', ready: false },
-    { id: 'mortal', name: 'Mortal', desc: 'Coming later', ready: false }
+    { id: 'thin', name: 'Thin Blood', desc: '14th or 15th Generation: 5/3/1 Attributes, 11/6/3 Abilities, 3 Virtue dots, no freebie points', ready: true }
   ];
   /* Headings of the rulebook's Disciplines chapter: [level, name, PDF page, power level]. Names and page
      numbers only; the text itself is read from the user's own PDF on their device. */
   var DISC_INDEX = [[2,"Animalism",136],[3,"Storytelling Animals",136],[3,"Feral Whispers",137,"Lv 1"],[3,"Beckoning",138,"Lv 2"],[3,"Quell the Beast",138,"Lv 3"],[3,"Subsume the Spirit",139,"Lv 4"],[3,"Drawing Out the Beast",140,"Lv 5"],[3,"Animal Succulence",140,"Lv 6"],[3,"Shared Soul",141,"Lv 6"],[3,"Species Speech",141,"Lv 6"],[3,"Conquer the Beast",141,"Lv 7"],[3,"Taunt the Caged Beast",141,"Lv 8"],[3,"Unchain the Beast",142,"Lv 9"],[2,"Auspex",142],[3,"Heightened Senses",142,"Lv 1"],[3,"Aura Perception",143,"Lv 2"],[3,"The Spirit’s Touch",144,"Lv 3"],[3,"Aura Colors",144],[3,"Telepathy",145,"Lv 4"],[3,"Psychic Projection",146,"Lv 5"],[3,"Clairvoyance",147,"Lv 6"],[3,"Prediction",147,"Lv 6"],[3,"Telepathic Communication",147,"Lv 6"],[3,"Karmic Sight",148,"Lv 7"],[3,"Mirror Reflex",149,"Lv 7"],[3,"Psychic Assault",149,"Lv 8"],[3,"False Slumber",149,"Lv 9"],[3,"Seeing the Unseen",150],[2,"Celerity",150],[3,"Celerity 6",150],[4,"Projectile",151,"Lv 6"],[4,"Flower of Death",151,"Lv 7"],[4,"Zephyr",152,"Lv 8"],[2,"Chimerstry",152],[3,"Ignis Fatuus",152,"Lv 1"],[3,"Fata Morgana",152,"Lv 2"],[3,"Apparition",152,"Lv 3"],[3,"Permanency",153,"Lv 4"],[3,"Horrid Reality",153,"Lv 5"],[3,"False Resonance",153,"Lv 6"],[3,"Fatuus Mastery",154,"Lv 6"],[3,"Shared Nightmare",154,"Lv 6"],[3,"Far Fatuus",154,"Lv 7"],[3,"Suspension of Disbelief",154,"Lv 7"],[3,"Synesthesia",154,"Lv 8"],[3,"Mayaparisatya",155,"Lv 9"],[2,"Dementation",155],[3,"Passion",156,"Lv 1"],[3,"The Haunting",156,"Lv 2"],[3,"Eyes of Chaos",156,"Lv 3"],[3,"Voice of Madness",157,"Lv 4"],[3,"Total Insanity",157,"Lv 5"],[3,"Lingering Malaise",158,"Lv 6"],[3,"Shattered Mirror",158,"Lv 6"],[3,"Restructure",158,"Lv 7"],[3,"Personal Scourge",159,"Lv 8"],[3,"Lunatic Eruption",159,"Lv 9"],[2,"Dominate",159],[3,"Eye Contact",160],[3,"Command",160,"Lv 1"],[3,"Mesmerize",160,"Lv 2"],[3,"The Forgetful Mind",161,"Lv 3"],[3,"Conditioning",162,"Lv 4"],[3,"Possession",163,"Lv 5"],[3,"Chain the Psyche",164,"Lv 6"],[3,"Loyalty",164,"Lv 6"],[3,"Obedience",164,"Lv 6"],[3,"Mass Manipulation",164,"Lv 7"],[3,"Still the Mortal Flesh",164,"Lv 7"],[3,"Far Mastery",165,"Lv 8"],[3,"Speak Through the Blood",165,"Lv 9"],[3,"Resisting Dominate",166],[2,"Fortitude",166],[3,"Fortitude 6",166],[4,"Personal Armor",167,"Lv 6"],[4,"Shared Strength",167,"Lv 7"],[4,"Adamantine",167,"Lv 8"],[2,"Necromancy",167],[3,"The Sepulchre Path",168],[4,"Witness of Death",168,"Lv 1"],[4,"Summon Soul",169,"Lv 2"],[4,"Compel Soul",169,"Lv 3"],[4,"Haunting",170,"Lv 4"],[4,"Torment",170,"Lv 5"],[3,"The Ash Path",171],[4,"Shroudsight",171,"Lv 1"],[4,"Lifeless Tongues",171,"Lv 2"],[4,"Dead Hand",171,"Lv 3"],[4,"Ex Nihilo",171,"Lv 4"],[4,"Shroud Mastery",172,"Lv 5"],[3,"The Bone Path",172],[4,"Tremens",172,"Lv 1"],[4,"Apprentice’s Brooms",172,"Lv 2"],[4,"Zombie Statistics",172],[4,"Shambling Hordes",173,"Lv 3"],[4,"Soul Stealing",173,"Lv 4"],[4,"Daemonic Possession",173,"Lv 5"],[3,"The Cenotaph Path",174],[4,"A Touch of Death",174,"Lv 1"],[4,"Reveal the Catene",174,"Lv 2"],[4,"Tread Upon the Grave",175,"Lv 3"],[4,"Death Knell",175,"Lv 4"],[4,"Ephemeral Binding",176,"Lv 5"],[3,"The Corpse in the Monster",176],[4,"Whither Mortis?",176],[4,"Masque of Death",176,"Lv 1"],[4,"Cold of the Grave",177,"Lv 2"],[4,"Curse of Life",177,"Lv 3"],[4,"Gift of the Corpse",177,"Lv 4"],[4,"Gift of Life",178,"Lv 5"],[3,"The Grave’s Decay",179],[4,"Destroy the Husk",179,"Lv 1"],[4,"Rigor Mortis",179,"Lv 2"],[4,"Wither",179,"Lv 3"],[4,"Corrupt the Undead Flesh",180,"Lv 4"],[4,"Dissolve the Flesh",180,"Lv 5"],[3,"Path of the Four Humors",181],[4,"Whispers to the Soul",181,"Lv 1"],[4,"Kiss of the Dark Mother",181,"Lv 2"],[4,"Dark Humors",181,"Lv 3"],[4,"Clutching the Shroud",181,"Lv 4"],[4,"Black Breath",182,"Lv 5"],[3,"Vitreous Path",182],[4,"Eyes of the Dead",182,"Lv 1"],[4,"Aura of Decay",183,"Lv 2"],[4,"Soul Feast",183,"Lv 3"],[4,"Breath of Thanatos",184,"Lv 4"],[4,"Night Cry",184,"Lv 5"],[3,"Necromantic Rituals",185],[4,"Level One Rituals",185],[5,"Call of the Hungry Dead",185],[5,"Eldritch Beacon",185],[5,"Insight",185],[5,"Knowing Stone",185],[5,"Minestra di Morte",185],[5,"Ritual of the Smoking Mirror",186],[4,"Level Two Rituals",187],[5,"Eyes of the Grave",187],[5,"The Hand of Glory",187],[5,"Occhio d’Uomo Morto",187],[5,"Puppet",187],[5,"The Ritual of Pochtli",188],[5,"Two Centimes",188],[4,"Level Three Rituals",188],[5,"Blood Dance",188],[5,"Divine Sign",188],[5,"Din of the Damned",188],[5,"Nightmare Drums",188],[5,"Ritual of The Unearthed Fetter",189],[5,"Tempesta Scudo",189],[4,"Level Four Rituals",189],[5,"Baleful Doll",189],[5,"Bastone Diabolico",189],[5,"Cadaver’s Touch",190],[5,"Peek Past the Shroud",190],[5,"Ritual of Xipe Totec",190],[4,"Level Five Rituals",191],[5,"Chill of Oblivion",191],[5,"Dead Man’s Hand",191],[5,"Esilio",191],[5,"Grasp the Ghostly",192],[2,"Obfuscate",192],[3,"Cloak of Shadows",192,"Lv 1"],[3,"Unseen Presence",193,"Lv 2"],[3,"Mask of a Thousand Faces",193,"Lv 3"],[3,"Vanish from the Mind’s Eye",194,"Lv 4"],[3,"Cloak the Gathering",194,"Lv 5"],[3,"Conceal",194,"Lv 6"],[3,"Mind Blank",194,"Lv 6"],[3,"Soul Mask",195,"Lv 6"],[3,"Cache",195,"Lv 7"],[3,"Veil of Blissful Ignorance",195,"Lv 7"],[3,"Old Friend",195,"Lv 8"],[3,"Create Name",196,"Lv 9"],[2,"Obtenebration",196],[3,"Shadow Play",196,"Lv 1"],[3,"Shroud of Night",197,"Lv 2"],[3,"Arms of the Abyss",197,"Lv 3"],[3,"Black Metamorphosis",197,"Lv 4"],[3,"Tenebrous Form",198,"Lv 5"],[3,"The Darkness Within",199,"Lv 6"],[3,"Shadowstep",199,"Lv 6"],[3,"Shadow Twin",199,"Lv 7"],[3,"Oubliette",200,"Lv 8"],[3,"Ahriman’s Demesne",200,"Lv 9"],[2,"Potence",200],[3,"Potence 6",200],[4,"Imprint",200,"Lv 6"],[4,"Earthshock",201,"Lv 7"],[4,"Flick",201,"Lv 8"],[2,"Presence",201],[3,"Awe",201,"Lv 1"],[3,"Dread Gaze",202,"Lv 2"],[3,"Entrancement",203,"Lv 3"],[3,"Summon",203,"Lv 4"],[3,"Majesty",204,"Lv 5"],[3,"Love",204,"Lv 6"],[3,"Paralyzing Glance",204,"Lv 6"],[3,"Spark of Rage",205,"Lv 6"],[3,"Cooperation",206,"Lv 7"],[3,"Ironclad Command",206,"Lv 8"],[3,"Pulse of the City",206,"Lv 9"],[2,"Protean",207],[3,"Eyes of the Beast",207,"Lv 1"],[3,"Feral Claws",207,"Lv 2"],[3,"Earth Meld",207,"Lv 3"],[3,"Shape of the Beast",208,"Lv 4"],[3,"Mist Form",208,"Lv 5"],[3,"Earth Control",208,"Lv 6"],[3,"Flesh of Marble",209,"Lv 6"],[3,"Restore the Mortal Visage",209,"Lv 7"],[3,"Shape of the Beast’s Wrath",210,"Lv 7"],[3,"Spectral Body",210,"Lv 7"],[3,"Purify the Impaled Beast",211,"Lv 8"],[3,"Inward Focus",211,"Lv 9"],[2,"Quietus",211],[3,"Silence of Death",211,"Lv 1"],[3,"Scorpion’s Touch",211,"Lv 2"],[3,"Dagon’s Call",212,"Lv 3"],[3,"Baal’s Caress",212,"Lv 4"],[3,"Taste of Death",213,"Lv 5"],[3,"Blood Sweat",213,"Lv 6"],[3,"Selective Silence",214,"Lv 6"],[3,"Ripples of the Heart",214,"Lv 6"],[3,"Purification",215,"Lv 6"],[3,"Baal’s Bloody Talons",215,"Lv 7"],[3,"Poison the Well of Life",215,"Lv 7"],[3,"Songs of Distant Vitae",216,"Lv 8"],[3,"Condemn the Sins of the Father",217,"Lv 9"],[2,"Serpentis",217],[3,"The Eyes of the Serpent",217,"Lv 1"],[3,"The Tongue of the Asp",217,"Lv 2"],[3,"The Skin of the Adder",218,"Lv 3"],[3,"The Form of the Cobra",218,"Lv 4"],[3,"The Heart of Darkness",218,"Lv 5"],[3,"Cobra Fangs",219,"Lv 6"],[3,"Divine Image",219,"Lv 7"],[3,"Heart Thief",219,"Lv 8"],[3,"Shadow of Apep",220,"Lv 9"],[2,"Thaumaturgy",220],[3,"Thaumaturgical Paths",220],[3,"The Path of Blood",221],[4,"A Taste for Blood",221,"Lv 1"],[4,"Blood Rage",221,"Lv 2"],[4,"Blood of Potency",221,"Lv 3"],[4,"Theft of Vitae",222,"Lv 4"],[4,"Cauldron of Blood",222,"Lv 5"],[3,"Elemental Mastery",222],[4,"Elemental Strength",222,"Lv 1"],[4,"Wooden Tongues",222,"Lv 2"],[4,"Animate the Unmoving",222,"Lv 3"],[4,"Elemental Form",222,"Lv 4"],[4,"Summon Elemental",223,"Lv 5"],[3,"The Green Path",223],[4,"Herbal Wisdom",223,"Lv 1"],[4,"Speed the Season’s Passing",224,"Lv 2"],[4,"Dance of Vines",224,"Lv 3"],[4,"Verdant Haven",224,"Lv 4"],[4,"Awaken the Forest Giants",225,"Lv 5"],[3,"Hands of Destruction",225],[4,"Decay",225,"Lv 1"],[4,"Gnarl Wood",225,"Lv 2"],[4,"Acidic Touch",225,"Lv 3"],[4,"Atrophy",225,"Lv 4"],[4,"Turn to Dust",226,"Lv 5"],[3,"The Lure of Flames",226],[3,"Neptune’s Might",226],[4,"Eyes of the Sea",227,"Lv 1"],[4,"Prison of Water",227,"Lv 2"],[4,"Blood to Water",227,"Lv 3"],[4,"Flowing Wall",227,"Lv 4"],[4,"Dehydrate",227,"Lv 5"],[3,"Movement of the Mind",228],[3,"The Path of Conjuring",228],[4,"Summon the Simple Form",229,"Lv 1"],[4,"Permanency",229,"Lv 2"],[4,"Magic of the Smith",229,"Lv 3"],[4,"Reverse Conjuration",229,"Lv 4"],[4,"Power Over Life",229,"Lv 5"],[3,"The Path of Corruption",229],[4,"Contradict",229,"Lv 1"],[4,"Subvert",230,"Lv 2"],[4,"Dissociate",231,"Lv 3"],[4,"Addiction",231,"Lv 4"],[4,"Dependence",231,"Lv 5"],[3,"The Path of Mars",232],[4,"War Cry",232,"Lv 1"],[4,"Strike True",232,"Lv 2"],[4,"Wind Dance",232,"Lv 3"],[4,"Fearless Heart",232,"Lv 4"],[4,"Comrades at Arms",232,"Lv 5"],[3,"The Path of Technomancy",232],[4,"Analyze",233,"Lv 1"],[4,"Burnout",233,"Lv 2"],[4,"Encrypt/Decrypt",233,"Lv 3"],[4,"Remote Access",234,"Lv 4"],[4,"Telecommute",234,"Lv 5"],[3,"The Path of the Father’s Vengeance",234],[4,"Zillah’s Litany",234,"Lv 1"],[4,"The Crone’s Pride",235,"Lv 2"],[4,"Feast of Ashes",235,"Lv 3"],[4,"Uriel’s Disfavor",235,"Lv 4"],[4,"Valediction",236,"Lv 5"],[3,"Thaumaturgical Countermagic",236],[3,"Weather Control",236],[3,"Rituals",238],[4,"Level One Rituals",238],[5,"Bind the Accusing Tongue",238],[5,"Blood Rush",238],[5,"Communicate with Kindred Sire",238],[5,"Defense of the Sacred Haven",238],[5,"Deflection of Wooden Doom",239],[5,"Devil’s Touch",239],[5,"Domino of Life",239],[5,"Engaging the Vessel of Transference",239],[5,"Illuminate the Trail of Prey",239],[5,"Incantation of the Shepherd",240],[5,"Purity of Flesh",240],[5,"Wake with Evening’s Freshness",240],[5,"Widow’s Spite",240],[4,"Level Two Rituals",240],[5,"Blood Walk",240],[5,"Burning Blade",240],[5,"Donning the Mask of Shadows",241],[5,"Eyes of the Night Hawk",241],[5,"Machine Blitz",241],[5,"Principal Focus of Vitae Infusion",242],[5,"Recure of the Homeland",242],[5,"Ward Versus Ghouls",242],[5,"Warding Circle versus Ghouls",242],[5,"Other Warding Circle Rituals",242],[4,"Level Three Rituals",243],[5,"Clinging of the Insect",243],[5,"Flesh of Fiery Touch",243],[5,"Incorporeal Passage",244],[5,"Mirror of Second Sight",244],[5,"Pavis of Foul Presence",244],[5,"Sanguine Assistant",244],[5,"Shaft of Belated Quiescence",245],[5,"Ward versus Lupines",245],[4,"Level Four Rituals",245],[5,"Bone of Lies",245],[5,"Firewalker",246],[5,"Heart of Stone",246],[5,"Splinter Servant",246],[5,"Ward versus Kindred",247],[4,"Level Five Rituals",247],[5,"Blood Contract",247],[5,"Enchant Talisman",247],[5,"Escape to a True Friend",247],[5,"Paper Flesh",248],[5,"Ward versus Spirits",248],[2,"Vicissitude",249],[3,"Body Crafts",249],[3,"Malleable Visage",249,"Lv 1"],[3,"Fleshcraft",249,"Lv 2"],[3,"Bonecraft",249,"Lv 3"],[3,"Horrid Form",250,"Lv 4"],[3,"Bloodform",250,"Lv 5"],[3,"Chiropteran Marauder",250,"Lv 6"],[3,"Blood of Acid",251,"Lv 6"],[3,"Cocoon",251,"Lv 7"],[3,"Breath of the Dragon",251,"Lv 8"],[3,"Earth’s Vast Haven",251,"Lv 9"]];
+  /* Derangements in the rulebook: [name, PDF page]. Names and pages only; their text is read from the user's own PDF. */
+  var DER_BOOK = [['Bipolar Disorder', 298], ['Bulimia', 298], ['Fugue', 299], ['Hysteria', 299], ['Megalomania', 299], ['Multiple Personalities', 300],
+    ['Obsessive-Compulsive', 300], ['Paranoia', 300], ['Sanguinary Animism', 300], ['Schizophrenia', 301]];
+  var DER_INDEX = [[2, 'Derangements', 298]].concat(DER_BOOK.map(function (d) { return [3, d[0], d[1]]; }), [[2, 'Deterioration', 301]]);   // the last one only marks the end
+  /* Short summaries for the hover text (our own wording, not the book's). */
+  var DER_SUMS = {
+    'Bipolar Disorder': 'Mood swings: failures (a secret Willpower roll, difficulty 8), botches or blood under 2 bring depression (Willpower halved, no blood for Attributes), followed by a manic spell (+1 difficulty to resist frenzy).',
+    'Bulimia': 'Feeds to cope with stress: when feeding, a Conscience/Conviction roll (difficulty 7) or you drink until full. Kept from feeding, you risk frenzy (difficulty 6, +1 every 15 minutes).',
+    'Fugue': 'Blackouts under extreme stress: fail a Willpower roll (difficulty 8) and the Storyteller runs the character for a few scenes, with no memory of it afterwards.',
+    'Hysteria': 'No control over emotions: frenzy checks under stress (difficulty 6, or 8 if sudden or severe), and any botch means frenzy.',
+    'Megalomania': 'Obsessed with power: +1 die on Willpower rolls, but passing up a real chance to diablerize a stronger Kindred takes a Willpower roll (difficulty 9).',
+    'Multiple Personalities': 'Other personas take over in certain situations, each possibly with its own Abilities, Virtues or even clan, as agreed with the Storyteller.',
+    'Obsessive-Compulsive': 'Bound to a fixed set of behaviors: 1 Willpower ignores it for a scene, +1 difficulty to coerce or Dominate you out of it, and being forcibly stopped means frenzy.',
+    'Paranoia': 'Sees persecution everywhere: +1 difficulty on rolls involving social interaction, and suspicious behavior can provoke a frenzy roll.',
+    'Sanguinary Animism': 'Believes feeding takes the victim\'s soul: after feeding on a mortal, a Willpower roll (difficulty 6, or 9 if they died) or the victim\'s voice takes over until just before dawn.',
+    'Schizophrenia': 'Hallucinations and violent shifts: when the inner conflict is triggered, +3 difficulty to resist or direct frenzy and 3 fewer dice on Willpower rolls.'
+  };
+  function derBook(name) { var n = String(name || '').trim().toLowerCase(); return DER_BOOK.filter(function (d) { return d[0].toLowerCase() === n; })[0] || null; }
 
   /* Paths and rituals per sorcery Discipline, from the headings index (no PDF needed). */
   var SORC_LISTS = (function () {
@@ -6690,7 +6828,7 @@ V1.5
   function save() {
     clearTimeout(saveT);
     saveT = setTimeout(function () {
-      try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) { toast('Couldn\'t save: browser storage is full or blocked.'); }
+      try { localStorage.setItem(KEY, JSON.stringify(store, charRep)); } catch (e) { toast('Couldn\'t save: browser storage is full or blocked.'); }
       syncInitiative();
       shareChanged();
       acctChanged();
@@ -6712,7 +6850,7 @@ V1.5
       morality: { name: 'Humanity', dots: 2 }, willpower: { perm: 1, cur: 1 },
       blood: { cur: 0 }, health: { b: 0, l: 0, a: 0 }, boost: { strength: 0, dexterity: 0, stamina: 0 }, tracker: { type: '', rev: false }, clanExtra: [],
       merits: [], flaws: [], weapons: [], armor: [], stored: { weapons: [], armor: [] }, xp: { base: 0, log: [] }, enotes: {},
-      details: { aes: {}, bgx: {}, poss: [], other: '' },
+      details: { aes: {}, bgx: {}, poss: [], der: [], other: '' },
       backstory: { story: '', facts: '' }, journal: [],
       ui: { tab: 'sheet' },
       mode: 'create',
@@ -6720,6 +6858,10 @@ V1.5
     };
   }
   /* Fills anything missing (imports, older saves) and upgrades older shapes without losing data. */
+  /* The sheet's mode (Play, Free-form edit, Deterioration) is only for the moment: it's never saved or synced, and a
+     sheet always opens in Play (or Guided creation while it's being built). */
+  function defMode(c) { return c.creation && c.creation.done ? 'play' : 'create'; }
+  function charRep(k, v) { return k === 'mode' && typeof v === 'string' && this && this.creation && typeof this.creation === 'object' ? defMode(this) : v; }
   function normalize(c) {
     var b = blankKindred('');
     Object.keys(b).forEach(function (k) {
@@ -6741,6 +6883,13 @@ V1.5
     ['weapons', 'armor'].forEach(function (k) { if (!Array.isArray(c.stored[k])) c.stored[k] = []; c.stored[k].forEach(function (x) { if (!x.id) x.id = rid(); x.equipped = false; if (k === 'weapons' && !x.kind) x.kind = 'melee'; }); });
     if (!c.details.aes) c.details.aes = {};
     if (!c.details.bgx) c.details.bgx = {};
+    if (!Array.isArray(c.details.der)) c.details.der = [];
+    c.details.der = c.details.der.filter(function (d) { return d && typeof d === 'object'; });
+    c.details.der.forEach(function (d) { if (!d.id) d.id = rid(); d.name = String(d.name || ''); d.sum = String(d.sum || ''); d.notes = String(d.notes || ''); });
+    if (!Array.isArray(c.xp.plan)) c.xp.plan = [];
+    c.xp.plan = c.xp.plan.filter(function (e) { return e && typeof e.p === 'string'; });
+    c.xp.plan.forEach(function (e) { if (!e.id) e.id = rid(); });
+    c.mode = defMode(c);
     c.v = 2;
     return c;
   }
@@ -6798,6 +6947,41 @@ V1.5
     if (k === 'virt') return 1;
     return 0;
   }
+  /* ---- Fourteenth / Fifteenth Generation and Thin Blood (Flaws) ----
+     Fourteenth Generation: always comes with Thin Blood; 2 of the 10 blood points can't power Disciplines, healing or boosts.
+     Fifteenth Generation: works like Thin Blood (those cost double), and Disciplines can't go above 3.
+     Thin Blood: blood spent on Disciplines, healing and boosts costs double. The Flaws set the Generation. */
+  var GEN_FLAWS = { 14: 'Fourteenth Generation', 15: 'Fifteenth Generation' }, THIN_FLAW = 'Thin Blood';
+  var THIN_COST = { 'Fourteenth Generation': 2, 'Fifteenth Generation': 4, 'Thin Blood': 4 };
+  function mfNorm(n) { return String(n || '').trim().toLowerCase(); }
+  function hasFlaw(c, name) { return (c.flaws || []).some(function (f) { return mfNorm(f.name) === mfNorm(name); }); }
+  function thinGen(c) { return hasFlaw(c, GEN_FLAWS[15]) ? 15 : hasFlaw(c, GEN_FLAWS[14]) ? 14 : 0; }
+  function bloodX(c) { return hasFlaw(c, THIN_FLAW) || thinGen(c) === 15 ? 2 : 1; }   // blood per point of Disciplines, healing, boosts
+  function bloodReserve(c) { return thinGen(c) === 14 ? 2 : 0; }
+  function bloodUsable(c) { return Math.max(0, c.blood.cur - bloodReserve(c)); }
+  /* Points of effect the usable blood can pay for. */
+  function bloodPts(c) { return Math.floor(bloodUsable(c) / bloodX(c)); }
+  /* Gives a sheet the Generation Flaw for 14th or 15th (and Thin Blood with the 14th); the others go. Forced ones can't
+     be removed while the guide runs. */
+  /* Thin Blood: always Caitiff (no clan), and never the Generation or Status Background. */
+  var THIN_NO_BG = ['Generation', 'Status'];
+  function thinBgBlocked(c, b) { return isThinTpl(c) && THIN_NO_BG.some(function (x) { return mfNorm(x) === mfNorm(b); }); }
+  function thinFix(c) {
+    if (!isThinTpl(c)) return;
+    c.info.clan = 'Caitiff';
+    THIN_NO_BG.forEach(function (b) { delete c.bg[b]; if (c.creation && c.creation.fb) delete c.creation.fb['bg.' + b]; });
+  }
+  function setThinGen(c, g) {
+    var keep = [GEN_FLAWS[14], GEN_FLAWS[15], THIN_FLAW].map(mfNorm);
+    c.flaws = (c.flaws || []).filter(function (f) { return keep.indexOf(mfNorm(f.name)) < 0; });
+    var want = g === 15 ? [GEN_FLAWS[15]] : [GEN_FLAWS[14], THIN_FLAW];
+    want.forEach(function (n) {
+      var b = typeof mfFind === 'function' ? mfFind('flaws', n) : null;
+      c.flaws.push({ id: rid(), name: n, cost: b ? b.lo : THIN_COST[n], forced: 1 });
+    });
+    if (c.bg.Generation) delete c.bg.Generation;
+    c.info.generation = g === 15 ? 15 : 14;
+  }
   function genInfo(c) { var g = GEN[c.info.generation] || GEN[13]; return { max: g[0], blood: g[1], turn: g[2] }; }
   /* Blood boost (V20 p. 268): one blood point raises a Physical Attribute by one dot for the scene. Rolls, damage, soak and
      Initiative use the boosted rating; the sheet keeps the real one. */
@@ -6821,6 +7005,7 @@ V1.5
     if (k === 'morality' || k === 'willpower') return 10;
     if (k === 'virt') return 5;
     if (k === 'spath') return 5;
+    if (k === 'disc' && thinGen(c) === 15) return 3;   // Fifteenth Generation
     if (creating(c)) return 5;
     return Math.max(5, genInfo(c).max);
   }
@@ -6848,11 +7033,11 @@ V1.5
     var k = kind(p);
     if (k === 'attr' || k === 'abil') {
       var g = groupOf(p), G = k === 'attr' ? ATTR_GROUPS : ABIL_GROUPS;
-      return { name: cap(g), spent: sum(G[g], function (l) { return alloc(c, k + '.' + keyOf(l)); }), allow: CREATION[k][c.creation.prio[k].indexOf(g)] };
+      return { name: cap(g), spent: sum(G[g], function (l) { return alloc(c, k + '.' + keyOf(l)); }), allow: CR(c)[k][c.creation.prio[k].indexOf(g)] };
     }
-    if (k === 'disc') return { name: 'Disciplines', spent: sum(Object.keys(c.disc), function (d) { return alloc(c, 'disc.' + d); }), allow: CREATION.disc };
-    if (k === 'bg') return { name: 'Backgrounds', spent: sum(Object.keys(c.bg), function (d) { return alloc(c, 'bg.' + d); }), allow: CREATION.bg };
-    if (k === 'virt') return { name: 'Virtues', spent: sum(['conscience', 'selfControl', 'courage'], function (v) { return alloc(c, 'virt.' + v); }), allow: CREATION.virt };
+    if (k === 'disc') return { name: 'Disciplines', spent: sum(Object.keys(c.disc), function (d) { return alloc(c, 'disc.' + d); }), allow: CR(c).disc };
+    if (k === 'bg') return { name: 'Backgrounds', spent: sum(Object.keys(c.bg), function (d) { return alloc(c, 'bg.' + d); }), allow: CR(c).bg };
+    if (k === 'virt') return { name: 'Virtues', spent: sum(['conscience', 'selfControl', 'courage'], function (v) { return alloc(c, 'virt.' + v); }), allow: CR(c).virt };
     return null;
   }
   function fbSpent(c) {
@@ -6860,7 +7045,7 @@ V1.5
     return sum(Object.keys(fb), function (p) { return fb[p] * (FB_COST[kind(p)] || 0); }) + sum(c.merits, function (m) { return Math.max(0, +m.cost || 0); });
   }
   function flawTotal(c) { return sum(c.flaws, function (f) { return Math.max(0, +f.cost || 0); }); }
-  function fbBudget(c) { return CREATION.freebies + Math.min(CREATION.flawCap, flawTotal(c)) + (+c.creation.st || 0); }
+  function fbBudget(c) { return CR(c).freebies + Math.min(CR(c).flawCap, flawTotal(c)) + (+c.creation.st || 0); }
 
   /* While the guide runs, Humanity/Path = the two Virtues and Willpower = Courage, including Virtue dots
      bought with freebie points, plus any freebie dots bought directly. */
@@ -6871,6 +7056,8 @@ V1.5
       c.willpower.cur = c.willpower.perm;
       c.info.generation = 13 - Math.min(5, c.bg.Generation || 0);
     }
+    if (thinGen(c)) c.info.generation = thinGen(c);   // the Generation Flaws decide it
+    thinFix(c);
     var g = genInfo(c);
     if (c.blood.cur > g.blood) c.blood.cur = g.blood;
     if (c.willpower.cur > c.willpower.perm) c.willpower.cur = c.willpower.perm;
@@ -6904,7 +7091,7 @@ V1.5
       var left = fbBudget(c) - fbSpent(c);
       if (left > 0) out.push(left + ' freebie ' + (left === 1 ? 'point' : 'points') + ' unspent.');
       if (left < 0) out.push((-left) + ' freebie points over budget (lower Merits or add Flaws).');
-      if (flawTotal(c) > CREATION.flawCap) out.push('Flaws beyond 7 points give no more freebie points.');
+      if (!isThinTpl(c) && flawTotal(c) > CREATION.flawCap) out.push('Flaws beyond 7 points give no more freebie points.');
       SORCERY.forEach(function (d) { var so = c.sorc[d]; if (so) Object.keys(so.paths).forEach(function (pn) { if (so.paths[pn] > spathCap(c, d)) out.push(pn + ' is above what your ' + d + ' rating allows.'); }); });
     }
     return out;
@@ -6958,7 +7145,7 @@ V1.5
     return c.stored;
   }
   function wornArmor(c) { return c.armor.filter(function (a) { return a.equipped; })[0] || null; }
-  function hungry(c) { return c.template === 'kindred' && c.blood.cur < 7 - (c.virt.selfControl || 0); }
+  function hungry(c) { return (c.template === 'kindred' || c.template === 'thin') && c.blood.cur < 7 - (c.virt.selfControl || 0); }
 
   /* ================= NOTES ON ENTRIES ================= */
   var NOTE_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M3 2.5h7l3 3v8H3z"/><path d="M5.5 7h5M5.5 9.5h5M5.5 12h3"/></svg>';
@@ -6975,6 +7162,28 @@ V1.5
     }
     return { get: function () { return c.enotes[key] || ''; }, set: function (v) { if (v) c.enotes[key] = v; else delete c.enotes[key]; } };
   }
+  /* Hover text: the book's summary, or for a Background, Merit or Flaw that isn't in the book, the player's own
+     (set in its note dialog, kept apart from the note). */
+  function inBook(k, name) { return !!(sumOf(k, name) || ((k === 'merits' || k === 'flaws') && mfFind(k, name))); }
+  function sumFor(c, k, name, item) {
+    var s = sumOf(k, name); if (s || !name) return s;
+    if (k === 'bg') return (c.bgsum && c.bgsum[name]) || '';
+    return (item && !mfFind(k, name) && item.sum) || '';
+  }
+  /* Where a custom hover text lives for a note key, or null when the trait is a book one (or not one of these). */
+  function customSumTarget(c, key) {
+    var m;
+    if ((m = key.match(/^arr:(merits|flaws):(.+)$/))) {
+      var it = (c[m[1]] || []).filter(function (x) { return x.id === m[2]; })[0];
+      if (!it || !it.name || inBook(m[1], it.name)) return null;
+      return { get: function () { return it.sum || ''; }, set: function (v) { if (v) it.sum = v; else delete it.sum; } };
+    }
+    if ((m = key.match(/^bg\.(.+)$/)) && !inBook('bg', m[1])) {
+      var n = m[1];
+      return { get: function () { return (c.bgsum && c.bgsum[n]) || ''; }, set: function (v) { if (!c.bgsum) c.bgsum = {}; if (v) c.bgsum[n] = v; else delete c.bgsum[n]; } };
+    }
+    return null;
+  }
   function noteBtn(c, key, label, ed) {
     var t = noteTarget(c, key), txt = t ? t.get() : '';
     if (!txt && !ed) return '';
@@ -6983,17 +7192,32 @@ V1.5
   }
 
   /* ================= RENDER HELPERS ================= */
-  var xpMode = false;
+  var xpMode = false, planMode = false;
   var tabEdit = {};
   var discShowAll = false;
+  /* Show Progression (Sheet tab): where a trait's dots came from, counted up from the bottom in this order.
+     Base: creation's free dots and anything set in Free-form edit. Freebies: bought with freebie points (the
+     Storyteller's included). XP: each purchase in the XP log. If the trait was lowered since, XP dots go first, then freebies. */
+  function progOn() { try { return localStorage.getItem('vtm-show-prog') === '1'; } catch (e) { return false; } }
+  function detLost(c, p) { return sum((c.xp && c.xp.log) || [], function (e) { return e.type === 'det' && e.p === p ? Math.max(0, (+e.from || 0) - (+e.to || 0)) : 0; }); }
+  function progOf(c, p) {
+    var v = val(c, p), fb = fbOf(c, p), xp = 0;
+    ((c.xp && c.xp.log) || []).forEach(function (e) { if (e.type === 'spend' && e.p === p) xp += Math.max(0, (+e.to || 0) - (+e.from || 0)); });
+    var base = Math.max(0, v - fb - xp), f = Math.min(fb, v - base);
+    return { base: base, fb: f, xp: Math.min(xp, v - base - f) };
+  }
   function dotsHTML(c, p, live) {
     var v = val(c, p), max = maxFor(c, p), f = creating(c) ? fbOf(c, p) : 0, h = '';
+    var pg = progOn() && activeTab() === 'sheet' ? progOf(c, p) : null;
+    var pl = planMode && c.mode === 'play' && activeTab() === 'sheet' ? v + planCount(c, p) : v;   // planned dots, while Planning is on
     max = Math.max(max, v);
     for (var i = 1; i <= max; i++) {
-      var cls = 'dot' + (i <= v ? ' on' : '') + (i <= v && i > v - f ? ' fb' : '');
+      var cls = 'dot' + (i <= v ? ' on' : i <= pl ? ' pl' : '') + (pg ? (i > v ? '' : i <= pg.base ? ' pg-b' : i <= pg.base + pg.fb ? ' fb' : ' pg-x') : (i <= v && i > v - f ? ' fb' : ''));
       h += live ? '<button type="button" class="' + cls + '" data-n="' + i + '" aria-label="' + i + '"></button>' : '<span class="' + cls + '"></span>';
     }
-    return '<span class="dots' + (live ? ' live' : '') + '" data-p="' + esc(p) + '" role="group" aria-label="' + esc(labelOf(c, p)) + ': ' + v + '">' + h + '</span>';
+    var lost = pg ? detLost(c, p) : 0;
+    if (lost) h += '<span class="pg-det" title="' + lost + ' ' + dotsWord(lost) + ' lost to Deterioration">−' + lost + '</span>';
+    return '<span class="dots' + (live ? ' live' : '') + '" data-p="' + esc(p) + '" role="group" aria-label="' + esc(labelOf(c, p)) + ': ' + v + (pl > v ? ', ' + (pl - v) + ' planned' : '') + (lost ? ', ' + lost + ' lost to Deterioration' : '') + '">' + h + '</span>';
   }
   function specHTML(c, p, ctx) {
     var k = kind(p);
@@ -7009,7 +7233,7 @@ V1.5
     /* In Play, Attribute/Ability/Virtue names can be picked to build a dice pool for the roller. */
     var pick = ctx.pick && PICKABLE[kind(p)], picked = pick && (pb.a === p || pb.b === p);
     var name = pick ? '<span class="pick-lbl" data-pick="' + esc(p) + '" role="button" tabindex="0" aria-pressed="' + !!picked + '" title="Pick for a roll">' + esc(labelOf(c, p)) + '</span>' : esc(labelOf(c, p));
-    return '<div class="trait' + (picked ? ' picked' : '') + '"><span class="tn"><span class="cm-nm" data-bk="trait:' + esc(p) + '"' + (kind(p) === 'bg' && sumOf('bg', split(p)[1]) ? ' data-sum="' + esc(sumOf('bg', split(p)[1])) + '"' : '') + '>' + name + (tags || '') + noteBtn(c, p, labelOf(c, p), ctx.notes) + '</span>' + specHTML(c, p, ctx) + '</span>' +
+    return '<div class="trait' + (picked ? ' picked' : '') + '"><span class="tn"><span class="cm-nm" data-bk="trait:' + esc(p) + '"' + (kind(p) === 'bg' && sumFor(c, 'bg', split(p)[1]) ? ' data-sum="' + esc(sumFor(c, 'bg', split(p)[1])) + '"' : '') + '>' + name + (tags || '') + noteBtn(c, p, labelOf(c, p), ctx.notes) + '</span>' + specHTML(c, p, ctx) + '</span>' +
       dotsHTML(c, p, ctx.live(p)) + (rm || '') + '</div>';
   }
   function ctr(sp, al) {
@@ -7018,7 +7242,7 @@ V1.5
   }
   function prioSeg(c, k, g) {
     var arr = c.creation.prio[k], i = arr.indexOf(g), names = ['Primary', 'Secondary', 'Tertiary'];
-    return '<span class="seg mini" role="group" aria-label="' + cap(g) + ' priority">' + CREATION[k].map(function (n, j) {
+    return '<span class="seg mini" role="group" aria-label="' + cap(g) + ' priority">' + CR(c)[k].map(function (n, j) {
       return '<button type="button" data-act="prio" data-k="' + k + '" data-g="' + g + '" data-i="' + j + '" aria-pressed="' + (i === j) + '" title="' + names[j] + ': ' + n + ' dots">' + n + '</button>';
     }).join('') + '</span>';
   }
@@ -7027,6 +7251,7 @@ V1.5
     return '<label class="fld"><span class="cm-lbl"' + (BK_FLD[path] ? ' data-bk="' + BK_FLD[path] + '"' : '') + '>' + label + (c ? noteBtn(c, path, label, ed !== false) : '') + '</span><input data-f="' + path + '" value="' + esc(value) + '"' + (extra || '') + '></label>';
   }
   function clanSelect(c) {
+    if (isThinTpl(c)) return '<label class="fld"><span class="cm-lbl" data-bk="clan">Clan</span><select disabled aria-describedby="thinClanNote"><option>Caitiff</option></select><small class="muted" id="thinClanNote">Thin Blood is always Caitiff.</small></label>';
     return '<label class="fld"><span class="cm-lbl" data-bk="clan">Clan' + noteBtn(c, 'info.clan', 'Clan', true) + '</span><select data-f="info.clan" data-rr><option value="">Choose…</option>' +
       Object.keys(CLANS).map(function (k) { return '<option' + (c.info.clan === k ? ' selected' : '') + '>' + esc(k) + '</option>'; }).join('') + '</select></label>';
   }
@@ -7069,22 +7294,22 @@ V1.5
   /* ================= SHEET SECTIONS ================= */
   function infoSection(c, editable, notesEd) {
     if (editable) {
-      return '<section class="card"><h2>Identity</h2><div class="info-grid">' +
+      return '<section class="card"><h2>Identity</h2><div class="info-wrap">' + (c.mode === 'edit' ? portraitHTML(c, true) : '') + '<div class="info-grid">' +
         fld(c, 'Name', 'info.name', c.info.name) + fld(c, 'Player', 'info.player', c.info.player) + fld(c, 'Chronicle', 'info.chronicle', c.info.chronicle) +
         fld(c, 'Nature', 'info.nature', c.info.nature, ' list="dl-arch"') + fld(c, 'Demeanor', 'info.demeanor', c.info.demeanor, ' list="dl-arch"') + fld(c, 'Concept', 'info.concept', c.info.concept) +
         clanSelect(c) +
         (c.mode === 'edit' ? '<label class="fld"><span class="cm-lbl">Generation</span><input type="number" min="4" max="15" data-f="info.generation" data-num data-rr value="' + c.info.generation + '"></label>' : '') +
         fld(c, 'Sire', 'info.sire', c.info.sire) +
-        '</div></section>';
+        '</div></div></section>';
     }
     var I = c.info;
     var items = [['Player', 'player'], ['Chronicle', 'chronicle'], ['Clan', 'clan'], ['Nature', 'nature'], ['Demeanor', 'demeanor'], ['Concept', 'concept'], ['Generation', null], ['Sire', 'sire']];
     return '<section class="card"><div class="card-head"><h2>' + dblF('info.name', I.name, esc(I.name || 'Unnamed'), { label: 'Name' }) + noteBtn(c, 'info.name', 'Name', notesEd) + '</h2>' + (I.clan ? '<span class="chip">' + esc(I.clan) + ' · ' + ord(I.generation) + ' generation</span>' : '') + '</div>' +
-      '<dl class="info-view">' + items.map(function (x) {
+      '<div class="info-wrap">' + portraitHTML(c, false) + '<dl class="info-view">' + items.map(function (x) {
         var v = x[1] ? I[x[1]] : ord(I.generation);
         var shown = (x[1] && x[1] !== 'clan') ? dblF('info.' + x[1], v, esc(v || '—'), { label: x[0], list: (x[1] === 'nature' || x[1] === 'demeanor') ? 'dl-arch' : '' }) : esc(v || '—');
         return '<div><dt' + ({ clan: ' data-bk="clan"', nature: ' data-bk="nature"', demeanor: ' data-bk="demeanor"' }[x[1]] || '') + '>' + x[0] + '</dt><dd>' + shown + (x[1] ? noteBtn(c, 'info.' + x[1], x[0], notesEd) : '') + '</dd></div>';
-      }).join('') + '</dl></section>';
+      }).join('') + '</dl></div></section>';
   }
   function attrSection(c, ctx, wizard) {
     return '<section class="card"><div class="card-head"><h2>Attributes</h2></div><div class="cols3">' + Object.keys(ATTR_GROUPS).map(function (g) {
@@ -7109,7 +7334,7 @@ V1.5
     return ks.sort(function (a, b) { return (inClan(c, b) - inClan(c, a)) || a.localeCompare(b); });
   }
   function discCol(c, ctx, opts) {
-    var h = '<div class="col"><div class="col-head"><h3>Disciplines</h3>' + (opts.counter ? ctr(groupInfo(c, 'disc.x').spent, CREATION.disc) : '') + '</div>';
+    var h = '<div class="col"><div class="col-head"><h3>Disciplines</h3>' + (opts.counter ? ctr(groupInfo(c, 'disc.x').spent, CR(c).disc) : '') + '</div>';
     var ks = discKeys(c);
     if (!ks.length) h += '<p class="muted small">' + (c.info.clan === 'Caitiff' ? 'Caitiff can start with any Disciplines. Add them below.' : 'No Disciplines yet.') + '</p>';
     ks.forEach(function (d) {
@@ -7126,9 +7351,10 @@ V1.5
     return h + '</div>';
   }
   function bgCol(c, ctx, opts) {
-    var h = '<div class="col"><div class="col-head"><h3>Backgrounds</h3>' + (opts.counter ? ctr(groupInfo(c, 'bg.x').spent, CREATION.bg) : '') + '</div>';
+    var h = '<div class="col"><div class="col-head"><h3>Backgrounds</h3>' + (opts.counter ? ctr(groupInfo(c, 'bg.x').spent, CR(c).bg) : '') + '</div>';
     var ks = Object.keys(c.bg);
     if (opts.all) BACKGROUNDS.forEach(function (b) { if (ks.indexOf(b) < 0) ks.push(b); });
+    ks = ks.filter(function (b) { return !thinBgBlocked(c, b); });   // Thin Blood: no Generation or Status
     if (!opts.all && !ctx.edit) ks = ks.filter(function (b) { return c.bg[b] > 0; });
     ks.sort();
     if (!ks.length) h += '<p class="muted small">No Backgrounds.</p>';
@@ -7141,7 +7367,7 @@ V1.5
     return h + '</div>';
   }
   function virtCol(c, ctx, opts) {
-    var h = '<div class="col"><div class="col-head"><h3>Virtues</h3>' + (opts.counter ? ctr(groupInfo(c, 'virt.x').spent, CREATION.virt) : '') + '</div>';
+    var h = '<div class="col"><div class="col-head"><h3>Virtues</h3>' + (opts.counter ? ctr(groupInfo(c, 'virt.x').spent, CR(c).virt) : '') + '</div>';
     ['conscience', 'selfControl', 'courage'].forEach(function (v) { h += row(c, 'virt.' + v, ctx); });
     if (opts.path) h += pathPicker(c);
     return h + '</div>';
@@ -7184,18 +7410,21 @@ V1.5
     }).join('');
   }
   function mfSection(c, editable) {
+    var thinLock = editable && creating(c) && isThinTpl(c);   // Thin Blood creation: only the forced Generation Flaws
+    if (thinLock) editable = false;
     function list(k, label) {
       var arr = c[k], h = '<div class="col"><div class="col-head"><h3 data-bk="mfhead">' + label + '</h3><span class="ctr">' + sum(arr, function (m) { return +m.cost || 0; }) + ' pts</span></div>';
       if (!arr.length) h += '<p class="muted small">None.</p>';
       arr.forEach(function (m, i) {
         var nb = noteBtn(c, 'arr:' + k + ':' + m.id, m.name || label.slice(0, -1), editable);
         var bm = mfFind(k, m.name), mk = bm ? ' <span class="cm-tag" title="' + bm.kind + ' ' + label.slice(0, -1).toLowerCase() + ', ' + mfCost(bm) + ' in the book">' + bm.kind + '</span>' : '';
-        if (editable) h += '<div class="row-ed"' + (sumOf(k, m.name) ? ' data-sum="' + esc(sumOf(k, m.name)) + '"' : '') + '><input data-f="' + k + '.' + i + '.name" value="' + esc(m.name) + '" placeholder="Name (pick from the book or type)" list="dl-' + k + '" aria-label="' + label + ' name"><input type="number" min="1" max="7" data-f="' + k + '.' + i + '.cost" data-num data-rr value="' + esc(m.cost) + '" aria-label="Points">' + nb + '<button type="button" class="x-btn" data-act="rmArr" data-k="' + k + '" data-i="' + i + '" aria-label="Remove">×</button></div>';
-        else h += '<div class="trait"><span class="tn"><span class="cm-nm" data-bk="' + (k === 'merits' ? 'merit' : 'flaw') + ':' + esc(m.name) + '"' + (sumOf(k, m.name) ? ' data-sum="' + esc(sumOf(k, m.name)) + '"' : '') + '>' + esc(m.name || 'Unnamed') + mk + nb + '</span></span><span class="ctr">' + esc(m.cost) + '</span></div>';
+        if (editable) h += '<div class="row-ed"' + (sumFor(c, k, m.name, m) ? ' data-sum="' + esc(sumFor(c, k, m.name, m)) + '"' : '') + '><input data-f="' + k + '.' + i + '.name" value="' + esc(m.name) + '" placeholder="Name (pick from the book or type)" list="dl-' + k + '" aria-label="' + label + ' name"><input type="number" min="1" max="7" data-f="' + k + '.' + i + '.cost" data-num data-rr value="' + esc(m.cost) + '" aria-label="Points">' + nb + '<button type="button" class="x-btn" data-act="rmArr" data-k="' + k + '" data-i="' + i + '" aria-label="Remove">×</button></div>';
+        else h += '<div class="trait"><span class="tn"><span class="cm-nm" data-bk="' + (k === 'merits' ? 'merit' : 'flaw') + ':' + esc(m.name) + '"' + (sumFor(c, k, m.name, m) ? ' data-sum="' + esc(sumFor(c, k, m.name, m)) + '"' : '') + '>' + esc(m.name || 'Unnamed') + mk + nb + '</span></span><span class="ctr">' + esc(m.cost) + '</span></div>';
       });
       if (editable) h += '<div class="add"><button type="button" class="btn small" data-act="addArr" data-k="' + k + '">Add ' + label.slice(0, -1).toLowerCase() + '</button></div>';
       return h + '</div>';
     }
+    if (thinLock) return '<section class="card"><h2>Merits &amp; Flaws</h2><p class="muted small">Thin Blood takes no Merits or Flaws at creation, except its Generation Flaw (set in Finishing touches).</p><div class="cols2">' + list('merits', 'Merits') + list('flaws', 'Flaws') + '</div></section>';
     if (!editable && !c.merits.length && !c.flaws.length) return '';
     return '<section class="card"><h2>Merits &amp; Flaws</h2>' + (c.mode === 'play' ? '' : '') + '<div class="cols2">' + list('merits', 'Merits') + list('flaws', 'Flaws') + '</div></section>';
   }
@@ -7354,7 +7583,10 @@ V1.5
       '<div class="vit"><h3 class="sub" data-bk="health">Health</h3><div class="htable">' + boxes + '</div><div class="status">' + esc(status) + '</div>' +
       healthButtons(c) + '</div>' +
       '<div class="vit"><div class="pool-head"><h3 class="sub" data-bk="blood">Blood pool</h3>' + hung + '<strong>' + c.blood.cur + ' / ' + g.blood + '</strong></div><div class="boxes">' + bloodBoxes + '</div>' +
-      '<div class="muted small">Up to ' + g.turn + ' per turn' + (turnNow() ? ' · ' + spentNow(c) + ' spent this turn' : '') + '</div><div class="def-row cols-3" role="group" aria-label="Blood pool"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
+      '<div class="muted small">Up to ' + g.turn + ' per turn' + (turnNow() ? ' · ' + spentNow(c) + ' spent this turn' : '') +
+        (bloodX(c) > 1 ? ' · <span title="Disciplines, healing and boosts cost double (' + esc(thinGen(c) === 15 ? 'Fifteenth Generation' : 'Thin Blood') + ')">thin blood: 2 per point</span>' : '') +
+        (bloodReserve(c) ? ' · <span title="Fourteenth Generation: only 8 of the 10 blood points can power Disciplines, healing and boosts">last ' + bloodReserve(c) + ' unusable</span>' : '') +
+        '</div><div class="def-row cols-3" role="group" aria-label="Blood pool"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1"' + (bloodX(c) > 1 ? ' title="Costs ' + bloodX(c) + ' blood (thin blood)"' : '') + '>Spend 1' + (bloodX(c) > 1 ? ' (' + bloodX(c) + ')' : '') + '</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
       '<div class="pool-head" style="margin-top:8px"><h3 class="sub" data-bk="wp">Willpower</h3><strong>' + c.willpower.cur + ' / ' + c.willpower.perm + '</strong></div><div class="boxes wp">' + wpBoxes + '</div>' +
       '<div class="def-row" role="group" aria-label="Willpower"><button class="btn small" data-act="poolAdj" data-k="wp" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="wp" data-d="1">Regain 1</button></div></div>' +
       /* Collapsible like the Damage module's "Average damage expected" row; the summary shows soak and initiative. */
@@ -7375,6 +7607,11 @@ V1.5
     return out;
   }
   /* XP flags as Settings-style switches, on one row when there's room. */
+  var XP_PAGE = 10, xpLogPage = { cid: '', n: 0 };
+  function xpLogOpen() { try { return localStorage.getItem('vtm-xplog-open') !== '0'; } catch (e) { return true; } }
+  document.addEventListener('toggle', function (e) {
+    if (e.target.classList && e.target.classList.contains('xp-log-box')) { try { localStorage.setItem('vtm-xplog-open', e.target.open ? '1' : '0'); } catch (x) {} }
+  }, true);
   function xpToggles(prefix, flags) {
     return '<div class="xp-toggles">' + XP_FLAGS.map(function (f) {
       var id = prefix + f[0];
@@ -7390,10 +7627,13 @@ V1.5
   }
   function xpSection(c) {
     var play = c.mode === 'play', edit = c.mode === 'edit';
-    var h = '<section class="card"><div class="card-head"><h2>Experience</h2>' + (play ? '<button type="button" class="btn toggle" data-act="xpToggle" aria-pressed="' + xpMode + '">Spend XP</button>' : '') + '</div>';
+    var h = '<section class="card"><div class="card-head"><h2>Experience</h2>' + (play ? '<span class="xp-btns">' +
+      (planMode ? '<button type="button" class="btn" data-act="xpPlan">XP Plan' + (planOf(c).length ? ' <span class="cm-tag">' + planOf(c).length + '</span>' : '') + '</button>' : '') +
+      '<button type="button" class="btn toggle" data-act="planToggle" aria-pressed="' + planMode + '">Planning</button>' +
+      '<button type="button" class="btn toggle" data-act="xpToggle" aria-pressed="' + xpMode + '">Spend XP</button></span>' : '') + '</div>';
     h += '<div class="xp-stats"><span class="ctr">Earned ' + xpTotal(c) + '</span><span class="ctr">Spent ' + xpSpent(c) + '</span><span class="ctr ' + (xpAvail(c) < 0 ? 'over' : 'ok') + '">Available ' + xpAvail(c) + '</span></div>';
     if (play) {
-      h += '<p class="muted small" style="margin:0">' + (xpMode ? 'Tap a higher dot to buy it. New Disciplines and paths can be added from their sections. Backgrounds, Merits and Flaws change only in Free-form edit.' : 'Turn on Spend XP, then tap the dot you want to raise a trait to.') + '</p>';
+      h += '<p class="muted small" style="margin:0">' + (planMode ? 'Planning: tap the dot you want a trait to reach. Planned dots show in red; nothing changes until you confirm them in XP Plan.' : xpMode ? 'Tap a higher dot to buy it. New Disciplines and paths can be added from their sections. Backgrounds, Merits and Flaws change only in Free-form edit.' : 'Turn on Spend XP, then tap the dot you want to raise a trait to. Or turn on Planning to plan raises ahead.') + '</p>';
       h += '<div class="award"><h3 class="sub">Award XP</h3><div class="row">' +
         '<label class="fld">Date<input type="date" id="awDate" value="' + today() + '"></label>' +
         '<label class="fld">Amount<input type="number" min="1" id="awAmt" placeholder="XP"></label>' +
@@ -7406,32 +7646,45 @@ V1.5
     var log = c.xp.log.map(function (e, i) { return [e, i]; }).sort(function (a, b) { return (b[0].t || 0) - (a[0].t || 0); });
     var lastSpend = -1;
     for (var i = c.xp.log.length - 1; i >= 0; i--) if (c.xp.log[i].type === 'spend') { lastSpend = i; break; }
-    h += '<h3 class="sub">XP log</h3>';
+    var lastDet = -1;
+    for (var j = c.xp.log.length - 1; j >= 0; j--) if (c.xp.log[j].type === 'det') { lastDet = j; break; }
+    /* Collapsible (remembered on this device), newest 10 per page. */
+    var pages = Math.max(1, Math.ceil(log.length / XP_PAGE));
+    if (xpLogPage.cid !== c.id) xpLogPage = { cid: c.id, n: 0 };
+    xpLogPage.n = clamp(xpLogPage.n, 0, pages - 1);
+    var shown = log.slice(xpLogPage.n * XP_PAGE, xpLogPage.n * XP_PAGE + XP_PAGE);
+    h += '<details class="xp-log-box"' + (xpLogOpen() ? ' open' : '') + '><summary><h3 class="sub">XP log</h3><span class="muted small xp-log-n">' + log.length + ' ' + (log.length === 1 ? 'entry' : 'entries') + '</span></summary>';
     if (!log.length) h += '<p class="muted small" style="margin:0">Nothing yet. Awards and purchases both show up here.</p>';
-    else h += '<ul class="xp-log">' + log.map(function (x) {
+    else h += '<ul class="xp-log">' + shown.map(function (x) {
       var e = x[0], i = x[1];
       if (e.type === 'earn') {
         var flags = XP_FLAGS.filter(function (f) { return e.flags && e.flags[f[0]]; }).map(function (f) { return '<span class="cm-tag">' + f[1] + '</span>'; }).join('');
         return '<li><span class="what"><span><b>XP awarded</b> <span class="muted small">' + esc(e.date || '') + '</span></span>' + (e.notes ? '<span class="small">' + esc(e.notes) + '</span>' : '') + (flags ? '<span class="flags">' + flags + '</span>' : '') + xpStamp(e) + '</span>' +
           '<span class="inline"><span class="amt earn">+' + e.amount + '</span><button type="button" class="btn small ghost" data-act="xpEdit" data-i="' + i + '" aria-label="Edit this award">Edit</button>' + (edit ? '<button type="button" class="x-btn" data-act="xpRm" data-i="' + i + '" aria-label="Remove award">×</button>' : '') + '</span></li>';
       }
+      if (e.type === 'det') return '<li class="xp-det"><span class="what"><span><b>Deterioration</b> ' + esc(e.label) + ' ' + e.from + ' → ' + e.to + ' <span class="muted small">' + new Date(e.t).toLocaleDateString() + '</span></span>' + (e.notes ? '<span class="small">' + esc(e.notes) + '</span>' : '') + xpStamp(e) + '</span>' +
+        '<span class="inline"><span class="amt det">−' + (e.from - e.to) + ' ' + dotsWord(e.from - e.to) + '</span>' + (i === lastDet ? '<button type="button" class="btn small ghost" data-act="detUndo" data-i="' + i + '">Undo</button>' : '') + '</span></li>';
       return '<li><span class="what"><span>' + esc(e.label) + ' ' + e.from + ' → ' + e.to + ' <span class="muted small">' + new Date(e.t).toLocaleDateString() + '</span></span></span><span class="inline"><span class="amt spend">−' + e.cost + '</span>' +
         (i === lastSpend ? '<button type="button" class="btn small ghost" data-act="xpUndo">Undo</button>' : '') + '</span></li>';
     }).join('') + '</ul>';
-    return h + '</section>';
+    if (pages > 1) h += '<nav class="xp-pager" aria-label="XP log pages"><button type="button" class="btn small" data-act="xpPage" data-d="-1"' + (xpLogPage.n ? '' : ' disabled') + '>‹ Newer</button>' +
+      '<span class="muted small" aria-live="polite">Page ' + (xpLogPage.n + 1) + ' of ' + pages + ' · ' + (xpLogPage.n * XP_PAGE + 1) + '–' + (xpLogPage.n * XP_PAGE + shown.length) + ' of ' + log.length + '</span>' +
+      '<button type="button" class="btn small" data-act="xpPage" data-d="1"' + (xpLogPage.n < pages - 1 ? '' : ' disabled') + '>Older ›</button></nav>';
+    return h + '</details></section>';
   }
 
   /* ================= SHEET TAB ================= */
   function fullSheet(c) {
     var edit = c.mode === 'edit', play = c.mode === 'play';
     var ctx = {
-      edit: edit, text: edit, rm: edit, notes: edit, pick: play && !xpMode,
-      addPath: edit || (play && xpMode),
-      live: function (p) { return edit || (play && xpMode && kind(p) !== 'bg'); }
+      edit: edit, text: edit, rm: edit, notes: edit, pick: play && !xpMode && !planMode,
+      addPath: edit || (play && (xpMode || planMode)),
+      live: function (p) { return edit || c.mode === 'det' || (play && (xpMode || planMode) && kind(p) !== 'bg'); }
     };
     syncDerived(c);
-    return infoSection(c, edit, edit) + attrSection(c, ctx) + abilSection(c, ctx) +
-      advSection(c, ctx, { disc: { add: edit || (play && xpMode) }, bg: { add: edit }, virt: {} }) +
+    return (c.mode === 'det' ? '<p class="det-note" role="status">Deterioration: tap the dot to lower a trait to (the top dot takes one off). Each change is noted in the XP log.</p>' : '') +
+      infoSection(c, edit, edit) + attrSection(c, ctx) + abilSection(c, ctx) +
+      advSection(c, ctx, { disc: { add: edit || (play && (xpMode || planMode)) }, bg: { add: edit }, virt: {} }) +
       sorcSection(c, ctx) + moralSection(c, ctx) + mfSection(c, edit) + equipSection(c, edit) + xpSection(c);
   }
 
@@ -7462,18 +7715,21 @@ V1.5
       '</div></section>' + clanCard;
   }
   function stepAttrs(c) {
-    return '<section class="card"><p>Pick a priority for each group, then place the dots: <strong>7</strong> in Primary, <strong>5</strong> in Secondary, <strong>3</strong> in Tertiary. Every Attribute starts with one free dot.' +
+    var A = CR(c).attr;
+    return '<section class="card"><p>Pick a priority for each group, then place the dots: <strong>' + A[0] + '</strong> in Primary, <strong>' + A[1] + '</strong> in Secondary, <strong>' + A[2] + '</strong> in Tertiary. Every Attribute starts with one free dot.' +
       (isNos(c) ? ' Nosferatu Appearance stays at 0, and its dot doesn\'t carry over.' : '') + '</p></section>' +
       attrSection(c, wctx(c, function (p) { return kind(p) === 'attr'; }), true);
   }
   function stepAbils(c) {
-    return '<section class="card"><p>Prioritize again: <strong>13</strong> / <strong>9</strong> / <strong>5</strong> dots. No Ability can go above 3 here; freebie points can raise it later.</p></section>' +
+    var B = CR(c).abil;
+    return '<section class="card"><p>Prioritize again: <strong>' + B[0] + '</strong> / <strong>' + B[1] + '</strong> / <strong>' + B[2] + '</strong> dots. No Ability can go above 3 here' + (CR(c).freebies ? '; freebie points can raise it later' : '') + '.</p></section>' +
       abilSection(c, wctx(c, function (p) { return kind(p) === 'abil'; }), true);
   }
   function stepAdv(c) {
     var ctx = wctx(c, function (p) { var k = kind(p); return k === 'disc' || k === 'bg' || k === 'virt'; });
     ctx.rm = true;
-    return '<section class="card"><p><strong>3</strong> dots of clan Disciplines, <strong>5</strong> dots of Backgrounds, and <strong>7</strong> dots of Virtues (each Virtue starts at 1). Your Virtues set Humanity and Willpower in the next step.</p></section>' +
+    return '<section class="card"><p><strong>' + CR(c).disc + '</strong> dots of clan Disciplines, <strong>' + CR(c).bg + '</strong> dots of Backgrounds, and <strong>' + CR(c).virt + '</strong> dots of Virtues (each Virtue starts at 1). Your Virtues set Humanity and Willpower in the next step.' +
+      (thinGen(c) === 15 ? ' Fifteenth Generation: no Discipline above 3.' : '') + (thinGen(c) ? ' The Generation Background does nothing for Thin Blood.' : '') + '</p></section>' +
       advSection(c, ctx, { disc: { counter: true, add: c.info.clan === 'Caitiff', extra: c.info.clan && c.info.clan !== 'Caitiff' }, bg: { counter: true, all: true, add: true }, virt: { counter: true, path: true } });
   }
   function stepFinish(c) {
@@ -7484,7 +7740,10 @@ V1.5
     return '<section class="card"><h2>Finishing touches</h2><div class="derived">' +
       '<div class="dv"><span class="dl">' + esc(c.morality.name) + '</span><span class="dn">' + (cs + sc) + '</span><span class="dx">' + esc(virtLabel(c, 'conscience')) + ' ' + cs + ' + ' + esc(virtLabel(c, 'selfControl')) + ' ' + sc + '</span></div>' +
       '<div class="dv"><span class="dl">Willpower</span><span class="dn">' + co + '</span><span class="dx">Equal to Courage</span></div>' +
-      '<div class="dv"><span class="dl">Generation</span><span class="dn">' + ord(c.info.generation) + '</span><span class="dx">13th, lowered by the Generation Background</span></div>' +
+      (isThinTpl(c) ? '<div class="dv"><span class="dl">Generation</span><span class="dn">' + ord(c.info.generation) + '</span><span class="dx"><span class="seg mini" role="group" aria-label="Thin Blood Generation">' +
+        [14, 15].map(function (n) { return '<button type="button" data-act="thinGen" data-g="' + n + '" aria-pressed="' + (thinGen(c) === n) + '">' + ord(n) + '</button>'; }).join('') + '</span> ' +
+        (thinGen(c) === 15 ? 'Fifteenth Generation Flaw' : 'Fourteenth Generation and Thin Blood Flaws') + '</span></div>'
+      : '<div class="dv"><span class="dl">Generation</span><span class="dn">' + ord(c.info.generation) + '</span><span class="dx">13th, lowered by the Generation Background</span></div>') +
       '<div class="dv"><span class="dl">Blood pool</span><span class="dn">' + g.blood + '</span><span class="dx">Spend up to ' + g.turn + ' per turn</span></div>' +
       '</div>' +
       '<h3 class="sub">Starting blood pool</h3><p class="muted small" style="margin:0">Roll one die for how much blood the character starts with, or tap the boxes to set it yourself.</p>' +
@@ -7494,13 +7753,14 @@ V1.5
   function stepFreebies(c) {
     var sp = fbSpent(c), bud = fbBudget(c), left = bud - sp;
     var budget = '<section class="card budget"><div class="big"><span class="cm-lbl" data-act="fbSecret">Freebie points</span> ' + ctr(sp, bud) + '</div>' +
-      '<div class="costs">' + Object.keys(FB_NAMES).filter(function (k) { return k !== 'spath'; }).map(function (k) { return '<span class="ctr">' + FB_NAMES[k] + ' ' + FB_COST[k] + '</span>'; }).join('') + '<span class="ctr">Merit = its points</span><span class="ctr">Flaws give up to 7</span></div>' +
+      '<div class="costs">' + Object.keys(FB_NAMES).filter(function (k) { return k !== 'spath'; }).map(function (k) { return '<span class="ctr">' + FB_NAMES[k] + ' ' + FB_COST[k] + '</span>'; }).join('') + (isThinTpl(c) ? '' : '<span class="ctr">Merit = its points</span><span class="ctr">Flaws give up to 7</span>') + '</div>' +
+      (isThinTpl(c) ? '<p class="muted small" style="margin:6px 0 0">Thin Blood gets no freebie points (only what the Storyteller gives), and takes no Merits or Flaws but its Generation Flaw.</p>' : '') +
       '<p class="legend-line"><span class="dot on fb" aria-hidden="true"></span><span>Gold dots were bought with freebie points. Lower one to get its points back.</span></p></section>';
     var ctx = { edit: false, text: true, rm: true, addPath: true, notes: true, live: function () { return true; } };
     var ledger = [];
     Object.keys(c.creation.fb).forEach(function (p) { var k = kind(p); ledger.push([labelOf(c, p) + ' +' + c.creation.fb[p], c.creation.fb[p] * FB_COST[k]]); });
     c.merits.forEach(function (m) { if (+m.cost) ledger.push(['Merit: ' + (m.name || 'unnamed'), +m.cost]); });
-    var fl = Math.min(CREATION.flawCap, flawTotal(c)), stf = +c.creation.st || 0;
+    var fl = Math.min(CR(c).flawCap, flawTotal(c)), stf = +c.creation.st || 0;
     var led = '<section class="card"><h2>Freebie ledger</h2>' + (ledger.length || fl || stf ? '<ul class="ledger">' + ledger.map(function (x) { return '<li><span>' + esc(x[0]) + '</span><span>' + x[1] + '</span></li>'; }).join('') +
       (fl ? '<li><span>Flaws (bonus points)</span><span>−' + fl + '</span></li>' : '') + (stf ? '<li><span>ST Freebies</span><span>' + (stf > 0 ? '−' + stf : '+' + (-stf)) + '</span></li>' : '') +
       '<li><strong>Left</strong><span>' + left + '</span></li></ul>' : '<p class="muted small">Nothing bought yet.</p>') + '</section>';
@@ -7763,6 +8023,7 @@ V1.5
         if (res.found < DISC_INDEX.length * 0.6) throw new Error('This PDF doesn\'t look like the V20 core rulebook (only ' + res.found + ' of ' + DISC_INDEX.length + ' headings found).');
         idbPut('vtm-characters', 'cache', DISC_CACHE, res.sections).catch(function () {});
         useDiscData(res.sections);
+        if (der.state !== 'ready') der.state = 'idle';
         return weaponsFromDoc(doc).catch(function () {});
       });
     });
@@ -7798,6 +8059,7 @@ V1.5
     download(url, tk).then(function (b) { if (tk !== disc.token) return; rulesPut(b); return readBlob(b); }).then(function () { if (tk === disc.token) { render(); toast('Rulebook read.'); } }, function (e) { if (tk === disc.token) discFail(e); });
   }
   function discReread() {
+    idbPut('vtm-characters', 'cache', DER_CACHE, null).catch(function () {}); der.state = 'idle'; der.map = null;
     idbPut('vtm-characters', 'cache', DISC_CACHE, null).catch(function () {}).then(function () {
       disc.state = 'idle'; disc.map = null; ensureDisc(true); render();
     });
@@ -7945,6 +8207,77 @@ V1.5
   var AES = [['height', 'Height'], ['weight', 'Weight'], ['age', 'Age'], ['apparent', 'Apparent Age'], ['sex', 'Sex'], ['hair', 'Hair'], ['eyes', 'Eyes'], ['nationality', 'Nationality']];
   function bgxOf(c, b) { if (!c.details.bgx[b]) c.details.bgx[b] = { text: '', people: [] }; if (!c.details.bgx[b].people) c.details.bgx[b].people = []; return c.details.bgx[b]; }
   var DBL_HINT = 'Double-click to write.';
+  /* ---- Folding (Details tab): sections, Backgrounds and Derangements collapse; remembered on this device.
+     A collapsed Background or Derangement shows a bit of its text when its title is hovered. */
+  var FOLD_KEY = 'vtm-folds';
+  function foldsGet() { try { return JSON.parse(localStorage.getItem(FOLD_KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function foldOpen(key) { return !foldsGet()[key]; }
+  function foldSet(key, open) {
+    var f = foldsGet(); if (open) delete f[key]; else f[key] = 1;
+    var ks = Object.keys(f); if (ks.length > 600) ks.slice(0, ks.length - 600).forEach(function (k) { delete f[k]; });
+    try { localStorage.setItem(FOLD_KEY, JSON.stringify(f)); } catch (e) {}
+  }
+  function foldSum(key, txt) { var op = foldOpen(key); return ' data-fsum="' + esc(txt) + '"' + (op ? '' : ' data-sum="' + esc(txt) + '"'); }
+  document.addEventListener('toggle', function (e) {
+    var d = e.target; if (!d.matches || !d.matches('details[data-fold]')) return;
+    foldSet(d.getAttribute('data-fold'), d.open);
+    var s = d.querySelector(':scope > summary[data-fsum]');
+    if (s) { if (d.open) s.removeAttribute('data-sum'); else s.setAttribute('data-sum', s.getAttribute('data-fsum')); hideTip(); }
+  }, true);
+  function plainBit(s, n) {
+    var t = String(s || '').replace(/<[^>]*>/g, ' ').replace(/^\s*[#-]+\s*/gm, '').replace(/\s+/g, ' ').trim();
+    return t.length > n ? t.slice(0, n).replace(/\s+\S*$/, '') + '…' : t;
+  }
+  /* ---- Derangements: their text is read from the user's own rulebook PDF (like the Disciplines), and kept here. */
+  var DER_CACHE = 'der-v1', der = { state: 'idle', map: null };
+  function ensureDer() {
+    if (der.state !== 'idle') return;
+    der.state = 'loading';
+    idbGet('vtm-characters', 'cache', DER_CACHE).catch(function () { return null; }).then(function (cached) {
+      if (cached && cached.length) return cached;
+      return rulesGet().then(function (blob) {
+        if (!blob) return null;
+        return Promise.all([pdfLib(), blob.arrayBuffer()]).then(function (r) { return window.pdfjsLib.getDocument({ data: r[1] }).promise; })
+          .then(function (doc) { return extractDisciplines(doc, DER_INDEX); })
+          .then(function (res) { if (res.found < DER_INDEX.length * 0.6) return null; idbPut('vtm-characters', 'cache', DER_CACHE, res.sections).catch(function () {}); return res.sections; });
+      });
+    }).then(function (secs) {
+      if (secs) { der.map = {}; secs.forEach(function (s) { der.map[s.name.toLowerCase()] = s.blocks; }); der.state = 'ready'; } else der.state = 'none';
+      if (activeTab() === 'details') render();
+    }, function () { der.state = 'none'; });
+  }
+  function derSection(c, ed) {
+    var list = c.details.der, h = '';
+    if (ed) {
+      h += '<datalist id="dl-der">' + DER_BOOK.map(function (d) { return '<option value="' + esc(d[0]) + '">'; }).join('') + '</datalist>';
+      list.forEach(function (d, i) {
+        var bk = derBook(d.name), base = 'details.der.' + i;
+        h += '<div class="der-ed"><div class="row-ed"><input data-f="' + base + '.name" data-rr list="dl-der" value="' + esc(d.name) + '" placeholder="Name: pick one from the book or type your own" aria-label="Derangement name">' +
+          '<span class="cm-tag">' + (bk ? 'Book, p. ' + bk[1] : 'Custom') + '</span>' +
+          '<button type="button" class="x-btn" data-act="derRm" data-i="' + i + '" aria-label="Remove ' + esc(d.name || 'derangement') + '">×</button></div>' +
+          (bk ? '' : '<label class="fld"><span class="cm-lbl">Hover text</span><input data-f="' + base + '.sum" value="' + esc(d.sum) + '" maxlength="300" placeholder="A short summary, shown when it\'s collapsed and hovered"></label>') +
+          '<textarea class="grow" data-f="' + base + '.notes" placeholder="Notes: how it shows, what sets it off…" aria-label="Notes">' + esc(d.notes) + '</textarea></div>';
+      });
+      if (!list.length) h += '<p class="muted small" style="margin:0">No derangements.</p>';
+      return h + '<div><button type="button" class="btn small" data-act="derAdd">Add derangement</button></div>';
+    }
+    if (!list.length) return '<p class="muted small" style="margin:0">No derangements. Turn on edit to add one.</p>';
+    if (list.some(function (d) { return derBook(d.name); })) ensureDer();
+    list.forEach(function (d, i) {
+      var bk = derBook(d.name), key = c.id + ':der:' + d.id, sm = bk ? DER_SUMS[bk[0]] : (d.sum || 'No summary yet. Add one in edit mode.');
+      var body;
+      if (bk) {
+        var bl = der.map && der.map[bk[0].toLowerCase()];
+        body = bl ? '<div class="book-text">' + blocksHTML(bl) + '</div>'
+          : '<p>' + esc(DER_SUMS[bk[0]]) + '</p><p class="muted small">' + (der.state === 'loading' ? 'Reading the rulebook…' : 'The book\'s full text shows here once the rulebook is loaded (on the Disciplines tab).') + '</p>';
+        body += srcLine(bk[1]);
+      } else body = d.sum ? '<p>' + esc(d.sum) + '</p>' : '<p class="muted small">Custom derangement. Add a summary in edit mode.</p>';
+      body += '<h4 class="sub">Notes</h4>' + dblF('details.der.' + i + '.notes', d.notes, rich(d.notes, 'No notes yet. ' + DBL_HINT), { area: true, block: true, label: (d.name || 'Derangement') + ' notes' });
+      h += '<details class="der fold-item" data-fold="' + key + '"' + (foldOpen(key) ? ' open' : '') + '><summary' + foldSum(key, sm) + '><span class="cm-nm"' + (bk ? ' data-bk="der:' + esc(bk[0]) + '"' : '') + '>' + esc(d.name || 'Unnamed derangement') + '</span>' +
+        '<span class="cm-tag">' + (bk ? 'Book' : 'Custom') + '</span></summary><div class="fold-body">' + body + '</div></details>';
+    });
+    return h;
+  }
   function detailsTab(c) {
     var ed = !!tabEdit.details, a = c.details.aes;
     var h = '<section class="card"><h2>Aesthetics</h2>';
@@ -7958,7 +8291,8 @@ V1.5
     if (!bgs.length) h += '<p class="muted small" style="margin:0">Backgrounds with dots show up here.</p>';
     bgs.forEach(function (b) {
       var x = bgxOf(c, b), people = PEOPLE_BG.indexOf(b) >= 0, herd = b === 'Herd', base = 'details.bgx.' + b;
-      h += '<div class="bgx"><h3>' + esc(b) + ' <span class="pdots" style="color:var(--accent-text);font-family:var(--font-data)">' + '•'.repeat(Math.min(c.bg[b], 10)) + '</span></h3>';
+      var bk = c.id + ':bg:' + b;
+      h += '<details class="bgx fold-item" data-fold="' + esc(bk) + '"' + (foldOpen(bk) ? ' open' : '') + '><summary' + foldSum(bk, plainBit(x.text, 160) || 'No details yet.') + '><h3>' + esc(b) + ' <span class="pdots" style="color:var(--accent-text);font-family:var(--font-data)">' + '•'.repeat(Math.min(c.bg[b], 10)) + '</span></h3></summary><div class="fold-body">';
       h += ed ? '<textarea class="grow" data-f="' + base + '.text" placeholder="What does this Background look like in the story?" aria-label="' + esc(b) + ' details">' + esc(x.text || '') + '</textarea>'
         : dblF(base + '.text', x.text, rich(x.text, 'No details yet. ' + DBL_HINT), { area: true, block: true, label: b + ' details' });
       if (people) {
@@ -7979,9 +8313,11 @@ V1.5
         if (!x.people.length && !ed) h += '<p class="muted small" style="margin:0">None added.</p>';
         if (ed) h += '<div><button type="button" class="btn small" data-act="addPerson" data-bg="' + esc(b) + '">Add ' + (herd ? 'herd member' : 'character') + '</button></div>';
       }
-      h += '</div>';
+      h += '</div></details>';
     });
     h += '</section>';
+
+    h += '<section class="card"><h2 data-bk="der">Derangements</h2>' + derSection(c, ed) + '</section>';
 
     /* Possessions: the first subsection always mirrors Carried Equipment from the Sheet tab. */
     h += '<section class="card"><h2>Possessions</h2><div class="poss-grid">';
@@ -8039,9 +8375,13 @@ V1.5
     if (ed) h += '<div class="add"><button type="button" class="btn small" data-act="addArr" data-k="rituals">Add ritual</button></div>';
     h += '</section>';
 
-    h += '<section class="card"><h2>Other Details</h2>' + (ed ? '<textarea class="grow" data-f="details.other" placeholder="Haven, derangements, blood bonds, anything else…" aria-label="Other details">' + esc(c.details.other || '') + '</textarea>'
+    h += '<section class="card"><h2>Other Details</h2>' + (ed ? '<textarea class="grow" data-f="details.other" placeholder="Haven, blood bonds, anything else…" aria-label="Other details">' + esc(c.details.other || '') + '</textarea>'
       : dblF('details.other', c.details.other, rich(c.details.other, 'Nothing written yet. ' + DBL_HINT), { area: true, block: true, label: 'Other details' })) + '</section>';
-    return h;
+    /* Each card becomes a collapsible section. */
+    return h.replace(/<section class="card"><h2([^>]*)>([^<]*)<\/h2>/g, function (m, at, title) {
+      var key = c.id + ':sec:' + title.toLowerCase().replace(/[^a-z]+/g, '-');
+      return '<details class="card fold-sec" data-fold="' + key + '"' + (foldOpen(key) ? ' open' : '') + '><summary><h2' + at + '>' + title + '</h2></summary>';
+    }).replace(/<\/section>/g, '</details>');
   }
 
   /* ================= BACKSTORY & MORE ================= */
@@ -8130,12 +8470,14 @@ V1.5
     if (!c) { el.innerHTML = ''; return; }
     var t = activeTab(), h = '';
     if (t === 'sheet') {
-      var segs = c.creation.done ? [['play', 'Play'], ['edit', 'Free-form edit']] : [['create', 'Guided creation'], ['edit', 'Free-form edit']];
+      var segs = c.creation.done ? [['play', 'Play'], ['edit', 'Free-form edit'], ['det', 'Deterioration']] : [['create', 'Guided creation'], ['edit', 'Free-form edit']];
       h = '<span class="seg" role="group" aria-label="Mode">' + segs.map(function (s) {
         return '<button type="button" data-act="mode" data-m="' + s[0] + '" aria-pressed="' + (c.mode === s[0]) + '">' + s[1] + '</button>';
       }).join('') + '</span>' +
         (!c.creation.done ? '<button type="button" class="btn small ghost" data-act="skipCreate">Finish without the guide</button>' : '') +
-        '<span class="chip">Kindred · V20</span>';
+        '<span class="chip">' + (isThinTpl(c) ? 'Thin Blood' : 'Kindred') + ' · V20</span>' +
+        '<span class="prog-wrap">' + (progOn() ? '<span class="pg-legend" aria-label="Dot colours"><span><i class="dot on pg-b" aria-hidden="true"></i>Base</span><span><i class="dot on fb" aria-hidden="true"></i>Freebies</span><span><i class="dot on pg-x" aria-hidden="true"></i>XP</span></span>' : '') +
+        '<label class="switch prog-sw" for="progSw" title="Colour each dot by how it was gained: Base (creation and Free-form edit), Freebies, or XP"><input type="checkbox" role="switch" id="progSw"' + (progOn() ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>Show Progression</strong></span></label></span>';
     } else if (EDIT_TABS[t]) {
       var on = !!tabEdit[t];
       h = '<div class="edit-bar"><button type="button" class="btn toggle" data-act="tabEdit" aria-pressed="' + on + '">' + (on ? 'Done editing' : 'Edit') + '</button><span class="edit-note">' + (on ? 'Changes save as you type.' : 'Locked, so nothing changes by accident.') + '</span></div>';
@@ -8171,7 +8513,15 @@ V1.5
       else try { if (ie.tagName === 'TEXTAREA' || ie.type === 'text' || !ie.type) { var n = ie.value.length; ie.setSelectionRange(n, n); } } catch (e) {}
     }
   }
+  /* Leaving a sheet's Sheet tab (another tab, another character, the Roller) puts it back in Play. */
+  var sheetSeen = '';
+  function sheetWatch() {
+    var c = store.view === 'chars' && !gated() ? cur() : null, here = c && activeTab() === 'sheet' ? c.id : '';
+    if (sheetSeen && sheetSeen !== here) { var o = store.chars[sheetSeen]; if (o && o.mode !== defMode(o)) { o.mode = defMode(o); planMode = false; syncDerived(o); } }
+    sheetSeen = here;
+  }
   function render() {
+    sheetWatch();
     var openD = {}; Array.prototype.forEach.call(document.querySelectorAll('#cmView details[open] > summary, #cmModule details[open] > summary'), function (s) { openD[s.textContent.trim()] = 1; });
     renderInner();
     Array.prototype.forEach.call(document.querySelectorAll('#cmView details > summary, #cmModule details > summary'), function (s) { if (openD[s.textContent.trim()]) s.parentNode.open = true; });
@@ -8183,7 +8533,8 @@ V1.5
   function onDot(p, n) {
     var c = cur(); if (!c) return;
     var v = val(c, p);
-    if (c.mode === 'play' && !creating(c)) return xpDot(c, p, n);
+    if (c.mode === 'det') return detDot(c, p, n);
+    if (c.mode === 'play' && !creating(c)) return planMode ? planDot(c, p, n) : xpDot(c, p, n);
     if (n === v) n = v - 1;
     if (creating(c)) return createDot(c, p, n);
     if (c.mode === 'edit') return editDot(c, p, n);
@@ -8195,7 +8546,7 @@ V1.5
       var na = n - f;
       if (na < fl) na = fl;
       if (na === a) return;
-      if (k === 'abil' && na > CREATION.abilCap) return toast('Abilities can\'t go above 3 until freebie points.');
+      if (k === 'abil' && na > CR(c).abilCap) return toast('Abilities can\'t go above 3 until freebie points.');
       if (na + f > 5) return toast('5 dots is the most a starting character can have.');
       if (k === 'disc' && na > a && !canStartWith(c, split(p)[1])) return toast('Starting Discipline dots must go to clan Disciplines.');
       var g = groupInfo(c, p), delta = na - a;
@@ -8226,7 +8577,7 @@ V1.5
     if (n === old) return;
     setVal(c, p, n);
     if (k === 'willpower' && (c.willpower.cur === old || c.willpower.cur > n)) c.willpower.cur = n;
-    if (p === 'bg.Generation') c.info.generation = 13 - Math.min(5, n);
+    if (p === 'bg.Generation') c.info.generation = thinGen(c) || 13 - Math.min(5, n);
     syncDerived(c); commit();
   }
   function xpDot(c, p, n) {
@@ -8245,9 +8596,120 @@ V1.5
       setVal(c, p, n);
       if (k === 'willpower') c.willpower.cur += n - v;
       c.xp.log.push({ type: 'spend', p: p, label: lbl, from: v, to: n, cost: cost, t: Date.now() });
+      planDrop(c, p, n - v);   // those steps were planned: they're done now
       commit();
     });
   }
+  /* ---- Deterioration: story events lower a trait. No XP involved; noted in the XP log. Tap the dot to lower it to
+     (the top dot takes one off). */
+  function detDot(c, p, n) {
+    var v = val(c, p), lbl = labelOf(c, p), to = n === v ? v - 1 : n, fl = floorOf(c, p);
+    if (n > v) return toast('Deterioration only lowers traits. Tap the dot to lower ' + lbl + ' to.');
+    if (to < fl) return toast(lbl + ' can\'t go below ' + fl + '.');
+    openModal('<h2>Deterioration</h2><p>Lower <b>' + esc(lbl) + '</b> from ' + v + ' to ' + to + '? It\'s noted in the XP log; no XP is involved.</p>' +
+      '<label class="fld">What happened (optional)<input id="detWhy" maxlength="200" placeholder="e.g. Killed a mortal in frenzy"></label>' +
+      '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Lower to ' + to + '</button></div>');
+    $('detWhy').focus();
+    $('detWhy').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); });
+    $('mNo').onclick = closeModal;
+    $('mOk').onclick = function () {
+      setVal(c, p, to);
+      if (kind(p) === 'willpower') c.willpower.cur = Math.min(c.willpower.cur, to);
+      if (p === 'bg.Generation') c.info.generation = thinGen(c) || 13 - Math.min(5, to);
+      c.xp.log.push({ type: 'det', id: rid(), p: p, label: lbl, from: v, to: to, notes: $('detWhy').value.trim(), t: Date.now(), by: whoAmI() });
+      closeModal(); syncDerived(c); commit(); toast(lbl + ' lowered to ' + to + '.');
+    };
+  }
+  /* ---- XP plan: planned raises, one step (one dot) per entry, kept in the order they were planned (rearrangeable).
+     Each step starts from the trait's current rating plus the earlier steps for it, so a trait lowered since the plan
+     was made (Deterioration, Free-form edit) simply moves the plan down with it. Nothing changes until a step is confirmed. */
+  function planOf(c) { if (!Array.isArray(c.xp.plan)) c.xp.plan = []; return c.xp.plan; }
+  function planCount(c, p) { return planOf(c).filter(function (e) { return e.p === p; }).length; }
+  function planDrop(c, p, n) {   // the earliest n steps for a trait
+    var pl = planOf(c);
+    for (var i = 0; i < pl.length && n > 0; i++) if (pl[i].p === p) { pl.splice(i, 1); i--; n--; }
+  }
+  function planSteps(c) {
+    var seen = {}, av = xpAvail(c), first = {};
+    return planOf(c).map(function (e) {
+      var from = val(c, e.p) + (seen[e.p] || 0), to = from + 1, k = kind(e.p), why = '';
+      seen[e.p] = (seen[e.p] || 0) + 1;
+      if (to > maxFor(c, e.p)) why = 'Above the maximum for your Generation';
+      else if (k === 'spath') { var sp = spathParts(e.p); if (to > spathCap(c, sp.d)) why = spathMsg(c, sp.d); }
+      var isFirst = !first[e.p]; first[e.p] = 1;
+      return { e: e, label: labelOf(c, e.p), from: from, to: to, cost: why ? 0 : xpStep(c, e.p, from), why: why, first: isFirst };
+    });
+  }
+  function planDot(c, p, n) {
+    var k = kind(p), v = val(c, p), top = v + planCount(c, p), lbl = labelOf(c, p);
+    if (k === 'bg') return toast('Backgrounds aren\'t bought with XP, so they can\'t be planned.');
+    if (p === 'attr.appearance' && isNos(c)) return toast('Nosferatu Appearance can never be raised.');
+    if (n <= v) return toast('Planning adds dots above ' + lbl + '\'s current ' + v + '.');
+    if (n > top) {
+      if (n > maxFor(c, p)) return toast('That\'s above the trait maximum for your Generation.');
+      if (k === 'spath') { var sp = spathParts(p); if (n > spathCap(c, sp.d)) return toast(spathMsg(c, sp.d)); }
+      for (var i = top; i < n; i++) planOf(c).push({ id: rid(), p: p, t: Date.now() });
+    } else {
+      var to = n === top ? top - 1 : n, pl = planOf(c), drop = top - to;
+      for (var j = pl.length - 1; j >= 0 && drop > 0; j--) if (pl[j].p === p) { pl.splice(j, 1); drop--; }
+    }
+    commit(); if (planOpen()) renderPlan();
+  }
+  function planOpen() { return !!$('planBody'); }
+  function planBuy(c, id) {
+    var st = planSteps(c).filter(function (s) { return s.e.id === id; })[0]; if (!st || st.why || !st.first) return;
+    if (st.cost > xpAvail(c)) return toast('Not enough XP yet: ' + st.cost + ' needed, ' + xpAvail(c) + ' available.');
+    setVal(c, st.e.p, st.to);
+    if (kind(st.e.p) === 'willpower') c.willpower.cur += 1;
+    c.xp.log.push({ type: 'spend', p: st.e.p, label: st.label, from: st.from, to: st.to, cost: st.cost, t: Date.now() });
+    planOf(c).splice(planOf(c).indexOf(st.e), 1);
+    syncDerived(c); commit(); renderPlan(); toast(st.label + ' raised to ' + st.to + ' for ' + st.cost + ' XP.');
+  }
+  function planModal() {
+    openModal('<h2>XP Plan</h2><p class="muted small">Planned raises, top to bottom. Drag them (or use the arrows) to change the order, and confirm each one once you have the XP.</p><div id="planBody"></div>' +
+      '<div class="acts"><button type="button" class="btn primary" id="mNo">Close</button></div>', 'plan-modal');
+    $('mNo').onclick = closeModal;
+    renderPlan();
+  }
+  function renderPlan() {
+    var box = $('planBody'), c = cur(); if (!box || !c) return;
+    var steps = planSteps(c), av = xpAvail(c), total = sum(steps, function (s) { return s.cost; }), lack = Math.max(0, total - av);
+    box.innerHTML = (steps.length ? '<ol class="plan-list">' + steps.map(function (s, i) {
+      var can = !s.why && s.first && s.cost <= av;
+      var tip = s.why || (!s.first ? 'Confirm the earlier ' + s.label + ' step first' : s.cost > av ? 'Needs ' + (s.cost - av) + ' more XP' : 'Spend ' + s.cost + ' XP');
+      return '<li class="plan-row" draggable="true" data-pid="' + s.e.id + '"><span class="plan-grip" aria-hidden="true">⠿</span>' +
+        '<span class="plan-txt"><b>' + esc(s.label) + ' ' + s.from + ' → ' + s.to + '</b>' + (s.why ? '<small class="plan-bad">' + esc(s.why) + '</small>' : '') + '</span>' +
+        '<span class="plan-cost">' + (s.why ? '—' : s.cost + ' XP') + '</span>' +
+        '<span class="plan-btns"><button type="button" class="fr-ic" data-pmv="-1" data-pid="' + s.e.id + '"' + (i ? '' : ' disabled') + ' aria-label="Move ' + esc(s.label) + ' ' + s.from + ' → ' + s.to + ' up" title="Move up">↑</button>' +
+        '<button type="button" class="fr-ic" data-pmv="1" data-pid="' + s.e.id + '"' + (i < steps.length - 1 ? '' : ' disabled') + ' aria-label="Move down" title="Move down">↓</button>' +
+        '<button type="button" class="btn small primary" data-pbuy="' + s.e.id + '"' + (can ? '' : ' disabled') + ' title="' + esc(tip) + '">Confirm</button>' +
+        '<button type="button" class="fr-ic" data-prm="' + s.e.id + '" aria-label="Remove ' + esc(s.label) + ' ' + s.from + ' → ' + s.to + ' from the plan" title="Remove from the plan">×</button></span></li>';
+    }).join('') + '</ol>' : '<p class="muted">Nothing planned yet. With Planning on, tap the dots you want to raise traits to.</p>') +
+      '<div class="plan-sum"><span>Total <b>' + total + ' XP</b></span><span>Available <b>' + av + ' XP</b></span>' +
+      (lack ? '<span class="plan-lack">Lacking <b>' + lack + ' XP</b></span>' : steps.length ? '<span class="plan-ok">Enough XP for all of it</span>' : '') + '</div>';
+  }
+  function planMove(c, id, to) {   // to: new index
+    var pl = planOf(c), i = pl.map(function (e) { return e.id; }).indexOf(id); if (i < 0) return;
+    var e = pl.splice(i, 1)[0]; pl.splice(clamp(to, 0, pl.length), 0, e); commit(); renderPlan();
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('#planBody button'); if (!b) return;
+    var c = cur(); if (!c) return;
+    if (b.dataset.pbuy) return planBuy(c, b.dataset.pbuy);
+    if (b.dataset.prm) { var pl = planOf(c), i = pl.map(function (x) { return x.id; }).indexOf(b.dataset.prm); if (i >= 0) pl.splice(i, 1); commit(); return renderPlan(); }
+    if (b.dataset.pmv) { var ids = planOf(c).map(function (x) { return x.id; }), at = ids.indexOf(b.dataset.pid); planMove(c, b.dataset.pid, at + +b.dataset.pmv); var nb = document.querySelector('#planBody [data-pid="' + b.dataset.pid + '"][data-pmv="' + b.dataset.pmv + '"]'); if (nb && !nb.disabled) nb.focus(); }
+  });
+  /* Drag to rearrange. */
+  var planDrag = '';
+  document.addEventListener('dragstart', function (e) { var r = e.target.closest && e.target.closest('.plan-row'); if (!r) return; planDrag = r.dataset.pid; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', planDrag); } catch (x) {} r.classList.add('dragging'); });
+  document.addEventListener('dragend', function () { planDrag = ''; Array.prototype.forEach.call(document.querySelectorAll('.plan-row.dragging, .plan-row.over'), function (r) { r.classList.remove('dragging', 'over'); }); });
+  document.addEventListener('dragover', function (e) { var r = planDrag && e.target.closest && e.target.closest('.plan-row'); if (!r) return; e.preventDefault(); Array.prototype.forEach.call(document.querySelectorAll('.plan-row.over'), function (x) { if (x !== r) x.classList.remove('over'); }); r.classList.add('over'); });
+  document.addEventListener('drop', function (e) {
+    var r = planDrag && e.target.closest && e.target.closest('.plan-row'); if (!r) return; e.preventDefault();
+    var c = cur(), ids = planOf(c).map(function (x) { return x.id; }), to = ids.indexOf(r.dataset.pid), from = ids.indexOf(planDrag);
+    if (to >= 0 && from >= 0 && to !== from) planMove(c, planDrag, to);
+    planDrag = '';
+  });
 
   /* ================= ACTIONS ================= */
   var secretN = 0, secretT = 0;
@@ -8286,7 +8748,7 @@ V1.5
       it.equipped = on; commit();
     },
     tabEdit: function () { var t = activeTab(); tabEdit[t] = !tabEdit[t]; inline = null; if (t === 'journal') journalToEnd = true; render(); },
-    mode: function (el) { var c = cur(); c.mode = el.dataset.m; xpMode = false; syncDerived(c); commit(); },
+    mode: function (el) { var c = cur(); c.mode = el.dataset.m; xpMode = false; planMode = false; syncDerived(c); commit(); },   // the mode itself isn't saved
     skipCreate: function () {
       var c = cur();
       confirmBox('Leave guided creation and treat this character as finished? Nothing is checked, and you can still change anything in Free-form edit.', 'Finish', function () {
@@ -8353,6 +8815,13 @@ V1.5
     poolAdj: function (el) {
       var c = cur(), d = +el.dataset.d;
       if (el.dataset.k === 'blood') {
+        if (d < 0) {   /* spending blood on Disciplines, healing and the like */
+          var X = bloodX(c);
+          if (bloodUsable(c) < X) return toast(c.blood.cur >= X ? 'The last ' + bloodReserve(c) + ' blood can\'t power Disciplines, healing or boosts (Fourteenth Generation).' : 'Not enough blood' + (X > 1 ? ': thin blood costs ' + X + ' per point' : '') + '.');
+          c.blood.cur -= X; noteSpend(c, 1);
+          var lim0 = genInfo(c).turn; if (spentNow(c) > lim0) toast('That\'s ' + spentNow(c) + ' blood this turn; the limit for ' + ord(c.info.generation) + ' Generation is ' + lim0 + '.');
+          return commit();
+        }
         var was = c.blood.cur; c.blood.cur = clamp(c.blood.cur + d, 0, genInfo(c).blood);
         if (c.blood.cur < was) { noteSpend(c, was - c.blood.cur); var lim = genInfo(c).turn; if (spentNow(c) > lim) toast('That\'s ' + spentNow(c) + ' blood this turn; the limit for ' + ord(c.info.generation) + ' Generation is ' + lim + '.'); }
       }
@@ -8375,6 +8844,7 @@ V1.5
         c.disc[name] = 0;
       } else if (k === 'bg') {
         name = BACKGROUNDS.filter(function (d) { return d.toLowerCase() === name.toLowerCase(); })[0] || name;
+        if (thinBgBlocked(c, name)) return toast('Thin Blood can\'t take the ' + name + ' Background.');
         if (c.bg[name] != null) return toast(name + ' is already on the sheet.');
         c.bg[name] = 0;
       } else if (k === 'spath') {
@@ -8404,30 +8874,56 @@ V1.5
       if (k === 'rituals') c.rituals.push({ id: rid(), name: '', level: 1, disc: SORCERY.filter(function (d) { return c.disc[d] > 0; })[0] || 'Thaumaturgy' });
       else if (k === 'weapons') c.weapons.push({ id: rid(), name: '', kind: 'melee', diff: 6, dmg: 'Str+1', type: 'L', conceal: '', equipped: false });
       else if (k === 'armor') c.armor.push({ id: rid(), name: '', rating: 1, penalty: 0, equipped: false });
-      else c[k].push({ id: rid(), name: '', cost: 1 });
+      else {
+        if ((k === 'merits' || k === 'flaws') && creating(c) && isThinTpl(c)) return toast('Thin Blood takes no Merits or Flaws at creation, except its Generation Flaw.');
+        c[k].push({ id: rid(), name: '', cost: 1 });
+      }
       commit(); focusField(k + '.' + (c[k].length - 1) + '.name');
     },
-    rmArr: function (el) { var c = cur(); c[el.dataset.k].splice(+el.dataset.i, 1); commit(); },
+    rmArr: function (el) {
+      var c = cur(), it = c[el.dataset.k][+el.dataset.i];
+      if (it && it.forced && creating(c)) return toast('Thin Blood keeps its Generation Flaw. Pick 14th or 15th in Finishing touches.');
+      c[el.dataset.k].splice(+el.dataset.i, 1); commit();
+    },
+    derAdd: function () { var c = cur(); c.details.der.push({ id: rid(), name: '', sum: '', notes: '' }); commit(); focusField('details.der.' + (c.details.der.length - 1) + '.name'); },
+    derRm: function (el) { var c = cur(), d = c.details.der[+el.dataset.i]; if (!d) return; confirmBox('Remove ' + (d.name || 'this derangement') + '?', 'Remove', function () { c.details.der.splice(+el.dataset.i, 1); commit(); }); },
+    thinGen: function (el) { var c = cur(); setThinGen(c, +el.dataset.g); syncDerived(c); commit(); },
     note: function (el) {
       var c = cur(), key = el.dataset.key, label = el.dataset.label;
       if (!el.dataset.ed) { if (tipPinned === el) hideTip(); else showTip(el, true); return; }
       var t = noteTarget(c, key); if (!t) return;
-      var had = t.get();
-      openModal('<h2>Note</h2><p class="muted small">' + esc(label) + '</p><textarea id="noteTxt" class="grow" aria-label="Note text" placeholder="Anything worth remembering about this.">' + esc(had) + '</textarea>' +
+      var had = t.get(), cs = customSumTarget(c, key), sh = cs ? cs.get() : '';
+      /* Backgrounds, Merits and Flaws that aren't in the book also get hover text, shown like the book's summaries. */
+      openModal('<h2>' + (cs ? 'Note and hover text' : 'Note') + '</h2><p class="muted small">' + esc(label) + '</p>' +
+        (cs ? '<label class="fld"><span class="cm-lbl">Hover text</span><textarea id="sumTxt" class="grow" maxlength="600" placeholder="What it does, shown when hovering its name (like the book\'s summaries).">' + esc(sh) + '</textarea></label>' +
+          '<label class="fld"><span class="cm-lbl">Note</span>' : '') +
+        '<textarea id="noteTxt" class="grow" aria-label="Note text" placeholder="Anything worth remembering about this.">' + esc(had) + '</textarea>' + (cs ? '</label>' : '') +
         '<div class="acts">' + (had ? '<button type="button" class="btn danger" id="noteDel">Remove note</button><span style="flex:1"></span>' : '') + '<button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Save</button></div>');
-      grow($('noteTxt')); $('noteTxt').focus();
+      grow($('noteTxt')); if (cs) { grow($('sumTxt')); $('sumTxt').focus(); } else $('noteTxt').focus();
       $('mNo').onclick = closeModal;
-      $('mOk').onclick = function () { t.set($('noteTxt').value.trim()); closeModal(); commit(); };
-      if (had) $('noteDel').onclick = function () { t.set(''); closeModal(); commit(); };
+      $('mOk').onclick = function () { t.set($('noteTxt').value.trim()); if (cs) cs.set($('sumTxt').value.trim()); closeModal(); commit(); };
+      if (had) $('noteDel').onclick = function () { t.set(''); if (cs) cs.set($('sumTxt').value.trim()); closeModal(); commit(); };
     },
-    xpToggle: function () { xpMode = !xpMode; render(); },
+    xpToggle: function () { xpMode = !xpMode; if (xpMode) planMode = false; render(); },
+    planToggle: function () { planMode = !planMode; if (planMode) xpMode = false; render(); },
+    xpPlan: function () { planModal(); },
+    imgPick: function () { imgPick(); },
+    imgRm: function () { imgRemove(); },
+    imgView: function () { imgView(); },
+    detUndo: function (el) {
+      var c = cur(), e = c.xp.log[+el.dataset.i]; if (!e || e.type !== 'det') return;
+      if (val(c, e.p) !== e.to) return toast(e.label + ' changed since then, so it can\'t be undone automatically.');
+      setVal(c, e.p, e.from); if (e.p === 'bg.Generation') c.info.generation = thinGen(c) || 13 - Math.min(5, e.from);
+      c.xp.log.splice(+el.dataset.i, 1); syncDerived(c); commit(); toast(e.label + ' is back to ' + e.from + '.');
+    },
+    xpPage: function (el) { xpLogPage.n += +el.dataset.d; render(); var b = document.querySelector('.xp-log-box'); if (b) b.scrollIntoView({ block: 'nearest' }); },
     xpAward: function () {
       var c = cur(), n = parseInt($('awAmt').value, 10);
       if (!(n > 0)) { $('awAmt').focus(); return toast('Enter how much XP to award.'); }
       var flags = {};
       XP_FLAGS.forEach(function (f) { if ($('aw_' + f[0]).checked) flags[f[0]] = true; });
       c.xp.log.push({ type: 'earn', id: rid(), date: $('awDate').value || today(), amount: n, notes: $('awNotes').value.trim(), flags: flags, t: Date.now(), by: whoAmI() });
-      commit(); toast('+' + n + ' XP logged.');
+      xpLogPage.n = 0; commit(); toast('+' + n + ' XP logged.');
     },
     xpEdit: function (el) {
       var c = cur(), i = +el.dataset.i, e = c.xp.log[i];
@@ -8700,6 +9196,8 @@ V1.5
       var start = document.querySelector('input[name="ncS"]:checked').value, tid = document.querySelector('input[name="ncT"]:checked').value;
       if (start === 'random') return genModal({ name: $('ncName').value.trim(), tag: document.querySelector('input[name="ncA"]:checked').value, tmpl: TEMPLATES.filter(function (t) { return t.id === tid; })[0] || TEMPLATES[0] });
       var c = blankKindred($('ncName').value.trim());
+      c.template = tid;
+      if (tid === 'thin') { setThinGen(c, 14); syncDerived(c); }
       if (libDest) { placeIn(c.id, libDest); libDest = ''; }
       if (start === 'blank') { c.mode = 'edit'; c.creation.done = true; }
       c.tracker.type = document.querySelector('input[name="ncA"]:checked').value;
@@ -8717,13 +9215,13 @@ V1.5
   function fileName(s) { return (s || 'character').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '_') || 'character'; }
   function exportModal() {
     var c = cur(); if (!c) return;
-    var json = JSON.stringify(c, null, 2);
+    var json = JSON.stringify(withImg(c), charRep, 2);
     openModal('<h2>Export</h2><p class="muted">Save a backup, or move a character to another device. On phones you can copy the text instead of downloading.</p>' +
       '<div class="btn-row"><button type="button" class="btn primary" id="exOne">Download this character</button><button type="button" class="btn" id="exAll">Download all (' + store.order.length + ')</button><button type="button" class="btn" id="exCopy">Copy text</button></div>' +
       '<textarea id="exTxt" readonly aria-label="Character data">' + esc(json) + '</textarea><div class="acts"><button type="button" class="btn" id="mNo">Close</button></div>');
     $('mNo').onclick = closeModal;
     $('exOne').onclick = function () { downloadText(fileName(c.info.name) + '.vtm.json', json); };
-    $('exAll').onclick = function () { downloadText('vtm_characters.json', JSON.stringify({ app: 'vtm-character-manager', v: 2, chars: store.order.map(function (id) { return store.chars[id]; }) }, null, 2)); };
+    $('exAll').onclick = function () { downloadText('vtm_characters.json', JSON.stringify({ app: 'vtm-character-manager', v: 2, chars: store.order.map(function (id) { return withImg(store.chars[id]); }) }, charRep, 2)); };
     $('exCopy').onclick = function () {
       var done = function () { toast('Copied.'); };
       if (navigator.clipboard) navigator.clipboard.writeText(json).then(done, function () { $('exTxt').select(); document.execCommand('copy'); done(); });
@@ -8748,6 +9246,8 @@ V1.5
       if (!list.length) return toast('No characters found in that data.');
       list.forEach(function (x) {
         normalize(x); delete x.temp; delete x.share;
+        if (typeof x.imgData === 'string' && x.img && IMG_ID.test(x.img) && IMG_RE.test(x.imgData)) imgPut(x.img, x.imgData);   // exported with its portrait
+        delete x.imgData;
         if (store.chars[x.id] || !x.id) x.id = uid();
         store.chars[x.id] = x; store.order.push(x.id); store.cur = x.id;
       });
@@ -8758,7 +9258,12 @@ V1.5
 
   /* ================= MERGED INTO THE DICE ROLLER: view switch, settings, Active Character, rolls ================= */
   var R = function () { return window.vtmRoller || null; };
-  function setView(v) { store.view = v; save(); applyView(); if (v === 'chars') render(); window.scrollTo({ top: 0 }); }
+  document.addEventListener('change', function (e) {
+    if (e.target.id !== 'progSw') return;
+    try { localStorage.setItem('vtm-show-prog', e.target.checked ? '1' : '0'); } catch (x) {}
+    render(); var s = $('progSw'); if (s) s.focus();
+  });
+  function setView(v) { store.view = v; save(); applyView(); sheetWatch(); if (v === 'chars') render(); window.scrollTo({ top: 0 }); }
   function applyView() {
     var on = store.view === 'chars', main = document.querySelector('main.wrap');
     if (main) main.classList.toggle('cm-on', on);
@@ -8904,7 +9409,7 @@ V1.5
   function iniPayload(c, name) {
     var i = iniInfo(c);
     var tk = c.tracker || {}, joiner = !!(c.temp && c.temp.remote);
-    return { name: name, mod: i.mod, type: joiner ? 'player' : tk.type || '', cel: i.cel > 0, rev: !tk.type && !!tk.rev, ch: c.id, cd: i.cel, bl: c.blood.cur + celPaidNow(c), mn: i.note, wnd: i.wp };
+    return { name: name, mod: i.mod, type: joiner ? 'player' : tk.type || '', cel: i.cel > 0, rev: !tk.type && !!tk.rev, ch: c.id, cd: i.cel, bl: bloodPts(c) + celPaidNow(c), mn: i.note, wnd: i.wp };
   }
   /* After each save, characters already in the tracker pick up new wounds, Celerity or Dexterity/Wits. */
   function syncInitiative() {
@@ -9127,7 +9632,8 @@ V1.5
   actions.boost = function () { var c = cur(); if (!c) return; bst = { strength: 0, dexterity: 0, stamina: 0 }; boostModal(c); };
   function boostModal(c, focus) {
     var g = genInfo(c), free = boostFree(c);
-    var cost = PHYS.reduce(function (s, k) { return s + Math.max(0, bst[k]); }, 0), spent = spentNow(c), room = Math.max(0, Math.min(g.turn - spent, c.blood.cur));
+    var cost = PHYS.reduce(function (s, k) { return s + Math.max(0, bst[k]); }, 0), spent = spentNow(c), X = bloodX(c), room = Math.max(0, Math.min(g.turn - spent, bloodPts(c)));
+    var need = cost * X;   // blood actually taken (thin blood pays double)
     var changed = PHYS.some(function (k) { return bst[k] !== 0; });
     var rows = PHYS.map(function (k) {
       var base = c.attrs[k], now = phys(c, k), next = now + bst[k], over = Math.max(0, next - Math.max(free, base)), lbl = labelOf(c, 'attr.' + k);
@@ -9140,18 +9646,19 @@ V1.5
     openModal('<h2>Boost</h2><p class="muted small">Each blood point raises Strength, Dexterity or Stamina by one dot for the scene. Up to ' + g.turn + ' blood this turn (' + ord(c.info.generation) + ' Generation). ' +
       'Dots above ' + free + ' last only 3 turns after you stop spending; nothing goes above 10.</p>' +
       (c.blood.cur < 1 ? '<p class="untrained-warn" role="note"><b>No blood:</b> the blood pool is empty.</p>' : '') +
+      (X > 1 || bloodReserve(c) ? '<p class="muted small" role="note">' + (X > 1 ? 'Thin blood: each dot costs ' + X + ' blood. ' : '') + (bloodReserve(c) ? 'Fourteenth Generation: the last ' + bloodReserve(c) + ' blood can\'t be used.' : '') + '</p>' : '') +
       '<div class="boost-rows">' + rows + '</div>' +
-      '<p class="small" style="margin:10px 0 0">' + (cost ? 'Spend <b>' + cost + '</b> blood (' + (cost + spent) + ' of ' + g.turn + ' this turn, ' + c.blood.cur + ' in the pool).' : 'Blood pool: ' + c.blood.cur + ' / ' + g.blood + '.' + (spent ? ' Already spent ' + spent + ' of ' + g.turn + ' this turn.' : '')) + '</p>' +
+      '<p class="small" style="margin:10px 0 0">' + (cost ? 'Spend <b>' + need + '</b> blood (' + (cost + spent) + ' of ' + g.turn + ' this turn, ' + c.blood.cur + ' in the pool).' : 'Blood pool: ' + c.blood.cur + ' / ' + g.blood + '.' + (spent ? ' Already spent ' + spent + ' of ' + g.turn + ' this turn.' : '')) + '</p>' +
       '<div class="acts">' + (anyBoost(c) ? '<button type="button" class="btn" id="mEnd" title="The scene is over: back to normal ratings">End all boosts</button>' : '') +
-      '<button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk"' + (changed ? '' : ' disabled') + '>' + (cost ? 'Spend ' + cost + ' blood' : 'Apply') + '</button></div>');
+      '<button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk"' + (changed ? '' : ' disabled') + '>' + (cost ? 'Spend ' + need + ' blood' : 'Apply') + '</button></div>');
     $('mNo').onclick = closeModal;
     if ($('mEnd')) $('mEnd').onclick = function () { PHYS.forEach(function (k) { c.boost[k] = 0; }); closeModal(); commit(); toast('Blood boosts ended.'); };
     $('mOk').onclick = function () {
       var did = PHYS.filter(function (k) { return bst[k]; }).map(function (k) { return labelOf(c, 'attr.' + k) + ' ' + (bst[k] > 0 ? '+' : '') + bst[k]; });
-      c.blood.cur -= cost; if (cost) { noteSpend(c, cost); var t0 = turnNow(); if (t0) c.boostSpend = { eid: t0.eid, round: t0.round }; }
+      c.blood.cur -= need; if (cost) { noteSpend(c, cost); var t0 = turnNow(); if (t0) c.boostSpend = { eid: t0.eid, round: t0.round }; }
       PHYS.forEach(function (k) { c.boost[k] = Math.max(0, boostOf(c, k) + bst[k]); });
       closeModal(); commit();
-      toast((cost ? 'Spent ' + cost + ' blood: ' : 'Boost: ') + did.join(', ') + '.');
+      toast((cost ? 'Spent ' + need + ' blood: ' : 'Boost: ') + did.join(', ') + '.');
     };
     Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-bk]'), function (bt) {
       bt.onclick = function () { bst[bt.dataset.bk] += +bt.dataset.d; boostModal(c, bt.dataset.bk + bt.dataset.d); };
@@ -9349,9 +9856,9 @@ V1.5
       var c = store.chars[id]; if (isRemote(c) || isReadOnly(c)) return;
       var used = celUsedNow(c), paid = celPaidNow(c, t);
       if (used <= paid) return;
-      var d = Math.min(used - paid, c.blood.cur);
-      c.blood.cur -= d; c.celPaid = { eid: t.eid, round: t.round, n: used }; changed = true;
-      if (d) toast((c.info.name || 'Unnamed') + ' spent ' + d + ' blood on Celerity (' + used + ' extra action' + (used > 1 ? 's' : '') + ').');
+      var d = Math.min(used - paid, bloodPts(c)), X = bloodX(c);   // actions paid for; thin blood pays double
+      c.blood.cur -= d * X; c.celPaid = { eid: t.eid, round: t.round, n: used }; changed = true;
+      if (d) toast((c.info.name || 'Unnamed') + ' spent ' + d * X + ' blood on Celerity (' + used + ' extra action' + (used > 1 ? 's' : '') + ').');
     });
     if (changed) save();
     if (typingHere()) { shRenderLater = true; return; }
@@ -9482,6 +9989,181 @@ V1.5
     var c = cur(); if (!c) return; c.tracker.rev = e.target.checked; commit();
   });
 
+  /* ================= PORTRAITS ================= */
+  /* One square portrait per character. The image is stored apart from the character: the sheet only keeps a hash of
+     it (c.img), so editing a sheet never re-sends the picture. Images live in this browser's IndexedDB, sync to the
+     account as their own items (uploaded once, since a hash never changes), and shared sheets keep theirs in the
+     sheet's own image store on the server. */
+  var IMG_RE = /^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/, IMG_ID = /^[a-f0-9]{16,64}$/;
+  var IMG_MAX = 380000, IMG_PX = 512;
+  var imgMem = {}, imgReady = false, imgDbP = null;
+  function imgDb() {
+    if (imgDbP) return imgDbP;
+    imgDbP = new Promise(function (res, rej) {
+      if (!window.indexedDB) return rej(new Error('no-idb'));
+      var rq = indexedDB.open('vtm-images', 1);
+      rq.onupgradeneeded = function () { rq.result.createObjectStore('img'); };
+      rq.onsuccess = function () { res(rq.result); };
+      rq.onerror = function () { rej(rq.error); };
+    });
+    imgDbP.catch(function () {});
+    return imgDbP;
+  }
+  function imgTx(mode, fn) { return imgDb().then(function (db) { return new Promise(function (res, rej) { var t = db.transaction('img', mode), st = t.objectStore('img'), r = fn(st); t.oncomplete = function () { res(r && r.result); }; t.onerror = function () { rej(t.error); }; }); }); }
+  function imgPut(h, data) {
+    if (!IMG_ID.test(h) || !IMG_RE.test(data)) return;
+    imgMem[h] = data;
+    imgTx('readwrite', function (st) { return st.put(data, h); }).catch(function () {});
+  }
+  function imgDel(h) { delete imgMem[h]; imgTx('readwrite', function (st) { return st.delete(h); }).catch(function () {}); }
+  /* Hashes some character on this device still uses. */
+  function imgRefs() { var r = {}; Object.keys(store.chars).forEach(function (id) { var c = store.chars[id]; if (c && c.img) r[c.img] = 1; }); return r; }
+  /* Load everything at start, and drop images no character here uses any more. */
+  imgDb().then(function (db) {
+    return new Promise(function (res) {
+      var t = db.transaction('img', 'readonly'), st = t.objectStore('img'), cur = st.openCursor();
+      cur.onsuccess = function () { var x = cur.result; if (x) { if (typeof x.value === 'string' && IMG_RE.test(x.value)) imgMem[x.key] = x.value; x.continue(); } };
+      t.oncomplete = res; t.onerror = res;
+    });
+  }).catch(function () {}).then(function () {
+    var refs = imgRefs();
+    Object.keys(imgMem).forEach(function (h) { if (!refs[h]) imgDel(h); });
+    imgReady = true;
+    if (store.view === 'chars') render(); else renderBar();
+  });
+  function imgHash(data) {
+    var enc = new TextEncoder().encode(data);
+    if (window.crypto && crypto.subtle) return crypto.subtle.digest('SHA-256', enc).then(function (b) { return Array.from(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('').slice(0, 40); });
+    var a = 2166136261, b2 = 5381;   // no Web Crypto (old browsers): two 32-bit hashes
+    for (var i = 0; i < data.length; i++) { var ch = data.charCodeAt(i); a = Math.imul(a ^ ch, 16777619); b2 = (Math.imul(b2, 33) ^ ch) >>> 0; }
+    return Promise.resolve(('0000000' + (a >>> 0).toString(16)).slice(-8) + ('0000000' + b2.toString(16)).slice(-8) + ('0000000' + (data.length >>> 0).toString(16)).slice(-8));
+  }
+  /* The picture to show for a character, or ''. A shared sheet's portrait is fetched from the sheet (once), and the
+     owner's or an editor's copy is put there if it's missing. */
+  var shImgBusy = {}, shImgUp = {};
+  function imgSrc(c) {
+    if (!c || !c.img || !IMG_ID.test(c.img) || c.temp) return '';
+    var d = imgMem[c.img];
+    if (c.share && c.share.sid && signedIn()) {
+      var key = c.share.sid + ':' + c.img;
+      if (!d && imgReady && !shImgBusy[key]) {
+        shImgBusy[key] = 1;
+        api('sheets/' + c.share.sid + '/img/' + c.img).then(function (res) {
+          if (res && IMG_RE.test(res.data || '')) { imgPut(c.img, res.data); if (store.view === 'chars') render(); else renderBar(); }
+        }, function () {}).then(function () { window.setTimeout(function () { delete shImgBusy[key]; }, 60000); });
+      } else if (d && c.share.role !== 'view' && !shImgUp[key]) {
+        shImgUp[key] = 1;
+        api('sheets/' + c.share.sid + '/img/' + c.img, { data: d }).catch(function () { delete shImgUp[key]; });
+      }
+    }
+    return d || '';
+  }
+  /* Exports carry the picture itself, so a file brings its portrait along. */
+  function withImg(c) { if (!c || !c.img || !imgMem[c.img]) return c; var d = Object.assign({}, c); d.imgData = imgMem[c.img]; return d; }
+  function imgTag(c, cls, alt) { var s = imgSrc(c); return s ? '<img class="' + (cls || '') + '" src="' + s + '" alt="' + esc(alt || '') + '" draggable="false">' : ''; }
+
+  /* The portrait on the Sheet tab: shown in Play (tap to see it bigger), added or changed in Free-form edit. */
+  function portraitHTML(c, edit) {
+    var s = imgSrc(c), nm = c.info.name || 'this character';
+    if (!edit) return s ? '<button type="button" class="portrait" data-act="imgView" aria-label="Portrait of ' + esc(nm) + ', show it bigger"><img src="' + s + '" alt=""></button>' : '';
+    return '<div class="portrait-ed">' + (s ? '<span class="portrait"><img src="' + s + '" alt="Portrait of ' + esc(nm) + '"></span>' :
+      (c.img ? '<span class="portrait empty">Loading…</span>' : '<button type="button" class="portrait empty" data-act="imgPick"><span aria-hidden="true">＋</span>Add image</button>')) +
+      (c.img ? '<span class="portrait-btns"><button type="button" class="btn small" data-act="imgPick">Change</button><button type="button" class="btn small ghost" data-act="imgRm">Remove</button></span>' : '') + '</div>';
+  }
+  function imgView() {
+    var c = cur(), s = imgSrc(c); if (!s) return;
+    openModal('<h2>' + esc(c.info.name || 'Portrait') + '</h2><img class="portrait-big" src="' + s + '" alt="Portrait of ' + esc(c.info.name || 'the character') + '"><div class="acts"><button type="button" class="btn primary" id="mNo">Close</button></div>', 'img-modal');
+    $('mNo').onclick = closeModal; $('mNo').focus();
+  }
+  function imgPick() {
+    var f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
+    f.onchange = function () { if (f.files && f.files[0]) cropModal(f.files[0]); };
+    f.click();
+  }
+  function imgRemove() {
+    var c = cur(); if (!c) return;
+    confirmBox('Remove ' + (c.info.name || 'this character') + '\'s portrait?', 'Remove', function () { delete c.img; commit(); });
+  }
+
+  /* ---- Crop overlay: always square. Drag to move the picture, zoom with the slider, the mouse wheel or a pinch;
+     arrow keys move it and +/- zoom when the picture has focus. */
+  function cropModal(file) {
+    if (!/^image\//.test(file.type || '')) return toast('That file isn\'t an image.');
+    var url = URL.createObjectURL(file), im = new Image();
+    im.onerror = function () { URL.revokeObjectURL(url); toast('Couldn\'t open that image.'); };
+    im.onload = function () {
+      var W = im.naturalWidth, H = im.naturalHeight;
+      if (!W || !H) return im.onerror();
+      openModal('<h2>Crop the portrait</h2><p class="muted small">Drag to choose what shows, and zoom in or out. The portrait is always square.</p>' +
+        '<div class="crop-wrap"><canvas id="cropCv" tabindex="0" role="img" aria-label="Crop area. Drag or use the arrow keys to move the picture, plus and minus to zoom."></canvas></div>' +
+        '<label class="fld crop-zoom"><span class="cm-lbl">Zoom</span><input type="range" id="cropZoom" min="1" max="5" step="0.01" value="1"></label>' +
+        '<p class="muted small" id="cropMsg" role="status"></p>' +
+        '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Use this crop</button></div>', 'crop-modal');
+      var cv = $('cropCv'), zr = $('cropZoom'), ctx = cv.getContext('2d');
+      var S = Math.min(340, Math.max(200, window.innerWidth - 96)), dpr = window.devicePixelRatio || 1;
+      cv.style.width = cv.style.height = S + 'px'; cv.width = cv.height = Math.round(S * dpr);
+      var base = S / Math.min(W, H), z = 1, ox = (S - W * base) / 2, oy = (S - H * base) / 2;
+      function sc() { return base * z; }
+      function clampO() { var s = sc(); ox = Math.min(0, Math.max(S - W * s, ox)); oy = Math.min(0, Math.max(S - H * s, oy)); }
+      function draw() {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, S, S);
+        ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, ox, oy, W * sc(), H * sc());
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;   // thirds, to help framing
+        for (var i = 1; i < 3; i++) { ctx.beginPath(); ctx.moveTo(S * i / 3, 0); ctx.lineTo(S * i / 3, S); ctx.moveTo(0, S * i / 3); ctx.lineTo(S, S * i / 3); ctx.stroke(); }
+      }
+      function zoomTo(nz, cx, cy) {   // keep the point under (cx, cy) in place
+        nz = Math.min(5, Math.max(1, nz)); if (cx == null) { cx = S / 2; cy = S / 2; }
+        var px = (cx - ox) / sc(), py = (cy - oy) / sc();
+        z = nz; ox = cx - px * sc(); oy = cy - py * sc(); clampO(); zr.value = z; draw();
+      }
+      clampO(); draw();
+      zr.addEventListener('input', function () { zoomTo(+zr.value); });
+      cv.addEventListener('wheel', function (e) { e.preventDefault(); var r = cv.getBoundingClientRect(); zoomTo(z * (e.deltaY < 0 ? 1.08 : 1 / 1.08), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+      var pts = {}, last = null, pinch = null;
+      cv.addEventListener('pointerdown', function (e) { cv.setPointerCapture(e.pointerId); pts[e.pointerId] = { x: e.clientX, y: e.clientY }; last = { x: e.clientX, y: e.clientY }; pinch = null; e.preventDefault(); });
+      cv.addEventListener('pointermove', function (e) {
+        if (!pts[e.pointerId]) return;
+        pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+        var ids = Object.keys(pts), r = cv.getBoundingClientRect();
+        if (ids.length >= 2) {
+          var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (pinch) zoomTo(pinch.z * d / pinch.d, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top); else pinch = { d: d || 1, z: z };
+          return;
+        }
+        ox += e.clientX - last.x; oy += e.clientY - last.y; last = { x: e.clientX, y: e.clientY }; clampO(); draw();
+      });
+      var up = function (e) { delete pts[e.pointerId]; pinch = null; var ids = Object.keys(pts); last = ids.length ? pts[ids[0]] : null; };
+      cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+      cv.addEventListener('keydown', function (e) {
+        var k = e.key, step = e.shiftKey ? 30 : 8;
+        if (k === 'ArrowLeft') ox += step; else if (k === 'ArrowRight') ox -= step; else if (k === 'ArrowUp') oy += step; else if (k === 'ArrowDown') oy -= step;
+        else if (k === '+' || k === '=') return zoomTo(z * 1.1); else if (k === '-') return zoomTo(z / 1.1); else return;
+        e.preventDefault(); clampO(); draw();
+      });
+      $('mNo').onclick = function () { URL.revokeObjectURL(url); closeModal(); };
+      $('mOk').onclick = function () {
+        var src = S / sc(), out = Math.round(Math.min(IMG_PX, src)), oc = document.createElement('canvas');
+        oc.width = oc.height = Math.max(64, out);
+        var octx = oc.getContext('2d'); octx.imageSmoothingQuality = 'high';
+        octx.drawImage(im, -ox / sc(), -oy / sc(), src, src, 0, 0, oc.width, oc.height);
+        var data = '', q = 0.86;
+        for (var i = 0; i < 6; i++) {
+          data = oc.toDataURL('image/webp', q);
+          if (!/^data:image\/webp/.test(data)) data = oc.toDataURL('image/jpeg', q);   // browsers that can't make WebP
+          if (data.length <= IMG_MAX) break;
+          q -= 0.12;
+        }
+        if (data.length > IMG_MAX || !IMG_RE.test(data)) { $('cropMsg').textContent = 'Couldn\'t make that image small enough. Try another one.'; return; }
+        $('mOk').disabled = true;
+        imgHash(data).then(function (h) {
+          var c = cur(); if (!c) return;
+          imgPut(h, data); c.img = h; URL.revokeObjectURL(url); closeModal(); commit(); toast('Portrait saved.');
+        }, function () { $('mOk').disabled = false; $('cropMsg').textContent = 'Something went wrong. Try again.'; });
+      };
+      cv.focus();
+    };
+    im.src = url;
+  }
   /* ================= FORMATTED TEXT (Backstory, Other Facts) ================= */
   /* Stored as a small, cleaned subset of HTML. Older plain text (# headings, - bullets) still shows as before and turns
      into formatted text the first time it's edited. Everything is rebuilt through rtClean before it's shown or saved, so
@@ -9725,17 +10407,28 @@ V1.5
   function cmBlob() { return JSON.stringify({ order: store.order, settings: store.settings, ui: store.ui || {}, rp: roomPid(), lib: { folders: (store.lib || {}).folders || [], place: (store.lib || {}).place || {} } }); }
   function localItems() {
     var out = {};
-    store.order.forEach(function (id) { var c = store.chars[id]; if (c && !c.temp && !c.share && /^[\w.-]{1,64}$/.test(id)) out['char:' + id] = JSON.stringify(c); });
+    store.order.forEach(function (id) {
+      var c = store.chars[id]; if (!c || c.temp || c.share || !/^[\w.-]{1,64}$/.test(id)) return;
+      out['char:' + id] = JSON.stringify(c, charRep);
+      if (c.img && imgMem[c.img]) out['img:' + c.img] = imgMem[c.img];   // the portrait, as its own item
+    });
     out['blob:cm'] = cmBlob();
     var rb = rollerBlob(); if (rb) out['blob:roller'] = JSON.stringify(rb);
     return out;
   }
   /* Notes when each item changed here. Right after signing in, unknown items get an unknown age (-1), so the
      account's copy wins over this device's if both have one. */
+  /* Pictures never change once made (they're named by their contents), so they're compared by name only. */
+  function itemH(k, v) { return k.indexOf('img:') === 0 ? 'img' : hashStr(v); }
   function scanDirty() {
     var local = localItems(), now = Date.now(), first = !acct.since;
-    Object.keys(local).forEach(function (k) { var kn = acct.known[k]; if ((!kn || kn.h !== hashStr(local[k])) && !acct.dirty[k]) acct.dirty[k] = !kn && first ? -1 : now; });
-    Object.keys(acct.known).forEach(function (k) { if (k.indexOf('char:') === 0 && !local[k] && !acct.known[k].del && !acct.dirty[k]) acct.dirty[k] = now; });
+    Object.keys(local).forEach(function (k) { var kn = acct.known[k]; if ((!kn || kn.del || kn.h !== itemH(k, local[k])) && !acct.dirty[k]) acct.dirty[k] = !kn && first ? -1 : now; });
+    /* A portrait goes from the account once no character of yours uses it (and only once this device has loaded its pictures). */
+    var refs = imgReady ? imgRefs() : null;
+    Object.keys(acct.known).forEach(function (k) {
+      if (local[k] || acct.known[k].del || acct.dirty[k]) return;
+      if (k.indexOf('char:') === 0 || (k.indexOf('img:') === 0 && refs && !refs[k.slice(4)])) acct.dirty[k] = now;
+    });
     return local;
   }
   function applyRemote(items) {
@@ -9744,6 +10437,11 @@ V1.5
       var k = it.kind + ':' + it.id, kn = acct.known[k], d = acct.dirty[k];
       if (kn && it.m <= kn.m) return;   // already have this one
       if (d && d > it.m) return;        // changed here later: this device's version goes up next
+      if (it.kind === 'img') {
+        if (it.deleted) { if (!imgRefs()[it.id]) imgDel(it.id); acct.known[k] = { m: it.m, h: '', del: 1 }; delete acct.dirty[k]; return; }
+        if (!IMG_ID.test(it.id) || !IMG_RE.test(it.data || '')) return;
+        imgPut(it.id, it.data); acct.known[k] = { m: it.m, h: 'img' }; delete acct.dirty[k]; changed = true; return;
+      }
       if (it.kind === 'char') {
         if (it.deleted) {
           if (store.chars[it.id] && !store.chars[it.id].temp && !store.chars[it.id].share) {
@@ -9755,9 +10453,10 @@ V1.5
         if (store.chars[it.id] && store.chars[it.id].share) { acct.known[k] = { m: it.m, h: '' }; return; }   // shared: the shared copy counts
         var c; try { c = normalize(JSON.parse(it.data)); } catch (e) { return; }
         c.id = it.id; delete c.temp; delete c.share;
+        if (store.chars[it.id] && store.chars[it.id].mode) c.mode = store.chars[it.id].mode;   // stay in the mode you're in
         store.chars[it.id] = c; if (store.order.indexOf(it.id) < 0) store.order.push(it.id);
         if (!store.cur) store.cur = it.id;
-        acct.known[k] = { m: it.m, h: hashStr(JSON.stringify(c)) }; delete acct.dirty[k]; changed = true;
+        acct.known[k] = { m: it.m, h: hashStr(JSON.stringify(c, charRep)) }; delete acct.dirty[k]; changed = true;
       } else if (it.id === 'cm') cmIt = it;
       else if (it.id === 'roller') rollIt = it;
     });
@@ -9791,8 +10490,8 @@ V1.5
       if (k === 'blob:roller' && acct.rollerPending) return;   // waiting for the person to choose which roller settings to keep
       var i = k.indexOf(':'), kind = k.slice(0, i), id = k.slice(i + 1), d = acct.dirty[k], kn = acct.known[k];
       var m = Math.max(d > 0 ? d : Date.now(), kn ? kn.m + 1 : 1);
-      if (local[k] !== undefined) list.push({ kind: kind, id: id, data: local[k], m: m, h: hashStr(local[k]) });
-      else if (kind === 'char') list.push({ kind: kind, id: id, deleted: 1, m: m });
+      if (local[k] !== undefined) list.push({ kind: kind, id: id, data: local[k], m: m, h: itemH(k, local[k]) });
+      else if (kind === 'char' || kind === 'img') list.push({ kind: kind, id: id, deleted: 1, m: m });
       else delete acct.dirty[k];
     });
     var chunks = [];
@@ -10022,7 +10721,7 @@ V1.5
      editors go out field by field as soon as they're saved, and arrive straight away for everyone else who has the
      sheet open. View-only people get a fresh copy about once a minute. A shared character leaves the personal account
      sync: the shared copy is the one that counts. Local-only things (open tab, this turn's blood) are never shared. */
-  var SHARE_LOCAL = { id: 1, share: 1, temp: 1, ui: 1, spent: 1, boostSpend: 1 };
+  var SHARE_LOCAL = { id: 1, share: 1, temp: 1, ui: 1, spent: 1, boostSpend: 1, mode: 1 };
   var BAD_KEYS = { __proto__: 1, constructor: 1, prototype: 1 };
   function isShared(c) { return !!(c && c.share && c.share.sid); }
   function isReceived(c) { return isShared(c) && c.share.role !== 'owner'; }
@@ -10112,7 +10811,7 @@ V1.5
     }, 0);
   });
   function keepLocal(n, old) {
-    n.id = old.id; n.share = old.share; n.ui = old.ui || { tab: 'play' };
+    n.id = old.id; n.share = old.share; n.ui = old.ui || { tab: 'play' }; if (old.mode) n.mode = old.mode;
     if (old.spent) n.spent = old.spent; if (old.boostSpend) n.boostSpend = old.boostSpend;
     delete n.temp;
     return n;
@@ -10175,7 +10874,7 @@ V1.5
       var mine = old && isShared(old) && old.share.sid === it.sid;
       var pend = mine && it.role !== 'view' ? (old.share.pending || []) : [];
       applyOps(n, pend);
-      keepLocal(n, { id: lid, ui: old && old.ui, spent: old && old.spent, boostSpend: old && old.boostSpend, share: { sid: it.sid, role: it.role, owner: it.owner, v: res.v, u: res.updated, pending: pend } });
+      keepLocal(n, { id: lid, mode: old && old.mode, ui: old && old.ui, spent: old && old.spent, boostSpend: old && old.boostSpend, share: { sid: it.sid, role: it.role, owner: it.owner, v: res.v, u: res.updated, pending: pend } });
       if (!old && it.role !== 'owner') {
         var msg = (it.owner || 'Someone') + ' shared ' + (n.info.name || 'a character') + ' with you (' + (it.role === 'edit' ? 'you can edit it' : 'view only') + ').';
         if (acct.seenSids && !acct.seenSids[it.sid]) notify(msg, { cid: lid }); else toast(msg);
@@ -10342,9 +11041,16 @@ V1.5
   /* text: what happened; o.cid: a character to open; o.act: 'account' opens Settings > Account; o.toast: also show it now. */
   function notify(text, o) {
     o = o || {};
-    notifs.unshift({ id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), text: String(text).slice(0, 300), cid: o.cid || '', act: o.act || '', kind: o.kind || '', pid: o.pid || '', name: o.name || '' });
+    notifs.unshift({ id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), text: String(text).slice(0, 300), cid: o.cid || '', act: o.act || '', kind: o.kind || '', pid: o.pid || '', name: o.name || '', code: o.code || '' });
     notifs = notifs.slice(0, 50); saveNotifs(); renderNotifs();
     if (o.toast !== false) toast(text);
+    notifSound();
+  }
+  /* The called-roll sound, once for a burst of notifications. */
+  var notifSoundAt = 0;
+  function notifSound() {
+    var now = Date.now(); if (now - notifSoundAt < 1500) return; notifSoundAt = now;
+    try { if (window.vtmRoller && window.vtmRoller.playNotify) window.vtmRoller.playNotify(); } catch (e) {}
   }
   function dropNotifs(test) { var n = notifs.length; notifs = notifs.filter(function (x) { return !test(x); }); if (notifs.length !== n) { saveNotifs(); renderNotifs(); } }
   function ago(t) {
@@ -10364,6 +11070,10 @@ V1.5
       if (x.kind === 'friendReq') return '<li class="notif-item"><div class="notif-go"><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + '</small></div>' +
         '<span class="notif-acts"><button type="button" class="fr-ic ok" data-nacc="' + esc(x.pid) + '" aria-label="Accept ' + esc(x.name || 'request') + '" title="Accept">✓</button><button type="button" class="fr-ic" data-ndec="' + esc(x.pid) + '" aria-label="Decline ' + esc(x.name || 'request') + '" title="Decline">✕</button></span>' +
         '<button type="button" class="notif-x" data-nx="' + x.id + '" aria-label="Clear this notification (the request stays in Friends)">×</button></li>';
+      /* A friend is hosting a tracker room: join it without typing the code. */
+      if (x.kind === 'host') return '<li class="notif-item"><div class="notif-go"><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + ' · Room ' + esc(x.code) + '</small></div>' +
+        '<span class="notif-acts"><button type="button" class="btn small primary" data-njoin="' + esc(x.id) + '">Join</button></span>' +
+        '<button type="button" class="notif-x" data-nx="' + x.id + '" aria-label="Clear this notification">×</button></li>';
       return '<li class="notif-item"><' + (go ? 'button type="button" class="notif-go" data-ngo="' + x.id + '"' : 'div class="notif-go"') + '><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + (go ? ' · ' + (x.act === 'account' ? 'Open Account' : 'Open') : '') + '</small></' + (go ? 'button' : 'div') + '>' +
         '<button type="button" class="notif-x" data-nx="' + x.id + '" aria-label="Clear this notification">×</button></li>';
     }).join('') : '<li class="notif-empty">No notifications.</li>';
@@ -10384,6 +11094,8 @@ V1.5
       p.addEventListener('click', function (e) {
         var acc = e.target.closest('[data-nacc]'), dec = e.target.closest('[data-ndec]');
         if (acc || dec) { respondFriend((acc || dec).getAttribute(acc ? 'data-nacc' : 'data-ndec'), !!acc); return; }
+        var jn = e.target.closest('[data-njoin]');
+        if (jn) { var hn = notifs.filter(function (n) { return n.id === jn.getAttribute('data-njoin'); })[0]; if (hn) { dropNotifs(function (n) { return n.id === hn.id; }); closeNotifs(true); joinFriendRoom(hn.code, hn.name); } return; }
         var x = e.target.closest('[data-nx]'), g = e.target.closest('[data-ngo]');
         if (e.target.closest('.notif-all')) { notifs = []; saveNotifs(); renderNotifs(); $('notifBtn').focus(); return; }
         if (x) {
@@ -10435,12 +11147,33 @@ V1.5
         if (!known && !has) notify(x.name + ' wants to be your friend.', { kind: 'friendReq', pid: x.pid, name: x.name });
       });
       if (prev) fri.forEach(function (x) { if ((prev.out || []).indexOf(x.pid) >= 0) notify(x.name + ' accepted your friend request.', {}); });
+      /* A friend started hosting a tracker room: notify once per room, with a Join button. Rooms that closed drop theirs. */
+      var hosts = fri.filter(function (x) { return x.host; }).map(function (x) { return x.pid + ':' + x.host; }), inRoom = window.vtmRoller && window.vtmRoller.watchCode ? window.vtmRoller.watchCode() : '';
+      fri.forEach(function (x) {
+        if (!x.host || x.host === inRoom) return;
+        var key = x.pid + ':' + x.host, seen = prev && (prev.hosts || []).indexOf(key) >= 0, has = notifs.some(function (n) { return n.kind === 'host' && n.pid === x.pid && n.code === x.host; });
+        if (!seen && !has) notify(x.name + ' is hosting a room.', { kind: 'host', pid: x.pid, name: x.name, code: x.host });
+      });
+      dropNotifs(function (n) { return n.kind === 'host' && hosts.indexOf(n.pid + ':' + n.code) < 0; });
       /* Requests that are no longer pending (answered here or on another device) drop their notifications. */
       dropNotifs(function (n) { return n.kind === 'friendReq' && !inc.some(function (x) { return x.pid === n.pid; }); });
-      acct.frSnap = { inc: inc.map(function (x) { return x.pid; }), out: out.map(function (x) { return x.pid; }) }; saveAcct();
+      acct.frSnap = { inc: inc.map(function (x) { return x.pid; }), out: out.map(function (x) { return x.pid; }), hosts: hosts }; saveAcct();
       renderFriends();
     }).catch(function () {}).then(function () { frBusy = false; });
   }
+  /* Join a friend's room: the Roller's Initiative tracker connects with their code. */
+  function joinFriendRoom(code, name) {
+    var r = window.vtmRoller && window.vtmRoller.join ? window.vtmRoller.join(code) : '';
+    if (r === 'hosting') return toast('Close the room you\'re hosting first, then join theirs.');
+    if (store.view === 'chars') setView('roller');
+    var ip = $('initPanel'); if (ip) window.setTimeout(function () { ip.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 50);
+    toast(r === 'already' ? 'You\'re already in that room.' : 'Joining ' + (name || 'your friend') + '\'s room…');
+  }
+  /* While this page hosts a room, friends can see its code (sent now, and again every 30 s; '' when it closes). */
+  var myHost = '';
+  function postHost() { if (signedIn() && acctReady()) api('friends/hosting', { code: myHost }).catch(function () {}); }
+  window.cmHostChanged = function (code) { code = code || ''; if (code === myHost) return; myHost = code; postHost(); };
+  window.setInterval(function () { if (myHost) postHost(); }, 30000);   // keeps going in a background tab
   function respondFriend(pid, accept) {
     return api('friends/respond', { pid: pid, accept: !!accept }).then(function (res) {
       toast(accept ? 'You and ' + (res.name || 'they') + ' are now friends.' : 'Request declined.');
@@ -10464,7 +11197,7 @@ V1.5
     }).join('') + '</ul>';
     h += '<h3 class="fr-h">Friends</h3>' + (fr.friends.length ? '<ul class="fr-list">' + fr.friends.map(function (x) {
       return frRemove === x.pid ? '<li class="fr-row fr-confirm"><span class="fr-txt">Remove <b>' + esc(x.name) + '</b> from your friends?</span><button type="button" class="btn small danger" data-frrmyes="' + esc(x.pid) + '">Remove</button><button type="button" class="btn small" data-frrmno>Cancel</button></li>'
-        : row(x, '<button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Remove ' + esc(x.name) + '" title="Remove friend">×</button>');
+        : row(x, (x.host ? '<button type="button" class="btn small primary fr-join" data-frjoin="' + esc(x.host) + '" data-frname="' + esc(x.name) + '" title="Join their room (' + esc(x.host) + ')">Join room</button>' : '') + '<button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Remove ' + esc(x.name) + '" title="Remove friend">×</button>');
     }).join('') + '</ul>' : '<p class="fr-empty">' + (frLoaded ? 'No friends yet. Add one with their player ID.' : 'Loading…') + '</p>');
     if (fr.outgoing.length) h += '<h3 class="fr-h">Sent</h3><ul class="fr-list">' + fr.outgoing.map(function (x) {
       return row(x, '<span class="fr-wait">Waiting</span><button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Cancel request to ' + esc(x.name) + '" title="Cancel request">×</button>');
@@ -10489,6 +11222,7 @@ V1.5
         if (t.dataset.frdec) return respondFriend(t.dataset.frdec, false);
         if (t.dataset.frrm) { var isOut = fr.outgoing.some(function (x) { return x.pid === t.dataset.frrm; }); if (isOut) return removeFriend(t.dataset.frrm); frRemove = t.dataset.frrm; renderFriends(); var y = p.querySelector('[data-frrmyes]'); if (y) y.focus(); return; }
         if (t.dataset.frrmyes) return removeFriend(t.dataset.frrmyes);
+        if (t.dataset.frjoin) { closeFriends(true); return joinFriendRoom(t.dataset.frjoin, t.dataset.frname); }
         if (t.hasAttribute('data-frrmno')) { frRemove = ''; renderFriends(); }
       });
       p.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeFriends(); } });
@@ -10812,6 +11546,7 @@ V1.5
       if (arch[0]) add('Nature and Demeanor', arch[0]);
     } else if (kindK === 'blood') { add('Blood Pool', findAny('Blood Pool', 2)); add('Using Blood Pool', findAny('Using Blood Pool', 2)); }
     else if (kindK === 'health') { add('Health', findAny('Health', 2)); add('The Health Chart', findAny('The Health Chart', 3)); }
+    else if (kindK === 'der') { var db = derBook(name); if (db) out.push([db[0], db[1]]); out.push(['Derangements', DER_INDEX[0][2]]); if (out.length > 1 && out[0][1] === out[1][1]) out.pop(); }
     else if (kindK === 'wp') { add('Willpower', findAny('Willpower', 2)); add('Spending Willpower', findAny('Spending Willpower', 2)); }
     return out;
   }
@@ -10826,7 +11561,7 @@ V1.5
     var on = window.vtmRules && $('rulesBtn') && !$('rulesBtn').hidden;
     bookMenu = document.createElement('div');
     bookMenu.className = 'cm-ctx'; bookMenu.setAttribute('role', 'menu');
-    var bk = t.getAttribute('data-bk'), sm = t.getAttribute('data-sum') || (/^merit:/.test(bk) ? sumOf('merits', bk.slice(6)) : /^flaw:/.test(bk) ? sumOf('flaws', bk.slice(5)) : /^trait:bg\./.test(bk) ? sumOf('bg', bk.slice(9)) : '');
+    var bk = t.getAttribute('data-bk'), sm = t.getAttribute('data-sum') || (/^der:/.test(bk) ? DER_SUMS[bk.slice(4)] : '') || (/^merit:/.test(bk) ? sumOf('merits', bk.slice(6)) : /^flaw:/.test(bk) ? sumOf('flaws', bk.slice(5)) : /^trait:bg\./.test(bk) ? sumOf('bg', bk.slice(9)) : '');
     bookMenu.innerHTML = (sm ? '<p class="cm-ctx-sum">' + esc(sm) + '</p>' : '') + (!on ? '<p class="cm-ctx-note">Turn on the Rule Book in Settings > UI Options to look this up.</p>' :
       pages.length ? pages.map(function (pg) { return '<button type="button" role="menuitem" data-bkp="' + pg[1] + '">Look up ' + esc(pg[0]) + ' <span class="muted">p. ' + pg[1] + '</span></button>'; }).join('') :
       '<p class="cm-ctx-note">Not found in the book’s index.</p>');
@@ -10884,7 +11619,8 @@ V1.5
   function initials(n) { var w = String(n || '?').trim().split(/\s+/); return ((w[0] || '?').charAt(0) + (w.length > 1 ? w[w.length - 1].charAt(0) : '')).toUpperCase(); }
   function avatar(c, cls) {
     var h = (CLAN_HUE || {})[c.info.clan];
-    return '<span class="lib-av' + (cls ? ' ' + cls : '') + '"' + (h != null ? ' style="--h:' + h + '"' : ' data-none') + ' aria-hidden="true">' + esc(initials(c.info.name || 'Unnamed')) + '</span>';
+    var im = imgTag(c, '', '');
+    return '<span class="lib-av' + (cls ? ' ' + cls : '') + (im ? ' has-img' : '') + '"' + (h != null ? ' style="--h:' + h + '"' : ' data-none') + ' aria-hidden="true">' + (im || esc(initials(c.info.name || 'Unnamed'))) + '</span>';
   }
   function healthWord(c) { var t = Math.min(7, hTotal(c)); return t === 0 ? 'Healthy' : t === 7 ? 'Incap.' : HEALTH[t - 1][0]; }
   function charCard(id) {
@@ -11401,9 +12137,12 @@ V1.5
   function generateKindred(opt) {
     /* A class tilts every weight below toward its theme; the clan's own leanings still count, just a bit less. */
     var cls = (opt.cls && GEN_CLASS[opt.cls]) || null, cw = cls ? 0.65 : 1;
-    var clan = opt.clan || (cls ? wpick(Object.keys(CLANS).map(function (k) { return [k, 1 + (cls.clan[k] || 0)]; })) : pick(Object.keys(CLANS)));
+    var clan = opt.tmpl === 'thin' ? 'Caitiff' : opt.clan || (cls ? wpick(Object.keys(CLANS).map(function (k) { return [k, 1 + (cls.clan[k] || 0)]; })) : pick(Object.keys(CLANS)));
     var fit = GEN_FIT[clan], c = blankKindred('');
     c.info.clan = clan;
+    /* Thin Blood: its own dot budgets, no Backgrounds, and only the Generation Flaws (14th also brings Thin Blood). */
+    var thin = opt.tmpl === 'thin';
+    if (thin) { c.template = 'thin'; setThinGen(c, opt.tgen === 14 || opt.tgen === 15 ? opt.tgen : (chance(0.5) ? 14 : 15)); }
     var nos = clan === 'Nosferatu';
     if (nos) c.attrs.appearance = 0;
     var AW = function (k) { return 1 + cw * rankW(fit.fa, k, 3, 0.5) + (cls ? rankW(cls.fa, k, 3.5, 0.6) : 0); };
@@ -11427,32 +12166,32 @@ V1.5
     /* Attributes 7/5/3, Abilities 13/9/5 (no Ability above 3 before freebies). */
     c.creation.prio.attr.forEach(function (g, i) {
       var keys = ATTR_GROUPS[g].map(keyOf).filter(function (k) { return !(nos && k === 'appearance'); });
-      spread(CREATION.attr[i], keys, AW,
+      spread(CR(c).attr[i], keys, AW,
         function (k) { return c.attrs[k]; }, function (k, v) { c.attrs[k] = v; }, function () { return 5; });
     });
     c.creation.prio.abil.forEach(function (g, i) {
-      spread(CREATION.abil[i], ABIL_GROUPS[g].map(keyOf), ABW,
-        function (k) { return c.abil[k]; }, function (k, v) { c.abil[k] = v; }, function () { return CREATION.abilCap; });
+      spread(CR(c).abil[i], ABIL_GROUPS[g].map(keyOf), ABW,
+        function (k) { return c.abil[k]; }, function (k, v) { c.abil[k] = v; }, function () { return CR(c).abilCap; });
     });
     /* Disciplines: 3 dots among clan Disciplines (Caitiff pick from common ones). */
     var DW = function (d) { return 1 + (d === GEN_SIG[clan] ? 0.6 : 0) + (cls ? cls.disc[d] || 0 : 0); };
     var dl = CLANS[clan].disc;
     if (clan === 'Caitiff') { dl = []; var cp = fit.disc.slice(); while (dl.length < rnd(2, 3) && cp.length) { var dd = wpick(cp.map(function (d) { return [d, DW(d)]; })); dl.push(dd); cp.splice(cp.indexOf(dd), 1); } }
     if (GEN_SIG[clan] && chance(cls && !cls.disc[GEN_SIG[clan]] ? 0.6 : 0.9)) c.disc[GEN_SIG[clan]] = 1;
-    spread(CREATION.disc - sum(dl, function (d) { return c.disc[d] || 0; }), dl, DW, function (d) { return c.disc[d] || 0; }, function (d, v) { c.disc[d] = v; }, function () { return 3; });
+    spread(CR(c).disc - sum(dl, function (d) { return c.disc[d] || 0; }), dl, DW, function (d) { return c.disc[d] || 0; }, function (d, v) { c.disc[d] = v; }, function () { return 3; });
     /* Backgrounds: 5 dots, mostly the clan's favorites, sometimes a bit of Generation. */
     var bgKeys = favBg.concat(['Generation']);
-    spread(CREATION.bg, bgKeys, function (b) { return b === 'Generation' ? 0.8 : Math.max(0.4, BGW(b)); },
+    if (!thin) spread(CR(c).bg, bgKeys, function (b) { return b === 'Generation' ? 0.8 : Math.max(0.4, BGW(b)); },
       function (b) { return c.bg[b] || 0; }, function (b, v) { c.bg[b] = v; }, function (b) { return b === 'Generation' ? 3 : 4; });
     /* Virtues: 7 dots on top of the free one each. */
-    spread(CREATION.virt, ['conscience', 'selfControl', 'courage'], function () { return 1; }, function (k) { return c.virt[k]; }, function (k, v) { c.virt[k] = v; }, function () { return 5; });
+    spread(CR(c).virt, ['conscience', 'selfControl', 'courage'], function () { return 1; }, function (k) { return c.virt[k]; }, function (k, v) { c.virt[k] = v; }, function () { return 5; });
     syncDerived(c);
 
     /* Merits and Flaws (optional): Flaws first (they pay for Merits), each up to its target points and max cost. */
-    if (opt.mf) {
-      var fT = clamp(+opt.mf.flawPts || 0, 0, 7), mT = clamp(+opt.mf.meritPts || 0, 0, CREATION.freebies + fT);
+    if (opt.mf && !thin) {
+      var fT = clamp(+opt.mf.flawPts || 0, 0, 7), mT = clamp(+opt.mf.meritPts || 0, 0, CR(c).freebies + fT);
       genMF(c, 'flaws', fT, clamp(+opt.mf.flawMax || 1, 1, 7), cls && cls.mf.f);
-      genMF(c, 'merits', Math.min(mT, CREATION.freebies + Math.min(7, flawTotal(c))), clamp(+opt.mf.meritMax || 1, 1, 7), cls && cls.mf.m);
+      genMF(c, 'merits', Math.min(mT, CR(c).freebies + Math.min(7, flawTotal(c))), clamp(+opt.mf.meritMax || 1, 1, 7), cls && cls.mf.m);
     }
     /* Freebie points (15 plus Flaws, minus Merits), weighted toward what fits. */
     var fb = c.creation.fb, guard = 0;
@@ -11476,6 +12215,7 @@ V1.5
       syncDerived(c);
     }
     if (c.bg.Generation) c.info.generation = 13 - Math.min(5, c.bg.Generation);
+    if (thinGen(c)) c.info.generation = thinGen(c);
     /* Sorcery: a primary path, and a first ritual for Thaumaturgy. */
     SORCERY.forEach(function (d) {
       if (!(c.disc[d] > 0)) return;
@@ -11561,37 +12301,45 @@ V1.5
     var clans = Object.keys(CLANS), pr = genPrefs();
     openModal('<h2>Random Character Generator</h2><p class="muted small">Rolls a finished ' + esc(base.tmpl.name) + ' by the V20 creation rules, leaning on what fits the clan. Backstory and Story Progression stay empty; only Aesthetics are filled in Details.</p>' +
       '<label class="fld">Name<input id="gnName" placeholder="Leave blank for a random name" value="' + esc(base.name) + '"></label>' +
-      '<div class="gn-row"><label class="fld">Clan<select id="gnClan"><option value="">Random</option>' + clans.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></label>' +
+      '<div class="gn-row">' + (base.tmpl.id === 'thin' ? '<label class="fld">Clan<select id="gnClan" disabled><option value="Caitiff">Caitiff (Thin Blood)</option></select></label>' : '<label class="fld">Clan<select id="gnClan"><option value="">Random</option>' + clans.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></label>') +
       genNum('gnXp', 'XP to spend', 0, 0, 2000) + '</div>' +
       '<p class="muted small gn-hint">XP is logged as earned, then spent on traits that fit the character. 0 makes a fresh neonate.</p>' +
       '<div class="gn-class"><span class="gn-lbl" id="gnClassLbl">Class</span><div class="gn-cls-row" role="group" aria-labelledby="gnClassLbl">' +
         Object.keys(GEN_CLASS).map(function (k) { return '<button type="button" class="gn-cls" data-cls="' + k + '" aria-pressed="' + (pr.cls === k) + '">' + GEN_CLASS[k].name + '</button>'; }).join('') +
       '</div><p class="muted small" id="gnClassHint" aria-live="polite"></p></div>' +
-      genSwitch('gnMF', pr.mf, 'Merits &amp; Flaws', 'Picked from the book\'s list, leaning on what suits the clan.') +
+      (base.tmpl.id === 'thin' ? '<div class="gn-class"><span class="gn-lbl" id="gnGenLbl">Generation</span><div class="gn-cls-row gn-3" role="group" aria-labelledby="gnGenLbl">' +
+        [['', 'Random'], ['14', '14th'], ['15', '15th']].map(function (x) { return '<button type="button" class="gn-cls gn-gen" data-g="' + x[0] + '" aria-pressed="' + (x[0] === '') + '">' + x[1] + '</button>'; }).join('') +
+        '</div><p class="muted small" id="gnGenHint" aria-live="polite"></p></div>' : '') +
+      (base.tmpl.id === 'thin' ? '' : genSwitch('gnMF', pr.mf, 'Merits &amp; Flaws', 'Picked from the book\'s list, leaning on what suits the clan.') +
       '<fieldset class="gn-sub" id="gnMFOpts"' + (pr.mf ? '' : ' hidden') + '><legend class="vh">Merits and Flaws options</legend><div class="gn-grid">' +
         genNum('gnMMax', 'Max Merit cost', pr.meritMax, 1, 7) + genNum('gnMPts', 'Merit points to spend', pr.meritPts, 0, 22) +
         genNum('gnFMax', 'Max Flaw cost', pr.flawMax, 1, 7) + genNum('gnFPts', 'Flaw points to gain', pr.flawPts, 0, 7) +
-      '</div><p class="muted small">Flaws give up to 7 extra freebie points. Merits are paid from freebie points, so they can use up to 15 plus what Flaws give.</p></fieldset>' +
+      '</div><p class="muted small">Flaws give up to 7 extra freebie points. Merits are paid from freebie points, so they can use up to 15 plus what Flaws give.</p></fieldset>') +
       genSwitch('gnEq', pr.gear, 'Carried equipment', 'Up to 3 weapons (Feral Claws with Protean 2+) and armor, when they fit the character.') +
       '<p class="muted small gn-note" id="gnEqNote" role="status" hidden></p>' +
       '<div class="acts"><button type="button" class="btn" id="mBack">Back</button><span style="flex:1"></span><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Generate</button></div>', 'cm-gen');
     $('gnName').focus();
     var CLS_HINT = { '': 'No class: the clan alone decides what the character leans toward. Pick one to steer it.', bruiser: 'Leans toward Brawl and Melee, toughness and hitting hard.', gunner: 'Leans toward Firearms, ranged attacks and what helps them.', mage: 'Leans toward Disciplines and blood magic (Thaumaturgy, Necromancy and the like).', charmer: 'Leans toward social skills: charm, persuasion, manipulation.', controller: 'Leans toward controlling others: Dominate, Presence, Dementation, Animalism.', rogue: 'Leans toward stealth, subterfuge, theft and striking unseen.' };
     var selCls = pr.cls || '';
-    var showCls = function () { Array.prototype.forEach.call(document.querySelectorAll('.gn-cls'), function (b) { b.setAttribute('aria-pressed', b.dataset.cls === selCls ? 'true' : 'false'); }); $('gnClassHint').textContent = CLS_HINT[selCls] + (selCls ? ' Other picks still happen, just less often.' : ''); };
-    Array.prototype.forEach.call(document.querySelectorAll('.gn-cls'), function (b) { b.addEventListener('click', function () { selCls = selCls === b.dataset.cls ? '' : b.dataset.cls; showCls(); }); });
+    var showCls = function () { Array.prototype.forEach.call(document.querySelectorAll('.gn-cls[data-cls]'), function (b) { b.setAttribute('aria-pressed', b.dataset.cls === selCls ? 'true' : 'false'); }); $('gnClassHint').textContent = CLS_HINT[selCls] + (selCls ? ' Other picks still happen, just less often.' : ''); };
+    Array.prototype.forEach.call(document.querySelectorAll('.gn-cls[data-cls]'), function (b) { b.addEventListener('click', function () { selCls = selCls === b.dataset.cls ? '' : b.dataset.cls; showCls(); }); });
     showCls();
-    $('gnMF').addEventListener('change', function () { $('gnMFOpts').hidden = !this.checked; });
+    if ($('gnMF')) $('gnMF').addEventListener('change', function () { $('gnMFOpts').hidden = !this.checked; });
+    var selGen = '';
+    var GEN_HINT = { '': 'Randomly 14th (Fourteenth Generation and Thin Blood Flaws) or 15th (Fifteenth Generation Flaw).', '14': 'Fourteenth Generation and Thin Blood Flaws: blood costs double, and 2 of the 10 blood points can\'t be used.', '15': 'Fifteenth Generation Flaw: blood costs double, and no Discipline above 3.' };
+    var showGen = function () { Array.prototype.forEach.call(document.querySelectorAll('.gn-gen'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.g === selGen)); }); if ($('gnGenHint')) $('gnGenHint').textContent = GEN_HINT[selGen]; };
+    Array.prototype.forEach.call(document.querySelectorAll('.gn-gen'), function (b) { b.addEventListener('click', function () { selGen = b.dataset.g; showGen(); }); });
+    showGen();
     var startWeapons = function () { if ($('gnEq').checked) { if (bookW.state === 'idle') ensureBookWeapons(); genWeapNote(); } else $('gnEqNote').hidden = true; };
     $('gnEq').addEventListener('change', startWeapons); startWeapons();
     var poll = setInterval(function () { if (!$('gnEqNote')) return clearInterval(poll); if ($('gnEq').checked) genWeapNote(); }, 500);
-    var num = function (id, lo, hi) { var v = parseInt($(id).value, 10); return isNaN(v) ? null : clamp(v, lo, hi); };
+    var num = function (id, lo, hi) { if (!$(id)) return null; var v = parseInt($(id).value, 10); return isNaN(v) ? null : clamp(v, lo, hi); };
     $('mNo').onclick = function () { clearInterval(poll); closeModal(); };
     $('mBack').onclick = function () { clearInterval(poll); newCharModal({ name: $('gnName').value, tag: base.tag, start: 'random' }); };
     var go = function () {
       var xp = parseInt($('gnXp').value, 10);
       if (isNaN(xp) || xp < 0) { $('gnXp').focus(); return toast('XP must be 0 or more.'); }
-      var mf = $('gnMF').checked, gear = $('gnEq').checked;
+      var mf = !!($('gnMF') && $('gnMF').checked), gear = $('gnEq').checked;
       var o = { meritMax: num('gnMMax', 1, 7), meritPts: num('gnMPts', 0, 22), flawMax: num('gnFMax', 1, 7), flawPts: num('gnFPts', 0, 7) };
       if (mf) for (var k in o) if (o[k] == null) { $(k === 'meritMax' ? 'gnMMax' : k === 'meritPts' ? 'gnMPts' : k === 'flawMax' ? 'gnFMax' : 'gnFPts').focus(); return toast('Fill in the Merits & Flaws numbers.'); }
       /* Equipment waits for the weapons charts if they're still being read. */
@@ -11601,9 +12349,10 @@ V1.5
         return;
       }
       clearInterval(poll);
+      if (base.tmpl.id === 'thin') { mf = pr.mf; o = { meritMax: pr.meritMax, meritPts: pr.meritPts, flawMax: pr.flawMax, flawPts: pr.flawPts }; }   // no Merits & Flaws options for Thin Blood: keep the saved ones
       try { localStorage.setItem('vtm-gen', JSON.stringify({ mf: mf, meritMax: o.meritMax, meritPts: o.meritPts, flawMax: o.flawMax, flawPts: o.flawPts, gear: gear, cls: selCls })); } catch (e) {}
       var taken = {}; Object.keys(store.chars).forEach(function (id) { var f = String(store.chars[id].info.name || '').trim().split(/\s+/)[0]; if (f) taken[f.toLowerCase()] = 1; });
-      var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, cls: selCls, xp: Math.min(xp, 2000), mf: mf ? o : null, gear: gear, weapons: bookW.state === 'ready' ? bookW.list : null, taken: taken });
+      var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, cls: selCls, tmpl: base.tmpl.id, tgen: selGen ? +selGen : 0, xp: Math.min(xp, 2000), mf: mf && base.tmpl.id !== 'thin' ? o : null, gear: gear, weapons: bookW.state === 'ready' ? bookW.list : null, taken: taken });
       c.template = base.tmpl.id; c.tracker.type = base.tag;
       store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
       if (libDest) { placeIn(c.id, libDest); libDest = ''; }

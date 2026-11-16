@@ -206,3 +206,24 @@ V2.6
 -Fixed the Details tab not showing for characters.
 -Fixed Celerity actions planned between rounds changing initiative before the next round starts.
 -Fixed Merits and Flaws added in Free-form edit not filling in their cost from the book.
+
+V2.7
+-Friends hosting a room now send you a notification with a Join button, and the Friends panel shows a Join room button while they host. No code needed. Needs the updated sync server.
+-Notifications play the dice-call sound.
+-Added character portraits: add a square image in Free-form edit (with a crop overlay), shown on the Sheet tab, the character bar and the character browser. Portraits sync and share separately from the sheet, so editing a sheet never re-sends the picture. Needs the updated sync server.
+-Added the Thin Blood template (5/3/1 Attributes, 11/6/3 Abilities, 3 Virtue dots, no freebie points). Always Caitiff, never takes the Generation or Status Backgrounds, and always has the Fourteenth Generation and Thin Blood Flaws, or the Fifteenth Generation Flaw, picked in Finishing touches or by the Random Character Generator.
+-Fourteenth Generation, Fifteenth Generation and Thin Blood Flaws now apply: Spend, Boost and Celerity cost double blood, Fourteenth Generation can't use its last 2 blood for them, and Fifteenth Generation keeps Disciplines at 3 or less.
+-Removed the Ghoul and Mortal templates until they're implemented.
+-Initiative Tracker Changes:
+	-Removed Call Roll: every roll made in a room now goes to the room's roll history. The host's show as the Storyteller, a joiner's as their character in the tracker (the one active in the Characters module if they have several).
+	-Joiners can open the roll history and see each outcome; the host also sees each die (hover when there are too many to list).
+	-Added Hide Roll (next to the roll buttons while in a room): rolls made with it on stay private. It turns off when you leave the room.
+-Character Manager Changes:
+	-Added Show Progression (Sheet tab, next to Play and Free-form edit): colours each dot by how it was gained, Base, Freebies or XP.
+	-Backgrounds, Merits and Flaws that aren't in the book can have their own hover text, set in their note dialog and kept separate from the note.
+	-The XP log can be collapsed, and shows the latest 10 entries with pages for older ones.
+	-Added Deterioration (third mode next to Play and Free-form edit): lower a trait after story events, at no cost. It's noted in the XP log, and Show Progression shows how many dots each trait lost.
+	-Added Planning (next to Spend XP): plan raises on the sheet in the accent colour without changing anything, then review, reorder and confirm them one dot at a time in XP Plan, with the total XP needed and how much is missing.
+	-The sheet always goes back to Play when you leave the Sheet tab, and Free-form edit is never saved or synced.
+	-Every section of the Details tab can be collapsed, and so can each Expanded Background; hovering a collapsed one shows the start of its details.
+	-Added Derangements to the Details tab: pick one from the book (its text is read from the rulebook, with a page reference) or write your own with its own hover text. Each one collapses, showing a summary on hover.
