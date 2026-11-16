@@ -7986,7 +7986,12 @@ V1.5
       try { if (ie.tagName === 'TEXTAREA' || ie.type === 'text' || !ie.type) { var n = ie.value.length; ie.setSelectionRange(n, n); } } catch (e) {}
     }
   }
-  function render() { hideTip(); applyGate(); var c = gated() ? null : cur(); renderBar(); renderTabs(c); renderModes(c); renderSheet(); renderPick(); renderModule(); if (libOpen) { if (gated()) closeLib(); else renderLib(); } }  // renderLib keeps a folder name being typed
+  function render() {
+    var openD = {}; Array.prototype.forEach.call(document.querySelectorAll('#cmView details[open] > summary, #cmModule details[open] > summary'), function (s) { openD[s.textContent.trim()] = 1; });
+    renderInner();
+    Array.prototype.forEach.call(document.querySelectorAll('#cmView details > summary, #cmModule details > summary'), function (s) { if (openD[s.textContent.trim()]) s.parentNode.open = true; });
+  }
+  function renderInner() { shRenderLater = false; hideTip(); applyGate(); var c = gated() ? null : cur(); renderBar(); renderTabs(c); renderModes(c); renderSheet(); renderPick(); renderModule(); if (libOpen) { if (gated()) closeLib(); else renderLib(); } }  // renderLib keeps a folder name being typed
   function commit() { save(); render(); }
 
   /* ================= DOT CLICKS ================= */
@@ -9416,7 +9421,14 @@ V1.5
     });
   }
   function acctSchedule(ms) { clearTimeout(acctState.timer); if (acct.token && acctReady()) acctState.timer = setTimeout(syncNow, ms == null ? 4000 : ms); }
-  function acctChanged() { if (acct.token) acctSchedule(); }
+  /* A save schedules a sync only when something that syncs really changed, and not while a field is being typed in:
+     the edit counts once it's confirmed (Enter, Tab, or clicking elsewhere). */
+  function acctChanged() {
+    if (!acct.token) return;
+    if (typingHere()) { acctState.afterType = true; return; }
+    scanDirty();
+    if (Object.keys(acct.dirty).some(function (k) { return !(k === 'blob:roller' && acct.rollerPending); })) acctSchedule();
+  }
   /* Signing in: Google's own button, loaded only when Settings is open and nobody is signed in. */
   function renderGsi() {
     var el = $('acctGsi'); if (!el) return;
@@ -9552,7 +9564,9 @@ V1.5
   function shState(sid) { return shs[sid] || (shs[sid] = { ws: null, base: null, ready: false, inflight: null, seq: 0, retry: 0 }); }
   function charOfSid(sid) { for (var id in store.chars) { var c = store.chars[id]; if (isShared(c) && c.share.sid === sid) return c; } return null; }
   /* After every save: what changed on shared sheets this person may edit goes out (and waits if offline). */
+  var shAfterType = false;
   function shareChanged() {
+    if (typingHere()) { shAfterType = true; return; }   // live edits go out once the field is left
     var any = false;
     Object.keys(store.chars).forEach(function (id) {
       var c = store.chars[id];
@@ -9582,7 +9596,29 @@ V1.5
     return a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|color|file)$/.test(a.type));
   }
   function remoteRender() { if (typingHere()) { shRenderLater = true; return; } render(); }
-  document.addEventListener('focusout', function () { if (shRenderLater) setTimeout(function () { if (shRenderLater && !typingHere()) { shRenderLater = false; render(); } }, 0); });
+  /* Catch up once the field is left, but never in the middle of a click or tap: rebuilding the page between press and
+     release would swallow the click (and the text just typed), e.g. an Add button next to the field. */
+  var ptrDown = false;
+  function flushLater() {
+    if (!shRenderLater || typingHere() || ptrDown) return;
+    var a = document.activeElement, sel = '';
+    if (a && a.closest && a.closest('#cmView, #cmModule') && a.dataset && a.dataset.act) sel = '[data-act="' + a.dataset.act + '"]' + (a.dataset.k ? '[data-k="' + a.dataset.k + '"]' : '') + (a.dataset.d ? '[data-d="' + a.dataset.d + '"]' : '');
+    /* Text waiting in Add boxes (Discipline, Background, path) survives the refresh. */
+    var keep = {}; Array.prototype.forEach.call(document.querySelectorAll('#cmView [data-addin], #cmModule [data-addin]'), function (i) { if (i.value) keep[i.dataset.addin + '|' + (i.closest('.add') && i.closest('.add').querySelector('[data-d]') ? i.closest('.add').querySelector('[data-d]').dataset.d : '')] = i.value; });
+    shRenderLater = false; render();
+    Array.prototype.forEach.call(document.querySelectorAll('#cmView [data-addin], #cmModule [data-addin]'), function (i) { var d = i.closest('.add') && i.closest('.add').querySelector('[data-d]'), v = keep[i.dataset.addin + '|' + (d ? d.dataset.d : '')]; if (v) i.value = v; });
+    if (sel) { var b = document.querySelector('#cmView ' + sel + ', #cmModule ' + sel); if (b) b.focus(); }
+  }
+  document.addEventListener('pointerdown', function () { ptrDown = true; }, true);
+  ['pointerup', 'pointercancel'].forEach(function (ev) { document.addEventListener(ev, function () { ptrDown = false; if (shRenderLater) setTimeout(flushLater, 60); }, true); });
+  document.addEventListener('focusout', function () {
+    if (shRenderLater) setTimeout(flushLater, 0);
+    setTimeout(function () {
+      if (typingHere()) return;
+      if (shAfterType) { shAfterType = false; shareChanged(); }
+      if (acctState.afterType) { acctState.afterType = false; acctChanged(); }
+    }, 0);
+  });
   function keepLocal(n, old) {
     n.id = old.id; n.share = old.share; n.ui = old.ui || { tab: 'play' };
     if (old.spent) n.spent = old.spent; if (old.boostSpend) n.boostSpend = old.boostSpend;
@@ -9656,21 +9692,22 @@ V1.5
     if (!signedIn() || !acctReady() || shBusy) return Promise.resolve();
     shBusy = true;
     return api('sheets').then(function (res) {
-      var list = res.sheets || [], seen = {}, jobs = [];
+      var list = res.sheets || [], seen = {}, jobs = [], changed = false;
+      var sig = function () { return JSON.stringify([store.order, store.synced || [], store.cur, Object.keys(store.chars).length]); }, before = sig();
       list.forEach(function (it) {
         var lid = it.role === 'owner' && it.cid && /^[\w.-]{1,64}$/.test(it.cid) ? it.cid : 'sh-' + it.sid;
         seen[it.sid] = lid;
         var c = store.chars[lid];
         if (c && isShared(c) && c.share.sid === it.sid) {
-          if (c.share.role !== it.role) { c.share.role = it.role; if (it.role === 'view') { shClose(it.sid); c.share.pending = []; } }
-          c.share.owner = it.owner;
+          if (c.share.role !== it.role) { c.share.role = it.role; changed = true; if (it.role === 'view') { shClose(it.sid); c.share.pending = []; } }
+          if (c.share.owner !== it.owner) { c.share.owner = it.owner; changed = true; }
           if (it.role === 'view' && it.updated > (c.share.u || 0)) jobs.push(fetchSheet(it, lid));
         } else jobs.push(fetchSheet(it, lid));
       });
       Object.keys(store.chars).forEach(function (id) {
         var c = store.chars[id];
         if (!isShared(c) || seen[c.share.sid] === id) return;
-        shClose(c.share.sid);
+        shClose(c.share.sid); changed = true;
         if (c.share.role === 'owner') delete c.share;   // not shared any more: just yours again
         else { delete store.chars[id]; toast((c.info.name || 'A synced character') + ' is no longer shared with you.'); }
       });
@@ -9678,12 +9715,13 @@ V1.5
         list.forEach(function (it) { var id = seen[it.sid]; if (it.role === 'owner' && store.chars[id] && store.order.indexOf(id) < 0) store.order.push(id); });
         store.synced = list.filter(function (it) { return it.role !== 'owner'; }).map(function (it) { return seen[it.sid]; }).filter(function (id) { return store.chars[id]; });
         if (!store.chars[store.cur]) store.cur = store.order[0] || store.synced[0] || null;
-        save(); remoteRender(); shConnectAll();
+        if (changed || jobs.length || sig() !== before) { save(); remoteRender(); }
+        shConnectAll();
       });
     }).catch(function () {}).then(function () { shBusy = false; });
   }
   /* View-only sheets, and anything newly shared with this person, are checked every 30 seconds while the page is in view. */
-  setInterval(function () { if (signedIn() && !document.hidden) { shConnectAll(); shareReconcile(); } }, 30000);
+  setInterval(function () { if (signedIn() && !document.hidden && !typingHere()) { shConnectAll(); syncNow(); } }, 30000);
   /* Back online: reconnect live sheets and send what waited. */
   window.addEventListener('online', function () { if (!signedIn()) return; Object.keys(shs).forEach(function (sid) { shs[sid].retry = 0; }); shConnectAll(); syncNow(); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden && signedIn()) shConnectAll(); });

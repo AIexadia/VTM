@@ -176,3 +176,9 @@ V2.4
 	-Players hear a notification sound when the host calls a roll from them.
 	-A player's characters already in the tracker are recognized when they rejoin (any room, any device signed into their account), so they don't need to be re-added.
 -Fixed typing in names and other fields on phones getting cut off by background updates.
+
+V2.4.1
+-Sync Changes:
+	-Syncs only when something really changed, and an edit counts once it's confirmed (Enter, Tab or clicking elsewhere). Changes from other devices are checked every 30 seconds.
+-Fixed adding a Discipline or Background sometimes doing nothing when a sync or tracker update arrived while typing its name.
+-Fixed dropdowns and expanded sections (like "V20 experience costs") closing or resetting every few seconds while signed in.
