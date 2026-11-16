@@ -1205,8 +1205,6 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   .lib-tools .btn { padding-left: 10px; padding-right: 10px; white-space: nowrap; }
 }
 .cm-ctx-sum { margin: 4px 8px 6px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 0.86rem; line-height: 1.4; color: var(--fg); }
-.hi-sep.wide { margin: 0 4px; }
-.hi-def .btn { white-space: nowrap; }
 /* Tracker buttons: Start round / Next turn / End round takes the room left in its row */
 .init-actions { display: flex; flex-wrap: wrap; }
 .init-actions .roll { flex: 1 1 100%; }
@@ -1220,8 +1218,39 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 .cm-def .def-step small { font-size: 0.78rem; }
 .cm-def .soak-opt small { display: block; }
 @media (max-width: 420px) { .cm-def .def-steps { grid-template-columns: 1fr; } }
-.hicons .hi-sep.wide { display: none; }
-.hicons .hi-def { margin-left: auto; padding-left: 10px; }
+
+/* Soak and Defend: one even row under the damage/heal buttons */
+.def-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.def-row .btn { width: 100%; justify-content: center; }
+/* Folder rename: Save / Cancel buttons */
+.lib-folder.editing { gap: 6px; }
+.lib-ok { flex: none; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--fg); font-size: 1rem; cursor: pointer; }
+.lib-ok:hover, .lib-ok:focus-visible { border-color: var(--line-strong); outline: none; }
+@media (max-width: 760px) {
+  .lib-fgrid { grid-template-columns: 1fr; }
+  .lib-folder { padding: 12px 8px 12px 14px; }
+  .lib-folder.editing input { font-size: 16px; }   /* 16px stops iOS from zooming in on focus */
+  .lib-tools input[type="search"] { font-size: 16px; }
+}
+@media (pointer: coarse) {
+  .cm input:not([type]), .cm input[type="text"], .cm input[type="search"], .cm input[type="number"], .cm textarea { font-size: max(16px, 1em); }
+}
+.def-row.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Generator: Class buttons on one row */
+.cm-gen .gn-class { margin: 0 0 12px; }
+.cm-gen .gn-lbl { display: block; margin-bottom: 6px; }
+.cm-gen .gn-cls-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; }
+.cm-gen .gn-cls { min-width: 0; padding: 9px 4px; border: 0; border-left: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 600 0.82rem/1.1 var(--font-ui, inherit); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-gen .gn-cls:first-child { border-left: 0; }
+.cm-gen .gn-cls:hover { background: var(--surface-2); }
+.cm-gen .gn-cls[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.cm-gen .gn-cls:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.cm-gen #gnClassHint { margin: 6px 0 0; min-height: 1.3em; }
+@media (max-width: 460px) { .cm-gen .gn-cls { font-size: 0.72rem; padding: 9px 2px; } }
+.cm-gen .gn-lbl { font: 600 0.8rem/1.2 var(--font-body); color: var(--muted); margin-bottom: 4px; }
+.cm-gen .gn-hint { margin-bottom: 10px; }
+.cm-gen .gn-cls { -webkit-tap-highlight-color: transparent; }
+@media (hover: none) { .cm-gen .gn-cls:hover:not([aria-pressed="true"]) { background: var(--surface); } }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -4058,6 +4087,8 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
   var mineRows = {}, privSent = {};
   function mineCids() { return Object.keys(mineRows).map(function (k) { return mineRows[k].cid; }).filter(Boolean); }
   /* This browser's private id for rooms: only the hosts of rooms it joins ever see it. */
+  function legacyPids() { try { var o = JSON.parse(localStorage.getItem('vtm-sync-pid-old') || '[]'); return Array.isArray(o) ? o.filter(function (x) { return /^[a-f0-9]{32}$/.test(x); }).slice(-4) : []; } catch (e) { return []; } }
+  var claimSent = false;
   function myPid() {
     var p = '';
     try { p = localStorage.getItem('vtm-sync-pid') || ''; } catch (e) {}
@@ -4080,7 +4111,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     var ct = ini.call && ini.call.target !== 'host' ? ini.call.target : null;
     if (ct && !by[ct]) by[ct] = [];
     Object.keys(by).forEach(function (pid) {
-      var msg = { rows: by[pid], call: ct === pid ? { d: ini.call.diff || 0, n: ini.call.name } : null }, text = JSON.stringify(msg);
+      var msg = { rows: by[pid], call: ct === pid ? { d: ini.call.diff || 0, n: ini.call.name, ts: ini.call.ts || 0 } : null }, text = JSON.stringify(msg);
       if (privSent[pid] === text) return;
       privSent[pid] = text;
       try { hostWs.send(JSON.stringify({ t: 'priv', to: pid, s: msg })); } catch (e) {}
@@ -4091,6 +4122,14 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     if (!a || typeof a !== 'object' || !/^[a-f0-9]{16,64}$/.test(String(pid))) return;
     if (a.k === 'add' || a.k === 'sheet') { if (window.cmRemoteSheet) window.cmRemoteSheet(pid, a.sheet, a.k === 'add', a.sid); return; }
     if (a.k === 'roll') { joinerRolled(pid, a.rec); return; }
+    if (a.k === 'claim') {   // a player's older room id (from before it was tied to their account): their actors move to the new one
+      var olds = (Array.isArray(a.old) ? a.old : []).map(String).filter(function (x) { return /^[a-f0-9]{16,64}$/.test(x) && x !== pid; }).slice(0, 4), moved = 0;
+      if (!olds.length) return;
+      var map = window.cmRepid ? window.cmRepid(olds, pid) : {};
+      ini.actors.forEach(function (x) { if (olds.indexOf(x.ow) >= 0) { x.ow = pid; if (map[x.ch]) x.ch = map[x.ch]; moved++; } });
+      if (moved) initChanged();
+      return;
+    }
     var act = actorOf(+a.id);
     if (!act || act.ow !== pid) return;
     if (a.k === 'cel') {
@@ -4212,7 +4251,7 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 
   function leaveWatching(note) {
     var w = watchWs;
-    watchWs = null; remote = null; mineRows = {}; lrInit = false; setJoinCall(null);
+    watchWs = null; remote = null; mineRows = {}; lrInit = false; claimSent = false; setJoinCall(null);
     if (window.cmInitChanged) window.cmInitChanged();   // CHARACTERS-MODULE
     if (w) { try { w.close(); } catch (err) {} }
     syncMsg(note || '');
@@ -4240,11 +4279,12 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
         renderRemote();
       } else if (m.t === 'state' && ws === watchWs) {
         remote = m.s;
+        if (!claimSent) { claimSent = true; var lp = legacyPids(); if (lp.length) joinAct({ k: 'claim', old: lp }); }
         renderRemote();
       } else if (m.t === 'priv' && ws === watchWs) {   // CHARACTERS-MODULE: this joiner's own actors
         mineRows = {};
         (m.s && Array.isArray(m.s.rows) ? m.s.rows : []).slice(0, 60).forEach(function (x) { if (x && isFinite(+x.k)) mineRows[+x.k] = x; });
-        setJoinCall(m.s && m.s.call ? { diff: clamp(Math.round(+m.s.call.d || 0), 0, 30), name: String(m.s.call.n || '').slice(0, 24) } : null);
+        setJoinCall(m.s && m.s.call ? { diff: clamp(Math.round(+m.s.call.d || 0), 0, 30), name: String(m.s.call.n || '').slice(0, 24), ts: +m.s.call.ts || 0 } : null);
         renderRemote();
       } else if (m.t === 'closed' && ws === watchWs) {
         leaveWatching(m.reason === 'host-closed' ? 'The host closed the room.' : 'The host left, so the room closed.');
@@ -4297,9 +4337,26 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
     if (d && d !== wasLocked && window.cmToast) window.cmToast('The Storyteller is calling for your roll, difficulty ' + d + '.');
     wasLocked = d;
   }
+  /* Notification sound (decoded with Web Audio like the dice sound): played to a joiner when the host calls a roll from them. */
+  var NOTIFY_B64 = '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VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tURPCBERETTvgvOMgjpAnvAwcLBABRL+BhoWBpCiVsB6hsVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sURPkPMK8TyeGgEzAWQoj5NAVmAAAB/gAAACAIgCMAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAf4AAAAgAAA/wAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV', notifyBuffer = null, notifyLoading = false;
+  function playNotify() {
+    if (!st.sound || !AudioCtor) return;
+    try {
+      prepSound();
+      if (!audioCtx) return;
+      var go = function () { var src = audioCtx.createBufferSource(); src.buffer = notifyBuffer; src.connect(audioCtx.destination); src.start(0); };
+      if (notifyBuffer) return go();
+      if (notifyLoading) return;
+      notifyLoading = true;
+      new Promise(function (res, rej) { audioCtx.decodeAudioData(b64ToBuffer(NOTIFY_B64), res, rej); })
+        .then(function (b) { notifyBuffer = b; go(); }).catch(function () {}).then(function () { notifyLoading = false; });
+    } catch (e) { notifyLoading = false; }
+  }
   function setJoinCall(c) {
     var had = joinCall;
     joinCall = c;
+    /* A new call for this player (their turn, or any time from the host's actor menu). */
+    if (c && (!had || had.ts !== c.ts || had.actor !== c.actor)) playNotify();
     if (!c && had && window.cmToast) { /* answered or cancelled */ }
     applyDiffLock();
     renderRollPanel();
@@ -7119,7 +7176,7 @@ V1.5
     }
     return '<div class="hicons"><span class="hi-grp" role="group" aria-label="Damage">' + dmg('b') + dmg('l') + dmg('a') + '</span><span class="hi-sep" aria-hidden="true"></span>' +
       '<span class="hi-grp" role="group" aria-label="Heal">' + heal('b', !h.b) + heal('l', !h.l) + heal('a', !h.a) + heal('n', !h.b && !h.l) + '</span>' +
-      '<span class="hi-sep wide" aria-hidden="true"></span><span class="hi-grp hi-def" role="group" aria-label="Defense"><button type="button" class="btn small" data-act="soak">Soak</button><button type="button" class="btn small" data-act="defend">Defensive Maneuver</button></span></div>';
+      '</div><div class="def-row" role="group" aria-label="Defense"><button type="button" class="btn small" data-act="soak">Soak</button><button type="button" class="btn small" data-act="defend" title="Block, dodge or parry">Defend</button></div>';
   }
   function qrefOpen() { return !!(store.ui && store.ui.qrefOpen); }
   function vitalsSection(c, bare) {
@@ -7145,9 +7202,9 @@ V1.5
       '<div class="vit"><h3 class="sub" data-bk="health">Health</h3><div class="htable">' + boxes + '</div><div class="status">' + esc(status) + '</div>' +
       healthButtons(c) + '</div>' +
       '<div class="vit"><div class="pool-head"><h3 class="sub" data-bk="blood">Blood pool</h3>' + hung + '<strong>' + c.blood.cur + ' / ' + g.blood + '</strong></div><div class="boxes">' + bloodBoxes + '</div>' +
-      '<div class="muted small">Up to ' + g.turn + ' per turn' + (turnNow() ? ' · ' + spentNow(c) + ' spent this turn' : '') + '</div><div class="btn-row"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
+      '<div class="muted small">Up to ' + g.turn + ' per turn' + (turnNow() ? ' · ' + spentNow(c) + ' spent this turn' : '') + '</div><div class="def-row cols-3" role="group" aria-label="Blood pool"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
       '<div class="pool-head" style="margin-top:8px"><h3 class="sub" data-bk="wp">Willpower</h3><strong>' + c.willpower.cur + ' / ' + c.willpower.perm + '</strong></div><div class="boxes wp">' + wpBoxes + '</div>' +
-      '<div class="btn-row"><button class="btn small" data-act="poolAdj" data-k="wp" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="wp" data-d="1">Regain 1</button></div></div>' +
+      '<div class="def-row" role="group" aria-label="Willpower"><button class="btn small" data-act="poolAdj" data-k="wp" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="wp" data-d="1">Regain 1</button></div></div>' +
       /* Collapsible like the Damage module's "Average damage expected" row; the summary shows soak and initiative. */
       '<div class="vit"><h3 class="pre-h"><button type="button" class="pre-toggle plan" data-act="qrefToggle" aria-expanded="' + qrefOpen() + '"><span class="plan-label">Quick reference</span>' +
       '<span class="plan-val">Soak ' + (sta + fort + ar) + ' · ' + iniText(c) + '</span><svg class="chev" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg></button></h3>' +
@@ -7929,7 +7986,7 @@ V1.5
       try { if (ie.tagName === 'TEXTAREA' || ie.type === 'text' || !ie.type) { var n = ie.value.length; ie.setSelectionRange(n, n); } } catch (e) {}
     }
   }
-  function render() { hideTip(); applyGate(); var c = gated() ? null : cur(); renderBar(); renderTabs(c); renderModes(c); renderSheet(); renderPick(); renderModule(); if (libOpen) { if (gated()) closeLib(); else renderLib(); } }
+  function render() { hideTip(); applyGate(); var c = gated() ? null : cur(); renderBar(); renderTabs(c); renderModes(c); renderSheet(); renderPick(); renderModule(); if (libOpen) { if (gated()) closeLib(); else renderLib(); } }  // renderLib keeps a folder name being typed
   function commit() { save(); render(); }
 
   /* ================= DOT CLICKS ================= */
@@ -8811,7 +8868,7 @@ V1.5
     };
     var sg = function (n) { return (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n); };
     var hasWeapon = c.weapons.some(function (w) { return w.equipped && w.kind === 'melee' && !w.natural; });
-    openModal('<h2>Defensive Maneuver</h2><p class="muted small">Rolled at once in the main roller, against the attacker\'s successes. Wound penalties, armor and Celerity are added for you.</p>' +
+    openModal('<h2>Defend</h2><p class="muted small">Rolled at once in the main roller, against the attacker\'s successes. Wound penalties, armor and Celerity are added for you.</p>' +
       (incap ? '<p class="untrained-warn">' + esc(c.info.name || 'This character') + ' is Incapacitated and can\'t defend.</p>' : '') +
       '<div class="def-steps">' +
         step('diff', 'Difficulty', diff, lk ? 'Called by the Storyteller' : '', !!lk) +
@@ -8937,6 +8994,19 @@ V1.5
     c.armor.forEach(function (a) { a.rating = +a.rating || 0; a.penalty = +a.penalty || 0; });
     return c;
   }
+  /* A player's room id changed (now tied to their account): their sheet copies move with it. Returns old→new sheet ids. */
+  window.cmRepid = function (olds, pid) {
+    var map = {};
+    Object.keys(store.chars).forEach(function (id) {
+      var c = store.chars[id], t = c.temp;
+      if (!t || olds.indexOf(t.remote) < 0) return;
+      var nid = 'rm-' + pid.slice(0, 8) + '-' + t.of;
+      delete store.chars[id]; c.id = nid; t.remote = pid; store.chars[nid] = c; map[id] = nid;
+      if (store.cur === id) store.cur = nid;
+    });
+    if (Object.keys(map).length) { save(); render(); }
+    return map;
+  };
   window.cmRemoteSheet = function (pid, sheet, isAdd, sid) {
     if (!sheet || typeof sheet !== 'object' || !sheet.info || !sheet.attrs || !/^[\w-]{1,40}$/.test(String(sheet.id))) return;
     var r = R(); if (!r || !r.addActor) return;
@@ -9064,6 +9134,7 @@ V1.5
       if (d) toast((c.info.name || 'Unnamed') + ' spent ' + d + ' blood on Celerity (' + used + ' extra action' + (used > 1 ? 's' : '') + ').');
     });
     if (changed) save();
+    if (typingHere()) { shRenderLater = true; return; }
     renderBar(); renderModule();
     if (store.view === 'chars' && cur() && ['play', 'tracker'].indexOf(activeTab()) >= 0) renderSheet();
     if (apLast && !$('actorsPop').hidden) window.cmActorsList.apply(null, apLast);
@@ -9214,7 +9285,29 @@ V1.5
   }
   /* What this device has, as text per item. */
   function rollerBlob() { var r = R(); return r && r.rollerSnapshot ? { st: r.rollerSnapshot(), presets: r.presetsRaw() } : null; }
-  function cmBlob() { return JSON.stringify({ order: store.order, settings: store.settings, ui: store.ui || {}, lib: { folders: (store.lib || {}).folders || [], place: (store.lib || {}).place || {} } }); }
+  /* The id rooms know this player by. It syncs with the account, so a character added to a host's tracker from one device
+     is recognized when the same player joins from another. A replaced id is kept so the next join can claim what it owned. */
+  function roomPid() {
+    var p = '';
+    try { p = localStorage.getItem('vtm-sync-pid') || ''; } catch (e) {}
+    if (!/^[a-f0-9]{32}$/.test(p)) {
+      var b = new Uint8Array(16); (window.crypto || window.msCrypto).getRandomValues(b);
+      p = Array.prototype.map.call(b, function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+      try { localStorage.setItem('vtm-sync-pid', p); } catch (e) {}
+    }
+    return p;
+  }
+  function adoptRoomPid(rp) {
+    if (!/^[a-f0-9]{32}$/.test(rp)) return;
+    var cur0 = roomPid(); if (cur0 === rp) return;
+    try {
+      var o = JSON.parse(localStorage.getItem('vtm-sync-pid-old') || '[]'); if (!Array.isArray(o)) o = [];
+      if (o.indexOf(cur0) < 0) o.push(cur0);
+      localStorage.setItem('vtm-sync-pid-old', JSON.stringify(o.filter(function (x) { return x !== rp; }).slice(-4)));
+      localStorage.setItem('vtm-sync-pid', rp);
+    } catch (e) {}
+  }
+  function cmBlob() { return JSON.stringify({ order: store.order, settings: store.settings, ui: store.ui || {}, rp: roomPid(), lib: { folders: (store.lib || {}).folders || [], place: (store.lib || {}).place || {} } }); }
   function localItems() {
     var out = {};
     store.order.forEach(function (id) { var c = store.chars[id]; if (c && !c.temp && !c.share && /^[\w.-]{1,64}$/.test(id)) out['char:' + id] = JSON.stringify(c); });
@@ -9262,6 +9355,7 @@ V1.5
         if (b.settings) { store.settings = b.settings; if (!store.settings.touched) store.settings.touched = {}; }
         if (b.ui) store.ui = b.ui;
         if (b.lib) { store.lib = b.lib; normLib(); }
+        if (typeof b.rp === 'string') adoptRoomPid(b.rp);
         changed = true;
       }
       acct.known['blob:cm'] = { m: cmIt.m, h: hashStr(cmIt.data || '') }; delete acct.dirty['blob:cm'];
@@ -9274,7 +9368,7 @@ V1.5
       delete acct.dirty['blob:roller'];
     }
     saveAcct();
-    if (changed) { save(); render(); }
+    if (changed) { save(); remoteRender(); }
   }
   function pushChanges() {
     var local = scanDirty(), list = [];
@@ -9480,7 +9574,13 @@ V1.5
   }
   /* Redraw for changes from others, but not under someone typing: wait until they leave the field. */
   var shRenderLater = false;
-  function typingHere() { var a = document.activeElement; return !!(a && a.closest && a.closest('#cmView, #cmModule') && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
+  /* Typing in a text field that a render would rebuild (sheet, module, browser). Background updates (sync, sharing, the
+     tracker) wait until the field loses focus, so phones keep the keyboard and what's been typed. */
+  function typingHere() {
+    var a = document.activeElement;
+    if (!a || !a.closest || !a.closest('#cmView, #cmModule, #cmLibBack')) return false;
+    return a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|color|file)$/.test(a.type));
+  }
   function remoteRender() { if (typingHere()) { shRenderLater = true; return; } render(); }
   document.addEventListener('focusout', function () { if (shRenderLater) setTimeout(function () { if (shRenderLater && !typingHere()) { shRenderLater = false; render(); } }, 0); });
   function keepLocal(n, old) {
@@ -10051,7 +10151,8 @@ V1.5
   }
   function folderTile(f) {
     var n = libCount(f.id), sf = subFolders(f.id).length;
-    if (libEdit && libEdit.id === f.id) return '<div class="lib-folder editing"><span class="lib-fico" aria-hidden="true"></span><input id="libEditIn" value="' + esc(f.name) + '" aria-label="Folder name" maxlength="60"></div>';
+    if (libEdit && libEdit.id === f.id) return '<div class="lib-folder editing"><span class="lib-fico" aria-hidden="true"></span><input id="libEditIn" value="' + esc(libEdit.val != null ? libEdit.val : f.name) + '" aria-label="Folder name" maxlength="60" autocomplete="off" enterkeyhint="done">' +
+      '<button type="button" class="lib-ok" data-lib="editOk" aria-label="Save folder name">✓</button><button type="button" class="lib-ok" data-lib="editX" aria-label="Cancel">✕</button></div>';
     return '<div class="lib-folder" data-fid="' + f.id + '" draggable="true">' +
       '<button type="button" class="lib-open" data-lib="dir" data-id="' + f.id + '" aria-label="Open folder ' + esc(f.name) + '"></button>' +
       '<span class="lib-fico" aria-hidden="true"></span><span class="lib-fname"><b>' + esc(f.name) + '</b><small>' + n + ' character' + (n === 1 ? '' : 's') + (sf ? ' · ' + sf + ' folder' + (sf === 1 ? '' : 's') : '') + '</small></span>' +
@@ -10121,7 +10222,7 @@ V1.5
         if (!$('cmModalBack').hidden) return;
         e.stopPropagation(); e.preventDefault();
         if (libMenu) return closeLibMenu();
-        if (libEdit) { libEdit = null; return renderLib(); }
+        if (libEdit) return finishEdit(false);
         if (libQ) { libQ = ''; $('libQ').value = ''; return renderLib(); }
         closeLib();
       }
@@ -10150,28 +10251,33 @@ V1.5
   }
   function renderLib() {
     if (!libOpen) return;
-    var scroll = document.querySelector('.lib-main'), st = scroll ? scroll.scrollTop : 0;
+    var scroll = document.querySelector('.lib-main'), st = scroll ? scroll.scrollTop : 0, was = $('libEditIn'), caret = null;
+    if (was && libEdit) { libEdit.val = was.value; caret = [was.selectionStart, was.selectionEnd]; }
     closeLibMenu();
     $('libBody').innerHTML = libBody();
     $('libSort').value = store.libSort || 'name';
     var m = document.querySelector('.lib-main'); if (m) m.scrollTop = st;
     var inp = $('libEditIn');
     if (inp) {
-      inp.focus(); inp.select();
-      var done = false, finish = function (keep) {
-        if (done) return; done = true;
-        var name = inp.value.trim().slice(0, 60), ed = libEdit; libEdit = null;
-        if (keep && name) {
-          if (ed.isNew) store.lib.folders.push({ id: ed.id, name: name, parent: ed.parent });
-          else { var f = folderById(ed.id); if (f) f.name = name; }
-          save();
-        }
-        renderLib();
-        var tile = document.querySelector('.lib-folder[data-fid="' + ed.id + '"] .lib-open'); if (tile) tile.focus();
-      };
-      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); finish(true); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); } });
-      inp.addEventListener('blur', function () { finish(true); });
+      inp.focus();
+      if (caret) { try { inp.setSelectionRange(caret[0], caret[1]); } catch (e) {} }
+      else inp.select();
+      inp.addEventListener('input', function () { if (libEdit) libEdit.val = inp.value; });
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); finishEdit(true); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finishEdit(false); } });
     }
+  }
+  /* Ends a folder rename or new folder. Leaving the field doesn't end it (phones blur fields when the keyboard moves things). */
+  function finishEdit(keep, quiet) {
+    if (!libEdit) return;
+    var inp = $('libEditIn'), ed = libEdit, name = String(inp ? inp.value : ed.val || '').trim().slice(0, 60); libEdit = null;
+    if (keep && name) {
+      if (ed.isNew) store.lib.folders.push({ id: ed.id, name: name, parent: ed.parent });
+      else { var f = folderById(ed.id); if (f) f.name = name; }
+      save();
+    }
+    if (quiet) return;
+    renderLib();
+    var tile = document.querySelector('.lib-folder[data-fid="' + ed.id + '"] .lib-open'); if (tile) tile.focus();
   }
   function openLib() {
     ensureLibDom(); libOpen = true; libQ = ''; $('libQ').value = '';
@@ -10181,7 +10287,7 @@ V1.5
   }
   function closeLib() {
     if (!libOpen) return;
-    libOpen = false; libEdit = null; closeLibMenu(); $('cmLibBack').hidden = true;
+    finishEdit(true, true); libOpen = false; closeLibMenu(); $('cmLibBack').hidden = true;
     var b = document.querySelector('#cmBar .cm-cur'); if (b) b.focus();
   }
   function openChar(id) {
@@ -10231,6 +10337,9 @@ V1.5
     if (libMenu && !(e.target.closest && e.target.closest('.lib-menu'))) { closeLibMenu(); if (b && (b.dataset.lib === 'cardMenu' || b.dataset.lib === 'folderMenu')) return; }
     if (!b || b.disabled) return;
     var a = b.dataset.lib, id = b.dataset.id;
+    if (a === 'editOk' || a === 'editX') return finishEdit(a === 'editOk');
+    /* Tapping anything else saves a name being typed first. */
+    if (libEdit) finishEdit(true, true);
     if (a === 'close') return closeLib();
     if (a === 'open') return openChar(id);
     if (a === 'dir') { libDir = id; libQ = ''; $('libQ').value = ''; return renderLib(); }
@@ -10324,10 +10433,107 @@ V1.5
   /* Each clan's signature Discipline: nearly always gets at least a dot. */
   var GEN_SIG = { 'Assamite': 'Quietus', 'Followers of Set': 'Serpentis', 'Gangrel': 'Protean', 'Giovanni': 'Necromancy', 'Lasombra': 'Obtenebration', 'Malkavian': 'Dementation', 'Ravnos': 'Chimerstry', 'Toreador': 'Presence', 'Tremere': 'Thaumaturgy', 'Tzimisce': 'Vicissitude', 'Ventrue': 'Dominate', 'Brujah': 'Potence', 'Nosferatu': 'Obfuscate' };
   var GEN_PATHS = { Thaumaturgy: /path of blood/i, Necromancy: /sepulchre/i };
-  var GEN_NAMES = {
-    first: { m: ['Adrian', 'Marcus', 'Elias', 'Julian', 'Victor', 'Daniel', 'Tomas', 'Rafael', 'Nikolai', 'Samuel', 'Malik', 'Owen', 'Luca', 'Hassan', 'Dmitri', 'Felix', 'Gideon', 'Ivan', 'Jonah', 'Kenji'], f: ['Isabel', 'Clara', 'Mira', 'Vivian', 'Lena', 'Sofia', 'Nadia', 'Eleanor', 'Ines', 'Yara', 'Celeste', 'Hannah', 'Ruth', 'Talia', 'Margot', 'Zara', 'Anya', 'Leila', 'Rosa', 'Imogen'] },
-    last: ['Ashford', 'Moreau', 'Vasquez', 'Novak', 'Hale', 'Castellano', 'Kovacs', 'Reyes', 'Lindqvist', 'Okafor', 'Blackwood', 'Marsh', 'Fontaine', 'Weiss', 'Delacroix', 'Petrov', 'Sinclair', 'Haddad', 'Quinn', 'Varga']
+  /* Classes: a theme that tilts the weights (never a hard rule). at: attribute group order; fa/ab/bg/disc: favored picks
+     (most important first); mf: Merits/Flaws that suit it; con/arch: concepts and archetypes; clan: weight for a random clan;
+     gear: melee/ranged weapon and armor leanings. */
+  var GEN_CLASS = {
+    bruiser: { name: 'Bruiser', at: ['physical', 'social', 'mental'], fa: ['strength', 'stamina', 'dexterity'], ab: ['brawl', 'melee', 'athletics', 'intimidation', 'alertness', 'survival'],
+      disc: { Potence: 3, Fortitude: 3, Celerity: 2, Protean: 2.5, Vicissitude: 1.5, Quietus: 1 }, bg: { Allies: 1, Herd: 1, Retainers: 1 },
+      mf: { m: ['Bruiser', 'Huge Size', 'Daredevil', 'Calm Heart'], f: ['Short Fuse', 'Vengeful', 'Territorial'] },
+      con: ['Bouncer', 'Enforcer', 'Prize fighter', 'Biker', 'Bodyguard', 'Soldier', 'Street brawler', 'Hired muscle'], arch: ['Bravo', 'Soldier', 'Competitor', 'Survivor', 'Monster', 'Rebel'],
+      clan: { Brujah: 3, Gangrel: 3, Nosferatu: 1.5, Tzimisce: 1.5, Assamite: 1.5, Lasombra: 1, Caitiff: 1 }, gear: { melee: 1.6, ranged: 0.6, armor: 1.6 } },
+    gunner: { name: 'Gunner', at: ['physical', 'mental', 'social'], fa: ['dexterity', 'perception', 'wits'], ab: ['firearms', 'alertness', 'athletics', 'drive', 'stealth', 'investigation'],
+      disc: { Celerity: 3, Auspex: 2, Fortitude: 2, Obfuscate: 1.5, Potence: 0.6 }, bg: { Resources: 1.5, Contacts: 1, Allies: 1 },
+      mf: { m: ['Acute Sense', 'Ambidextrous', 'Light Sleeper', 'Daredevil'], f: ['Overconfident', 'Impatient', 'Vengeful'] },
+      con: ['Sniper', 'Ex-cop', 'Gang shooter', 'Mercenary', 'Hunter', 'Bounty hunter', 'Veteran', 'Getaway driver'], arch: ['Soldier', 'Survivor', 'Loner', 'Perfectionist', 'Thrill-Seeker', 'Judge'],
+      clan: { Brujah: 2, Assamite: 2, Gangrel: 1.5, Toreador: 1.5, Ventrue: 1, Caitiff: 1.5, Nosferatu: 1 }, gear: { melee: 0.5, ranged: 2, armor: 1.4 } },
+    mage: { name: 'Mage', at: ['mental', 'social', 'physical'], fa: ['intelligence', 'wits', 'perception'], ab: ['occult', 'academics', 'awareness', 'investigation', 'science', 'medicine'],
+      disc: { Thaumaturgy: 4, Necromancy: 4, Vicissitude: 2.5, Chimerstry: 2.5, Obtenebration: 2.5, Dementation: 2, Auspex: 2.5, Serpentis: 2, Quietus: 1.5, Protean: 1 }, bg: { Mentor: 1.5, Resources: 1, Retainers: 1 },
+      mf: { m: ['Concentration', 'Eidetic Memory', 'Medium', 'Oracular Ability', 'Magic Resistance', 'Spirit Mentor'], f: ['Haunted', 'Nightmares', 'Dark Secret'] },
+      con: ['Occultist', 'Ritualist', 'Scholar of the arcane', 'Medium', 'Hermetic apprentice', 'Fortune teller', 'Alchemist', 'Exorcist'], arch: ['Scientist', 'Visionary', 'Architect', 'Pedagogue', 'Guru', 'Enigma'],
+      clan: { Tremere: 4, Giovanni: 3.5, Tzimisce: 2, Lasombra: 1.5, Ravnos: 1.5, Malkavian: 1.5, 'Followers of Set': 1.5, Assamite: 0.8 }, gear: { melee: 0.5, ranged: 0.5, armor: 0.3 } },
+    charmer: { name: 'Charmer', at: ['social', 'mental', 'physical'], fa: ['charisma', 'appearance', 'manipulation'], ab: ['empathy', 'expression', 'etiquette', 'subterfuge', 'performance', 'leadership', 'streetwise'],
+      disc: { Presence: 4, Dominate: 2, Auspex: 1.5, Chimerstry: 1, Serpentis: 1 }, bg: { Fame: 1.5, Herd: 1.5, Contacts: 1.5, Influence: 1.5, Status: 1 },
+      mf: { m: ['Enchanting Voice', 'Friendly Face', 'Blush of Health', 'Natural Leader', 'Elysium Regular'], f: ['Obsession', 'Dark Secret', 'Soft-Hearted'] },
+      con: ['Socialite', 'Singer', 'Model', 'Con artist', 'Politician', 'Club promoter', 'Actor', 'Diplomat'], arch: ['Bon Vivant', 'Gallant', 'Celebrant', 'Conniver', 'Caregiver', 'Chameleon'],
+      clan: { Toreador: 4, Ventrue: 2.5, 'Followers of Set': 2, Ravnos: 1.5, Lasombra: 1, Brujah: 1, Caitiff: 1 }, gear: { melee: 0.5, ranged: 0.7, armor: 0.3 } },
+    controller: { name: 'Controller', at: ['social', 'mental', 'physical'], fa: ['manipulation', 'charisma', 'wits'], ab: ['leadership', 'intimidation', 'subterfuge', 'empathy', 'animalken', 'politics'],
+      disc: { Dominate: 4, Presence: 3, Dementation: 3, Animalism: 2.5, Obtenebration: 2.5, Chimerstry: 2, Serpentis: 1 }, bg: { Retainers: 1.5, Herd: 1.5, Influence: 1.5, Status: 1 },
+      mf: { m: ['Iron Will', 'Natural Leader', 'Coldly Logical', 'Concentration'], f: ['Overconfident', 'Intolerance', 'Dark Secret'] },
+      con: ['Cult leader', 'Crime boss', 'Puppeteer', 'Interrogator', 'Animal handler', 'Hypnotist', 'Party whip', 'Manager'], arch: ['Autocrat', 'Director', 'Conniver', 'Architect', 'Fanatic', 'Deviant'],
+      clan: { Ventrue: 3, Tremere: 1.5, Malkavian: 2.5, Lasombra: 2.5, Gangrel: 1, Nosferatu: 1, Ravnos: 1, Giovanni: 1 }, gear: { melee: 0.5, ranged: 0.7, armor: 0.5 } },
+    rogue: { name: 'Rogue', at: ['physical', 'mental', 'social'], fa: ['dexterity', 'wits', 'perception'], ab: ['stealth', 'larceny', 'subterfuge', 'streetwise', 'alertness', 'athletics', 'melee', 'investigation'],
+      disc: { Obfuscate: 4, Celerity: 3, Quietus: 3, Auspex: 1.5, Chimerstry: 1.5, Obtenebration: 1 }, bg: { Contacts: 1.5, Allies: 1, Resources: 1 },
+      mf: { m: ['Catlike Balance', 'Light Sleeper', 'Acute Sense', 'Ambidextrous', 'Friend of the Underground'], f: ['Dark Secret', 'Hunted', 'Escaped Target'] },
+      con: ['Assassin', 'Cat burglar', 'Spy', 'Pickpocket', 'Smuggler', 'Fence', 'Infiltrator', 'Information broker'], arch: ['Rogue', 'Trickster', 'Loner', 'Survivor', 'Chameleon', 'Conniver'],
+      clan: { Assamite: 3.5, Nosferatu: 3, Ravnos: 2, 'Followers of Set': 1.5, Caitiff: 1.5, Malkavian: 1 }, gear: { melee: 1.3, ranged: 0.9, armor: 0.6 } }
   };
+  /* First and last names by culture; each nationality uses mostly its own names. */
+  var GEN_NAME_SETS = {
+    anglo: { m: ['James', 'Thomas', 'Henry', 'Samuel', 'Owen', 'Elliot', 'Gideon', 'Caleb', 'Jonah', 'Nathaniel', 'Wesley', 'Silas', 'Graham', 'Declan', 'Russell', 'Miles', 'Abel', 'Victor', 'Dorian', 'Felix', 'Arthur', 'Benedict', 'Calvin', 'Desmond', 'Edmund', 'Franklin', 'Harrison', 'Lionel', 'Montgomery', 'Percival'],
+      f: ['Eleanor', 'Clara', 'Vivian', 'Hannah', 'Ruth', 'Margot', 'Imogen', 'Celeste', 'Audrey', 'Harriet', 'Josephine', 'Evelyn', 'Delia', 'Rosalind', 'Mabel', 'Lydia', 'Ivy', 'Constance', 'Willa', 'Nora', 'Beatrice', 'Cordelia', 'Edith', 'Florence', 'Genevieve', 'Lorraine', 'Matilda', 'Philippa', 'Rosemary', 'Winifred'],
+      l: ['Ashford', 'Hale', 'Blackwood', 'Marsh', 'Sinclair', 'Quinn', 'Whitlock', 'Crane', 'Hargrove', 'Pemberton', 'Vance', 'Thorne', 'Bishop', 'Calloway', 'Fairfax', 'Mercer', 'Rowe', 'Sterling', 'Holloway', 'Ward', 'Ainsworth', 'Blackburn', 'Carrington', 'Dunmore', 'Everett', 'Fletcher', 'Grayson', 'Lockwood', 'Prescott', 'Winslow'] },
+    irish: { m: ['Cian', 'Declan', 'Eoin', 'Ronan', 'Padraig', 'Fergus', 'Liam', 'Cormac', 'Niall', 'Seamus', 'Ciarán', 'Darragh', 'Oisín', 'Tadhg', 'Colm', 'Brendan'], f: ['Siobhan', 'Aoife', 'Niamh', 'Saoirse', 'Orla', 'Maeve', 'Roisin', 'Deirdre', 'Grainne', 'Brigid', 'Clodagh', 'Sinéad', 'Eimear', 'Muireann', 'Ailbhe', 'Fionnuala'],
+      l: ['O\'Connell', 'Byrne', 'Doyle', 'Kavanagh', 'Gallagher', 'Flanagan', 'Murphy', 'Brennan', 'Keane', 'Donnelly', 'Fitzgerald', 'Brady', 'Madden', 'Quinlan', 'Sheridan', 'Hennessy'] },
+    hispanic: { m: ['Rafael', 'Mateo', 'Joaquín', 'Alejandro', 'Diego', 'Emilio', 'Santiago', 'Tomás', 'Ignacio', 'Lorenzo', 'Esteban', 'Julián', 'Arturo', 'Bruno', 'Cristóbal', 'Gael', 'Leandro', 'Rodrigo'], f: ['Isabel', 'Lucía', 'Valentina', 'Inés', 'Carmen', 'Mariana', 'Elena', 'Ximena', 'Paloma', 'Renata', 'Soledad', 'Catalina', 'Abril', 'Dolores', 'Fernanda', 'Graciela', 'Marisol', 'Pilar'],
+      l: ['Vasquez', 'Reyes', 'Castellano', 'Morales', 'Ortega', 'Navarro', 'Salazar', 'Herrera', 'Medina', 'Fuentes', 'Delgado', 'Montoya', 'Aguilar', 'Cortés', 'Ibarra', 'Luna', 'Peña', 'Villalobos'] },
+    portuguese: { m: ['João', 'Tiago', 'Rodrigo', 'Gonçalo', 'Duarte', 'Caio', 'Henrique', 'Vinícius', 'Afonso', 'Bernardo', 'Fábio', 'Leonardo', 'Matheus', 'Nuno', 'Otávio'], f: ['Beatriz', 'Leonor', 'Mariana', 'Inês', 'Larissa', 'Camila', 'Teresa', 'Raquel', 'Adriana', 'Clarice', 'Fernanda', 'Gabriela', 'Juliana', 'Lívia', 'Yasmin'],
+      l: ['Silva', 'Costa', 'Ferreira', 'Almeida', 'Carvalho', 'Moreira', 'Barbosa', 'Pereira', 'Azevedo', 'Cardoso', 'Gomes', 'Lopes', 'Monteiro', 'Ribeiro', 'Teixeira'] },
+    italian: { m: ['Luca', 'Marco', 'Giovanni', 'Alessandro', 'Lorenzo', 'Matteo', 'Vittorio', 'Salvatore', 'Dario', 'Enzo', 'Ettore', 'Fabrizio', 'Leonardo', 'Massimo', 'Raffaele', 'Stefano'], f: ['Giulia', 'Chiara', 'Francesca', 'Lucia', 'Bianca', 'Serafina', 'Alessia', 'Ottavia', 'Livia', 'Carla', 'Arianna', 'Beatrice', 'Gemma', 'Ilaria', 'Marcella', 'Rosalia'],
+      l: ['Rossi', 'Bianchi', 'Conti', 'Moretti', 'Ricci', 'Marino', 'Romano', 'Galli', 'Ferraro', 'De Luca', 'Barbieri', 'Caruso', 'Esposito', 'Fontana', 'Greco', 'Lombardi'] },
+    french: { m: ['Étienne', 'Julien', 'Lucien', 'Mathis', 'Gaspard', 'Rémy', 'Antoine', 'Théo', 'Baptiste', 'Hugo', 'Aurélien', 'Clément', 'Florian', 'Maxime', 'Olivier', 'Sébastien'], f: ['Céline', 'Margaux', 'Amélie', 'Juliette', 'Élise', 'Camille', 'Solène', 'Odette', 'Manon', 'Colette', 'Apolline', 'Brigitte', 'Delphine', 'Héloïse', 'Mathilde', 'Sylvie'],
+      l: ['Moreau', 'Fontaine', 'Delacroix', 'Lefèvre', 'Girard', 'Marchand', 'Rousseau', 'Dubois', 'Laurent', 'Mercier', 'Bertrand', 'Chevalier', 'Garnier', 'Lambert', 'Perrin', 'Vasseur'] },
+    german: { m: ['Klaus', 'Friedrich', 'Matthias', 'Lukas', 'Johann', 'Anton', 'Heinrich', 'Felix', 'Moritz', 'Konrad', 'Dieter', 'Gunther', 'Jonas', 'Leopold', 'Tobias', 'Wolfgang'], f: ['Greta', 'Liesel', 'Annika', 'Katrin', 'Ingrid', 'Sabine', 'Frieda', 'Helene', 'Mila', 'Ute', 'Adelheid', 'Brigitte', 'Hannelore', 'Lotte', 'Marlene', 'Wilhelmina'],
+      l: ['Weiss', 'Becker', 'Hoffmann', 'Schäfer', 'Krause', 'Brandt', 'Vogel', 'Lehmann', 'Keller', 'Richter', 'Bauer', 'Fischer', 'Hartmann', 'Neumann', 'Schulz', 'Zimmermann'] },
+    dutch: { m: ['Daan', 'Joris', 'Pieter', 'Sander', 'Bram', 'Thijs', 'Ruben', 'Wouter', 'Cornelis', 'Floris', 'Gijs', 'Jeroen', 'Lars', 'Maarten', 'Stijn'], f: ['Fenna', 'Anouk', 'Sanne', 'Lotte', 'Femke', 'Maartje', 'Noor', 'Ilse', 'Eva', 'Jet', 'Lieke', 'Marloes', 'Roos', 'Sophie', 'Tess'],
+      l: ['de Vries', 'van Dijk', 'Bakker', 'Visser', 'Smit', 'Mulder', 'de Boer', 'Jansen', 'Hendriks', 'Kuiper', 'Meijer', 'Peters', 'van Leeuwen', 'Vermeulen', 'Willems'] },
+    nordic: { m: ['Magnus', 'Erik', 'Henrik', 'Sindre', 'Leif', 'Torvald', 'Anders', 'Bjørn', 'Axel', 'Einar', 'Gunnar', 'Kjell', 'Ola', 'Rolf', 'Tor'], f: ['Ingrid', 'Solveig', 'Astrid', 'Sigrid', 'Liv', 'Ragnhild', 'Freja', 'Tove', 'Ebba', 'Hedda', 'Ingeborg', 'Karin', 'Maja', 'Siri', 'Vera'],
+      l: ['Lindqvist', 'Haugen', 'Berg', 'Johansen', 'Dahl', 'Solberg', 'Nilsen', 'Strand', 'Andersen', 'Eriksen', 'Holm', 'Lund', 'Moen', 'Pedersen', 'Vik'] },
+    slavic: { m: ['Dmitri', 'Nikolai', 'Ivan', 'Sergei', 'Mikhail', 'Aleksandr', 'Pavel', 'Yuri', 'Dragan', 'Milan', 'Boris', 'Grigori', 'Lev', 'Oleg', 'Stanislav', 'Vadim'], f: ['Anya', 'Natalia', 'Katya', 'Irina', 'Svetlana', 'Mila', 'Vesna', 'Daria', 'Yelena', 'Jelena', 'Galina', 'Ludmila', 'Marina', 'Oksana', 'Tatiana', 'Zlata'],
+      l: ['Petrov', 'Volkov', 'Sokolov', 'Ivanova', 'Morozov', 'Popović', 'Jovanović', 'Kuznetsov', 'Orlov', 'Novak', 'Belov', 'Karpov', 'Lebedev', 'Markovic', 'Petrović', 'Zaitsev'] },
+    westslavic: { m: ['Tomasz', 'Jakub', 'Piotr', 'Ondřej', 'Marek', 'Lukáš', 'Wojciech', 'Radek', 'Bartosz', 'Filip', 'Kamil', 'Michal', 'Pavel', 'Štěpán', 'Zbigniew'], f: ['Agnieszka', 'Zofia', 'Kateřina', 'Magda', 'Lenka', 'Ewa', 'Jana', 'Hana', 'Barbora', 'Dorota', 'Halina', 'Monika', 'Petra', 'Veronika', 'Zuzana'],
+      l: ['Kowalski', 'Nowak', 'Dvořák', 'Horváth', 'Wiśniewski', 'Svoboda', 'Kováč', 'Zieliński', 'Černý', 'Grabowski', 'Kaczmarek', 'Lewandowski', 'Novotný', 'Procházka', 'Wójcik'] },
+    hungarian: { m: ['László', 'Gábor', 'Bence', 'Zoltán', 'Attila', 'Miklós', 'Ferenc', 'Levente', 'Ádám', 'Balázs', 'Csaba', 'Dániel', 'Imre', 'Péter', 'Tamás'], f: ['Zsófia', 'Réka', 'Katalin', 'Eszter', 'Ildikó', 'Erzsébet', 'Noémi', 'Judit', 'Anikó', 'Boglárka', 'Dóra', 'Gabriella', 'Ilona', 'Kinga', 'Viktória'],
+      l: ['Varga', 'Kovács', 'Szabó', 'Tóth', 'Nagy', 'Farkas', 'Balogh', 'Molnár', 'Fekete', 'Horváth', 'Juhász', 'Kiss', 'Mészáros', 'Simon', 'Takács'] },
+    romanian: { m: ['Andrei', 'Mihai', 'Radu', 'Vlad', 'Sorin', 'Dorin', 'Florin', 'Cosmin', 'Bogdan', 'Cătălin', 'Emil', 'Ionuț', 'Lucian', 'Ovidiu', 'Tudor'], f: ['Ioana', 'Ileana', 'Doina', 'Simona', 'Andreea', 'Corina', 'Mirela', 'Viorica', 'Alina', 'Bianca', 'Cristina', 'Daniela', 'Gabriela', 'Oana', 'Roxana'],
+      l: ['Popescu', 'Ionescu', 'Dumitru', 'Constantin', 'Stoica', 'Munteanu', 'Lungu', 'Răducanu', 'Barbu', 'Georgescu', 'Marin', 'Nistor', 'Popa', 'Stan', 'Tănase'] },
+    romani: { m: ['Django', 'Milosh', 'Stevo', 'Tobar', 'Nicu', 'Pesha', 'Luca', 'Boiko', 'Bavol', 'Dodi', 'Fonso', 'Yoska', 'Mirko', 'Shandor', 'Vano'], f: ['Esmeralda', 'Mirela', 'Florica', 'Lala', 'Tsura', 'Zora', 'Drina', 'Kezia', 'Ardelia', 'Dika', 'Jaelle', 'Lenuta', 'Luminitsa', 'Simza', 'Vadoma'],
+      l: ['Lakatos', 'Rostas', 'Stojka', 'Lee', 'Boswell', 'Kalderash', 'Mihai', 'Balazs', 'Cooper', 'Heron', 'Lovell', 'Ruzsa', 'Smith', 'Varga', 'Wood'] },
+    greek: { m: ['Nikos', 'Dimitrios', 'Stavros', 'Yannis', 'Theodoros', 'Kostas', 'Alexios', 'Spyros', 'Andreas', 'Christos', 'Giorgos', 'Leonidas', 'Michalis', 'Panagiotis', 'Vasilis'], f: ['Eleni', 'Katerina', 'Sophia', 'Ioanna', 'Despina', 'Athena', 'Calliope', 'Daphne', 'Anastasia', 'Chrysa', 'Evangelia', 'Irene', 'Maria', 'Penelope', 'Zoe'],
+      l: ['Papadopoulos', 'Karras', 'Nikolaidis', 'Vlachos', 'Demos', 'Georgiou', 'Petrakis', 'Antonakos', 'Alexiou', 'Christodoulou', 'Economou', 'Kotsis', 'Mavros', 'Papadakis', 'Stavrou'] },
+    arabic: { m: ['Malik', 'Hassan', 'Karim', 'Omar', 'Tariq', 'Yusuf', 'Samir', 'Faisal', 'Idris', 'Nabil', 'Rashid', 'Zayd', 'Adel', 'Bilal', 'Hamza', 'Jamal', 'Mustafa', 'Walid'], f: ['Leila', 'Yara', 'Nadia', 'Amira', 'Samira', 'Layla', 'Rania', 'Zahra', 'Salma', 'Nour', 'Hana', 'Farah', 'Aisha', 'Dalia', 'Ghada', 'Lina', 'Mariam', 'Yasmin'],
+      l: ['Haddad', 'Khalil', 'Mansour', 'Nasser', 'Saleh', 'Hijazi', 'Aziz', 'Rahman', 'Darwish', 'Farouk', 'Qasim', 'Bakri', 'Abboud', 'Al-Amin', 'Hamdan', 'Jaber', 'Sabbagh', 'Zaidi'] },
+    persian: { m: ['Darius', 'Cyrus', 'Kian', 'Arash', 'Babak', 'Navid', 'Reza', 'Omid', 'Ali', 'Bahram', 'Farhad', 'Kaveh', 'Mehdi', 'Shahin', 'Siavash'], f: ['Shirin', 'Parisa', 'Roya', 'Laleh', 'Mahsa', 'Azadeh', 'Simin', 'Neda', 'Bahar', 'Golnar', 'Mina', 'Nasrin', 'Pari', 'Soraya', 'Yasaman'],
+      l: ['Tehrani', 'Ahmadi', 'Karimi', 'Farahani', 'Moradi', 'Jafari', 'Rostami', 'Hosseini', 'Alavi', 'Bahrami', 'Ebrahimi', 'Kazemi', 'Nazari', 'Sadeghi', 'Zand'] },
+    turkish: { m: ['Emre', 'Kerem', 'Murat', 'Cem', 'Burak', 'Selim', 'Orhan', 'Deniz', 'Barış', 'Can', 'Hakan', 'Kaan', 'Mehmet', 'Serkan', 'Tolga'], f: ['Elif', 'Zeynep', 'Defne', 'Aylin', 'Selin', 'Ebru', 'Nazlı', 'Derya', 'Aslı', 'Büşra', 'Esra', 'Gül', 'Melis', 'Pınar', 'Sevda'],
+      l: ['Yılmaz', 'Kaya', 'Demir', 'Şahin', 'Çelik', 'Aydın', 'Öztürk', 'Arslan', 'Aksoy', 'Doğan', 'Erdem', 'Güneş', 'Korkmaz', 'Polat', 'Yıldız'] },
+    southasian: { m: ['Arjun', 'Vikram', 'Rohan', 'Imran', 'Kabir', 'Dev', 'Sanjay', 'Faraz', 'Rahul', 'Zubair', 'Aarav', 'Farhan', 'Nikhil', 'Pranav', 'Salman', 'Vivek'], f: ['Priya', 'Ananya', 'Meera', 'Ayesha', 'Kavya', 'Nisha', 'Zara', 'Ishita', 'Sana', 'Divya', 'Fatima', 'Lakshmi', 'Neha', 'Pooja', 'Rukhsana', 'Tara'],
+      l: ['Sharma', 'Kapoor', 'Malhotra', 'Iyer', 'Khan', 'Qureshi', 'Chaudhry', 'Reddy', 'Mehta', 'Siddiqui', 'Agarwal', 'Bhatt', 'Desai', 'Hussain', 'Joshi', 'Nair'] },
+    chinese: { m: ['Wei', 'Jun', 'Hao', 'Lei', 'Zhen', 'Ming', 'Tao', 'Jian', 'Bo', 'Cheng', 'Feng', 'Gang', 'Kai', 'Long', 'Rui'], f: ['Mei', 'Lin', 'Xiu', 'Yan', 'Jing', 'Hua', 'Lan', 'Qing', 'Fang', 'Hui', 'Juan', 'Li', 'Ning', 'Ying', 'Yue'],
+      l: ['Chen', 'Wang', 'Li', 'Zhang', 'Liu', 'Huang', 'Zhou', 'Lin', 'Gao', 'Guo', 'He', 'Luo', 'Ma', 'Sun', 'Xu'] },
+    filipino: { m: ['Paolo', 'Marco', 'Rogelio', 'Jericho', 'Lorenzo', 'Andres', 'Emilio', 'Rafael', 'Bayani', 'Carlo', 'Dante', 'Joaquin', 'Ramon', 'Teodoro', 'Vicente'], f: ['Maricel', 'Rosario', 'Liza', 'Corazon', 'Divina', 'Imelda', 'Jasmine', 'Tala', 'Analyn', 'Bea', 'Carmela', 'Lourdes', 'Marites', 'Perla', 'Rowena'],
+      l: ['Santos', 'Reyes', 'Bautista', 'Dela Cruz', 'Mendoza', 'Aquino', 'Villanueva', 'Garcia', 'Castillo', 'Domingo', 'Flores', 'Navarro', 'Ramos', 'Soriano', 'Tolentino'] },
+    nigerian: { m: ['Chidi', 'Emeka', 'Tunde', 'Olumide', 'Kelechi', 'Femi', 'Obinna', 'Ade', 'Babatunde', 'Chukwuma', 'Ikenna', 'Kayode', 'Nnamdi', 'Segun', 'Uche'], f: ['Ngozi', 'Adaeze', 'Funmilayo', 'Chiamaka', 'Yetunde', 'Amara', 'Ifeoma', 'Bisi', 'Adanna', 'Chioma', 'Folake', 'Kemi', 'Nkechi', 'Temitope', 'Zainab'],
+      l: ['Okafor', 'Adeyemi', 'Okonkwo', 'Balogun', 'Eze', 'Adebayo', 'Nwosu', 'Olawale', 'Akande', 'Chukwu', 'Ibekwe', 'Nnadi', 'Obi', 'Ogunleye', 'Uzor'] },
+    ethiopian: { m: ['Dawit', 'Tesfaye', 'Yonas', 'Abebe', 'Kebede', 'Mesfin', 'Henok', 'Bereket', 'Alemayehu', 'Biniam', 'Elias', 'Getachew', 'Mulugeta', 'Solomon', 'Yared'], f: ['Selam', 'Tigist', 'Hiwot', 'Meron', 'Saba', 'Liya', 'Mahlet', 'Bethlehem', 'Almaz', 'Eden', 'Feven', 'Genet', 'Ruth', 'Selamawit', 'Tsion'],
+      l: ['Tesfaye', 'Bekele', 'Haile', 'Girma', 'Alemu', 'Tadesse', 'Wolde', 'Mekonnen', 'Assefa', 'Desta', 'Gebre', 'Kassa', 'Negash', 'Tekle', 'Worku'] }
+  };
+  var GEN_NAT_SET = { American: ['anglo', 'anglo', 'anglo', 'hispanic', 'irish', 'italian', 'german', 'slavic', 'nigerian', 'chinese'], English: ['anglo'], Australian: ['anglo', 'anglo', 'irish'], Canadian: ['anglo', 'anglo', 'french'],
+    Irish: ['irish', 'irish', 'anglo'], Spanish: ['hispanic'], Mexican: ['hispanic'], Colombian: ['hispanic'], Argentine: ['hispanic', 'hispanic', 'italian'], Portuguese: ['portuguese'], Brazilian: ['portuguese'],
+    Italian: ['italian'], French: ['french'], Swiss: ['german', 'french', 'italian'], German: ['german'], Austrian: ['german'], Dutch: ['dutch'], Norwegian: ['nordic'], Russian: ['slavic'], Serbian: ['slavic'],
+    Polish: ['westslavic'], Czech: ['westslavic'], Slovak: ['westslavic'], Hungarian: ['hungarian'], Romanian: ['romanian'], Romani: ['romani'], Greek: ['greek'], Egyptian: ['arabic'], Iraqi: ['arabic'],
+    Jordanian: ['arabic'], Lebanese: ['arabic'], Moroccan: ['arabic'], Syrian: ['arabic'], Sudanese: ['arabic'], Iranian: ['persian'], Turkish: ['turkish'], Indian: ['southasian'], Pakistani: ['southasian'],
+    Chinese: ['chinese'], Filipino: ['filipino'], Nigerian: ['nigerian'], Ethiopian: ['ethiopian'] };
+  /* A name that fits the nationality (now and then another culture's, as people move), avoiding first names already in use. */
+  function genName(nat, sex, taken) {
+    var sets = GEN_NAT_SET[nat] || ['anglo'], g = sex === 'Male' ? 'm' : sex === 'Female' ? 'f' : pick(['m', 'f']), first, set, tries = 0;
+    do {
+      set = GEN_NAME_SETS[chance(0.88) ? pick(sets) : pick(Object.keys(GEN_NAME_SETS))];
+      first = pick(set[g]);
+    } while (taken && taken[first.toLowerCase()] && tries++ < 12);
+    var lastSet = chance(0.9) ? set : GEN_NAME_SETS[pick(sets)];
+    return first + ' ' + pick(lastSet.l);
+  }
   var GEN_HAIR = ['Black', 'Dark brown', 'Brown', 'Light brown', 'Auburn', 'Red', 'Blond', 'Platinum blond', 'Gray', 'Silver', 'Shaved', 'Dyed blue', 'Dyed black'];
   var GEN_EYES = ['Brown', 'Dark brown', 'Hazel', 'Green', 'Blue', 'Gray', 'Amber'];
 
@@ -10357,8 +10563,8 @@ V1.5
   var GEN_MF_SKIP = { merits: ['Additional Discipline', 'True Faith', 'Hidden Diablerie'], flaws: ['Fourteenth Generation', 'Fifteenth Generation', 'Thin Blood', 'Child'] };
   var GEN_MF_CLAN_SKIP = { 'Nosferatu': ['Friendly Face', 'Blush of Health', 'Monstrous'], 'Lasombra': ['Cast No Reflection'] };
   var GEN_MF_CLASH = [['Light Sleeper', 'Deep Sleeper'], ['Acute Sense', 'Hard of Hearing'], ['Acute Sense', 'Deaf'], ['Acute Sense', 'Blind'], ['Hard of Hearing', 'Deaf'], ['One Eye', 'Blind'], ['Friendly Face', 'Disfigured'], ['Friendly Face', 'Deformity'], ['Huge Size', 'Short'], ['Iron Will', 'Weak-Willed'], ['Harmless', 'Bullyboy'], ['Natural Linguist', 'Speech Impediment']];
-  function genMF(c, k, target, maxCost) {
-    var clan = c.info.clan, fitNames = (GEN_MF[clan] || { m: [], f: [] })[k === 'merits' ? 'm' : 'f'], gen = GEN_MF._[k === 'merits' ? 'm' : 'f'];
+  function genMF(c, k, target, maxCost, extra) {
+    var clan = c.info.clan, fitNames = (GEN_MF[clan] || { m: [], f: [] })[k === 'merits' ? 'm' : 'f'].concat(extra || []), gen = GEN_MF._[k === 'merits' ? 'm' : 'f'];
     var skip = GEN_MF_SKIP[k].concat(GEN_MF_CLAN_SKIP[clan] || []).map(normT);
     var have = function () { return c.merits.concat(c.flaws).map(function (x) { return normT(x.name); }); };
     var clash = function (n) { var h = have(); return GEN_MF_CLASH.some(function (p) { var a = normT(p[0]), b = normT(p[1]); return (n === a && h.indexOf(b) >= 0) || (n === b && h.indexOf(a) >= 0); }); };
@@ -10393,7 +10599,8 @@ V1.5
     if (GEN_SOCIAL[c.info.clan]) wt *= w.conceal === 'P' || w.conceal === 'J' ? 2 : w.conceal === 'N' ? 0.2 : 0.7;
     return wt;
   }
-  function genGear(c, list) {
+  function genGear(c, list, cls) {
+    var gw = (cls && cls.gear) || { melee: 1, ranged: 1, armor: 1 };
     var out = [], ab = c.abil, melee = ab.melee || 0, fire = ab.firearms || 0, brawl = ab.brawl || 0;
     function take(kind) {
       var pool = (list || []).filter(function (w) { return w.kind === kind && !out.some(function (o) { return o.base === w.name; }); });
@@ -10405,15 +10612,17 @@ V1.5
       out.push({ id: rid(), name: 'Feral Claws', kind: 'melee', natural: true, diff: 6, dmg: 'Str+1', type: 'A', conceal: '', equipped: true });
     /* The stronger skill goes first, so it gets its weapon before the cap of 3. */
     var order = fire > melee ? ['ranged', 'melee'] : ['melee', 'ranged'];
+    if (gw.ranged > gw.melee * 1.5) order = ['ranged', 'melee']; else if (gw.melee > gw.ranged * 1.5) order = ['melee', 'ranged'];
     order.forEach(function (k) {
-      var r = k === 'ranged' ? fire : melee;
+      var r = k === 'ranged' ? fire : melee, g = gw[k];
       if (r >= 1 && out.length < 3) take(k);
-      if (r >= 3 && out.length < 3 && chance(0.4)) take(k);
+      if (r >= 3 && out.length < 3 && chance(Math.min(0.9, 0.4 * g))) take(k);
+      else if (r >= 2 && out.length < 3 && g >= 1.5 && chance(0.35)) take(k);
     });
-    if (!out.length && chance(0.35)) take('melee');
+    if (!out.length && chance(0.35)) take(gw.ranged > gw.melee ? 'ranged' : 'melee');
     c.weapons = out.slice(0, 3);
     /* Armor fits fighters; socialites stick to the lighter classes. */
-    var score = fire + melee + brawl + (ab.athletics || 0), p = score >= 9 ? 0.75 : score >= 6 ? 0.5 : score >= 4 ? 0.2 : 0;
+    var score = fire + melee + brawl + (ab.athletics || 0), p = Math.min(0.95, (score >= 9 ? 0.75 : score >= 6 ? 0.5 : score >= 4 ? 0.2 : 0) * gw.armor);
     if (chance(p)) {
       var cls = score >= 12 && chance(0.2) ? 3 : fire >= 3 || score >= 9 ? wpick([[1, 1], [2, 2], [2, 2]]) : wpick([[0, 3], [1, 2]]);
       if (GEN_SOCIAL[c.info.clan]) cls = Math.min(cls, 1);
@@ -10421,38 +10630,53 @@ V1.5
       c.armor = [{ id: rid(), name: a[0], rating: a[1], penalty: a[2], equipped: true }];
     }
   }
+  function rankW(list, k, top, step) { var i = list ? list.indexOf(k) : -1; return i < 0 ? 0 : Math.max(0.5, top - i * step); }
+  function topKeys(keys, w, n, min) { return keys.filter(function (k) { return w(k) > (min || 0); }).sort(function (a, b) { return w(b) - w(a); }).slice(0, n); }
   function generateKindred(opt) {
-    var clan = opt.clan || pick(Object.keys(CLANS)), fit = GEN_FIT[clan], c = blankKindred('');
+    /* A class tilts every weight below toward its theme; the clan's own leanings still count, just a bit less. */
+    var cls = (opt.cls && GEN_CLASS[opt.cls]) || null, cw = cls ? 0.65 : 1;
+    var clan = opt.clan || (cls ? wpick(Object.keys(CLANS).map(function (k) { return [k, 1 + (cls.clan[k] || 0)]; })) : pick(Object.keys(CLANS)));
+    var fit = GEN_FIT[clan], c = blankKindred('');
     c.info.clan = clan;
     var nos = clan === 'Nosferatu';
     if (nos) c.attrs.appearance = 0;
-    c.info.nature = pick(fit.arch);
-    c.info.demeanor = chance(0.35) ? c.info.nature : pick(chance(0.6) ? fit.arch : ARCHETYPES);
-    c.info.concept = pick(fit.con);
-    c.creation.prio = { attr: fit.attr.slice(), abil: ['talents', 'skills', 'knowledges'] };
+    var AW = function (k) { return 1 + cw * rankW(fit.fa, k, 3, 0.5) + (cls ? rankW(cls.fa, k, 3.5, 0.6) : 0); };
+    var ABW = function (k) { return 0.6 + cw * rankW(fit.ab, k, 5.4, 0.3) + (cls ? rankW(cls.ab, k, 6, 0.5) : 0); };
+    var BGW = function (b) { return cw * rankW(fit.bg, b, 3, 0.4) + (cls ? (cls.bg[b] || 0) * 2 : 0); };
+    var favA = topKeys(Object.keys(c.attrs).filter(function (k) { return !(nos && k === 'appearance'); }), AW, 4, 1);
+    var favAb = topKeys(Object.keys(c.abil), ABW, 10, 0.6);
+    var favBg = topKeys(fit.bg.concat(cls ? Object.keys(cls.bg) : []).filter(function (b, i, a) { return a.indexOf(b) === i; }), BGW, 6, 0);
+    var archs = function (L) { return L.filter(function (x) { return ARCHETYPES.indexOf(x) >= 0; }); };
+    var archPool = cls && chance(0.55) ? archs(cls.arch) : fit.arch;
+    c.info.nature = pick(archPool.length ? archPool : fit.arch);
+    c.info.demeanor = chance(0.35) ? c.info.nature : pick(chance(0.6) ? (cls ? archs(cls.arch).concat(fit.arch) : fit.arch) : ARCHETYPES);
+    c.info.concept = pick(cls ? cls.con : fit.con);
+    c.creation.prio = { attr: (cls && chance(0.7) ? cls.at : fit.attr).slice(), abil: ['talents', 'skills', 'knowledges'] };
     /* Small chance to shuffle the attribute order, so not every Brujah is a brawler first. */
-    if (chance(0.25)) { var a = c.creation.prio.attr; var t = a[1]; a[1] = a[0]; a[0] = t; }
-    /* Abilities: the group with the most favored picks goes first. */
-    var ag = Object.keys(ABIL_GROUPS).map(function (g) { return [g, ABIL_GROUPS[g].filter(function (l) { return fit.ab.indexOf(keyOf(l)) >= 0; }).length + Math.random()]; });
+    if (chance(0.2)) { var a = c.creation.prio.attr; var t = a[1]; a[1] = a[0]; a[0] = t; }
+    /* Abilities: the group with the most weight goes first. */
+    var ag = Object.keys(ABIL_GROUPS).map(function (g) { return [g, sum(ABIL_GROUPS[g].map(keyOf), ABW) * (0.8 + Math.random() * 0.4)]; });
     c.creation.prio.abil = ag.sort(function (x, y) { return y[1] - x[1]; }).map(function (x) { return x[0]; });
 
     /* Attributes 7/5/3, Abilities 13/9/5 (no Ability above 3 before freebies). */
     c.creation.prio.attr.forEach(function (g, i) {
       var keys = ATTR_GROUPS[g].map(keyOf).filter(function (k) { return !(nos && k === 'appearance'); });
-      spread(CREATION.attr[i], keys, function (k) { return fit.fa.indexOf(k) >= 0 ? 4 - fit.fa.indexOf(k) * 0.5 : 1; },
+      spread(CREATION.attr[i], keys, AW,
         function (k) { return c.attrs[k]; }, function (k, v) { c.attrs[k] = v; }, function () { return 5; });
     });
     c.creation.prio.abil.forEach(function (g, i) {
-      spread(CREATION.abil[i], ABIL_GROUPS[g].map(keyOf), function (k) { return fit.ab.indexOf(k) >= 0 ? 6 - fit.ab.indexOf(k) * 0.3 : 0.6; },
+      spread(CREATION.abil[i], ABIL_GROUPS[g].map(keyOf), ABW,
         function (k) { return c.abil[k]; }, function (k, v) { c.abil[k] = v; }, function () { return CREATION.abilCap; });
     });
     /* Disciplines: 3 dots among clan Disciplines (Caitiff pick from common ones). */
-    var dl = clan === 'Caitiff' ? fit.disc.slice().sort(function () { return Math.random() - 0.5; }).slice(0, rnd(2, 3)) : CLANS[clan].disc;
-    if (GEN_SIG[clan] && chance(0.9)) c.disc[GEN_SIG[clan]] = 1;
-    spread(CREATION.disc - sum(dl, function (d) { return c.disc[d] || 0; }), dl, function (d) { return d === GEN_SIG[clan] ? 1.6 : 1; }, function (d) { return c.disc[d] || 0; }, function (d, v) { c.disc[d] = v; }, function () { return 3; });
+    var DW = function (d) { return 1 + (d === GEN_SIG[clan] ? 0.6 : 0) + (cls ? cls.disc[d] || 0 : 0); };
+    var dl = CLANS[clan].disc;
+    if (clan === 'Caitiff') { dl = []; var cp = fit.disc.slice(); while (dl.length < rnd(2, 3) && cp.length) { var dd = wpick(cp.map(function (d) { return [d, DW(d)]; })); dl.push(dd); cp.splice(cp.indexOf(dd), 1); } }
+    if (GEN_SIG[clan] && chance(cls && !cls.disc[GEN_SIG[clan]] ? 0.6 : 0.9)) c.disc[GEN_SIG[clan]] = 1;
+    spread(CREATION.disc - sum(dl, function (d) { return c.disc[d] || 0; }), dl, DW, function (d) { return c.disc[d] || 0; }, function (d, v) { c.disc[d] = v; }, function () { return 3; });
     /* Backgrounds: 5 dots, mostly the clan's favorites, sometimes a bit of Generation. */
-    var bgKeys = fit.bg.concat(['Generation']);
-    spread(CREATION.bg, bgKeys, function (b) { return b === 'Generation' ? 0.8 : 3 - fit.bg.indexOf(b) * 0.4; },
+    var bgKeys = favBg.concat(['Generation']);
+    spread(CREATION.bg, bgKeys, function (b) { return b === 'Generation' ? 0.8 : Math.max(0.4, BGW(b)); },
       function (b) { return c.bg[b] || 0; }, function (b, v) { c.bg[b] = v; }, function (b) { return b === 'Generation' ? 3 : 4; });
     /* Virtues: 7 dots on top of the free one each. */
     spread(CREATION.virt, ['conscience', 'selfControl', 'courage'], function () { return 1; }, function (k) { return c.virt[k]; }, function (k, v) { c.virt[k] = v; }, function () { return 5; });
@@ -10461,8 +10685,8 @@ V1.5
     /* Merits and Flaws (optional): Flaws first (they pay for Merits), each up to its target points and max cost. */
     if (opt.mf) {
       var fT = clamp(+opt.mf.flawPts || 0, 0, 7), mT = clamp(+opt.mf.meritPts || 0, 0, CREATION.freebies + fT);
-      genMF(c, 'flaws', fT, clamp(+opt.mf.flawMax || 1, 1, 7));
-      genMF(c, 'merits', Math.min(mT, CREATION.freebies + Math.min(7, flawTotal(c))), clamp(+opt.mf.meritMax || 1, 1, 7));
+      genMF(c, 'flaws', fT, clamp(+opt.mf.flawMax || 1, 1, 7), cls && cls.mf.f);
+      genMF(c, 'merits', Math.min(mT, CREATION.freebies + Math.min(7, flawTotal(c))), clamp(+opt.mf.meritMax || 1, 1, 7), cls && cls.mf.m);
     }
     /* Freebie points (15 plus Flaws, minus Merits), weighted toward what fits. */
     var fb = c.creation.fb, guard = 0;
@@ -10473,10 +10697,10 @@ V1.5
     }
     while (fbBudget(c) - fbSpent(c) > 0 && guard++ < 200) {
       var left = fbBudget(c) - fbSpent(c), opts = [];
-      fit.fa.forEach(function (k) { if (c.attrs[k] < 5 && left >= 5) opts.push(['attr.' + k, 3]); });
-      fit.ab.forEach(function (k) { if (c.abil[k] < 4 && left >= 2) opts.push(['abil.' + k, 2]); });
-      dl.forEach(function (d) { if ((c.disc[d] || 0) < 3 && left >= 7) opts.push(['disc.' + d, 2.5]); });
-      fit.bg.forEach(function (b) { if ((c.bg[b] || 0) < 5 && left >= 1) opts.push(['bg.' + b, 1.2]); });
+      favA.forEach(function (k) { if (c.attrs[k] < 5 && left >= 5) opts.push(['attr.' + k, AW(k)]); });
+      favAb.forEach(function (k) { if (c.abil[k] < 4 && left >= 2) opts.push(['abil.' + k, ABW(k) / 2.5]); });
+      dl.forEach(function (d) { if ((c.disc[d] || 0) < 3 && left >= 7) opts.push(['disc.' + d, 1.6 * DW(d)]); });
+      favBg.forEach(function (b) { if ((c.bg[b] || 0) < 5 && left >= 1) opts.push(['bg.' + b, 0.6 + BGW(b) / 3]); });
       ['conscience', 'selfControl', 'courage'].forEach(function (k) { if (c.virt[k] < 5 && left >= 2) opts.push(['virt.' + k, 0.6]); });
       if (c.morality.dots < 9 && left >= 2) opts.push(['morality', 1]);
       if (c.willpower.perm < 9 && left >= 1) opts.push(['willpower', 1.6]);
@@ -10501,10 +10725,8 @@ V1.5
     c.mode = 'play'; c.willpower.cur = c.willpower.perm;
 
     /* Name: given, or one from the generator's list. */
-    var sx = c.details.aes.sex;
     genAesthetics(c, fit);
-    sx = c.details.aes.sex;
-    c.info.name = opt.name || (pick(GEN_NAMES.first[sx === 'Male' ? 'm' : sx === 'Female' ? 'f' : pick(['m', 'f'])]) + ' ' + pick(GEN_NAMES.last));
+    c.info.name = opt.name || genName(c.details.aes.nationality, c.details.aes.sex, opt.taken);
 
     /* XP: logged as earned, then spent trait by trait at V20 costs, each purchase in the XP log. */
     var xp = Math.max(0, Math.floor(+opt.xp || 0));
@@ -10521,12 +10743,15 @@ V1.5
           if (p === 'attr.appearance' && nos) return;
           var cost = xpStep(c, p, v); if (cost <= av) cand.push([[p, cost], w]);
         };
-        fit.fa.forEach(function (k) { add('attr.' + k, 1.5); });
-        Object.keys(c.attrs).forEach(function (k) { if (fit.fa.indexOf(k) < 0) add('attr.' + k, 0.2); });
-        fit.ab.forEach(function (k, i) { add('abil.' + k, 2.2 - i * 0.12); });
-        Object.keys(c.abil).forEach(function (k) { if (fit.ab.indexOf(k) < 0 && c.abil[k] > 0) add('abil.' + k, 0.4); });
-        dl.forEach(function (d) { add('disc.' + d, 3); });
-        if (clan !== 'Caitiff' && xp >= 30) DISCIPLINES.forEach(function (d) { if (dl.indexOf(d) < 0 && c.disc[d] > 0) add('disc.' + d, 0.8); });
+        Object.keys(c.attrs).forEach(function (k) { add('attr.' + k, favA.indexOf(k) >= 0 ? AW(k) / 2 : 0.2); });
+        Object.keys(c.abil).forEach(function (k) { var w = ABW(k); if (favAb.indexOf(k) >= 0 || c.abil[k] > 0) add('abil.' + k, favAb.indexOf(k) >= 0 ? w / 2.6 : 0.4); });
+        dl.forEach(function (d) { add('disc.' + d, 2 * DW(d)); });
+        if (clan !== 'Caitiff' && xp >= 30) DISCIPLINES.forEach(function (d) {
+          if (dl.indexOf(d) >= 0) return;
+          if (c.disc[d] > 0) add('disc.' + d, 0.6 + (cls ? (cls.disc[d] || 0) / 3 : 0));
+          /* A class can pick up a fitting Discipline from outside the clan (sorcery only rarely). */
+          else if (cls && (cls.disc[d] || 0) >= 2 && xp >= 40) add('disc.' + d, SORCERY.indexOf(d) >= 0 ? 0.15 : 0.5);
+        });
         SORCERY.forEach(function (d) {
           var so = c.sorc[d]; if (!so || c.disc[d] < 2) return;
           var cap2 = spathCap(c, d), L = (SORC_LISTS[d] && SORC_LISTS[d].paths || []).filter(function (x) { return x !== so.primary; });
@@ -10544,13 +10769,13 @@ V1.5
         c.xp.log.push({ type: 'spend', p: pp, label: labelOf(c, pp), from: from, to: from + 1, cost: cst, t: t0 + (++n) });
       }
     }
-    if (opt.gear) genGear(c, opt.weapons);
+    if (opt.gear) genGear(c, opt.weapons, cls);
     c.ui = { tab: 'play' };
     return c;
   }
   /* The generator's last choices (Merits & Flaws, equipment) are remembered on this device. */
   function genPrefs() {
-    var d = { mf: true, meritMax: 3, meritPts: 3, flawMax: 3, flawPts: 3, gear: true };
+    var d = { mf: true, meritMax: 3, meritPts: 3, flawMax: 3, flawPts: 3, gear: true, cls: '' };
     try { var p = JSON.parse(localStorage.getItem('vtm-gen') || 'null'); if (p) Object.keys(d).forEach(function (k) { if (p[k] != null) d[k] = p[k]; }); } catch (e) {}
     return d;
   }
@@ -10573,6 +10798,9 @@ V1.5
       '<div class="gn-row"><label class="fld">Clan<select id="gnClan"><option value="">Random</option>' + clans.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></label>' +
       genNum('gnXp', 'XP to spend', 0, 0, 2000) + '</div>' +
       '<p class="muted small gn-hint">XP is logged as earned, then spent on traits that fit the character. 0 makes a fresh neonate.</p>' +
+      '<div class="gn-class"><span class="gn-lbl" id="gnClassLbl">Class</span><div class="gn-cls-row" role="group" aria-labelledby="gnClassLbl">' +
+        Object.keys(GEN_CLASS).map(function (k) { return '<button type="button" class="gn-cls" data-cls="' + k + '" aria-pressed="' + (pr.cls === k) + '">' + GEN_CLASS[k].name + '</button>'; }).join('') +
+      '</div><p class="muted small" id="gnClassHint" aria-live="polite"></p></div>' +
       genSwitch('gnMF', pr.mf, 'Merits &amp; Flaws', 'Picked from the book\'s list, leaning on what suits the clan.') +
       '<fieldset class="gn-sub" id="gnMFOpts"' + (pr.mf ? '' : ' hidden') + '><legend class="vh">Merits and Flaws options</legend><div class="gn-grid">' +
         genNum('gnMMax', 'Max Merit cost', pr.meritMax, 1, 7) + genNum('gnMPts', 'Merit points to spend', pr.meritPts, 0, 22) +
@@ -10582,6 +10810,11 @@ V1.5
       '<p class="muted small gn-note" id="gnEqNote" role="status" hidden></p>' +
       '<div class="acts"><button type="button" class="btn" id="mBack">Back</button><span style="flex:1"></span><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Generate</button></div>', 'cm-gen');
     $('gnName').focus();
+    var CLS_HINT = { '': 'No class: the clan alone decides what the character leans toward. Pick one to steer it.', bruiser: 'Leans toward Brawl and Melee, toughness and hitting hard.', gunner: 'Leans toward Firearms, ranged attacks and what helps them.', mage: 'Leans toward Disciplines and blood magic (Thaumaturgy, Necromancy and the like).', charmer: 'Leans toward social skills: charm, persuasion, manipulation.', controller: 'Leans toward controlling others: Dominate, Presence, Dementation, Animalism.', rogue: 'Leans toward stealth, subterfuge, theft and striking unseen.' };
+    var selCls = pr.cls || '';
+    var showCls = function () { Array.prototype.forEach.call(document.querySelectorAll('.gn-cls'), function (b) { b.setAttribute('aria-pressed', b.dataset.cls === selCls ? 'true' : 'false'); }); $('gnClassHint').textContent = CLS_HINT[selCls] + (selCls ? ' Other picks still happen, just less often.' : ''); };
+    Array.prototype.forEach.call(document.querySelectorAll('.gn-cls'), function (b) { b.addEventListener('click', function () { selCls = selCls === b.dataset.cls ? '' : b.dataset.cls; showCls(); }); });
+    showCls();
     $('gnMF').addEventListener('change', function () { $('gnMFOpts').hidden = !this.checked; });
     var startWeapons = function () { if ($('gnEq').checked) { if (bookW.state === 'idle') ensureBookWeapons(); genWeapNote(); } else $('gnEqNote').hidden = true; };
     $('gnEq').addEventListener('change', startWeapons); startWeapons();
@@ -10602,8 +10835,9 @@ V1.5
         return;
       }
       clearInterval(poll);
-      try { localStorage.setItem('vtm-gen', JSON.stringify({ mf: mf, meritMax: o.meritMax, meritPts: o.meritPts, flawMax: o.flawMax, flawPts: o.flawPts, gear: gear })); } catch (e) {}
-      var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, xp: Math.min(xp, 2000), mf: mf ? o : null, gear: gear, weapons: bookW.state === 'ready' ? bookW.list : null });
+      try { localStorage.setItem('vtm-gen', JSON.stringify({ mf: mf, meritMax: o.meritMax, meritPts: o.meritPts, flawMax: o.flawMax, flawPts: o.flawPts, gear: gear, cls: selCls })); } catch (e) {}
+      var taken = {}; Object.keys(store.chars).forEach(function (id) { var f = String(store.chars[id].info.name || '').trim().split(/\s+/)[0]; if (f) taken[f.toLowerCase()] = 1; });
+      var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, cls: selCls, xp: Math.min(xp, 2000), mf: mf ? o : null, gear: gear, weapons: bookW.state === 'ready' ? bookW.list : null, taken: taken });
       c.template = base.tmpl.id; c.tracker.type = base.tag;
       store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
       if (libDest) { placeIn(c.id, libDest); libDest = ''; }

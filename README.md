@@ -162,3 +162,17 @@ V2.3
 	-Right-clicking an actor lets the host call for a roll from them, even when it isn't their turn.
 	-The Start round / Next turn / End round button fills the rest of its row.
 	-The dice sound plays when someone else's rolled result comes in.
+
+V2.4
+-Character Manager Changes:
+	-Renamed "Defensive Maneuver" to "Defend". Soak and Defend now share their own row under the damage/heal buttons.
+	-Blood Pool (Spend, Feed, Boost) and Willpower (Spend, Regain) buttons use the same even row design.
+	-Folders in the character browser are full width on phones.
+	-Folder names save with Enter, the ✓ button, or tapping elsewhere (✕ or Esc cancels).
+	-Random Character Generator:
+		-Added a Class option (Bruiser, Gunner, Mage, Charmer, Controller, Rogue) that steers the character and concept toward a theme.
+		-Names now fit the character's nationality and repeat far less.
+-Initiative Tracker Changes:
+	-Players hear a notification sound when the host calls a roll from them.
+	-A player's characters already in the tracker are recognized when they rejoin (any room, any device signed into their account), so they don't need to be re-added.
+-Fixed typing in names and other fields on phones getting cut off by background updates.
