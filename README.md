@@ -192,3 +192,17 @@ V2.5
 	-Added Stored Equipment next to Carried Equipment in Details > Possessions. Drag weapons and armor between them (or use Store / Carry). Stored items aren't usable in play.
 	-Reordered the character buttons: Export sits next to Import, then Share; Delete (or Remove) is at the far end.
 -Fixed the "Synced" label and the share access dropdown text not being centered.
+
+V2.6
+-Added Friends (button next to Notifications): add players by their player ID, accept or decline requests from the notification or the Friends panel, and share sheets straight to a friend. Needs the updated sync server.
+-Added Usernames: everyone signed in picks one, and it's the only name other players see (sharing, friends, XP stamps). Your Google name and email stay private. Change it in Settings > Account.
+-Character Manager Changes:
+	-Experience flags use the Settings-style toggles, on one row when there's room.
+	-XP awards show who added them, and who last edited them and when.
+	-Backstory and Other Facts have a text editor: bold, italic, underline, strikethrough, headings, lists, quotes and text colours.
+	-Other Facts can be shown in up to 3 columns, with optional column breaks.
+-Initiative Tracker Changes:
+	-Joiners hear the dice sound when a new round starts.
+-Fixed the Details tab not showing for characters.
+-Fixed Celerity actions planned between rounds changing initiative before the next round starts.
+-Fixed Merits and Flaws added in Free-form edit not filling in their cost from the book.

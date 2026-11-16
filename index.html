@@ -1301,6 +1301,83 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
 .acct-share-txt small { color: var(--muted); font-size: 0.8rem; }
 .sub-sec .gear-items { padding-left: 0; }
 .gear-zone h3 { margin-top: 2px; min-height: 1.6em; }
+/* Experience: flag switches on one row when there's room */
+.xp-toggles { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 10px 0; }
+.xp-toggles .switch.xp-sw { margin: 0; flex: none; }
+.xp-toggles .switch.xp-sw .txt strong { font-size: 0.9rem; white-space: nowrap; }
+.xp-stamp { display: block; margin-top: 2px; color: var(--muted); font-size: 0.78rem; }
+.xp-toggles .switch.xp-sw { gap: 8px; align-items: center; }
+/* Friends */
+#friendsBtn[hidden] { display: none; }
+.fr-panel .fr-body { overflow: auto; flex: 1; padding: 4px 10px 8px; }
+.fr-h { margin: 10px 4px 6px; font: 600 0.72rem/1 var(--font-data); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.fr-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.fr-row { display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 8px; border-radius: 8px; }
+.fr-row:hover { background: var(--surface-2); }
+.fr-row.fr-confirm { flex-wrap: wrap; background: var(--surface-2); }
+.fr-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fr-txt b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-txt small { color: var(--muted); font-size: 0.78rem; }
+.fr-wait { color: var(--muted); font-size: 0.78rem; }
+.fr-empty { margin: 6px 4px 10px; color: var(--muted); font-size: 0.9rem; }
+.fr-ic { flex: none; width: 32px; height: 32px; display: inline-grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--fg); font-size: 1rem; line-height: 1; cursor: pointer; }
+.fr-ic:hover, .fr-ic:focus-visible { background: var(--surface-2); outline: none; border-color: var(--fg); }
+.fr-ic.ok { border-color: #4f9d6a; color: #8fd3a5; }
+.notif-acts { display: flex; gap: 6px; flex: none; margin-top: 6px; }
+.sh-friends { margin-bottom: 6px; }
+.sh-friends .fr-row { border: 1px solid var(--line); background: var(--well); }
+.fr-txt small, .fr-txt b { text-align: left; align-self: flex-start; }
+/* Username prompt */
+.uname-back { z-index: 1000; }
+.uname-modal { max-width: 420px; }
+.acct-uname { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+/* Formatted text (Backstory, Other Facts) */
+.rich ol { margin: 0; padding-left: 1.6em; }
+.rich blockquote { margin: 0; padding: 2px 0 2px 12px; border-left: 3px solid var(--line-strong); color: var(--muted); font-style: italic; }
+.rich hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }
+.rt-wrap { display: flex; flex-direction: column; gap: 6px; }
+.rt-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 4px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); position: sticky; top: 0; z-index: 3; }
+.rt-bar button { min-width: 34px; height: 32px; padding: 0 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--fg); cursor: pointer; font: 500 0.95rem/1 var(--font-body); display: inline-flex; align-items: center; justify-content: center; gap: 2px; }
+.rt-bar button:hover { background: var(--line); }
+.rt-bar button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.rt-sep { width: 1px; align-self: stretch; margin: 4px 2px; background: var(--line-strong); }
+.rt-colwrap { position: relative; display: inline-flex; }
+.rt-a { font-weight: 700; }
+.rt-swatch { width: 10px; height: 10px; border-radius: 2px; border: 1px solid var(--line-strong); background: var(--fg); }
+.rt-pal { position: absolute; top: calc(100% + 4px); left: 0; z-index: 5; display: grid; grid-template-columns: repeat(5, 28px); gap: 6px; padding: 8px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); }
+.rt-pal[hidden] { display: none; }
+.rt-pal button { min-width: 0; width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2px solid var(--line-strong); background: var(--sw); }
+.rt-pal button.rt-def { background: linear-gradient(135deg, var(--fg) 0 50%, var(--surface) 50%); }
+.rt-pal button:hover { transform: scale(1.12); background: var(--sw); }
+.rt-pal button.rt-def:hover { background: linear-gradient(135deg, var(--fg) 0 50%, var(--surface) 50%); }
+.rt-clr small { font-size: 0.7em; }
+.rt-cols-pick { display: inline-flex; align-items: center; gap: 2px; }
+.rt-lbl { font-size: 0.85rem; color: var(--muted); margin: 0 4px; }
+.rt-cols-pick button { min-width: 28px; border-color: var(--line-strong); }
+.rt-ed { min-height: 8em; max-height: 70vh; overflow-y: auto; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--well); color: var(--fg); line-height: 1.5; outline: none; font-size: 16px; }
+.rt-ed:focus { border-color: var(--accent); }
+.rt-ed:empty::before, .rt-ed.rt-empty::before { content: attr(data-ph); color: var(--muted); pointer-events: none; }
+.rt-has-cols .rt-ed hr { border: 0; border-top: 2px dashed var(--accent); margin: 10px 0; height: 0; overflow: visible; position: relative; }
+.rt-has-cols .rt-ed hr::after { content: "column break"; position: absolute; right: 0; top: -0.75em; padding: 0 6px; background: var(--well); color: var(--muted); font-size: 0.75rem; }
+.rt-note { margin: 0; }
+.rt-ed.rich { display: block; }
+.rt-ed > * + * { margin-top: 8px; }
+.rt-ed ul, .rt-ed ol { margin-top: 0; }
+.rt-flow { column-count: var(--rtc); column-gap: 28px; column-rule: 1px solid var(--line); }
+.rt-flow > * { break-inside: avoid; margin: 0 0 8px; }
+.rt-flow > h3, .rt-flow > h4 { break-after: avoid; }
+.rt-grid { display: grid; grid-template-columns: repeat(var(--rtc), minmax(0, 1fr)); }
+.rt-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 0 14px; }
+.rt-col:first-child { padding-left: 0; }
+.rt-col:last-child { padding-right: 0; }
+.rt-col + .rt-col { border-left: 1px solid var(--line); }
+@media (max-width: 640px) {
+  .rt-flow { column-count: 1; }
+  .rt-grid { grid-template-columns: 1fr; gap: 8px; }
+  .rt-col { padding: 0; }
+  .rt-col + .rt-col { border-left: 0; }
+  .rt-bar button { min-width: 36px; height: 36px; }
+}
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -1330,6 +1407,10 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
           <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path>
           <path d="M14 3v5h5M9 13h6M9 17h6"></path>
         </svg>
+      </button>
+      <button type="button" class="sound-btn notif-btn" id="friendsBtn" aria-haspopup="dialog" aria-expanded="false" aria-label="Friends" title="Friends" hidden>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span class="notif-badge" id="friendsBadge" hidden></span>
       </button>
       <button type="button" class="sound-btn notif-btn" id="notifBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifPanel" aria-label="Notifications" title="Notifications">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
@@ -4052,7 +4133,8 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
   /* The total is the roll plus the modifier plus the bonus or penalty. */
   /* CHARACTERS-MODULE:BEGIN ini-extra */
   /* Celerity dots spent on extra actions this turn don't add to initiative; set before the round, fixed while it runs. */
-  function celUsed(a) { return a.cd ? Math.min(a.cd, ini.live ? (a.cu || 0) : a.ca) : 0; }
+  /* Celerity actions used this round (locked in when the round starts). Actions planned for the next round don't move initiative until it starts. */
+  function celUsed(a) { return a.cd ? Math.min(a.cd, a.cu || 0) : 0; }
   function syncIx(a) { a.ix = a.ch || a.cd ? (a.wndA || 0) - celUsed(a) : 0; }
   /* Most Celerity actions an actor can take: its Celerity dots, and one blood point each (a linked sheet sends its blood as bl). */
   function celMax(a) { var m = a.cd || 9; if (a.bl != null) m = Math.min(m, a.bl); return m; }
@@ -4427,7 +4509,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     return rec;
   }
   /* Rolls this joiner sent (random tokens), so the dice sound only plays for other people's results. */
-  var myRids = [], lrInit = false, seenLr = 0;
+  var myRids = [], lrInit = false, seenLr = 0, seenRound = -1;
   function onRolled(kind, roll, values) {
     var ctx = kind === 'damage' ? dmgCtx : rollCtx;
     if (kind === 'main') kind = ctx && ctx.kind === 'soak' ? 'soak' : 'generic';
@@ -4505,8 +4587,13 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     if (watchWs) {
       var cr = remote && remote.cr, lr = remote && remote.lr, h = '';
       /* A new result from the table plays the dice sound, unless it's this joiner's own roll (already heard). */
-      if (!lrInit) { lrInit = true; seenLr = lr ? lr.id : 0; }
-      else if (lr && lr.id !== seenLr) { seenLr = lr.id; if (myRids.indexOf(lr.q) < 0) playSound(); }
+      if (!lrInit) { lrInit = true; seenLr = lr ? lr.id : 0; seenRound = remote ? (remote.l ? remote.r : -1) : -1; }
+      else {
+        if (lr && lr.id !== seenLr) { seenLr = lr.id; if (myRids.indexOf(lr.q) < 0) playSound(); }
+        /* A new round started at the host's table: the same dice sound the host hears. */
+        var rr = remote && remote.l ? remote.r : -1;
+        if (rr !== seenRound) { if (rr > 0) playSound(); seenRound = rr; }
+      }
       if (joinCall) h += '<p class="ir-status ir-you"><b>Your roll is called' + (joinCall.diff ? ' at difficulty ' + joinCall.diff : '') + '.</b> Your next roll is shared with the table.</p>';
       else if (cr) h += '<p class="ir-status">Waiting for ' + escH(cr.n) + ' to roll' + (cr.d ? ' (difficulty ' + cr.d + ')' : '') + '.</p>';
       if (lr) h += '<div class="ir-last"><span class="label">Last roll</span>' + rollHead({ who: lr.n, kind: KIND_LBL[lr.k] ? lr.k : 'generic', net: lr.v, botch: lr.b }) + '</div>';
@@ -4855,7 +4942,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
       ini.live = false;
       ini.celerity = false;
       ini.turn = 0;
-      ini.actors.forEach(function (a) { a.ca = 0; a.die = 0; a.tie = 0; a.init = null; });   // the next encounter rolls afresh
+      ini.actors.forEach(function (a) { a.ca = 0; a.cu = 0; a.die = 0; a.tie = 0; a.init = null; });   // the next encounter rolls afresh
       initChanged();
       return;
     }
@@ -4896,7 +4983,7 @@ button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface
     }
     stopClearConfirm();
     ini.actors = ini.actors.filter(function (a) { return a.persistent; });
-    ini.actors.forEach(function (a) { a.die = 0; a.bonus = 0; a.applied = 0; a.tie = 0; a.ca = 0; a.init = null; });
+    ini.actors.forEach(function (a) { a.die = 0; a.bonus = 0; a.applied = 0; a.tie = 0; a.ca = 0; a.cu = 0; a.init = null; });
     ini.round = 1;
     ini.turn = 0;
     ini.started = false;
@@ -6624,7 +6711,7 @@ V1.5
       virtNames: { conscience: 'Conscience', selfControl: 'Self-Control' },
       morality: { name: 'Humanity', dots: 2 }, willpower: { perm: 1, cur: 1 },
       blood: { cur: 0 }, health: { b: 0, l: 0, a: 0 }, boost: { strength: 0, dexterity: 0, stamina: 0 }, tracker: { type: '', rev: false }, clanExtra: [],
-      merits: [], flaws: [], weapons: [], armor: [], xp: { base: 0, log: [] }, enotes: {},
+      merits: [], flaws: [], weapons: [], armor: [], stored: { weapons: [], armor: [] }, xp: { base: 0, log: [] }, enotes: {},
       details: { aes: {}, bgx: {}, poss: [], other: '' },
       backstory: { story: '', facts: '' }, journal: [],
       ui: { tab: 'sheet' },
@@ -6863,6 +6950,13 @@ V1.5
       full: 'Dexterity ' + dex + ' + Wits ' + wits + (cel ? ' + Celerity ' + cel : '') + (wp ? ' − wounds ' + (-wp) : '') };
   }
   function iniText(c) { var r = iniInfo(c).rating; return 'd10 ' + (r < 0 ? '− ' + (-r) : '+ ' + r); }
+  /* Stored Equipment, created if a sheet doesn't have it yet (older or synced sheets). */
+  function storedOf(c) {
+    if (!c.stored || typeof c.stored !== 'object') c.stored = {};
+    if (!Array.isArray(c.stored.weapons)) c.stored.weapons = [];
+    if (!Array.isArray(c.stored.armor)) c.stored.armor = [];
+    return c.stored;
+  }
   function wornArmor(c) { return c.armor.filter(function (a) { return a.equipped; })[0] || null; }
   function hungry(c) { return c.template === 'kindred' && c.blood.cur < 7 - (c.virt.selfControl || 0); }
 
@@ -6962,6 +7056,7 @@ V1.5
   var inline = null;
   function dblF(path, value, viewHTML, opts) {
     opts = opts || {};
+    if (inline === path && opts.rt) return rtEditor(path, value, Object.assign({ inline: true }, opts.rt));
     if (inline === path) {
       var a = ' data-f="' + esc(path) + '" data-inline aria-label="' + esc(opts.label || 'Edit') + '"' + (opts.ph ? ' placeholder="' + esc(opts.ph) + '"' : '') + (opts.list ? ' list="' + opts.list + '"' : '') + (opts.num ? ' data-num' : '') + (opts.extra || '');
       if (opts.area) return '<textarea class="grow inline-ed"' + a + '>' + esc(value || '') + '</textarea>';
@@ -7279,6 +7374,20 @@ V1.5
     if (bare) { var gi = out.indexOf('<div class="vit-grid">'); return out.slice(gi, out.length - '</section>'.length); }
     return out;
   }
+  /* XP flags as Settings-style switches, on one row when there's room. */
+  function xpToggles(prefix, flags) {
+    return '<div class="xp-toggles">' + XP_FLAGS.map(function (f) {
+      var id = prefix + f[0];
+      return '<label class="switch xp-sw" for="' + id + '"><input type="checkbox" role="switch" id="' + id + '"' + (flags && flags[f[0]] ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>' + f[1] + '</strong></span></label>';
+    }).join('') + '</div>';
+  }
+  /* Who added an award, and who last edited it and when. */
+  function xpStamp(e) {
+    var bits = [];
+    if (e.by) bits.push('Added by ' + esc(e.by));
+    if (e.editedBy) bits.push('edited by ' + esc(e.editedBy) + (e.editedAt ? ', ' + esc(new Date(e.editedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : ''));
+    return bits.length ? '<span class="xp-stamp">' + bits.join(' · ') + '</span>' : '';
+  }
   function xpSection(c) {
     var play = c.mode === 'play', edit = c.mode === 'edit';
     var h = '<section class="card"><div class="card-head"><h2>Experience</h2>' + (play ? '<button type="button" class="btn toggle" data-act="xpToggle" aria-pressed="' + xpMode + '">Spend XP</button>' : '') + '</div>';
@@ -7289,7 +7398,7 @@ V1.5
         '<label class="fld">Date<input type="date" id="awDate" value="' + today() + '"></label>' +
         '<label class="fld">Amount<input type="number" min="1" id="awAmt" placeholder="XP"></label>' +
         '<label class="fld">Notes<input id="awNotes" placeholder="Session, reason…"></label></div>' +
-        '<div class="checks">' + XP_FLAGS.map(function (f) { return '<label><input type="checkbox" id="aw_' + f[0] + '">' + f[1] + '</label>'; }).join('') + '</div>' +
+        xpToggles('aw_') +
         '<div><button type="button" class="btn primary small" data-act="xpAward">Add to XP log</button></div></div>';
     }
     if (edit) h += '<label class="fld" style="max-width:260px"><span class="cm-lbl">XP earned outside the log</span><input type="number" min="0" data-f="xp.base" data-num data-rr value="' + (+c.xp.base || 0) + '"></label>';
@@ -7303,7 +7412,7 @@ V1.5
       var e = x[0], i = x[1];
       if (e.type === 'earn') {
         var flags = XP_FLAGS.filter(function (f) { return e.flags && e.flags[f[0]]; }).map(function (f) { return '<span class="cm-tag">' + f[1] + '</span>'; }).join('');
-        return '<li><span class="what"><span><b>XP awarded</b> <span class="muted small">' + esc(e.date || '') + '</span></span>' + (e.notes ? '<span class="small">' + esc(e.notes) + '</span>' : '') + (flags ? '<span class="flags">' + flags + '</span>' : '') + '</span>' +
+        return '<li><span class="what"><span><b>XP awarded</b> <span class="muted small">' + esc(e.date || '') + '</span></span>' + (e.notes ? '<span class="small">' + esc(e.notes) + '</span>' : '') + (flags ? '<span class="flags">' + flags + '</span>' : '') + xpStamp(e) + '</span>' +
           '<span class="inline"><span class="amt earn">+' + e.amount + '</span><button type="button" class="btn small ghost" data-act="xpEdit" data-i="' + i + '" aria-label="Edit this award">Edit</button>' + (edit ? '<button type="button" class="x-btn" data-act="xpRm" data-i="' + i + '" aria-label="Remove award">×</button>' : '') + '</span></li>';
       }
       return '<li><span class="what"><span>' + esc(e.label) + ' ' + e.from + ' → ' + e.to + ' <span class="muted small">' + new Date(e.t).toLocaleDateString() + '</span></span></span><span class="inline"><span class="amt spend">−' + e.cost + '</span>' +
@@ -7889,7 +7998,7 @@ V1.5
         (items.length ? '<ul class="gear-items">' + items.join('') + '</ul>' : '<p class="muted small gear-empty">' + empty + '</p>');
     };
     var carried = c.weapons.map(function (w) { return gearItem('weapons', w, 'carried'); }).concat(c.armor.map(function (x) { return gearItem('armor', x, 'carried'); }));
-    var stored = c.stored.weapons.map(function (w) { return gearItem('weapons', w, 'stored'); }).concat(c.stored.armor.map(function (x) { return gearItem('armor', x, 'stored'); }));
+    var sto = storedOf(c), stored = sto.weapons.map(function (w) { return gearItem('weapons', w, 'stored'); }).concat(sto.armor.map(function (x) { return gearItem('armor', x, 'stored'); }));
     h += zone('carried', 'Carried Equipment', 'from the Sheet', carried, 'No weapons or armor carried.' + (stored.length && !ro ? ' Drag items here to carry them.' : '')) +
       '<div><button type="button" class="btn small ghost" data-act="tab" data-t="sheet" data-to="equip">Open on the Sheet tab</button></div></div>';
     h += zone('stored', 'Stored Equipment', '', stored, 'Nothing stored.' + (carried.length && !ro ? ' Drag weapons or armor here to put them away; they leave combat until carried again.' : '')) + '</div>';
@@ -7938,11 +8047,14 @@ V1.5
   /* ================= BACKSTORY & MORE ================= */
   function storyTab(c) {
     var ed = !!tabEdit.story, b = c.backstory;
-    return '<section class="card"><h2>Backstory</h2>' + (ed ? '<textarea class="grow" style="min-height:10em" data-f="backstory.story" placeholder="Life before the Embrace, the Embrace itself, the nights since…" aria-label="Backstory">' + esc(b.story || '') + '</textarea>'
-      : dblF('backstory.story', b.story, rich(b.story, 'Nothing written yet. ' + DBL_HINT), { area: true, block: true, label: 'Backstory' })) + '</section>' +
-      '<section class="card"><div class="card-head"><h2>Other Facts</h2>' + (ed ? '<button type="button" class="btn small" data-act="addHeading">Add heading</button>' : '') + '</div>' +
-      (ed ? '<p class="muted small" style="margin:0">Start a line with <code>#</code> to make it a heading, or <code>-</code> for a bullet.</p><textarea class="grow" id="factsBox" style="min-height:8em" data-f="backstory.facts" aria-label="Other facts">' + esc(b.facts || '') + '</textarea>'
-        : dblF('backstory.facts', b.facts, rich(b.facts, 'Nothing written yet. ' + DBL_HINT), { area: true, block: true, label: 'Other facts' })) + '</section>';
+    var cols = clamp(+b.cols || 1, 1, 3);
+    var so = { label: 'Backstory', ph: 'Life before the Embrace, the Embrace itself, the nights since…', minH: '10em' };
+    var fo = { label: 'Other facts', ph: 'Haven, allies, rivals, secrets…', minH: '8em', cols: true, colsN: cols };
+    return '<section class="card"><h2>Backstory</h2>' + (ed ? rtEditor('backstory.story', b.story, so)
+      : dblF('backstory.story', b.story, rtView(b.story, 'Nothing written yet. ' + DBL_HINT), { rt: so, block: true, label: 'Backstory' })) + '</section>' +
+      '<section class="card"><h2>Other Facts</h2>' +
+      (ed ? rtEditor('backstory.facts', b.facts, fo)
+        : dblF('backstory.facts', b.facts, rtView(b.facts, 'Nothing written yet. ' + DBL_HINT, cols), { rt: fo, block: true, label: 'Other facts' })) + '</section>';
   }
 
   /* ================= STORY PROGRESSION: entries as columns along a horizontal strip, oldest to newest ================= */
@@ -8055,7 +8167,8 @@ V1.5
     var ie = main.querySelector('[data-inline]');
     if (ie && document.activeElement !== ie) {
       ie.focus();
-      try { if (ie.tagName === 'TEXTAREA' || ie.type === 'text' || !ie.type) { var n = ie.value.length; ie.setSelectionRange(n, n); } } catch (e) {}
+      if (ie.isContentEditable) rtCaretEnd(ie);
+      else try { if (ie.tagName === 'TEXTAREA' || ie.type === 'text' || !ie.type) { var n = ie.value.length; ie.setSelectionRange(n, n); } } catch (e) {}
     }
   }
   function render() {
@@ -8313,7 +8426,7 @@ V1.5
       if (!(n > 0)) { $('awAmt').focus(); return toast('Enter how much XP to award.'); }
       var flags = {};
       XP_FLAGS.forEach(function (f) { if ($('aw_' + f[0]).checked) flags[f[0]] = true; });
-      c.xp.log.push({ type: 'earn', id: rid(), date: $('awDate').value || today(), amount: n, notes: $('awNotes').value.trim(), flags: flags, t: Date.now() });
+      c.xp.log.push({ type: 'earn', id: rid(), date: $('awDate').value || today(), amount: n, notes: $('awNotes').value.trim(), flags: flags, t: Date.now(), by: whoAmI() });
       commit(); toast('+' + n + ' XP logged.');
     },
     xpEdit: function (el) {
@@ -8323,7 +8436,7 @@ V1.5
         '<label class="fld">Date<input type="date" id="edDate" value="' + esc(e.date || '') + '"></label>' +
         '<label class="fld">Amount<input type="number" min="1" id="edAmt" value="' + esc(e.amount) + '"></label>' +
         '<label class="fld">Notes<input id="edNotes" value="' + esc(e.notes || '') + '"></label></div>' +
-        '<div class="checks">' + XP_FLAGS.map(function (f) { return '<label><input type="checkbox" id="ed_' + f[0] + '"' + (e.flags && e.flags[f[0]] ? ' checked' : '') + '>' + f[1] + '</label>'; }).join('') + '</div></div>' +
+        xpToggles('ed_', e.flags) + '</div>' + (xpStamp(e) ? '<p class="muted small" style="margin:8px 0 0">' + xpStamp(e) + '</p>' : '') +
         '<div class="acts"><button type="button" class="btn danger" id="edDel">Remove award</button><span style="flex:1"></span><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Save</button></div>');
       $('mNo').onclick = closeModal;
       $('mOk').onclick = function () {
@@ -8331,7 +8444,7 @@ V1.5
         if (!(n > 0)) { $('edAmt').focus(); return toast('The amount has to be at least 1.'); }
         var flags = {};
         XP_FLAGS.forEach(function (f) { if ($('ed_' + f[0]).checked) flags[f[0]] = true; });
-        e.date = $('edDate').value || e.date; e.amount = n; e.notes = $('edNotes').value.trim(); e.flags = flags;
+        e.date = $('edDate').value || e.date; e.amount = n; e.notes = $('edNotes').value.trim(); e.flags = flags; e.editedBy = whoAmI(); e.editedAt = Date.now();
         closeModal(); commit();
         if (xpAvail(c) < 0) toast('Heads up: more XP is now spent than earned.');
       };
@@ -8486,7 +8599,7 @@ V1.5
   });
   document.addEventListener('keydown', function (e) {
     if (e.target.hasAttribute && e.target.hasAttribute('data-inline')) {
-      if (e.key === 'Escape' || (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA')) { e.preventDefault(); e.stopPropagation(); endInline(); }
+      if (e.key === 'Escape' || (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && !e.target.isContentEditable)) { e.preventDefault(); e.stopPropagation(); endInline(); }
       return;
     }
     if (e.key === 'Enter' && e.target.dataset && e.target.dataset.addin) { var b = e.target.parentNode.querySelector('[data-act="add"]'); if (b) b.click(); }
@@ -8932,7 +9045,7 @@ V1.5
   function moveGear(c, k, id, to) {
     if (!c || (k !== 'weapons' && k !== 'armor') || (to !== 'stored' && to !== 'carried')) return;
     if (isReadOnly(c)) return toast('This sheet is view only.');
-    var from = to === 'stored' ? c[k] : c.stored[k], dest = to === 'stored' ? c.stored[k] : c[k];
+    var sto = storedOf(c), from = to === 'stored' ? c[k] : sto[k], dest = to === 'stored' ? sto[k] : c[k];
     var i = from.map(function (x) { return x.id; }).indexOf(id); if (i < 0) return;
     var x = from.splice(i, 1)[0]; x.equipped = false; delete x.target; dest.push(x);
     commit();
@@ -9369,6 +9482,201 @@ V1.5
     var c = cur(); if (!c) return; c.tracker.rev = e.target.checked; commit();
   });
 
+  /* ================= FORMATTED TEXT (Backstory, Other Facts) ================= */
+  /* Stored as a small, cleaned subset of HTML. Older plain text (# headings, - bullets) still shows as before and turns
+     into formatted text the first time it's edited. Everything is rebuilt through rtClean before it's shown or saved, so
+     only these tags and a text colour ever reach the page, whoever wrote the sheet. */
+  var RT_TAGS = { P: 'p', DIV: 'p', BR: 'br', B: 'b', STRONG: 'b', I: 'i', EM: 'i', U: 'u', S: 's', STRIKE: 's', DEL: 's',
+    UL: 'ul', OL: 'ol', LI: 'li', H1: 'h3', H2: 'h3', H3: 'h3', H4: 'h4', H5: 'h4', H6: 'h4', BLOCKQUOTE: 'blockquote', HR: 'hr', SPAN: 'span', FONT: 'span' };
+  var RT_DROP = /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|SVG|MATH|TEMPLATE|NOSCRIPT|TITLE|HEAD|META|LINK|IMG|VIDEO|AUDIO|CANVAS|INPUT|TEXTAREA|SELECT|BUTTON|FORM)$/i;
+  var RT_COLORS = [['Default', ''], ['Blood', '#c0392b'], ['Rose', '#e57373'], ['Amber', '#e69a3c'], ['Gold', '#d4b13f'], ['Green', '#5fae5e'],
+    ['Teal', '#3fa89c'], ['Blue', '#5a9fdc'], ['Violet', '#a387d6'], ['Grey', '#8e8e8e']];
+  var RT_SENTINEL = 'rgb(1, 2, 3)';
+  function rtIsHTML(s) { return /^\s*</.test(String(s || '')); }
+  function rtColor(v) {
+    v = String(v || '').trim().toLowerCase();
+    if (/^#[0-9a-f]{3}([0-9a-f]{3})?$/.test(v)) return v === '#010203' ? '' : v;
+    var m = v.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+\s*)?\)$/);
+    if (m && !(m[1] === '1' && m[2] === '2' && m[3] === '3')) return '#' + [m[1], m[2], m[3]].map(function (x) { return ('0' + Math.min(255, +x).toString(16)).slice(-2); }).join('');
+    return '';
+  }
+  var rtCache = {};
+  function rtClean(html) {
+    html = String(html || '');
+    if (rtCache.hasOwnProperty(html)) return rtCache[html];
+    if (Object.keys(rtCache).length > 300) rtCache = {};
+    var doc;
+    try { doc = new DOMParser().parseFromString('<!doctype html><body>' + html, 'text/html'); } catch (e) { return esc(html); }   // parsed, never run
+    function walk(n) {
+      var out = '';
+      Array.prototype.forEach.call(n.childNodes, function (ch) {
+        if (ch.nodeType === 3) { out += esc(ch.nodeValue); return; }
+        if (ch.nodeType !== 1 || RT_DROP.test(ch.tagName)) return;
+        var t = RT_TAGS[ch.tagName], st = ch.style || {}, inner = walk(ch);
+        if (t === 'br' || t === 'hr') { out += '<' + t + '>'; return; }
+        /* Pasted text often carries bold/italic/underline as styles: keep them as plain tags. */
+        var fw = String(st.fontWeight || ''), deco = String(st.textDecorationLine || st.textDecoration || '');
+        if ((fw === 'bold' || +fw >= 600) && t !== 'b' && !/^h/.test(t)) inner = '<b>' + inner + '</b>';
+        if (st.fontStyle === 'italic' && t !== 'i') inner = '<i>' + inner + '</i>';
+        if (/underline/.test(deco) && t !== 'u') inner = '<u>' + inner + '</u>';
+        if (/line-through/.test(deco) && t !== 's') inner = '<s>' + inner + '</s>';
+        var col = rtColor(st.color) || (ch.tagName === 'FONT' ? rtColor(ch.getAttribute('color')) : '');
+        if (col) inner = '<span style="color:' + col + '">' + inner + '</span>';
+        if (!t || t === 'span') { out += inner; return; }
+        var al = String(st.textAlign || '').toLowerCase(), alS = /^(p|h3|h4|li)$/.test(t) && /^(center|right|justify)$/.test(al) ? ' style="text-align:' + al + '"' : '';
+        out += '<' + t + alS + '>' + inner + '</' + t + '>';
+      });
+      return out;
+    }
+    /* Loose text at the top level goes into paragraphs, so the result always starts with a tag. */
+    var res = '', run = '';
+    Array.prototype.forEach.call(doc.body.childNodes, function (ch) {
+      var box = doc.createElement('div'); box.appendChild(ch.cloneNode(true));   /* built in the parsed (inert) document: nothing loads or runs */
+      var h = walk(box), t = ch.nodeType === 1 ? RT_TAGS[ch.tagName] : '';
+      if (/^(p|h3|h4|ul|ol|blockquote|hr)$/.test(t || '') || /^<(p|h3|h4|ul|ol|blockquote|hr)\b/.test(h)) { if (run.trim()) res += '<p>' + run + '</p>'; run = ''; res += h; }
+      else run += h;
+    });
+    if (run.trim()) res += '<p>' + run.replace(/^(<br>)+|(<br>)+$/g, '') + '</p>';
+    res = res.replace(/<span style="color:[^"]*"><\/span>/g, '').replace(/<p( style="[^"]*")?><\/p>/g, '').replace(/(<p><br><\/p>)+$/, '');
+    if (!rtText(res).trim() && !/<(hr|li)>/.test(res)) res = '';
+    rtCache[html] = res;
+    return res;
+  }
+  function rtText(html) { return String(html || '').replace(/<br>|<\/(p|h3|h4|li|blockquote)>/g, '\n').replace(/<[^>]*>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&'); }
+  /* What the editor starts with: formatted text as is, older plain text converted (# lines become headings, - lines bullets). */
+  function rtStart(s) {
+    if (!s || !String(s).trim()) return '';
+    if (rtIsHTML(s)) return rtClean(s);
+    return rtClean(rich(s).replace(/^<div class="rich">|<\/div>$/g, ''));
+  }
+  /* Columns: an even split, or the user's own column breaks (a dashed line in the editor) when there are any. */
+  function rtCols(html, n) {
+    if (!(n > 1)) return html;
+    if (html.indexOf('<hr>') < 0) return '<div class="rt-flow" style="--rtc:' + n + '">' + html + '</div>';
+    var box = document.createElement('div'); box.innerHTML = html;
+    var parts = [''];
+    Array.prototype.forEach.call(box.childNodes, function (ch) {
+      if (ch.nodeType === 1 && ch.tagName === 'HR') { parts.push(''); return; }
+      parts[parts.length - 1] += ch.nodeType === 1 ? ch.outerHTML : esc(ch.nodeValue);
+    });
+    while (parts.length > n) { var last = parts.pop(); parts[parts.length - 1] += last; }   // more breaks than columns: the rest stays in the last one
+    return '<div class="rt-grid" style="--rtc:' + n + '">' + parts.map(function (p) { return '<div class="rt-col">' + p + '</div>'; }).join('') + '</div>';
+  }
+  function rtView(s, empty, cols) {
+    if (!rtIsHTML(s)) return rich(s, empty);
+    var h = rtClean(s);
+    if (!h) return '<p class="muted small">' + (empty || 'Nothing written yet.') + '</p>';
+    return '<div class="rich rt">' + rtCols(h, cols) + '</div>';
+  }
+  /* The editor: a toolbar and an editable box. Toolbar buttons never take focus, so the selection stays put. */
+  function rtEditor(path, value, opt) {
+    opt = opt || {};
+    var B = function (cmd, label, title, extra) { return '<button type="button" tabindex="-1" class="rt-b" data-rtc="' + cmd + '" title="' + title + '" aria-label="' + title + '"' + (extra || '') + '>' + label + '</button>'; };
+    var bar = '<div class="rt-bar" role="toolbar" aria-label="' + esc(opt.label || 'Text') + ' formatting">' +
+      B('bold', '<b>B</b>', 'Bold (Ctrl+B)', ' aria-pressed="false"') + B('italic', '<i>I</i>', 'Italic (Ctrl+I)', ' aria-pressed="false"') +
+      B('underline', '<u>U</u>', 'Underline (Ctrl+U)', ' aria-pressed="false"') + B('strikeThrough', '<s>S</s>', 'Strikethrough', ' aria-pressed="false"') +
+      '<span class="rt-sep"></span>' + B('h3', 'H', 'Heading', ' aria-pressed="false"') + B('h4', 'h', 'Small heading', ' aria-pressed="false"') +
+      B('insertUnorderedList', '•&#8239;List', 'Bullet list', ' aria-pressed="false"') + B('insertOrderedList', '1.&#8239;List', 'Numbered list', ' aria-pressed="false"') +
+      B('blockquote', '❝', 'Quote', ' aria-pressed="false"') +
+      '<span class="rt-sep"></span><span class="rt-colwrap">' + B('color', '<span class="rt-a">A</span><span class="rt-swatch"></span>', 'Text colour', ' aria-haspopup="true" aria-expanded="false"') +
+      '<span class="rt-pal" hidden>' + RT_COLORS.map(function (c) { return '<button type="button" tabindex="-1" data-rtcol="' + c[1] + '" title="' + c[0] + '" aria-label="' + c[0] + '"' + (c[1] ? ' style="--sw:' + c[1] + '"' : ' class="rt-def"') + '></button>'; }).join('') + '</span></span>' +
+      B('removeFormat', '<span class="rt-clr">T<small>×</small></span>', 'Clear formatting') +
+      (opt.cols ? '<span class="rt-sep"></span><span class="rt-cols-pick" role="group" aria-label="Columns"><span class="rt-lbl">Columns</span>' +
+        [1, 2, 3].map(function (n) { return '<button type="button" tabindex="-1" data-rtn="' + n + '" aria-pressed="' + ((opt.colsN || 1) === n) + '">' + n + '</button>'; }).join('') + '</span>' +
+        B('insertHorizontalRule', '⇥', 'Column break: what follows starts the next column') : '') +
+      '</div>';
+    return '<div class="rt-wrap' + (opt.cols ? ' rt-has-cols' : '') + '">' + bar +
+      '<div class="rt-ed rich" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true" data-rt="' + esc(path) + '"' + (opt.inline ? ' data-inline' : '') +
+      ' aria-label="' + esc(opt.label || 'Text') + '" data-ph="' + esc(opt.ph || '') + '" style="min-height:' + (opt.minH || '8em') + '">' + rtStart(value) + '</div>' +
+      (opt.cols && (opt.colsN || 1) > 1 ? '<p class="muted small rt-note">Shown in ' + opt.colsN + ' columns once you\'re done editing (one column on phones).</p>' : '') + '</div>';
+  }
+  function rtSave(ed) {
+    var c = cur(); if (!c || !ed) return;
+    var v = rtClean(ed.innerHTML);
+    setField(c, ed.getAttribute('data-rt'), v); save();
+    ed.classList.toggle('rt-empty', !v);
+  }
+  function rtInside(ed) { var s = window.getSelection(); return s && s.rangeCount && ed.contains(s.getRangeAt(0).commonAncestorContainer); }
+  function rtCaretEnd(ed) {
+    try { var r = document.createRange(); r.selectNodeContents(ed); r.collapse(false); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {}
+  }
+  function rtBlock() { var v = String(document.queryCommandValue('formatBlock') || '').toLowerCase().replace(/[<>]/g, ''); return v; }
+  function rtState(ed) {
+    var w = ed && ed.closest('.rt-wrap'); if (!w) return;
+    var blk = rtBlock();
+    Array.prototype.forEach.call(w.querySelectorAll('[data-rtc][aria-pressed]'), function (b) {
+      var k = b.getAttribute('data-rtc'), on = false;
+      try { on = /^h[34]$|^blockquote$/.test(k) ? blk === k : document.queryCommandState(k); } catch (e) {}
+      b.setAttribute('aria-pressed', String(!!on));
+    });
+    var col = ''; try { col = rtColor(document.queryCommandValue('foreColor')); } catch (e) {}
+    var sw = w.querySelector('.rt-swatch'); if (sw) sw.style.background = col || '';
+  }
+  function rtPal(w, open) {
+    var p = w && w.querySelector('.rt-pal'), b = w && w.querySelector('[data-rtc="color"]'); if (!p) return;
+    p.hidden = !open; b.setAttribute('aria-expanded', String(!!open));
+  }
+  /* Keep focus in the text while using the toolbar. */
+  document.addEventListener('mousedown', function (e) { if (e.target.closest && e.target.closest('.rt-bar button')) e.preventDefault(); }, true);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.rt-bar button'); if (!b) {
+      if (!(e.target.closest && e.target.closest('.rt-colwrap'))) Array.prototype.forEach.call(document.querySelectorAll('.rt-pal:not([hidden])'), function (p) { rtPal(p.closest('.rt-wrap'), false); });
+      return;
+    }
+    e.preventDefault();
+    var w = b.closest('.rt-wrap'), ed = w.querySelector('.rt-ed'), c = cur(); if (!ed || !c) return;
+    if (document.activeElement !== ed) ed.focus();
+    if (!rtInside(ed)) rtCaretEnd(ed);
+    try { document.execCommand('styleWithCSS', false, false); } catch (x) {}
+    var k = b.getAttribute('data-rtc');
+    if (b.hasAttribute('data-rtn')) {
+      var n = +b.getAttribute('data-rtn'); c.backstory.cols = n; save();
+      Array.prototype.forEach.call(w.querySelectorAll('[data-rtn]'), function (x) { x.setAttribute('aria-pressed', String(+x.getAttribute('data-rtn') === n)); });
+      var note = w.querySelector('.rt-note');
+      if (n > 1) { if (!note) { note = document.createElement('p'); note.className = 'muted small rt-note'; w.appendChild(note); } note.textContent = 'Shown in ' + n + ' columns once you\'re done editing (one column on phones).'; }
+      else if (note) note.remove();
+      return;
+    }
+    if (b.hasAttribute('data-rtcol')) {
+      var v = b.getAttribute('data-rtcol');
+      document.execCommand('foreColor', false, v || RT_SENTINEL);
+      if (!v) {   /* Default colour: take the colour off again */
+        Array.prototype.forEach.call(ed.querySelectorAll('font[color], span[style]'), function (f) {
+          var fc = f.tagName === 'FONT' ? f.getAttribute('color') : f.style.color;
+          if (!/^(#010203|rgb\(1, 2, 3\))$/i.test(String(fc || '').trim())) return;
+          while (f.firstChild) f.parentNode.insertBefore(f.firstChild, f); f.remove();
+        });
+      }
+      rtPal(w, false);
+    } else if (k === 'color') { rtPal(w, w.querySelector('.rt-pal').hidden); return; }
+    else if (/^(h3|h4|blockquote)$/.test(k)) document.execCommand('formatBlock', false, rtBlock() === k ? 'p' : k);
+    else if (k === 'insertHorizontalRule') {
+      /* A column break goes between top-level blocks, never inside a list or quote; typing carries on below it. */
+      var s = window.getSelection(), n = s.rangeCount ? s.getRangeAt(0).endContainer : null;
+      while (n && n.parentNode !== ed) n = n.parentNode;
+      var hr = document.createElement('hr'), np = document.createElement('p'); np.appendChild(document.createElement('br'));
+      if (n) { ed.insertBefore(np, n.nextSibling); ed.insertBefore(hr, np); } else { ed.appendChild(hr); ed.appendChild(np); }
+      try { var r = document.createRange(); r.setStart(np, 0); r.collapse(true); s.removeAllRanges(); s.addRange(r); } catch (x) {}
+    }
+    else if (k === 'removeFormat') { document.execCommand('removeFormat'); if (/^(h3|h4|blockquote)$/.test(rtBlock())) document.execCommand('formatBlock', false, 'p'); }
+    else document.execCommand(k);
+    rtSave(ed); rtState(ed);
+  });
+  document.addEventListener('input', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-rt')) rtSave(e.target); });
+  document.addEventListener('selectionchange', function () { var a = document.activeElement; if (a && a.hasAttribute && a.hasAttribute('data-rt')) rtState(a); });
+  document.addEventListener('focusin', function (e) {
+    var ed = e.target; if (!ed.hasAttribute || !ed.hasAttribute('data-rt')) return;
+    try { document.execCommand('defaultParagraphSeparator', false, 'p'); } catch (x) {}
+  });
+  /* Pasting keeps simple formatting only (rebuilt through rtClean); plain text keeps its line breaks. */
+  document.addEventListener('paste', function (e) {
+    var ed = e.target.closest && e.target.closest('[data-rt]'); if (!ed || !e.clipboardData) return;
+    var h = e.clipboardData.getData('text/html'), t = e.clipboardData.getData('text/plain');
+    e.preventDefault();
+    var ins = h ? rtClean(h.replace(/^[\s\S]*<!--StartFragment-->|<!--EndFragment-->[\s\S]*$/g, '')) : esc(t).replace(/\r?\n/g, '<br>');
+    document.execCommand('insertHTML', false, ins);
+    rtSave(ed);
+  });
   /* ================= ACCOUNT: Google sign-in and syncing your own data ================= */
   /* Your characters (not encounter copies), Characters settings, and the roller's settings and presets go to your
      account and come back on your other devices. For each one, the newest change wins. The rulebook PDF, and anything
@@ -9544,18 +9852,19 @@ V1.5
   function signInWith(cred) {
     acctState.err = ''; renderAcct('Signing in…');
     return api('auth', { credential: cred }).then(function (res) {
-      acct = { token: res.token, user: res.user, known: {}, dirty: {}, since: 0 }; saveAcct(); render();
-      toast('Signed in as ' + (res.user && res.user.name || 'you') + '. Syncing…');
+      acct = { token: res.token, user: res.user, known: {}, dirty: {}, since: 0 }; saveAcct(); render(); loadFriends();
+      toast('Signed in as ' + (myName() || 'you') + '. Syncing…'); checkUsername();
       return syncNow();
     }, function (e) { acctState.err = 'Sign-in didn\'t work (' + e.message + ').'; renderAcct(); });
   }
-  function signOutLocal(msg) { shCloseAll(); acct = { known: {}, dirty: {}, since: 0 }; saveAcct(); acctState.err = msg || ''; acctState.last = 0; renderAcct(); render(); }
+  function signOutLocal(msg) { shCloseAll(); fr = { friends: [], incoming: [], outgoing: [] }; frLoaded = false; closeFriends(true); acct = { known: {}, dirty: {}, since: 0 }; saveAcct(); checkUsername(); acctState.err = msg || ''; acctState.last = 0; renderAcct(); render(); }
   function fmtPid(p) { p = String(p || ''); return p.length === 8 ? p.slice(0, 4) + '-' + p.slice(4) : p; }
   function ago(t) { var s = Math.round((Date.now() - t) / 1000); return s < 10 ? 'just now' : s < 60 ? s + ' seconds ago' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : 'on ' + new Date(t).toLocaleDateString(); }
   /* Settings shows a one-line summary; everything else is in the Account overlay on top of Settings. */
   function renderAcctSum() {
+    renderFriends();
     var s = $('acctSum'); if (!s) return;
-    s.textContent = !acctReady() ? 'Accounts aren\'t set up on this copy.' : acct.token ? 'Signed in as ' + ((acct.user && acct.user.name) || 'you') + (acct.rollerPending ? ' · roller settings changed on another device' : acctState.busy ? ' · syncing…' : acctState.err ? ' · sync problem' : '') : 'Not signed in.';
+    s.textContent = !acctReady() ? 'Accounts aren\'t set up on this copy.' : acct.token ? 'Signed in as ' + (myName() || 'you') + (acct.rollerPending ? ' · roller settings changed on another device' : acctState.busy ? ' · syncing…' : acctState.err ? ' · sync problem' : '') : 'Not signed in.';
   }
   function acctOpen() { $('acctBack').hidden = false; acctState.delSure = false; renderAcct(); $('acctClose').focus(); }
   function acctClose() { $('acctBack').hidden = true; if ($('acctOpen')) $('acctOpen').focus(); }
@@ -9566,6 +9875,66 @@ V1.5
     $('acctBack').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); acctClose(); } });
   }
   /* Characters this person shares with others, each with a way straight to its share menu. */
+  /* The signed-in person's name, for stamps like who awarded XP. */
+  function whoAmI() { return (acct.token && myName()) ? String(myName()).slice(0, 60) : 'Someone on this device'; }
+  /* Username: the name other players see (shares, friends, XP stamps). Google's name and email stay private.
+     Everyone signed in must have one: the prompt can't be closed until it's set (only signing out gets past it). */
+  function myName() { var u = acct.user || {}; return String(u.username || '').trim() || (('username' in u) ? '' : String(u.name || '')); }
+  function needsName() { return !!(acct.token && acct.user && ('username' in acct.user) && !String(acct.user.username || '').trim()); }
+  var unameForced = false;
+  function cleanName(s) { return String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24); }
+  function unameBack() {
+    var ub = $('unameBack'); if (ub) return ub;
+    ub = document.createElement('div'); ub.className = 'cm-modal-back cm uname-back'; ub.id = 'unameBack'; ub.hidden = true;
+    ub.innerHTML = '<div class="cm-modal uname-modal" role="dialog" aria-modal="true" aria-labelledby="unameH"></div>';
+    document.body.appendChild(ub);
+    ub.addEventListener('click', function (e) { if (e.target !== ub) return; if (unameForced) { var i = $('unameIn'); if (i) i.focus(); } else closeUname(); });
+    ub.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); if (!unameForced) closeUname(); }
+      if (e.key === 'Tab') {   /* keep focus inside */
+        var f = Array.prototype.filter.call(ub.querySelectorAll('input,button'), function (x) { return !x.disabled; }); if (!f.length) return;
+        var i = f.indexOf(document.activeElement);
+        if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+      }
+    });
+    /* While it's required, nothing behind it takes focus. */
+    document.addEventListener('focusin', function (e) { if (unameForced && !ub.hidden && !ub.contains(e.target)) { var i = $('unameIn'); if (i) i.focus(); } });
+    return ub;
+  }
+  function closeUname() { var ub = $('unameBack'); if (ub) ub.hidden = true; unameForced = false; }
+  function unameModal(forced) {
+    var ub = unameBack(), m = ub.querySelector('.uname-modal'), u = acct.user || {};
+    if (!ub.hidden && unameForced === !!forced) return;
+    unameForced = !!forced;
+    m.innerHTML = '<h2 id="unameH">' + (forced ? 'Choose a username' : 'Change your username') + '</h2>' +
+      '<p class="muted small">This is the name other players see when you share sheets, add friends, and in XP logs. Your Google name and email stay private. It doesn\'t have to be unique; your player ID tells you apart.</p>' +
+      '<label class="fld">Username<input id="unameIn" maxlength="24" autocomplete="nickname" spellcheck="false" value="' + esc(forced ? '' : (u.username || '')) + '"></label>' +
+      '<p class="muted small" id="unameMsg" role="status"></p>' +
+      '<div class="acts">' + (forced ? '<button type="button" class="btn" id="unameOut">Sign out instead</button>' : '<button type="button" class="btn" id="unameNo">Cancel</button>') +
+      '<button type="button" class="btn primary" id="unameOk">Save</button></div>';
+    ub.hidden = false;
+    var inp = $('unameIn'), msg = $('unameMsg');
+    inp.focus(); inp.select();
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('unameOk').click(); } });
+    if ($('unameNo')) $('unameNo').onclick = closeUname;
+    if ($('unameOut')) $('unameOut').onclick = function () { api('logout', {}).catch(function () {}).then(function () { signOutLocal('Signed out. Sign in again and choose a username to use your account.'); }); };
+    $('unameOk').onclick = function () {
+      var v = cleanName(inp.value);
+      if (v.length < 2) { msg.textContent = 'Use at least 2 characters.'; inp.focus(); return; }
+      $('unameOk').disabled = true; msg.textContent = 'Saving…';
+      setUsername(v).then(function () { toast('Username set: ' + acct.user.username + '.'); }, function (e) {
+        msg.textContent = e.message === 'too-short' ? 'Use at least 2 characters.' : e.message === 'not-found' ? 'The sync server needs an update before usernames work. Try again later.' : 'Couldn\'t save it (' + e.message + '). Check the connection and try again.';
+        if ($('unameOk')) $('unameOk').disabled = false;
+      });
+    };
+  }
+  function setUsername(v) {
+    return api('username', { username: cleanName(v) }).then(function (res) {
+      if (!acct.user) return;
+      acct.user.username = res.username || cleanName(v); saveAcct(); closeUname(); renderAcct(); render();
+    });
+  }
+  function checkUsername() { if (needsName()) unameModal(true); else if (unameForced) closeUname(); }
   function sharingList() {
     var mine = store.order.map(function (id) { return store.chars[id]; }).filter(function (c) { return c && isShared(c) && c.share.role === 'owner'; });
     return '<div class="acct-shares"><span class="acct-pid-lbl">Characters you\'re sharing</span>' + (mine.length ?
@@ -9585,7 +9954,8 @@ V1.5
       return;
     }
     var u = acct.user || {};
-    el.innerHTML = '<div class="acct-who"><b>' + esc(u.name || 'Signed in') + '</b>' + (u.email ? '<span class="hint">' + esc(u.email) + '</span>' : '') + '</div>' +
+    el.innerHTML = '<div class="acct-who"><div class="acct-uname"><b>' + esc(myName() || 'Signed in') + '</b>' + (('username' in u) ? '<button type="button" class="reset-btn" data-acct="uname">Change username</button>' : '') + '</div>' +
+      '<span class="hint">' + esc([u.name, u.email].filter(Boolean).join(' · ')) + (('username' in u) ? ' (only you see this)' : '') + '</span></div>' +
       (u.pid ? '<div class="acct-pid"><span class="acct-pid-lbl">Your player ID</span><div class="acct-pid-row"><b class="mono">' + esc(fmtPid(u.pid)) + '</b><button type="button" class="reset-btn" data-acct="copyPid">Copy</button></div><span class="hint">Give it to anyone who wants to share a character with you.</span></div>' : '') +
       '<p class="hint" id="acctStatus">' + (acctState.busy ? 'Syncing…' : acctState.err ? esc(acctState.err) : acctState.last ? 'Synced ' + ago(acctState.last) + '. Changes sync on their own.' : 'Not synced yet.') + '</p>' +
       (acct.rollerPending ? '<div class="acct-pend"><p class="hint">Your roller settings or presets changed on another device.</p><div class="acct-btns"><button type="button" class="reset-btn" data-acct="applyRoller">Reload with them</button><button type="button" class="reset-btn" data-acct="keepRoller">Keep this device\'s</button></div></div>' : '') +
@@ -9608,6 +9978,7 @@ V1.5
       manageShare(sc);
       return;
     }
+    if (k === 'uname') { unameModal(false); return; }
     if (k === 'sync') syncNow();
     else if (k === 'out') api('logout', {}).catch(function () {}).then(function () { signOutLocal('Signed out. Your data stays on this device and in your account.'); });
     else if (k === 'del') {
@@ -9638,13 +10009,13 @@ V1.5
       GOOGLE_CLIENT_ID = (j && typeof j.googleClientId === 'string') ? j.googleClientId : '';
       renderAcct(); render();
       if (acct.token && acctReady()) {
-        shConnectAll(); syncNow();
-        api('me').then(function (r) { if (r && r.user && acct.token) { acct.user = r.user; saveAcct(); renderAcct(); } }, function () {});
+        shConnectAll(); syncNow(); loadFriends();
+        api('me').then(function (r) { if (r && r.user && acct.token) { acct.user = r.user; saveAcct(); renderAcct(); checkUsername(); } }, function () {});
       }
     }, function () { renderAcct(); });
   }
-  renderAcct();
-  window.vtmAccount = { syncNow: syncNow, signInWith: signInWith, state: function () { return { signedIn: !!acct.token, user: acct.user, last: acctState.last, err: acctState.err, pendingRoller: !!acct.rollerPending }; } };
+  renderAcct(); checkUsername();
+  window.vtmAccount = { syncNow: syncNow, signInWith: signInWith, setUsername: setUsername, state: function () { return { signedIn: !!acct.token, user: acct.user, last: acctState.last, err: acctState.err, pendingRoller: !!acct.rollerPending }; } };
 
   /* ================= SHARED SHEETS ================= */
   /* Sharing makes a character live: whoever has it (through a code) sees the changes. Changes from the owner and
@@ -9714,7 +10085,7 @@ V1.5
   function typingHere() {
     var a = document.activeElement;
     if (!a || !a.closest || !a.closest('#cmView, #cmModule, #cmLibBack')) return false;
-    return a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|color|file)$/.test(a.type));
+    return a.tagName === 'TEXTAREA' || a.isContentEditable || (a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|color|file)$/.test(a.type));
   }
   function remoteRender() { if (typingHere()) { shRenderLater = true; return; } render(); }
   /* Catch up once the field is left, but never in the middle of a click or tap: rebuilding the page between press and
@@ -9852,7 +10223,7 @@ V1.5
     }).catch(function () {}).then(function () { shBusy = false; });
   }
   /* View-only sheets, and anything newly shared with this person, are checked every 30 seconds while the page is in view. */
-  setInterval(function () { if (signedIn() && !document.hidden && !typingHere()) { shConnectAll(); syncNow(); } }, 30000);
+  setInterval(function () { if (signedIn() && !document.hidden && !typingHere()) { shConnectAll(); syncNow(); loadFriends(); } }, 30000);
   /* Back online: reconnect live sheets and send what waited. */
   window.addEventListener('online', function () { if (!signedIn()) return; Object.keys(shs).forEach(function (sid) { shs[sid].retry = 0; }); shConnectAll(); syncNow(); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden && signedIn()) shConnectAll(); });
@@ -9873,7 +10244,7 @@ V1.5
     $('mOk').onclick = function () {
       $('mOk').disabled = true;
       api('sheets', { data: shareDoc(c), cid: /^[\w.-]{1,64}$/.test(c.id) ? c.id : undefined }).then(function (res) {
-        c.share = { sid: res.sid, role: 'owner', owner: acct.user && acct.user.name || '', v: res.v || 1, pending: [] };
+        c.share = { sid: res.sid, role: 'owner', owner: myName(), v: res.v || 1, pending: [] };
         shState(res.sid).base = shareDoc(c);
         save(); render(); shConnect(c); shMsg = ''; manageShare(c);
       }, function (e) { closeModal(); toast(e.message === 'too-many' ? 'You can share up to 3 characters. Stop sharing one of them first.' : 'Couldn\'t start sharing (' + e.message + ').'); });
@@ -9881,10 +10252,20 @@ V1.5
   };
   function manageShare(c) {
     openModal('<h2>Sharing ' + esc(c.info.name || 'this character') + '</h2><p class="muted small">Loading…</p>', 'share-modal');
+    if (!frLoaded) loadFriends();
     api('sheets/' + c.share.sid + '/access').then(function (res) { drawShare(c, res); }, function (e) {
       openModal('<h2>Sharing</h2><p class="muted small">Couldn\'t load who has it (' + esc(e.message) + ').</p><div class="acts"><button type="button" class="btn" id="mNo">Close</button></div>');
       $('mNo').onclick = closeModal;
     });
+  }
+  /* Friends who don't have this sheet yet, each one tap away (with the Can edit / View only choice above). */
+  function shareFriends(people) {
+    if (!fr) return '';
+    var have = people.map(function (p) { return p.pid; }), list = fr.friends.filter(function (f) { return have.indexOf(f.pid) < 0; });
+    if (!fr.friends.length) return '';
+    return '<h3 class="sub">Or a friend</h3>' + (list.length ? '<ul class="fr-list sh-friends">' + list.map(function (f) {
+      return '<li class="fr-row"><span class="lib-av sm" aria-hidden="true" data-none>' + esc(initials(f.name)) + '</span><span class="fr-txt"><b>' + esc(f.name) + '</b><small class="mono">' + esc(fmtP(f.pid)) + '</small></span><button type="button" class="btn small" data-shfr="' + esc(f.pid) + '">Share</button></li>';
+    }).join('') + '</ul>' : '<p class="muted small">All your friends already have it.</p>');
   }
   function drawShare(c, res) {
     var people = res.people || [], sid = c.share.sid;
@@ -9893,8 +10274,9 @@ V1.5
       '<span class="seg" role="group" aria-label="What they may do">' + ['edit', 'view'].map(function (r) { return '<button type="button" data-shr="' + r + '" aria-pressed="' + (shRole === r) + '">' + ROLE_LBL[r] + '</button>'; }).join('') + '</span>' +
       '<button type="button" class="btn primary small" id="shAdd">Add</button></div>' +
       '<p class="muted small" id="shMsg">' + (shMsg ? esc(shMsg) : 'They find their player ID in Settings > Account. The sheet appears in their Synced characters within a minute.') + '</p>' +
+      shareFriends(people) +
       '<h3 class="sub">People with access</h3>' + (people.length ? '<div class="share-list">' + people.map(function (p) {
-        return '<div class="share-row"><span class="share-who"><b>' + esc(p.name || 'Player') + '</b><small>' + esc(p.email || '') + '</small></span>' +
+        return '<div class="share-row"><span class="share-who"><b>' + esc(p.name || 'Player') + '</b><small class="mono">' + esc(p.pid ? fmtPid(p.pid) : '') + '</small></span>' +
           '<select data-shp="' + esc(p.uid) + '" aria-label="Access for ' + esc(p.name || 'player') + '">' + ['edit', 'view'].map(function (r) { return '<option value="' + r + '"' + (p.role === r ? ' selected' : '') + '>' + ROLE_LBL[r] + '</option>'; }).join('') + '</select>' +
           '<button type="button" class="x-btn" data-shx="' + esc(p.uid) + '" aria-label="Remove ' + esc(p.name || 'player') + '" title="Remove their access">×</button></div>';
       }).join('') + '</div>' : '<p class="muted small">Nobody yet.</p>') +
@@ -9919,6 +10301,14 @@ V1.5
         $('shMsg').textContent = e.message === 'no-player' ? 'Nobody has that player ID. Check it with them.' : e.message === 'self' ? 'That\'s your own player ID.' : 'Couldn\'t add them (' + e.message + ').';
       });
     };
+    Array.prototype.forEach.call(m.querySelectorAll('[data-shfr]'), function (b) {
+      b.onclick = function () {
+        b.disabled = true;
+        api('sheets/' + sid + '/access', { pid: b.getAttribute('data-shfr'), role: shRole }).then(function (r) {
+          shMsg = 'Added ' + (r.name || 'your friend') + ' (' + ROLE_LBL[shRole].toLowerCase() + ').'; again();
+        }, function (e) { b.disabled = false; $('shMsg').textContent = 'Couldn\'t add them (' + e.message + ').'; });
+      };
+    });
     Array.prototype.forEach.call(m.querySelectorAll('[data-shp]'), function (s) { s.onchange = function () { api('sheets/' + sid + '/access', { uid: s.getAttribute('data-shp'), role: s.value }).then(again); }; });
     Array.prototype.forEach.call(m.querySelectorAll('[data-shx]'), function (b) { b.onclick = function () { api('sheets/' + sid + '/access', { uid: b.getAttribute('data-shx'), remove: 1 }).then(again); }; });
     $('shStop').onclick = function () {
@@ -9952,10 +10342,11 @@ V1.5
   /* text: what happened; o.cid: a character to open; o.act: 'account' opens Settings > Account; o.toast: also show it now. */
   function notify(text, o) {
     o = o || {};
-    notifs.unshift({ id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), text: String(text).slice(0, 300), cid: o.cid || '', act: o.act || '' });
+    notifs.unshift({ id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), text: String(text).slice(0, 300), cid: o.cid || '', act: o.act || '', kind: o.kind || '', pid: o.pid || '', name: o.name || '' });
     notifs = notifs.slice(0, 50); saveNotifs(); renderNotifs();
     if (o.toast !== false) toast(text);
   }
+  function dropNotifs(test) { var n = notifs.length; notifs = notifs.filter(function (x) { return !test(x); }); if (notifs.length !== n) { saveNotifs(); renderNotifs(); } }
   function ago(t) {
     var s = Math.max(0, Math.round((Date.now() - t) / 1000));
     if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s / 60) + ' min ago'; if (s < 86400) return Math.floor(s / 3600) + ' h ago';
@@ -9969,6 +10360,10 @@ V1.5
     var p = $('notifPanel'); if (!p || p.hidden) return;
     p.querySelector('.notif-list').innerHTML = n ? notifs.map(function (x) {
       var go = (x.cid && store.chars[x.cid]) || x.act;
+      /* A friend request: accept (✓) or decline (✕) right here. */
+      if (x.kind === 'friendReq') return '<li class="notif-item"><div class="notif-go"><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + '</small></div>' +
+        '<span class="notif-acts"><button type="button" class="fr-ic ok" data-nacc="' + esc(x.pid) + '" aria-label="Accept ' + esc(x.name || 'request') + '" title="Accept">✓</button><button type="button" class="fr-ic" data-ndec="' + esc(x.pid) + '" aria-label="Decline ' + esc(x.name || 'request') + '" title="Decline">✕</button></span>' +
+        '<button type="button" class="notif-x" data-nx="' + x.id + '" aria-label="Clear this notification (the request stays in Friends)">×</button></li>';
       return '<li class="notif-item"><' + (go ? 'button type="button" class="notif-go" data-ngo="' + x.id + '"' : 'div class="notif-go"') + '><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + (go ? ' · ' + (x.act === 'account' ? 'Open Account' : 'Open') : '') + '</small></' + (go ? 'button' : 'div') + '>' +
         '<button type="button" class="notif-x" data-nx="' + x.id + '" aria-label="Clear this notification">×</button></li>';
     }).join('') : '<li class="notif-empty">No notifications.</li>';
@@ -9987,6 +10382,8 @@ V1.5
       p.innerHTML = '<div class="notif-head"><h2>Notifications</h2></div><ul class="notif-list"></ul><div class="notif-foot"><button type="button" class="btn small notif-all">Clear all</button></div>';
       document.body.appendChild(p);
       p.addEventListener('click', function (e) {
+        var acc = e.target.closest('[data-nacc]'), dec = e.target.closest('[data-ndec]');
+        if (acc || dec) { respondFriend((acc || dec).getAttribute(acc ? 'data-nacc' : 'data-ndec'), !!acc); return; }
         var x = e.target.closest('[data-nx]'), g = e.target.closest('[data-ngo]');
         if (e.target.closest('.notif-all')) { notifs = []; saveNotifs(); renderNotifs(); $('notifBtn').focus(); return; }
         if (x) {
@@ -10004,6 +10401,7 @@ V1.5
       });
       p.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeNotifs(); } });
     }
+    if ($('friendsPanel') && !$('friendsPanel').hidden) closeFriends(true);
     p.hidden = false; $('notifBtn').setAttribute('aria-expanded', 'true');
     renderNotifs(); placeNotif();
     var f = p.querySelector('.notif-go, .notif-x, .notif-all:not([disabled])'); if (f) f.focus();
@@ -10017,6 +10415,128 @@ V1.5
     document.addEventListener('mousedown', function (e) { var p = $('notifPanel'); if (p && !p.hidden && !p.contains(e.target) && !$('notifBtn').contains(e.target)) closeNotifs(true); });
     window.addEventListener('resize', function () { var p = $('notifPanel'); if (p && !p.hidden) placeNotif(); });
     renderNotifs();
+  }
+
+  /* ================= FRIENDS ================= */
+  /* Players add each other by player ID. A request shows up for the other player (a notification with ✓ / ✕, and in the
+     Friends panel); accepting it is the same as adding them back. Friends can be picked when sharing a sheet. */
+  var fr = { friends: [], incoming: [], outgoing: [] }, frLoaded = false, frBusy = false, frRemove = '';
+  function fmtP(p) { return String(p || '').replace(/^(.{4})(.{4})$/, '$1-$2'); }
+  function loadFriends() {
+    if (!signedIn() || !acctReady() || frBusy) return Promise.resolve();
+    frBusy = true;
+    return api('friends').then(function (res) {
+      var prev = acct.frSnap, inc = res.incoming || [], fri = res.friends || [], out = res.outgoing || [];
+      fr = { friends: fri, incoming: inc, outgoing: out }; frLoaded = true;
+      /* The first look on this device just records what's there; after that, new requests and accepted ones notify. */
+      /* Pending requests need an answer, so each one notifies once (even on a device's first look). */
+      inc.forEach(function (x) {
+        var known = prev && (prev.inc || []).indexOf(x.pid) >= 0, has = notifs.some(function (n) { return n.kind === 'friendReq' && n.pid === x.pid; });
+        if (!known && !has) notify(x.name + ' wants to be your friend.', { kind: 'friendReq', pid: x.pid, name: x.name });
+      });
+      if (prev) fri.forEach(function (x) { if ((prev.out || []).indexOf(x.pid) >= 0) notify(x.name + ' accepted your friend request.', {}); });
+      /* Requests that are no longer pending (answered here or on another device) drop their notifications. */
+      dropNotifs(function (n) { return n.kind === 'friendReq' && !inc.some(function (x) { return x.pid === n.pid; }); });
+      acct.frSnap = { inc: inc.map(function (x) { return x.pid; }), out: out.map(function (x) { return x.pid; }) }; saveAcct();
+      renderFriends();
+    }).catch(function () {}).then(function () { frBusy = false; });
+  }
+  function respondFriend(pid, accept) {
+    return api('friends/respond', { pid: pid, accept: !!accept }).then(function (res) {
+      toast(accept ? 'You and ' + (res.name || 'they') + ' are now friends.' : 'Request declined.');
+    }, function (e) { toast(e.message === 'no-request' ? 'That request is no longer there.' : 'Couldn\'t answer it (' + e.message + ').'); })
+      .then(function () { dropNotifs(function (n) { return n.kind === 'friendReq' && n.pid === pid; }); return loadFriends(); });
+  }
+  function removeFriend(pid) {
+    return api('friends/remove', { pid: pid }).then(function () { frRemove = ''; return loadFriends(); }, function (e) { toast('Couldn\'t remove (' + e.message + ').'); });
+  }
+  /* The Friends button's badge counts requests waiting for an answer. */
+  function renderFriends() {
+    var b = $('friendsBadge'); if (!b || !fr) return;   // the account code can draw before this part has started
+    var btn = $('friendsBtn'); btn.hidden = !signedIn() || !acctReady();
+    var n = fr.incoming.length; b.hidden = !n; b.textContent = n > 9 ? '9+' : String(n);
+    btn.setAttribute('aria-label', n ? 'Friends, ' + n + ' request' + (n > 1 ? 's' : '') : 'Friends');
+    var p = $('friendsPanel'); if (!p || p.hidden) return;
+    var row = function (x, btns) { return '<li class="fr-row"><span class="lib-av sm" aria-hidden="true" data-none>' + esc(initials(x.name)) + '</span><span class="fr-txt"><b>' + esc(x.name) + '</b><small class="mono">' + esc(fmtP(x.pid)) + '</small></span>' + btns + '</li>'; };
+    var h = '';
+    if (fr.incoming.length) h += '<h3 class="fr-h">Requests</h3><ul class="fr-list">' + fr.incoming.map(function (x) {
+      return row(x, '<button type="button" class="fr-ic ok" data-fracc="' + esc(x.pid) + '" aria-label="Accept ' + esc(x.name) + '" title="Accept">✓</button><button type="button" class="fr-ic" data-frdec="' + esc(x.pid) + '" aria-label="Decline ' + esc(x.name) + '" title="Decline">✕</button>');
+    }).join('') + '</ul>';
+    h += '<h3 class="fr-h">Friends</h3>' + (fr.friends.length ? '<ul class="fr-list">' + fr.friends.map(function (x) {
+      return frRemove === x.pid ? '<li class="fr-row fr-confirm"><span class="fr-txt">Remove <b>' + esc(x.name) + '</b> from your friends?</span><button type="button" class="btn small danger" data-frrmyes="' + esc(x.pid) + '">Remove</button><button type="button" class="btn small" data-frrmno>Cancel</button></li>'
+        : row(x, '<button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Remove ' + esc(x.name) + '" title="Remove friend">×</button>');
+    }).join('') + '</ul>' : '<p class="fr-empty">' + (frLoaded ? 'No friends yet. Add one with their player ID.' : 'Loading…') + '</p>');
+    if (fr.outgoing.length) h += '<h3 class="fr-h">Sent</h3><ul class="fr-list">' + fr.outgoing.map(function (x) {
+      return row(x, '<span class="fr-wait">Waiting</span><button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Cancel request to ' + esc(x.name) + '" title="Cancel request">×</button>');
+    }).join('') + '</ul>';
+    p.querySelector('.fr-body').innerHTML = h;
+  }
+  function placeFriends() {
+    var p = $('friendsPanel'), r = $('friendsBtn').getBoundingClientRect(), w = p.offsetWidth;
+    p.style.top = (r.bottom + 8) + 'px'; p.style.left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8)) + 'px';
+  }
+  function openFriends() {
+    var p = $('friendsPanel');
+    if (!p) {
+      p = document.createElement('div'); p.id = 'friendsPanel'; p.className = 'notif-panel fr-panel'; p.hidden = true;
+      p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Friends');
+      p.innerHTML = '<div class="notif-head"><h2>Friends</h2></div><div class="fr-body"></div><div class="notif-foot"><button type="button" class="btn small primary" data-fradd>Add Friend</button></div>';
+      document.body.appendChild(p);
+      p.addEventListener('click', function (e) {
+        var t = e.target.closest('button'); if (!t) return;
+        if (t.hasAttribute('data-fradd')) { closeFriends(true); return addFriendModal(); }
+        if (t.dataset.fracc) return respondFriend(t.dataset.fracc, true);
+        if (t.dataset.frdec) return respondFriend(t.dataset.frdec, false);
+        if (t.dataset.frrm) { var isOut = fr.outgoing.some(function (x) { return x.pid === t.dataset.frrm; }); if (isOut) return removeFriend(t.dataset.frrm); frRemove = t.dataset.frrm; renderFriends(); var y = p.querySelector('[data-frrmyes]'); if (y) y.focus(); return; }
+        if (t.dataset.frrmyes) return removeFriend(t.dataset.frrmyes);
+        if (t.hasAttribute('data-frrmno')) { frRemove = ''; renderFriends(); }
+      });
+      p.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeFriends(); } });
+    }
+    if ($('notifPanel') && !$('notifPanel').hidden) closeNotifs(true);
+    p.hidden = false; $('friendsBtn').setAttribute('aria-expanded', 'true'); frRemove = '';
+    renderFriends(); placeFriends(); loadFriends();
+    var f = p.querySelector('.fr-body button, [data-fradd]'); if (f) f.focus();
+  }
+  function closeFriends(noFocus) {
+    var p = $('friendsPanel'); if (!p || p.hidden) return;
+    p.hidden = true; $('friendsBtn').setAttribute('aria-expanded', 'false'); if (!noFocus) $('friendsBtn').focus();
+  }
+  /* Add Friend: a small overlay asking for the other player's ID. */
+  function addFriendModal(msg) {
+    openModal('<h2>Add Friend</h2><p class="muted small">Ask them for their player ID (Settings > Account). They get a request to accept.</p>' +
+      '<label class="fld">Player ID<input id="frPid" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD-1234"></label>' +
+      '<p class="muted small" id="frMsg" role="status">' + (msg ? esc(msg) : '') + '</p>' +
+      '<div class="acts"><button type="button" class="btn" id="mNo">Close</button><button type="button" class="btn primary" id="mOk">Send request</button></div>', 'fr-modal');
+    var inp = $('frPid'); inp.focus();
+    inp.addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); });
+    $('mNo').onclick = closeModal;
+    $('mOk').onclick = function () {
+      var pid = inp.value.replace(/[^A-Z0-9]/g, '');
+      if (pid.length !== 8) { inp.focus(); $('frMsg').textContent = 'A player ID has 8 letters and numbers.'; return; }
+      if (acct.user && pid === acct.user.pid) { $('frMsg').textContent = 'That\'s your own ID.'; return; }
+      $('mOk').disabled = true;
+      api('friends/add', { pid: pid }).then(function (res) {
+        inp.value = '';
+        $('frMsg').textContent = res.status === 'friends' ? 'You and ' + res.name + ' are now friends.' : 'Request sent to ' + res.name + '. You\'ll be friends once they accept.';
+        loadFriends();
+      }, function (e) {
+        $('frMsg').textContent = e.message === 'no-player' ? 'No player has that ID.' : e.message === 'self' ? 'That\'s your own ID.' : e.message === 'too-many' ? 'You\'ve added as many people as you can.' : 'Couldn\'t send it (' + e.message + ').';
+      }).then(function () { if ($('mOk')) $('mOk').disabled = false; });
+    };
+  }
+  /* Escape closes the Friends or Notifications panel wherever focus is (unless a dialog is open on top). */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || ($('cmModalBack') && !$('cmModalBack').hidden)) return;
+    var fp = $('friendsPanel'), np = $('notifPanel');
+    if (fp && !fp.hidden) { closeFriends(); e.preventDefault(); } else if (np && !np.hidden) { closeNotifs(); e.preventDefault(); }
+  });
+  if ($('friendsBtn')) {
+    $('friendsBtn').addEventListener('click', function () { var p = $('friendsPanel'); if (p && !p.hidden) closeFriends(); else openFriends(); });
+    document.addEventListener('mousedown', function (e) { var p = $('friendsPanel'); if (p && !p.hidden && !p.contains(e.target) && !$('friendsBtn').contains(e.target)) closeFriends(true); });
+    window.addEventListener('resize', function () { var p = $('friendsPanel'); if (p && !p.hidden) placeFriends(); });
+    renderFriends();
   }
 
   /* ================= SHORT SUMMARIES: Backgrounds, Merits, Flaws ================= */
@@ -10254,14 +10774,14 @@ V1.5
       dl.innerHTML = mf[k].map(function (x) { return '<option value="' + esc(x.name) + '" label="' + x.kind + ' · ' + mfCost(x) + '"></option>'; }).join('');
     });
   }
-  /* Picking a book Merit/Flaw by name fills in its cost (when none is set yet). */
+  /* Picking a book Merit/Flaw by name fills in its cost, unless the cost already set fits it (variable-cost ones keep a chosen value). */
   document.addEventListener('change', function (e) {
     var f = e.target.getAttribute && e.target.getAttribute('data-f'), m = f && f.match(/^(merits|flaws)\.(\d+)\.name$/);
     if (!m) return;
     var c = cur(), x = mfFind(m[1], e.target.value), it = c && c[m[1]][+m[2]];
     if (!x || !it) return;
     it.name = x.name;
-    if (!(+it.cost > 0)) it.cost = x.lo;
+    var cv = +it.cost || 0; if (!(cv >= x.lo && cv <= x.hi)) it.cost = x.lo;
     commit();
   });
   /* Where a thing is in the book: a list of [label, page]. */
@@ -10978,7 +11498,7 @@ V1.5
     var xp = Math.max(0, Math.floor(+opt.xp || 0));
     if (xp) {
       var t0 = Date.now();
-      c.xp.log.push({ type: 'earn', id: rid(), date: today(), amount: xp, notes: 'Starting XP (random character)', flags: {}, t: t0 });
+      c.xp.log.push({ type: 'earn', id: rid(), date: today(), amount: xp, notes: 'Starting XP (random character)', flags: {}, t: t0, by: whoAmI() });
       var n = 0, tries = 0;
       while (tries++ < 600) {
         var av = xpAvail(c), cand = [];
