@@ -182,3 +182,13 @@ V2.4.1
 	-Syncs only when something really changed, and an edit counts once it's confirmed (Enter, Tab or clicking elsewhere). Changes from other devices are checked every 30 seconds.
 -Fixed adding a Discipline or Background sometimes doing nothing when a sync or tracker update arrived while typing its name.
 -Fixed dropdowns and expanded sections (like "V20 experience costs") closing or resetting every few seconds while signed in.
+
+V2.5
+-Renamed the app to "VTM Player Companion". The subtitle changes between the Roller and Characters views.
+-Added a notifications center (bell next to Settings) for things like characters shared with you, access changes and settings changed on another device. Clear them one by one or all at once.
+-Settings Changes:
+	-The Account overlay lists the characters you're sharing, each with a shortcut to its share menu.
+-Character Manager Changes:
+	-Added Stored Equipment next to Carried Equipment in Details > Possessions. Drag weapons and armor between them (or use Store / Carry). Stored items aren't usable in play.
+	-Reordered the character buttons: Export sits next to Import, then Share; Delete (or Remove) is at the far end.
+-Fixed the "Synced" label and the share access dropdown text not being centered.

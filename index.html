@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>VTM Dice Roller</title>
+<title>VTM Player Companion</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <style>
@@ -1251,14 +1251,64 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
 .cm-gen .gn-hint { margin-bottom: 10px; }
 .cm-gen .gn-cls { -webkit-tap-highlight-color: transparent; }
 @media (hover: none) { .cm-gen .gn-cls:hover:not([aria-pressed="true"]) { background: var(--surface); } }
+/* Character bar: Delete / Remove at the far end */
+#cmBar .bar-btns { flex: 1 1 auto; }
+#cmBar .bar-btns .bar-end { margin-left: auto; }
+/* Chips: text centered inside the outline */
+.chip { display: inline-flex; align-items: center; justify-content: center; align-self: center; line-height: 1; min-height: 28px; padding: 0 11px; white-space: nowrap; }
+/* Share dialog: role dropdown text centered vertically */
+.share-row select { height: 34px; padding: 0 30px 0 10px; line-height: 32px; min-height: 0; }
+.share-new .seg button { display: inline-flex; align-items: center; }
+/* Possessions: Carried / Stored Equipment */
+.gear-zone { border: 1px dashed var(--line-strong); border-radius: 10px; padding: 8px 12px 10px; min-height: 96px; transition: border-color 0.12s, background 0.12s; }
+.gear-zone.drop-on { border-color: var(--accent); border-style: solid; background: var(--surface-2); }
+.gear-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.gear-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.gear-item[draggable="true"] { cursor: grab; }
+.gear-item.dragging { opacity: 0.45; }
+.gear-grip { color: var(--muted); letter-spacing: -2px; font-size: 0.9rem; user-select: none; }
+.gear-name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.gear-name b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gear-name small { color: var(--muted); font-size: 0.8rem; }
+.gear-item .btn { flex: none; white-space: nowrap; }
+.gear-empty { margin: 0; }
+@media (hover: none) { .gear-grip { display: none; } }
+/* Notifications */
+.notif-btn { position: relative; }
+.notif-badge { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: #fff; font: 700 0.68rem/18px var(--font-data); text-align: center; box-shadow: 0 0 0 2px var(--bg); pointer-events: none; }
+.notif-badge[hidden] { display: none; }
+.notif-panel { position: fixed; z-index: 120; width: min(360px, calc(100vw - 16px)); max-height: min(480px, calc(100vh - 90px)); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); }
+.notif-panel[hidden] { display: none; }
+.notif-head { padding: 12px 14px 8px; border-bottom: 1px solid var(--line); }
+.notif-head h2 { margin: 0; font-size: 1.05rem; }
+.notif-list { list-style: none; margin: 0; padding: 6px; overflow: auto; flex: 1; }
+.notif-item { display: flex; align-items: flex-start; gap: 4px; border-radius: 8px; }
+.notif-item + .notif-item { border-top: 1px solid var(--line); }
+.notif-go { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 9px 8px; border: 0; border-radius: 8px; background: none; color: var(--fg); font: inherit; font-size: 0.9rem; text-align: left; }
+button.notif-go { cursor: pointer; }
+button.notif-go:hover, button.notif-go:focus-visible { background: var(--surface-2); outline: none; }
+.notif-go small { color: var(--muted); font-size: 0.76rem; }
+.notif-x { flex: none; width: 30px; height: 30px; margin-top: 6px; border: 1px solid transparent; border-radius: 8px; background: none; color: var(--muted); font-size: 1.1rem; line-height: 1; cursor: pointer; }
+.notif-x:hover, .notif-x:focus-visible { border-color: var(--line); background: var(--surface-2); color: var(--fg); outline: none; }
+.notif-empty { padding: 18px 10px; color: var(--muted); text-align: center; }
+.notif-foot { display: flex; justify-content: flex-end; padding: 8px 10px; border-top: 1px solid var(--line); }
+/* Account: characters you're sharing */
+.acct-shares { display: flex; flex-direction: column; gap: 8px; }
+.acct-share-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.acct-share-list li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.acct-share-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.acct-share-txt b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acct-share-txt small { color: var(--muted); font-size: 0.8rem; }
+.sub-sec .gear-items { padding-left: 0; }
+.gear-zone h3 { margin-top: 2px; min-height: 1.6em; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
 <main class="wrap">
   <header class="top">
     <div class="head">
-      <h1 id="title">VTM Dice Roller</h1>
-      <p>Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.</p>
+      <h1 id="title">VTM Player Companion</h1>
+      <p id="subtitle">Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.</p>
       <!-- CHARACTERS-MODULE:BEGIN switch -->
       <div class="view-switch" role="tablist" aria-label="View"><button type="button" role="tab" id="viewRoller" aria-selected="true">Roller</button><button type="button" role="tab" id="viewChars" aria-selected="false">Characters</button></div>
 <!-- CHARACTERS-MODULE:END switch -->
@@ -1280,6 +1330,10 @@ dd .inline-ed, .ctr .inline-ed { width: auto; max-width: 100%; }
           <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path>
           <path d="M14 3v5h5M9 13h6M9 17h6"></path>
         </svg>
+      </button>
+      <button type="button" class="sound-btn notif-btn" id="notifBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifPanel" aria-label="Notifications" title="Notifications">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="notif-badge" id="notifBadge" hidden></span>
       </button>
       <button type="button" class="sound-btn" id="settingsBtn" aria-haspopup="dialog" aria-label="Settings" title="Settings">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6595,6 +6649,9 @@ V1.5
     ['merits', 'flaws', 'weapons', 'armor', 'rituals', 'journal'].forEach(function (k) { c[k].forEach(function (x) { if (!x.id) x.id = rid(); }); });
     c.details.poss.forEach(function (s) { if (!s.id) s.id = rid(); (s.items = s.items || []).forEach(function (x) { if (!x.id) x.id = rid(); }); });
     c.weapons.forEach(function (w) { if (!w.kind) w.kind = 'melee'; });
+    /* Stored Equipment: weapons and armor that aren't carried (kept at a haven, in a car...). Never equipped. */
+    if (!c.stored || typeof c.stored !== 'object') c.stored = {};
+    ['weapons', 'armor'].forEach(function (k) { if (!Array.isArray(c.stored[k])) c.stored[k] = []; c.stored[k].forEach(function (x) { if (!x.id) x.id = rid(); x.equipped = false; if (k === 'weapons' && !x.kind) x.kind = 'melee'; }); });
     if (!c.details.aes) c.details.aes = {};
     if (!c.details.bgx) c.details.bgx = {};
     c.v = 2;
@@ -7819,10 +7876,23 @@ V1.5
 
     /* Possessions: the first subsection always mirrors Carried Equipment from the Sheet tab. */
     h += '<section class="card"><h2>Possessions</h2><div class="poss-grid">';
-    var eq = c.weapons.map(function (w) { return [w.name || 'Weapon', w.kind === 'ranged' ? 'Ranged weapon' : 'Melee weapon', w.equipped]; }).concat(c.armor.map(function (x) { return [x.name || 'Armor', 'Armor', x.equipped]; }));
-    h += '<div class="sub-sec carried"><h3>Carried Equipment <span class="cm-tag">from the Sheet</span></h3>' +
-      (eq.length ? '<ul>' + eq.map(function (x) { return '<li>' + esc(x[0]) + ' <span class="muted small">' + x[1] + (x[2] ? ', equipped' : '') + '</span></li>'; }).join('') + '</ul>' : '<p class="muted small" style="margin:0">No weapons or armor yet.</p>') +
+    /* Carried and Stored Equipment: drag an item from one to the other (or use its Store / Carry button). */
+    var ro = isReadOnly(c);
+    var gearItem = function (k, x, where) {
+      var type = k === 'armor' ? 'Armor' : x.kind === 'ranged' ? 'Ranged weapon' : 'Melee weapon', nm = x.name || (k === 'armor' ? 'Armor' : 'Weapon');
+      return '<li class="gear-item" data-gk="' + k + '" data-gid="' + esc(x.id) + '" data-gfrom="' + where + '"' + (ro ? '' : ' draggable="true"') + '>' +
+        (ro ? '' : '<span class="gear-grip" aria-hidden="true">⋮⋮</span>') + '<span class="gear-name"><b>' + esc(nm) + '</b><small>' + type + (x.equipped ? ', equipped' : '') + '</small></span>' +
+        (ro ? '' : '<button type="button" class="btn small ghost" data-act="gearMove" data-k="' + k + '" data-id="' + esc(x.id) + '" data-to="' + (where === 'carried' ? 'stored' : 'carried') + '" aria-label="' + (where === 'carried' ? 'Store ' : 'Carry ') + esc(nm) + '">' + (where === 'carried' ? 'Store →' : '← Carry') + '</button>') + '</li>';
+    };
+    var zone = function (where, title, tag, items, empty) {
+      return '<div class="sub-sec gear-zone ' + where + '" data-gzone="' + where + '" aria-label="' + title + '"><h3>' + title + (tag ? ' <span class="cm-tag">' + tag + '</span>' : '') + '</h3>' +
+        (items.length ? '<ul class="gear-items">' + items.join('') + '</ul>' : '<p class="muted small gear-empty">' + empty + '</p>');
+    };
+    var carried = c.weapons.map(function (w) { return gearItem('weapons', w, 'carried'); }).concat(c.armor.map(function (x) { return gearItem('armor', x, 'carried'); }));
+    var stored = c.stored.weapons.map(function (w) { return gearItem('weapons', w, 'stored'); }).concat(c.stored.armor.map(function (x) { return gearItem('armor', x, 'stored'); }));
+    h += zone('carried', 'Carried Equipment', 'from the Sheet', carried, 'No weapons or armor carried.' + (stored.length && !ro ? ' Drag items here to carry them.' : '')) +
       '<div><button type="button" class="btn small ghost" data-act="tab" data-t="sheet" data-to="equip">Open on the Sheet tab</button></div></div>';
+    h += zone('stored', 'Stored Equipment', '', stored, 'Nothing stored.' + (carried.length && !ro ? ' Drag weapons or armor here to put them away; they leave combat until carried again.' : '')) + '</div>';
     c.details.poss.forEach(function (s, i) {
       var sb = 'details.poss.' + i;
       h += '<div class="sub-sec">';
@@ -7924,10 +7994,12 @@ V1.5
       '<div class="bar-btns"><button type="button" class="btn primary" data-act="newChar">New character</button>' +
       (own || recv ? '<button type="button" class="btn" data-act="dup" title="' + (recv ? 'Make your own separate copy' : 'Make a copy') + '">Duplicate</button>' : '') +
       '<button type="button" class="btn" data-act="import">Import</button>' +
-      (own && signed ? '<button type="button" class="btn' + (isShared(c0) ? ' toggle" aria-pressed="true' : '') + '" data-act="share" title="Share this sheet with other players">' + (isShared(c0) ? 'Sharing' : 'Share') + '</button>' : '') +
       (own || recv ? '<button type="button" class="btn" data-act="export">Export</button>' : '') +
-      (own ? '<button type="button" class="btn danger" data-act="del">Delete</button>' : '') +
-      (recv ? '<button type="button" class="btn danger" data-act="leaveShare">Remove</button><span class="chip" title="Shared with you by ' + esc(c0.share.owner || 'its owner') + '">Synced · ' + (c0.share.role === 'edit' ? 'can edit' : 'view only') + '</span>' : '') +
+      (own && signed ? '<button type="button" class="btn' + (isShared(c0) ? ' toggle" aria-pressed="true' : '') + '" data-act="share" title="Share this sheet with other players">' + (isShared(c0) ? 'Sharing' : 'Share') + '</button>' : '') +
+      (recv ? '<span class="chip" title="Shared with you by ' + esc(c0.share.owner || 'its owner') + '">Synced · ' + (c0.share.role === 'edit' ? 'can edit' : 'view only') + '</span>' : '') +
+      /* Delete / Remove sit apart at the far end of the row. */
+      (own ? '<button type="button" class="btn danger bar-end" data-act="del">Delete</button>' : '') +
+      (recv ? '<button type="button" class="btn danger bar-end" data-act="leaveShare">Remove</button>' : '') +
       (tmp ? (isRemote(cur()) ? '<span class="chip" title="A joiner\'s character in your encounter. It updates as they play.">Joiner\'s sheet (read-only)</span>' : '<span class="chip" title="A copy made for this encounter. Changes stay on this copy. Clear actors deletes it unless it is Persistent.">Encounter copy</span>') : '') + '</div>';
   }
   function renderTabs(c) {
@@ -8580,6 +8652,8 @@ V1.5
     $('cmView').hidden = !on;
     $('viewRoller').setAttribute('aria-selected', String(!on));
     $('viewChars').setAttribute('aria-selected', String(on));
+    /* The subtitle follows the view. */
+    if ($('subtitle')) $('subtitle').textContent = on ? 'Build, play and keep track of your Kindred: sheets, experience, equipment and sharing, synced across your devices.' : 'Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.';
     if (!on) hideTip();
   }
   $('viewRoller').addEventListener('click', function () { setView('roller'); });
@@ -8854,6 +8928,34 @@ V1.5
     ['dodge', 'Dodge', 'abil.athletics', 'Any attack, as long as there\'s room to move (or cover to reach, in a gunfight).'],
     ['parry', 'Parry', 'abil.melee', 'Brawl or Melee attacks, with a weapon. Beating a Brawl attack with a lethal weapon can hurt the attacker.']
   ];
+  /* Moving gear between Carried and Stored Equipment. Stored items are never equipped. */
+  function moveGear(c, k, id, to) {
+    if (!c || (k !== 'weapons' && k !== 'armor') || (to !== 'stored' && to !== 'carried')) return;
+    if (isReadOnly(c)) return toast('This sheet is view only.');
+    var from = to === 'stored' ? c[k] : c.stored[k], dest = to === 'stored' ? c.stored[k] : c[k];
+    var i = from.map(function (x) { return x.id; }).indexOf(id); if (i < 0) return;
+    var x = from.splice(i, 1)[0]; x.equipped = false; delete x.target; dest.push(x);
+    commit();
+    var b = document.querySelector('#cmSheet .gear-item[data-gid="' + id + '"] [data-act="gearMove"]'); if (b) b.focus();
+  }
+  actions.gearMove = function (el) { moveGear(cur(), el.dataset.k, el.dataset.id, el.dataset.to); };
+  var gearDrag = null;
+  document.addEventListener('dragstart', function (e) {
+    var it = e.target.closest && e.target.closest('#cmSheet .gear-item[draggable]'); if (!it) return;
+    gearDrag = { k: it.dataset.gk, id: it.dataset.gid, from: it.dataset.gfrom };
+    e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', it.dataset.gid); } catch (x) {}
+    it.classList.add('dragging');
+  });
+  document.addEventListener('dragend', function () { gearDrag = null; document.querySelectorAll('#cmSheet .gear-item.dragging, #cmSheet .gear-zone.drop-on').forEach(function (x) { x.classList.remove('dragging', 'drop-on'); }); });
+  document.addEventListener('dragover', function (e) {
+    var z = gearDrag && e.target.closest && e.target.closest('#cmSheet [data-gzone]'); if (!z || z.dataset.gzone === gearDrag.from) return;
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move'; z.classList.add('drop-on');
+  });
+  document.addEventListener('dragleave', function (e) { var z = e.target.closest && e.target.closest('#cmSheet [data-gzone]'); if (z && !z.contains(e.relatedTarget)) z.classList.remove('drop-on'); });
+  document.addEventListener('drop', function (e) {
+    var z = gearDrag && e.target.closest && e.target.closest('#cmSheet [data-gzone]'); if (!z || z.dataset.gzone === gearDrag.from) return;
+    e.preventDefault(); var g = gearDrag; gearDrag = null; moveGear(cur(), g.k, g.id, z.dataset.gzone);
+  });
   actions.defend = function () { var c = cur(); if (!c) return; dfs = { diff: 6, dmod: 0, mod: 0, prior: 0 }; defendModal(c); };
   function defendPool(c, o) {
     var skill = o[2], wp = woundPenalty(c), arm = wornArmor(c), ap = arm ? (+arm.penalty || 0) : 0, auto = [], mod = 0;
@@ -9368,7 +9470,7 @@ V1.5
     if (rollIt) {
       if (rollIt.data && rollIt.data !== local['blob:roller']) {
         acct.rollerPending = { m: rollIt.m, data: rollIt.data };
-        toast('Your roller settings or presets changed on another device. Open Settings > Account… to load them.');
+        notify('Your roller settings or presets changed on another device. Open Settings > Account… to load them or keep these.', { act: 'account' });
       } else acct.known['blob:roller'] = { m: rollIt.m, h: hashStr(rollIt.data || '') };
       delete acct.dirty['blob:roller'];
     }
@@ -9463,6 +9565,15 @@ V1.5
     $('acctBack').addEventListener('click', function (e) { if (e.target === this) acctClose(); });
     $('acctBack').addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); acctClose(); } });
   }
+  /* Characters this person shares with others, each with a way straight to its share menu. */
+  function sharingList() {
+    var mine = store.order.map(function (id) { return store.chars[id]; }).filter(function (c) { return c && isShared(c) && c.share.role === 'owner'; });
+    return '<div class="acct-shares"><span class="acct-pid-lbl">Characters you\'re sharing</span>' + (mine.length ?
+      '<ul class="acct-share-list">' + mine.map(function (c) {
+        return '<li>' + avatar(c, 'sm') + '<span class="acct-share-txt"><b>' + esc(c.info.name || 'Unnamed') + '</b><small>' + esc(c.info.clan || 'No clan') + '</small></span>' +
+          '<button type="button" class="reset-btn" data-acct="shareMenu" data-cid="' + esc(c.id) + '">Manage sharing…</button></li>';
+      }).join('') + '</ul>' : '<p class="hint">None. Share a character from its sheet with the Share button.</p>') + '</div>';
+  }
   function renderAcct(msg) {
     renderAcctSum();
     var el = $('acctBox'); if (!el) return;
@@ -9478,6 +9589,7 @@ V1.5
       (u.pid ? '<div class="acct-pid"><span class="acct-pid-lbl">Your player ID</span><div class="acct-pid-row"><b class="mono">' + esc(fmtPid(u.pid)) + '</b><button type="button" class="reset-btn" data-acct="copyPid">Copy</button></div><span class="hint">Give it to anyone who wants to share a character with you.</span></div>' : '') +
       '<p class="hint" id="acctStatus">' + (acctState.busy ? 'Syncing…' : acctState.err ? esc(acctState.err) : acctState.last ? 'Synced ' + ago(acctState.last) + '. Changes sync on their own.' : 'Not synced yet.') + '</p>' +
       (acct.rollerPending ? '<div class="acct-pend"><p class="hint">Your roller settings or presets changed on another device.</p><div class="acct-btns"><button type="button" class="reset-btn" data-acct="applyRoller">Reload with them</button><button type="button" class="reset-btn" data-acct="keepRoller">Keep this device\'s</button></div></div>' : '') +
+      sharingList() +
       '<div class="acct-btns"><button type="button" class="reset-btn" data-acct="sync"' + (acctState.busy ? ' disabled' : '') + '>Sync now</button><button type="button" class="reset-btn" data-acct="out">Sign out</button>' +
       '<button type="button" class="danger-btn' + (acctState.delSure ? ' solid' : '') + '" data-acct="del">' + (acctState.delSure ? 'Click again: delete everything in my account' : 'Delete my account data') + '</button></div>';
   }
@@ -9487,6 +9599,15 @@ V1.5
     var k = b.getAttribute('data-acct');
     if (k !== 'del') acctState.delSure = false;
     if (k === 'copyPid') { var pid = fmtPid(acct.user && acct.user.pid); try { navigator.clipboard.writeText(pid).then(function () { toast('Player ID copied.'); }, function () { toast('Your player ID: ' + pid); }); } catch (err) { toast('Your player ID: ' + pid); } return; }
+    if (k === 'shareMenu') {
+      var sc = store.chars[b.getAttribute('data-cid')]; if (!sc) return;
+      /* Close Account and Settings, show that character, and open its share menu. */
+      if ($('acctBack')) $('acctBack').hidden = true;
+      if ($('settingsClose')) $('settingsClose').click();
+      store.cur = sc.id; xpMode = false; tabEdit = {}; setView('chars'); commit();
+      manageShare(sc);
+      return;
+    }
     if (k === 'sync') syncNow();
     else if (k === 'out') api('logout', {}).catch(function () {}).then(function () { signOutLocal('Signed out. Your data stays on this device and in your account.'); });
     else if (k === 'del') {
@@ -9684,7 +9805,11 @@ V1.5
       var pend = mine && it.role !== 'view' ? (old.share.pending || []) : [];
       applyOps(n, pend);
       keepLocal(n, { id: lid, ui: old && old.ui, spent: old && old.spent, boostSpend: old && old.boostSpend, share: { sid: it.sid, role: it.role, owner: it.owner, v: res.v, u: res.updated, pending: pend } });
-      if (!old && it.role !== 'owner') toast((it.owner || 'Someone') + ' shared ' + (n.info.name || 'a character') + ' with you (' + (it.role === 'edit' ? 'you can edit it' : 'view only') + ').');
+      if (!old && it.role !== 'owner') {
+        var msg = (it.owner || 'Someone') + ' shared ' + (n.info.name || 'a character') + ' with you (' + (it.role === 'edit' ? 'you can edit it' : 'view only') + ').';
+        if (acct.seenSids && !acct.seenSids[it.sid]) notify(msg, { cid: lid }); else toast(msg);
+      }
+      if (it.role !== 'owner' && acct.seenSids) acct.seenSids[it.sid] = 1;
       store.chars[lid] = n; shState(it.sid).base = shareDoc(n);
     }, function () {});
   }
@@ -9699,7 +9824,10 @@ V1.5
         seen[it.sid] = lid;
         var c = store.chars[lid];
         if (c && isShared(c) && c.share.sid === it.sid) {
-          if (c.share.role !== it.role) { c.share.role = it.role; changed = true; if (it.role === 'view') { shClose(it.sid); c.share.pending = []; } }
+          if (c.share.role !== it.role) {
+            if (c.share.role !== 'owner' && it.role !== 'owner') notify((it.owner || 'The owner') + ' changed your access to ' + (c.info.name || 'a character') + ': ' + (it.role === 'edit' ? 'you can edit it now.' : 'view only now.'), { cid: lid });
+            c.share.role = it.role; changed = true; if (it.role === 'view') { shClose(it.sid); c.share.pending = []; }
+          }
           if (c.share.owner !== it.owner) { c.share.owner = it.owner; changed = true; }
           if (it.role === 'view' && it.updated > (c.share.u || 0)) jobs.push(fetchSheet(it, lid));
         } else jobs.push(fetchSheet(it, lid));
@@ -9709,12 +9837,15 @@ V1.5
         if (!isShared(c) || seen[c.share.sid] === id) return;
         shClose(c.share.sid); changed = true;
         if (c.share.role === 'owner') delete c.share;   // not shared any more: just yours again
-        else { delete store.chars[id]; toast((c.info.name || 'A synced character') + ' is no longer shared with you.'); }
+        else { delete store.chars[id]; if (acct.seenSids) delete acct.seenSids[c.share.sid]; notify((c.info.name || 'A synced character') + ' is no longer shared with you' + (c.share.owner ? ' (by ' + c.share.owner + ')' : '') + '.'); }
       });
       return Promise.all(jobs).then(function () {
         list.forEach(function (it) { var id = seen[it.sid]; if (it.role === 'owner' && store.chars[id] && store.order.indexOf(id) < 0) store.order.push(id); });
         store.synced = list.filter(function (it) { return it.role !== 'owner'; }).map(function (it) { return seen[it.sid]; }).filter(function (id) { return store.chars[id]; });
         if (!store.chars[store.cur]) store.cur = store.order[0] || store.synced[0] || null;
+        /* The first check on this device just records the shares it has (no notifications for old ones). */
+        if (!acct.seenSids) { acct.seenSids = {}; list.forEach(function (it) { if (it.role !== 'owner') acct.seenSids[it.sid] = 1; }); }
+        saveAcct();
         if (changed || jobs.length || sig() !== before) { save(); remoteRender(); }
         shConnectAll();
       });
@@ -9810,6 +9941,83 @@ V1.5
       }, function (e) { toast('Couldn\'t remove it (' + e.message + ').'); });
     }, true);
   };
+
+  /* ================= NOTIFICATIONS ================= */
+  /* Things worth knowing later (a character shared with you, access changed, settings changed on another device).
+     Kept on this device; the bell shows how many there are. Each can be cleared, or all at once. */
+  var NOTIF_KEY = 'vtm-notifs', notifs = [];
+  try { notifs = JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]'); if (!Array.isArray(notifs)) notifs = []; } catch (e) { notifs = []; }
+  notifs = notifs.filter(function (n) { return n && n.id && typeof n.text === 'string'; });
+  function saveNotifs() { try { localStorage.setItem(NOTIF_KEY, JSON.stringify(notifs.slice(0, 50))); } catch (e) {} }
+  /* text: what happened; o.cid: a character to open; o.act: 'account' opens Settings > Account; o.toast: also show it now. */
+  function notify(text, o) {
+    o = o || {};
+    notifs.unshift({ id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), text: String(text).slice(0, 300), cid: o.cid || '', act: o.act || '' });
+    notifs = notifs.slice(0, 50); saveNotifs(); renderNotifs();
+    if (o.toast !== false) toast(text);
+  }
+  function ago(t) {
+    var s = Math.max(0, Math.round((Date.now() - t) / 1000));
+    if (s < 60) return 'just now'; if (s < 3600) return Math.floor(s / 60) + ' min ago'; if (s < 86400) return Math.floor(s / 3600) + ' h ago';
+    var d = Math.floor(s / 86400); return d === 1 ? 'yesterday' : d + ' days ago';
+  }
+  function renderNotifs() {
+    var b = $('notifBadge'), btn = $('notifBtn'); if (!b) return;
+    var n = notifs.length;
+    b.hidden = !n; b.textContent = n > 9 ? '9+' : String(n);
+    btn.setAttribute('aria-label', n ? 'Notifications, ' + n + ' new' : 'Notifications');
+    var p = $('notifPanel'); if (!p || p.hidden) return;
+    p.querySelector('.notif-list').innerHTML = n ? notifs.map(function (x) {
+      var go = (x.cid && store.chars[x.cid]) || x.act;
+      return '<li class="notif-item"><' + (go ? 'button type="button" class="notif-go" data-ngo="' + x.id + '"' : 'div class="notif-go"') + '><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + (go ? ' · ' + (x.act === 'account' ? 'Open Account' : 'Open') : '') + '</small></' + (go ? 'button' : 'div') + '>' +
+        '<button type="button" class="notif-x" data-nx="' + x.id + '" aria-label="Clear this notification">×</button></li>';
+    }).join('') : '<li class="notif-empty">No notifications.</li>';
+    p.querySelector('.notif-all').disabled = !n;
+  }
+  function placeNotif() {
+    var p = $('notifPanel'), r = $('notifBtn').getBoundingClientRect(), w = p.offsetWidth;
+    p.style.top = (r.bottom + 8) + 'px';
+    p.style.left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8)) + 'px';
+  }
+  function openNotifs() {
+    var p = $('notifPanel');
+    if (!p) {
+      p = document.createElement('div'); p.id = 'notifPanel'; p.className = 'notif-panel'; p.hidden = true;
+      p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Notifications');
+      p.innerHTML = '<div class="notif-head"><h2>Notifications</h2></div><ul class="notif-list"></ul><div class="notif-foot"><button type="button" class="btn small notif-all">Clear all</button></div>';
+      document.body.appendChild(p);
+      p.addEventListener('click', function (e) {
+        var x = e.target.closest('[data-nx]'), g = e.target.closest('[data-ngo]');
+        if (e.target.closest('.notif-all')) { notifs = []; saveNotifs(); renderNotifs(); $('notifBtn').focus(); return; }
+        if (x) {
+          var i = notifs.map(function (n) { return n.id; }).indexOf(x.dataset.nx);
+          notifs = notifs.filter(function (n) { return n.id !== x.dataset.nx; }); saveNotifs(); renderNotifs();
+          var rest = p.querySelectorAll('[data-nx]'); (rest[Math.min(i, rest.length - 1)] || p.querySelector('.notif-all')).focus();
+          return;
+        }
+        if (g) {
+          var it = notifs.filter(function (n) { return n.id === g.dataset.ngo; })[0]; if (!it) return;
+          closeNotifs(true);
+          if (it.act === 'account') { if ($('settingsBtn')) $('settingsBtn').click(); setTimeout(function () { if ($('acctOpen')) $('acctOpen').click(); }, 0); }
+          else if (it.cid && store.chars[it.cid]) { store.cur = it.cid; xpMode = false; tabEdit = {}; setView('chars'); commit(); window.scrollTo({ top: 0 }); }
+        }
+      });
+      p.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeNotifs(); } });
+    }
+    p.hidden = false; $('notifBtn').setAttribute('aria-expanded', 'true');
+    renderNotifs(); placeNotif();
+    var f = p.querySelector('.notif-go, .notif-x, .notif-all:not([disabled])'); if (f) f.focus();
+  }
+  function closeNotifs(noFocus) {
+    var p = $('notifPanel'); if (!p || p.hidden) return;
+    p.hidden = true; $('notifBtn').setAttribute('aria-expanded', 'false'); if (!noFocus) $('notifBtn').focus();
+  }
+  if ($('notifBtn')) {
+    $('notifBtn').addEventListener('click', function () { var p = $('notifPanel'); if (p && !p.hidden) closeNotifs(); else openNotifs(); });
+    document.addEventListener('mousedown', function (e) { var p = $('notifPanel'); if (p && !p.hidden && !p.contains(e.target) && !$('notifBtn').contains(e.target)) closeNotifs(true); });
+    window.addEventListener('resize', function () { var p = $('notifPanel'); if (p && !p.hidden) placeNotif(); });
+    renderNotifs();
+  }
 
   /* ================= SHORT SUMMARIES: Backgrounds, Merits, Flaws ================= */
   /* One-line summaries written for this app (not the book's text), shown on hover and in the right-click menu. */
