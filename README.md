@@ -227,3 +227,21 @@ V2.7
 	-The sheet always goes back to Play when you leave the Sheet tab, and Free-form edit is never saved or synced.
 	-Every section of the Details tab can be collapsed, and so can each Expanded Background; hovering a collapsed one shows the start of its details.
 	-Added Derangements to the Details tab: pick one from the book (its text is read from the rulebook, with a page reference) or write your own with its own hover text. Each one collapses, showing a summary on hover.
+
+V2.8
+-Added Goon HP to the New Character overlay: the character only has 4 Health Levels (Hurt -1, Wounded -3, Crippled -5, Incapacitated). The Aggravated Penalties setting still applies.
+-Fourteenth and Fifteenth Generation blood is no longer locked: past their threshold (the last 2 blood for Fourteenth, the last 4 for Fifteenth, so Fifteenth only has 6 usable) the boxes turn gold with a note on what it can't power, but it can still be spent.
+-Fourteenth Generation keeps Disciplines at 4 or less.
+-The Random Character Generator no longer equips the weapons it gives; armor still starts equipped.
+-Initiative Tracker Changes:
+	-Removed the Neither option for Actor Type: leaving both Player and Enemy unticked means no Actor Type.
+	-The Actors list is now the Character Browser itself, in the same spot, with Original and Duplicate buttons on each character (Add to encounter when joining a room).
+	-Hide Roll is now a thinner eye button.
+	-Hovering "X watching" while hosting shows who is watching. Needs the updated sync server.
+-Character Manager Changes:
+	-The character browser's ⋯ menu can add, change or remove a character's picture.
+	-Sections of the Details tab can be moved up and down in edit mode.
+	-XP Plan keeps a trait's raises in order: a lower raise can't go below a higher one of the same trait, moving one brings the others along.
+	-A portrait can be added in the first step of Guided creation.
+	-Each Discipline on the Disciplines tab can be collapsed.
+-The Rule Book's search settings use toggle switches like the main settings.

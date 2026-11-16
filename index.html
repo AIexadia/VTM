@@ -1469,6 +1469,10 @@ button.portrait { cursor: zoom-in; }
 .cm-gen .gn-cls-row.gn-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .cm-gen #gnGenHint { margin: 6px 0 0; min-height: 1.3em; }
 .roll-row.with-hide > .quick { width: 64px; font-size: 0.82rem; }
+.roll-row > .quick.hide-roll { width: 40px; padding: 0; display: grid; place-items: center; }
+.quick.hide-roll[hidden] { display: none; }
+.quick.hide-roll .eye-off, .quick.hide-roll[aria-pressed="true"] .eye-on { display: none; }
+.quick.hide-roll[aria-pressed="true"] .eye-off { display: block; }
 .roll-row.with-hide > .roll { font-size: 1.35rem; padding: 0 6px; }
 /* Details tab: collapsible sections, Backgrounds and Derangements */
 details.fold-sec { display: block; }
@@ -1492,6 +1496,50 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
 .der-ed { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--well); }
 .der-ed + .der-ed { margin-top: 8px; }
 .der-ed .row-ed input { flex: 1; }
+/* Blood past the Fourteenth/Fifteenth Generation threshold: still spendable, just marked */
+.boxes .box.on.reserve { background: var(--gold); border-color: var(--gold); }
+.reserve-note { display: block; margin-top: 4px; color: var(--fg); font-size: 0.82rem; border-left: 3px solid var(--gold); padding-left: 8px; }
+.nc-goon { margin-top: 4px; }
+details.fold-sec > summary h2 { flex: 1; }
+.sec-mv { display: inline-flex; gap: 4px; }
+.sec-mv .fr-ic:disabled { opacity: 0.35; cursor: default; }
+.rules-pop .switch.rp-sw { gap: 12px; }
+.rules-pop .switch.rp-sw strong { font: 600 0.95rem/1.25 var(--font-body); }
+.rules-pop .switch.rp-sw small { font: 400 0.8rem/1.3 var(--font-body); color: var(--muted); }
+details.disc-fold > summary .card-head { flex: 1; min-width: 0; margin: 0; }
+details.disc-fold:not([open]) > summary .card-head h2 { margin: 0; }
+#syncPeers.has-tip { cursor: help; text-decoration: underline dotted; text-underline-offset: 3px; }
+/* Actors list: the Character Browser mounted in the tracker's popup (same size and place as before) */
+.actors-pop.lib-mode { padding: 0; gap: 0; overflow: hidden; }
+.actors-pop.lib-mode > :not(.cm-lib-back):not(#actorsMsg) { display: none !important; }
+.actors-pop.lib-mode > #actorsMsg { order: 2; margin: 0; padding: 8px 16px; border-top: 1px solid var(--line); }
+.actors-pop.lib-mode > #actorsMsg:empty { display: none; }
+.cm-lib-back.pick { position: static; inset: auto; z-index: auto; display: flex; flex-direction: column; place-items: stretch; flex: 1; min-height: 0; padding: 0; background: none; }
+.cm-lib-back.pick .cm-lib { width: 100%; height: auto; flex: 1; min-height: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; container: libpick / inline-size; }
+.lib-add { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.lib-card > .lib-add { pointer-events: auto; }
+.lib-add .btn { min-height: 34px; padding: 4px 10px; justify-content: center; font-size: 0.86rem; }
+.lib-add .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+@container libpick (max-width: 760px) {
+  .lib-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .lib-side { display: flex; gap: 6px; overflow-x: auto; padding: 8px 10px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .lib-tree, .lib-tree ul, .lib-tree li { display: contents; }
+  .lib-smart { margin: 0 !important; padding: 0 !important; border: 0 !important; }
+  .lib-nav { width: auto; flex: none; padding: 6px 10px; border-color: var(--line); white-space: nowrap; }
+  .lib-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; padding: 10px 12px; }
+  .lib-head .lib-x { grid-column: 2; grid-row: 1; }
+  .lib-tools { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; }
+  .lib-tools .btn { padding-left: 10px; padding-right: 10px; white-space: nowrap; }
+  .lib-tools input[type="search"] { max-width: none; }
+  .lib-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .lib-fgrid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+  .lib-main { padding: 12px; }
+}
+@container libpick (max-width: 480px) {
+  .lib-tools { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .lib-tools input[type="search"] { grid-column: 1 / -1; }
+  .lib-grid, .lib-fgrid { grid-template-columns: 1fr; }
+}
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -1617,7 +1665,7 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
       <div class="roll-row">
         <button class="roll" type="submit" id="rollBtn">Roll</button>
         <button class="quick" type="button" id="quickBtn" aria-label="Roll a single d10, ignoring the pool, difficulty, modifiers, Specialty and Botch" title="Single Roll: one d10, nothing else applies. Shift+click adds a die to the last roll, Shift+right-click removes the last die.">Single<br>Roll</button>
-        <button class="quick hide-roll" type="button" id="hideRollBtn" aria-pressed="false" hidden title="Hide Roll: while on, your rolls aren&#39;t sent to the room. Turns off when you leave the room.">Hide<br>Roll</button>
+        <button class="quick hide-roll" type="button" id="hideRollBtn" aria-pressed="false" aria-label="Hide Roll" hidden title="Hide Roll: while on, your rolls aren&#39;t sent to the room. Turns off when you leave the room."><svg class="eye-on" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.6 3.6M6.6 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></svg></button>
       </div>
 
       <div class="field presets">
@@ -1789,7 +1837,7 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
           </div>
         </div>
 
-        <div class="roll-row dmg-roll-row"><button type="button" class="roll" id="dmgRollBtn">Roll damage</button><button class="quick hide-roll" type="button" id="dmgHideRoll" aria-pressed="false" hidden title="Hide Roll: while on, your rolls aren&#39;t sent to the room. Turns off when you leave the room.">Hide<br>Roll</button></div>
+        <div class="roll-row dmg-roll-row"><button type="button" class="roll" id="dmgRollBtn">Roll damage</button><button class="quick hide-roll" type="button" id="dmgHideRoll" aria-pressed="false" aria-label="Hide Roll" hidden title="Hide Roll: while on, your rolls aren&#39;t sent to the room. Turns off when you leave the room."><svg class="eye-on" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-2.6 3.6M6.6 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></svg></button></div>
 
         <div class="field presets">
           <h3 class="pre-h">
@@ -1949,7 +1997,7 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
         <div class="init-foot"><button type="button" class="btn-sec" id="actorsBtn" aria-expanded="false" aria-controls="actorsPop" title="Your character sheets: add the original or a duplicate to the encounter">Actors list</button></div>
         <div class="actors-pop" id="actorsPop" role="dialog" aria-label="Actors list" hidden>
           <div class="ap-head"><strong>Actors list</strong><button type="button" class="btn-sec ap-x" id="actorsClose" aria-label="Close the actors list">&times;</button></div>
-          <input type="search" id="actorsSearch" placeholder="Search characters" aria-label="Search characters by name" autocomplete="off" spellcheck="false">
+          <input type="search" id="actorsSearch" placeholder="Search name, clan, concept…" aria-label="Search characters in every folder" autocomplete="off" spellcheck="false">
           <div class="ap-sort" role="group" aria-label="Sort actors">
             <span class="label">Sort</span>
             <button type="button" class="btn-sec" data-k="name" title="Sort by name. Press again to reverse.">Name</button>
@@ -2000,10 +2048,10 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
   </div>
   <div class="rules-pop" id="rulesPop" role="group" aria-label="Search settings" hidden>
     <p class="rp-h">What searches look in</p>
-    <label class="rp-row"><input type="checkbox" id="rulesOptIndex"><span><b>Headings index</b><small>Chapters, disciplines, powers, merits, rituals and so on.</small></span></label>
-    <label class="rp-row"><input type="checkbox" id="rulesOptActs"><span><b>Terms and actions</b><small>Terms that open a paragraph, such as Block, Dodge, Parry, Sweep or Torpor, with their page.</small></span></label>
-    <label class="rp-row"><input type="checkbox" id="rulesOptTerms"><span><b>Other bold terms</b><small>Bold labels found in tables and stat lines, such as Accuracy or Difficulty.</small></span></label>
-    <label class="rp-row"><input type="checkbox" id="rulesOptText"><span><b>Full text of the book</b><small>Ranked page search. Built on this device from your own PDF and kept here; nothing is uploaded or shared.</small></span></label>
+    <label class="switch rp-sw" for="rulesOptIndex"><input type="checkbox" role="switch" id="rulesOptIndex"><span class="track" aria-hidden="true"></span><span class="txt"><strong>Headings index</strong><small>Chapters, disciplines, powers, merits, rituals and so on.</small></span></label>
+    <label class="switch rp-sw" for="rulesOptActs"><input type="checkbox" role="switch" id="rulesOptActs"><span class="track" aria-hidden="true"></span><span class="txt"><strong>Terms and actions</strong><small>Terms that open a paragraph, such as Block, Dodge, Parry, Sweep or Torpor, with their page.</small></span></label>
+    <label class="switch rp-sw" for="rulesOptTerms"><input type="checkbox" role="switch" id="rulesOptTerms"><span class="track" aria-hidden="true"></span><span class="txt"><strong>Other bold terms</strong><small>Bold labels found in tables and stat lines, such as Accuracy or Difficulty.</small></span></label>
+    <label class="switch rp-sw" for="rulesOptText"><input type="checkbox" role="switch" id="rulesOptText"><span class="track" aria-hidden="true"></span><span class="txt"><strong>Full text of the book</strong><small>Ranked page search. Built on this device from your own PDF and kept here; nothing is uploaded or shared.</small></span></label>
     <p class="rp-stat" id="rulesTextStat"></p>
     <button type="button" class="rb2" id="rulesTextRebuild">Rebuild the text search</button>
   </div>
@@ -4336,7 +4384,20 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
   function mineCids() { return Object.keys(mineRows).map(function (k) { return mineRows[k].cid; }).filter(Boolean); }
   /* This browser's private id for rooms: only the hosts of rooms it joins ever see it. */
   function legacyPids() { try { var o = JSON.parse(localStorage.getItem('vtm-sync-pid-old') || '[]'); return Array.isArray(o) ? o.filter(function (x) { return /^[a-f0-9]{32}$/.test(x); }).slice(-4) : []; } catch (e) { return []; } }
-  var claimSent = false;
+  var claimSent = false, hiWs = null;
+  /* Who is watching: each joiner tells the host its username (or nothing, as a guest) once per connection. */
+  var peerPids = null, peerNames = {}, peerN = 0, peerG = 0;
+  function myUname() { var a = window.vtmAccount, u = a && a.state && a.state().user; return u && u.username ? String(u.username).slice(0, 24) : ''; }
+  function peersText() {
+    var el = $('syncPeers'); if (!el) return;
+    el.textContent = peerN ? (peerN === 1 ? '1 watching' : peerN + ' watching') : '';
+    if (!peerN || !peerPids) { el.removeAttribute('title'); el.removeAttribute('tabindex'); el.classList.remove('has-tip'); return; }
+    var names = peerPids.map(function (p) { return peerNames[p] || 'Guest'; }).sort(function (a, b) { return (a === 'Guest') - (b === 'Guest') || a.localeCompare(b); });
+    var extra = peerG;
+    for (var i = 0; i < extra; i++) names.push('Guest');
+    var t = names.length ? 'Watching: ' + names.join(', ') : '';
+    if (t) { el.title = t; el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', peerN + ' watching. ' + t); el.classList.add('has-tip'); }
+  }
   function myPid() {
     var p = '';
     try { p = localStorage.getItem('vtm-sync-pid') || ''; } catch (e) {}
@@ -4368,6 +4429,7 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
     if (!a || typeof a !== 'object' || !/^[a-f0-9]{16,64}$/.test(String(pid))) return;
     if (a.k === 'add' || a.k === 'sheet') { if (window.cmRemoteSheet) window.cmRemoteSheet(pid, a.sheet, a.k === 'add', a.sid); return; }
     if (a.k === 'roll') { joinerRolled(pid, a.rec); return; }
+    if (a.k === 'hi') { peerNames[pid] = String(a.u || '').replace(/[\u0000-\u001f]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24); peersText(); return; }
     if (a.k === 'claim') {   // a player's older room id (from before it was tied to their account): their actors move to the new one
       var olds = (Array.isArray(a.old) ? a.old : []).map(String).filter(function (x) { return /^[a-f0-9]{16,64}$/.test(x) && x !== pid; }).slice(0, 4), moved = 0;
       if (!olds.length) return;
@@ -4458,7 +4520,8 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
       } else if (m.t === 'act') {
         onJoinerAct(m.from, m.a);   // CHARACTERS-MODULE
       } else if (m.t === 'peers') {
-        $('syncPeers').textContent = m.n === 1 ? '1 watching' : m.n + ' watching';
+        peerN = +m.n || 0; peerPids = Array.isArray(m.p) ? m.p.filter(function (x) { return /^[a-f0-9]{16,64}$/.test(String(x)); }) : null; peerG = Math.max(0, +m.g || 0);   // CHARACTERS-MODULE: names on hover
+        peersText();
       } else if (m.t === 'error') {
         finished = true;
         endHosting(m.reason === 'gone' ? 'The room had already closed.' : 'Could not host a room (' + m.reason + ').');
@@ -4478,7 +4541,7 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
   function endHosting(note) {
     var w = hostWs;
     hostWs = null; hostInfo = null; hostRetry = 0;
-    $('syncPeers').textContent = '';
+    $('syncPeers').textContent = ''; peerN = 0; peerPids = null; peerNames = {}; peersText();
     try { sessionStorage.removeItem(HOST_KEY); } catch (err) {}
     if (w) { try { w.close(); } catch (err) {} }
     syncMsg(note || '');
@@ -4527,11 +4590,13 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
       } else if (m.t === 'state' && ws === watchWs) {
         remote = m.s;
         if (!claimSent) { claimSent = true; var lp = legacyPids(); if (lp.length) joinAct({ k: 'claim', old: lp }); }
+        if (hiWs !== ws) { hiWs = ws; joinAct({ k: 'hi', u: myUname() }); }
         renderRemote();
       } else if (m.t === 'priv' && ws === watchWs) {   // CHARACTERS-MODULE: this joiner's own actors
         mineRows = {};
         (m.s && Array.isArray(m.s.rows) ? m.s.rows : []).slice(0, 60).forEach(function (x) { if (x && isFinite(+x.k)) mineRows[+x.k] = x; });
         renderRemote();
+        if (!$('actorsPop').hidden) renderActors();   // Add to encounter turns off for characters already in
       } else if (m.t === 'closed' && ws === watchWs) {
         leaveWatching(m.reason === 'host-closed' ? 'The host closed the room.' : 'The host left, so the room closed.');
       } else if (m.t === 'error') {
@@ -5193,8 +5258,9 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
         actorPresets.length = 0; save(); renderActors();
       };
     } else if (old) old.parentNode.removeChild(old);
-    var n = window.cmActorsList ? window.cmActorsList(list, $('actorsSearch').value.trim().toLowerCase(), st.actorSort, st.actorDesc, !!watchWs) : { shown: 0, total: 0 };
-    $('actorsEmpty').textContent = n.shown ? '' : n.total ? 'No character matches that name.' : 'No character sheets yet. Create one in Characters, then add it here.';
+    /* The Actors list is the Character Browser itself, mounted in this popup with Original / Duplicate on each card. */
+    if (window.cmActorsPick) window.cmActorsPick($('actorsPop'), !!watchWs);
+    $('actorsEmpty').textContent = '';
     return;
   /* CHARACTERS-MODULE:END actors-chars */
 
@@ -5256,11 +5322,12 @@ details.der h4.sub { margin: 4px 0 0; font: 600 0.75rem/1.2 var(--font-body); le
     $('actorsPop').hidden = false;
     $('actorsBtn').setAttribute('aria-expanded', 'true');
     $('actorsMsg').textContent = '';
-    $('actorsSearch').focus();
+    var lq = $('libQ'); (lq && $('actorsPop').contains(lq) ? lq : $('actorsSearch')).focus();   // CHARACTERS-MODULE: the browser's search
   }
   function closeActors(refocus) {
     if ($('actorsPop').hidden) return;
     $('actorsPop').hidden = true;
+    if (window.cmActorsUnpick) window.cmActorsUnpick();   // CHARACTERS-MODULE: the browser goes back to Characters
     $('actorsBtn').setAttribute('aria-expanded', 'false');
     if (refocus) $('actorsBtn').focus();
   }
@@ -6747,6 +6814,10 @@ V1.5
   /* Generation: [highest trait rating, blood pool, blood per turn] */
   var GEN = { 4: [9, 50, 10], 5: [8, 40, 8], 6: [7, 30, 6], 7: [6, 20, 4], 8: [5, 15, 3], 9: [5, 14, 2], 10: [5, 13, 1], 11: [5, 12, 1], 12: [5, 11, 1], 13: [5, 10, 1], 14: [5, 10, 1], 15: [5, 10, 1] };
   var HEALTH = [['Bruised', 0], ['Hurt', -1], ['Injured', -1], ['Wounded', -2], ['Mauled', -2], ['Crippled', -5], ['Incapacitated', null]];
+  /* Goon HP: a shorter track for minor characters. */
+  var HEALTH_GOON = [['Hurt', -1], ['Wounded', -3], ['Crippled', -5], ['Incapacitated', null]];
+  function hLevels(c) { return c && c.goon ? HEALTH_GOON : HEALTH; }
+  function hMax(c) { return hLevels(c).length; }
   /* V20 armor chart: [name, rating, penalty to most Dexterity dice pools]. */
   var ARMOR_CLASSES = [['Class One (reinforced clothing)', 1, 0], ['Class Two (armor T-shirt)', 2, 1], ['Class Three (Kevlar vest)', 3, 1], ['Class Four (flak jacket)', 4, 2], ['Class Five (full riot gear)', 5, 3]];
   /* V20 Targeting (combat maneuvers): [id, label, difficulty mod, damage dice mod]. */
@@ -6884,6 +6955,8 @@ V1.5
     if (!c.details.aes) c.details.aes = {};
     if (!c.details.bgx) c.details.bgx = {};
     if (!Array.isArray(c.details.der)) c.details.der = [];
+    if (c.details.order && !Array.isArray(c.details.order)) delete c.details.order;
+    if (c.details.order) c.details.order = c.details.order.filter(function (x) { return typeof x === 'string'; }).slice(0, 20);
     c.details.der = c.details.der.filter(function (d) { return d && typeof d === 'object'; });
     c.details.der.forEach(function (d) { if (!d.id) d.id = rid(); d.name = String(d.name || ''); d.sum = String(d.sum || ''); d.notes = String(d.notes || ''); });
     if (!Array.isArray(c.xp.plan)) c.xp.plan = [];
@@ -6957,10 +7030,14 @@ V1.5
   function hasFlaw(c, name) { return (c.flaws || []).some(function (f) { return mfNorm(f.name) === mfNorm(name); }); }
   function thinGen(c) { return hasFlaw(c, GEN_FLAWS[15]) ? 15 : hasFlaw(c, GEN_FLAWS[14]) ? 14 : 0; }
   function bloodX(c) { return hasFlaw(c, THIN_FLAW) || thinGen(c) === 15 ? 2 : 1; }   // blood per point of Disciplines, healing, boosts
-  function bloodReserve(c) { return thinGen(c) === 14 ? 2 : 0; }
+  /* The last blood points that can't power Disciplines, healing or raising Attributes (14th: 2 of 10, 15th: 4 of 10).
+     They can still be spent (rising each night, ghouls, blood bonds…): the app only marks them and says so. */
+  function bloodReserve(c) { var g = thinGen(c); return g === 14 ? 2 : g === 15 ? 4 : 0; }
   function bloodUsable(c) { return Math.max(0, c.blood.cur - bloodReserve(c)); }
+  function pastReserve(c) { return bloodReserve(c) > 0 && c.blood.cur <= bloodReserve(c); }
+  function reserveNote(c) { var g = thinGen(c); return 'Past the ' + (g === 15 ? 'Fifteenth' : 'Fourteenth') + ' Generation threshold: the last ' + bloodReserve(c) + ' blood can\'t power Disciplines, healing or raising Attributes (rising each night, ghouls and blood bonds still work).'; }
   /* Points of effect the usable blood can pay for. */
-  function bloodPts(c) { return Math.floor(bloodUsable(c) / bloodX(c)); }
+  function bloodPts(c) { return Math.floor(c.blood.cur / bloodX(c)); }
   /* Gives a sheet the Generation Flaw for 14th or 15th (and Thin Blood with the 14th); the others go. Forced ones can't
      be removed while the guide runs. */
   /* Thin Blood: always Caitiff (no clan), and never the Generation or Status Background. */
@@ -7006,6 +7083,7 @@ V1.5
     if (k === 'virt') return 5;
     if (k === 'spath') return 5;
     if (k === 'disc' && thinGen(c) === 15) return 3;   // Fifteenth Generation
+    if (k === 'disc' && thinGen(c) === 14) return Math.min(4, creating(c) ? 5 : genInfo(c).max);   // Fourteenth Generation: no Discipline above 4
     if (creating(c)) return 5;
     return Math.max(5, genInfo(c).max);
   }
@@ -7121,14 +7199,14 @@ V1.5
   function hTotal(c) { return c.health.b + c.health.l + c.health.a; }
   function addDamage(c, t) {
     var h = c.health;
-    if (hTotal(c) < 7) { h[t]++; return; }
+    if (hTotal(c) < hMax(c)) { h[t]++; return; }
     /* Track full: extra damage upgrades the least severe box. */
     if (t === 'a') { if (h.b) { h.b--; h.a++; } else if (h.l) { h.l--; h.a++; } }
     else if (h.b) { h.b--; h.l++; }
   }
   /* Levels that count for the wound penalty: all of them, or only aggravated with Aggravated Penalties on. */
   function penLevels(c) { return store.settings.aggPen ? c.health.a : hTotal(c); }
-  function woundPenalty(c) { var t = penLevels(c); return t === 0 ? 0 : HEALTH[t - 1][1]; }
+  function woundPenalty(c) { var t = Math.min(penLevels(c), hMax(c)); return t === 0 ? 0 : hLevels(c)[t - 1][1]; }
   /* Initiative rating (V20 p. 271): Dexterity + Wits, plus Celerity dots not used for extra actions, minus wound penalties. */
   function iniInfo(c) {
     var dex = phys(c, 'dexterity'), wits = c.attrs.wits, cel = c.disc.Celerity || 0, wp = woundPenalty(c) || 0;
@@ -7563,18 +7641,19 @@ V1.5
   function vitalsSection(c, bare) {
     var h = c.health, t = hTotal(c), g = genInfo(c), pl = penLevels(c);
     var boxes = '';
-    for (var i = 0; i < 7; i++) {
+    var HL = hLevels(c), HM = HL.length;
+    for (var i = 0; i < HM; i++) {
       var typ = i < h.a ? 'a' : i < h.a + h.l ? 'l' : i < t ? 'b' : '';
       var sym = { a: '✱', l: '✕', b: '/', '': '' }[typ];
-      var pen = HEALTH[i][1];
-      boxes += '<div class="hrow' + (pl > 0 && i === pl - 1 ? ' now' : '') + '"><span>' + HEALTH[i][0] + '</span><span class="pen">' + (pen === null ? '' : pen === 0 ? '' : '−' + (-pen)) + '</span><span class="hbox ' + typ + '" aria-label="' + (typ ? { a: 'aggravated', l: 'lethal', b: 'bashing' }[typ] : 'empty') + '">' + sym + '</span></div>';
+      var pen = HL[i][1];
+      boxes += '<div class="hrow' + (pl > 0 && i === Math.min(pl, HM) - 1 ? ' now' : '') + '"><span>' + HL[i][0] + '</span><span class="pen">' + (pen === null ? '' : pen === 0 ? '' : '−' + (-pen)) + '</span><span class="hbox ' + typ + '" aria-label="' + (typ ? { a: 'aggravated', l: 'lethal', b: 'bashing' }[typ] : 'empty') + '">' + sym + '</span></div>';
     }
     var wp = woundPenalty(c), status = '';
-    if (t === 7) status = (h.b === 0) ? (h.a === 7 ? 'Final Death if more aggravated damage lands.' : 'Torpor.') : 'Incapacitated.';
+    if (t >= HM) status = (h.b === 0) ? (h.a >= HM ? 'Final Death if more aggravated damage lands.' : 'Torpor.') : 'Incapacitated.';
     else if (pl > 0) status = 'Wound penalty: ' + (wp === 0 ? 'none' : '−' + (-wp) + ' dice') + (store.settings.aggPen ? ' (aggravated only)' : '');
     else if (t > 0 && store.settings.aggPen) status = 'No wound penalty (only aggravated damage counts).';
     var bloodBoxes = '';
-    for (i = 0; i < g.blood; i++) bloodBoxes += '<button type="button" class="box' + (i < c.blood.cur ? ' on' : '') + '" data-act="pool" data-k="blood" data-i="' + i + '" aria-label="Blood ' + (i + 1) + '"></button>';
+    for (i = 0; i < g.blood; i++) bloodBoxes += '<button type="button" class="box' + (i < c.blood.cur ? ' on' : '') + (i < c.blood.cur && pastReserve(c) ? ' reserve' : '') + '" data-act="pool" data-k="blood" data-i="' + i + '" aria-label="Blood ' + (i + 1) + (i < bloodReserve(c) ? ', past the Generation threshold' : '') + '"></button>';
     var wpBoxes = '';
     for (i = 0; i < c.willpower.perm; i++) wpBoxes += '<button type="button" class="box' + (i < c.willpower.cur ? ' on' : '') + '" data-act="pool" data-k="wp" data-i="' + i + '" aria-label="Willpower ' + (i + 1) + '"></button>';
     var fort = c.disc.Fortitude || 0, sta = phys(c, 'stamina'), arm = wornArmor(c), ar = arm ? (+arm.rating || 0) : 0, ap = arm ? (+arm.penalty || 0) : 0;
@@ -7585,7 +7664,8 @@ V1.5
       '<div class="vit"><div class="pool-head"><h3 class="sub" data-bk="blood">Blood pool</h3>' + hung + '<strong>' + c.blood.cur + ' / ' + g.blood + '</strong></div><div class="boxes">' + bloodBoxes + '</div>' +
       '<div class="muted small">Up to ' + g.turn + ' per turn' + (turnNow() ? ' · ' + spentNow(c) + ' spent this turn' : '') +
         (bloodX(c) > 1 ? ' · <span title="Disciplines, healing and boosts cost double (' + esc(thinGen(c) === 15 ? 'Fifteenth Generation' : 'Thin Blood') + ')">thin blood: 2 per point</span>' : '') +
-        (bloodReserve(c) ? ' · <span title="Fourteenth Generation: only 8 of the 10 blood points can power Disciplines, healing and boosts">last ' + bloodReserve(c) + ' unusable</span>' : '') +
+        (bloodReserve(c) && !pastReserve(c) ? ' · <span title="' + esc(reserveNote(c).replace(/^Past the /, 'The ')) + '">last ' + bloodReserve(c) + ' limited</span>' : '') +
+        (pastReserve(c) ? '<span class="reserve-note" role="note">' + esc(reserveNote(c)) + '</span>' : '') +
         '</div><div class="def-row cols-3" role="group" aria-label="Blood pool"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1"' + (bloodX(c) > 1 ? ' title="Costs ' + bloodX(c) + ' blood (thin blood)"' : '') + '>Spend 1' + (bloodX(c) > 1 ? ' (' + bloodX(c) + ')' : '') + '</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
       '<div class="pool-head" style="margin-top:8px"><h3 class="sub" data-bk="wp">Willpower</h3><strong>' + c.willpower.cur + ' / ' + c.willpower.perm + '</strong></div><div class="boxes wp">' + wpBoxes + '</div>' +
       '<div class="def-row" role="group" aria-label="Willpower"><button class="btn small" data-act="poolAdj" data-k="wp" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="wp" data-d="1">Regain 1</button></div></div>' +
@@ -7708,11 +7788,11 @@ V1.5
     var cl = CLANS[c.info.clan];
     var clanCard = '<section class="card clan-card"><h2>' + (c.info.clan ? esc(c.info.clan) : 'Clan') + '</h2>' +
       (cl ? '<dl><dt>Disciplines</dt><dd>' + (cl.disc.length ? cl.disc.join(', ') : 'Any three (Caitiff have no clan Disciplines)') + '</dd><dt>Weakness</dt><dd>' + esc(cl.weak) + '</dd></dl>' : '<p class="muted">Choose a clan to see its Disciplines and weakness.</p>') + '</section>';
-    return '<section class="card"><h2>Concept</h2><p class="muted">Who was this person before the Embrace, and who are they now?</p><div class="info-grid">' +
+    return '<section class="card"><h2>Concept</h2><p class="muted">Who was this person before the Embrace, and who are they now?</p><div class="info-wrap">' + portraitHTML(c, true) + '<div class="info-grid">' +
       fld(c, 'Name', 'info.name', c.info.name) + fld(c, 'Player', 'info.player', c.info.player) + fld(c, 'Chronicle', 'info.chronicle', c.info.chronicle) +
       fld(c, 'Concept', 'info.concept', c.info.concept, ' placeholder="e.g. Burned-out detective"') + clanSelect(c) + fld(c, 'Sire', 'info.sire', c.info.sire) +
       fld(c, 'Nature', 'info.nature', c.info.nature, ' list="dl-arch"') + fld(c, 'Demeanor', 'info.demeanor', c.info.demeanor, ' list="dl-arch"') +
-      '</div></section>' + clanCard;
+      '</div></div></section>' + clanCard;
   }
   function stepAttrs(c) {
     var A = CR(c).attr;
@@ -7735,7 +7815,7 @@ V1.5
   function stepFinish(c) {
     var g = genInfo(c), cs = val(c, 'virt.conscience'), sc = val(c, 'virt.selfControl'), co = val(c, 'virt.courage');
     var bloodBoxes = '';
-    for (var i = 0; i < g.blood; i++) bloodBoxes += '<button type="button" class="box' + (i < c.blood.cur ? ' on' : '') + '" data-act="pool" data-k="blood" data-i="' + i + '" aria-label="Blood ' + (i + 1) + '"></button>';
+    for (var i = 0; i < g.blood; i++) bloodBoxes += '<button type="button" class="box' + (i < c.blood.cur ? ' on' : '') + (i < c.blood.cur && pastReserve(c) ? ' reserve' : '') + '" data-act="pool" data-k="blood" data-i="' + i + '" aria-label="Blood ' + (i + 1) + (i < bloodReserve(c) ? ', past the Generation threshold' : '') + '"></button>';
     var ctx = wctx(c, function () { return false; }); ctx.text = true;
     return '<section class="card"><h2>Finishing touches</h2><div class="derived">' +
       '<div class="dv"><span class="dl">' + esc(c.morality.name) + '</span><span class="dn">' + (cs + sc) + '</span><span class="dx">' + esc(virtLabel(c, 'conscience')) + ' ' + cs + ' + ' + esc(virtLabel(c, 'selfControl')) + ' ' + sc + '</span></div>' +
@@ -8132,24 +8212,29 @@ V1.5
       '<span>' + esc(label || r[1]) + '</span>' + (lv ? '<span class="cm-tag">Level ' + lv + (locked ? ' · not learned' : '') + '</span>' : '') + '</summary>' +
       '<div class="ptext">' + blocksHTML(blocksOf(r)) + srcLine(r[2]) + '</div></details>';
   }
+  /* Each Discipline collapses (remembered on this device, per character). Buttons in its title don't fold it. */
+  function discOpen(c, d, head) {
+    var key = c.id + ':disc:' + d;
+    return '<details class="card fold-sec disc-fold" data-fold="' + esc(key) + '"' + (foldOpen(key) ? ' open' : '') + '><summary>' + head + '</summary>';
+  }
   function discCard(c, d) {
     var rating = c.disc[d] || 0, node = discNode(d);
     var head = '<div class="card-head"><h2>' + esc(d) + noteBtn(c, 'disc.' + d, d, false) + '</h2><span class="inline">' + dotsHTML(c, 'disc.' + d, false) +
       (inClan(c, d) ? '<span class="cm-tag">clan</span>' : '') + '</span></div>';
-    if (!node) return '<section class="card">' + head + '<p class="muted">' + esc(d) + ' isn\'t in the V20 core rulebook (homebrew?), so there\'s no text to show.</p></section>';
+    if (!node) return discOpen(c, d, head) + '<p class="muted">' + esc(d) + ' isn\'t in the V20 core rulebook (homebrew?), so there\'s no text to show.</p></details>';
     if (SORCERY.indexOf(d) >= 0) return sorcCard(c, d, node, head, rating);
     var powers = node.kids.filter(function (r) { return r[3]; });
     var shown = powers.filter(function (r) { return discShowAll || +String(r[3]).replace(/\D/g, '') <= rating; });
     var refs = node.kids.filter(function (r) { return !r[3]; });
     var noNamed = !powers.some(function (r) { return +String(r[3]).replace(/\D/g, '') <= 5; });
-    var h = '<section class="card">' + head;
+    var h = discOpen(c, d, head);
     h += '<details class="power"' + (noNamed ? ' open' : '') + '><summary><span>' + (noNamed ? 'How ' + esc(d) + ' works' : 'About ' + esc(d)) + '</span></summary><div class="ptext">' + blocksHTML(blocksOf(node.entry)) + srcLine(node.entry[2]) + '</div></details>';
     if (shown.length) h += '<div class="plist">' + shown.map(function (r) { return powerHTML(r, rating, false); }).join('') + '</div>';
     else if (powers.length && !noNamed) h += '<p class="muted small" style="margin:0">No powers learned yet.</p>';
     var hidden = powers.length - shown.length;
     if (hidden) h += '<p class="muted small" style="margin:0">' + hidden + ' higher-level ' + (hidden === 1 ? 'power' : 'powers') + ' hidden. Turn on “Show higher levels” to read ' + (hidden === 1 ? 'it' : 'them') + '.</p>';
     if (refs.length) h += '<h3 class="sub">Also in this section</h3><div class="plist">' + refs.map(function (r) { return powerHTML(r, rating, false); }).join('') + '</div>';
-    return h + '</section>';
+    return h + '</details>';
   }
   function sorcCard(c, d, node, head, rating) {
     var so = c.sorc[d] || { primary: '', paths: {} };
@@ -8173,7 +8258,7 @@ V1.5
       var shown = p.powers.filter(function (r) { return discShowAll || +String(r[3]).replace(/\D/g, '') <= prating; });
       return title + '<div class="plist">' + powerHTML(p.entry, prating, false, 'About ' + p.entry[1]) + shown.map(function (r) { return powerHTML(r, prating, false); }).join('') + '</div>';
     }
-    var h = '<section class="card">' + head;
+    var h = discOpen(c, d, head);
     h += '<details class="power"><summary><span>About ' + esc(d) + '</span></summary><div class="ptext">' + blocksHTML(blocksOf(node.entry)) + srcLine(node.entry[2]) + '</div></details>';
     h += pathBlock(so.primary, rating, true);
     Object.keys(so.paths).sort().forEach(function (pn) { if (so.paths[pn] > 0 || discShowAll) h += pathBlock(pn, so.paths[pn], false); });
@@ -8186,7 +8271,7 @@ V1.5
       }).join('') + '</div>';
     }
     if (others.length) h += '<h3 class="sub">Also in this section</h3><div class="plist">' + others.filter(function (r) { return !/^(rituals|necromantic rituals)$/i.test(r[1]); }).map(function (r) { return powerHTML(r, 0, false); }).join('') + '</div>';
-    return h + '</section>';
+    return h + '</details>';
   }
   function discTab(c) {
     var ds = Object.keys(c.disc).filter(function (d) { return c.disc[d] > 0; }).sort(function (a, b) { return (inClan(c, b) - inClan(c, a)) || a.localeCompare(b); });
@@ -8218,6 +8303,8 @@ V1.5
     try { localStorage.setItem(FOLD_KEY, JSON.stringify(f)); } catch (e) {}
   }
   function foldSum(key, txt) { var op = foldOpen(key); return ' data-fsum="' + esc(txt) + '"' + (op ? '' : ' data-sum="' + esc(txt) + '"'); }
+  /* Buttons inside a section's title (the move arrows) don't open or close it. */
+  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('summary .sec-mv, details.disc-fold > summary button, details.disc-fold > summary .dots')) e.preventDefault(); }, true);
   document.addEventListener('toggle', function (e) {
     var d = e.target; if (!d.matches || !d.matches('details[data-fold]')) return;
     foldSet(d.getAttribute('data-fold'), d.open);
@@ -8377,11 +8464,29 @@ V1.5
 
     h += '<section class="card"><h2>Other Details</h2>' + (ed ? '<textarea class="grow" data-f="details.other" placeholder="Haven, blood bonds, anything else…" aria-label="Other details">' + esc(c.details.other || '') + '</textarea>'
       : dblF('details.other', c.details.other, rich(c.details.other, 'Nothing written yet. ' + DBL_HINT), { area: true, block: true, label: 'Other details' })) + '</section>';
-    /* Each card becomes a collapsible section. */
-    return h.replace(/<section class="card"><h2([^>]*)>([^<]*)<\/h2>/g, function (m, at, title) {
-      var key = c.id + ':sec:' + title.toLowerCase().replace(/[^a-z]+/g, '-');
-      return '<details class="card fold-sec" data-fold="' + key + '"' + (foldOpen(key) ? ' open' : '') + '><summary><h2' + at + '>' + title + '</h2></summary>';
-    }).replace(/<\/section>/g, '</details>');
+    /* Each card becomes a collapsible section, in the character's own order (arrows to rearrange them in edit mode). */
+    var secs = [], lead = '';
+    h.replace(/<section class="card"><h2([^>]*)>([^<]*)<\/h2>([\s\S]*?)<\/section>/g, function (m, at, title, body) { secs.push({ slug: secSlug(title), at: at, title: title, body: body }); return ''; });
+    lead = h.slice(0, h.indexOf('<section class="card">') < 0 ? h.length : h.indexOf('<section class="card">'));
+    secs = secOrder(c, secs);
+    return lead + secs.map(function (x, i) {
+      var key = c.id + ':sec:' + x.slug;
+      var mv = ed ? '<span class="sec-mv" role="group" aria-label="Move ' + esc(x.title.replace(/&amp;/g, '&')) + '">' +
+        '<button type="button" class="fr-ic" data-act="secMove" data-sec="' + x.slug + '" data-d="-1"' + (i ? '' : ' disabled') + ' aria-label="Move ' + esc(x.title.replace(/&amp;/g, '&')) + ' up" title="Move up">↑</button>' +
+        '<button type="button" class="fr-ic" data-act="secMove" data-sec="' + x.slug + '" data-d="1"' + (i < secs.length - 1 ? '' : ' disabled') + ' aria-label="Move ' + esc(x.title.replace(/&amp;/g, '&')) + ' down" title="Move down">↓</button></span>' : '';
+      return '<details class="card fold-sec" data-fold="' + key + '"' + (foldOpen(key) ? ' open' : '') + '><summary><h2' + x.at + '>' + x.title + '</h2>' + mv + '</summary>' + x.body + '</details>';
+    }).join('');
+  }
+  function secSlug(title) { return title.toLowerCase().replace(/&amp;/g, 'and').replace(/[^a-z]+/g, '-').replace(/^-|-$/g, ''); }
+  /* Sections in the saved order; ones it doesn't mention keep their usual place. */
+  function secOrder(c, secs) {
+    var ord = Array.isArray(c.details.order) ? c.details.order : [];
+    var dflt = secs.map(function (x) { return x.slug; });
+    return secs.slice().sort(function (a, b) {
+      var ia = ord.indexOf(a.slug), ib = ord.indexOf(b.slug);
+      if (ia >= 0 && ib >= 0) return ia - ib;
+      return dflt.indexOf(a.slug) - dflt.indexOf(b.slug);
+    });
   }
 
   /* ================= BACKSTORY & MORE ================= */
@@ -8688,16 +8793,38 @@ V1.5
       '<div class="plan-sum"><span>Total <b>' + total + ' XP</b></span><span>Available <b>' + av + ' XP</b></span>' +
       (lack ? '<span class="plan-lack">Lacking <b>' + lack + ' XP</b></span>' : steps.length ? '<span class="plan-ok">Enough XP for all of it</span>' : '') + '</div>';
   }
-  function planMove(c, id, to) {   // to: new index
+  /* Moving a step keeps each trait's steps in order: a lower step never ends up under a higher one of the same trait.
+     Moving a step past its own trait's higher steps takes them along, just below it (and lower ones stay just above). */
+  function planPlace(c, id, targetId, after) {
+    var pl = planOf(c), i = pl.map(function (e) { return e.id; }).indexOf(id); if (i < 0 || id === targetId) return;
+    var e = pl[i], same = pl.filter(function (x) { return x.p === e.p; }), r = same.indexOf(e);
+    var lower = same.slice(0, r), higher = same.slice(r + 1);
+    var arr = pl.filter(function (x) { return x !== e; }), t = arr.map(function (x) { return x.id; }).indexOf(targetId);
+    if (t < 0) return;
+    arr.splice(after ? t + 1 : t, 0, e);
+    var lowBelow = lower.filter(function (x) { return arr.indexOf(x) > arr.indexOf(e); });
+    arr = arr.filter(function (x) { return lowBelow.indexOf(x) < 0; });
+    Array.prototype.splice.apply(arr, [arr.indexOf(e), 0].concat(lowBelow));
+    var highAbove = higher.filter(function (x) { return arr.indexOf(x) < arr.indexOf(e); });
+    arr = arr.filter(function (x) { return highAbove.indexOf(x) < 0; });
+    Array.prototype.splice.apply(arr, [arr.indexOf(e) + 1, 0].concat(highAbove));
+    pl.length = 0; Array.prototype.push.apply(pl, arr);
+    commit(); renderPlan();
+  }
+  /* Arrows: past the next step of another trait (a trait's own steps move as one). */
+  function planStep(c, id, d) {
     var pl = planOf(c), i = pl.map(function (e) { return e.id; }).indexOf(id); if (i < 0) return;
-    var e = pl.splice(i, 1)[0]; pl.splice(clamp(to, 0, pl.length), 0, e); commit(); renderPlan();
+    var p = pl[i].p, j = i + d;
+    while (j >= 0 && j < pl.length && pl[j].p === p) j += d;
+    if (j < 0 || j >= pl.length) return;
+    planPlace(c, id, pl[j].id, d > 0);
   }
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('#planBody button'); if (!b) return;
     var c = cur(); if (!c) return;
     if (b.dataset.pbuy) return planBuy(c, b.dataset.pbuy);
     if (b.dataset.prm) { var pl = planOf(c), i = pl.map(function (x) { return x.id; }).indexOf(b.dataset.prm); if (i >= 0) pl.splice(i, 1); commit(); return renderPlan(); }
-    if (b.dataset.pmv) { var ids = planOf(c).map(function (x) { return x.id; }), at = ids.indexOf(b.dataset.pid); planMove(c, b.dataset.pid, at + +b.dataset.pmv); var nb = document.querySelector('#planBody [data-pid="' + b.dataset.pid + '"][data-pmv="' + b.dataset.pmv + '"]'); if (nb && !nb.disabled) nb.focus(); }
+    if (b.dataset.pmv) { planStep(c, b.dataset.pid, +b.dataset.pmv); var nb = document.querySelector('#planBody [data-pid="' + b.dataset.pid + '"][data-pmv="' + b.dataset.pmv + '"]'); if (nb && !nb.disabled) nb.focus(); }
   });
   /* Drag to rearrange. */
   var planDrag = '';
@@ -8707,7 +8834,7 @@ V1.5
   document.addEventListener('drop', function (e) {
     var r = planDrag && e.target.closest && e.target.closest('.plan-row'); if (!r) return; e.preventDefault();
     var c = cur(), ids = planOf(c).map(function (x) { return x.id; }), to = ids.indexOf(r.dataset.pid), from = ids.indexOf(planDrag);
-    if (to >= 0 && from >= 0 && to !== from) planMove(c, planDrag, to);
+    if (to >= 0 && from >= 0 && to !== from) planPlace(c, planDrag, r.dataset.pid, to > from);
     planDrag = '';
   });
 
@@ -8817,8 +8944,10 @@ V1.5
       if (el.dataset.k === 'blood') {
         if (d < 0) {   /* spending blood on Disciplines, healing and the like */
           var X = bloodX(c);
-          if (bloodUsable(c) < X) return toast(c.blood.cur >= X ? 'The last ' + bloodReserve(c) + ' blood can\'t power Disciplines, healing or boosts (Fourteenth Generation).' : 'Not enough blood' + (X > 1 ? ': thin blood costs ' + X + ' per point' : '') + '.');
+          if (c.blood.cur < X) return toast('Not enough blood' + (X > 1 ? ': thin blood costs ' + X + ' per point' : '') + '.');
+          var wasPast = pastReserve(c);
           c.blood.cur -= X; noteSpend(c, 1);
+          if (!wasPast && pastReserve(c)) toast(reserveNote(c));
           var lim0 = genInfo(c).turn; if (spentNow(c) > lim0) toast('That\'s ' + spentNow(c) + ' blood this turn; the limit for ' + ord(c.info.generation) + ' Generation is ' + lim0 + '.');
           return commit();
         }
@@ -8884,6 +9013,16 @@ V1.5
       var c = cur(), it = c[el.dataset.k][+el.dataset.i];
       if (it && it.forced && creating(c)) return toast('Thin Blood keeps its Generation Flaw. Pick 14th or 15th in Finishing touches.');
       c[el.dataset.k].splice(+el.dataset.i, 1); commit();
+    },
+    secMove: function (el) {
+      var c = cur(), cards = Array.prototype.map.call(document.querySelectorAll('#cmView details.fold-sec [data-act="secMove"][data-d="-1"]'), function (b) { return b.dataset.sec; });
+      var i = cards.indexOf(el.dataset.sec), j = i + +el.dataset.d; if (i < 0 || j < 0 || j >= cards.length) return;
+      var t = cards[i]; cards[i] = cards[j]; cards[j] = t;
+      var old = Array.isArray(c.details.order) ? c.details.order : [];
+      c.details.order = cards.concat(old.filter(function (x) { return cards.indexOf(x) < 0; }));   // keep ones not shown right now
+      commit();
+      var nb = document.querySelector('#cmView [data-act="secMove"][data-sec="' + el.dataset.sec + '"][data-d="' + el.dataset.d + '"]');
+      if (nb && !nb.disabled) nb.focus(); else { nb = document.querySelector('#cmView [data-act="secMove"][data-sec="' + el.dataset.sec + '"]:not([disabled])'); if (nb) nb.focus(); }
     },
     derAdd: function () { var c = cur(); c.details.der.push({ id: rid(), name: '', sum: '', notes: '' }); commit(); focusField('details.der.' + (c.details.der.length - 1) + '.name'); },
     derRm: function (el) { var c = cur(), d = c.details.der[+el.dataset.i]; if (!d) return; confirmBox('Remove ' + (d.name || 'this derangement') + '?', 'Remove', function () { c.details.der.splice(+el.dataset.i, 1); commit(); }); },
@@ -9182,25 +9321,31 @@ V1.5
       '<label><input type="radio" name="ncS" value="guided" checked><span>Guided creation<small>Step by step, with V20 dot budgets, freebie points and checks.</small></span></label>' +
       '<label><input type="radio" name="ncS" value="blank"><span>Blank sheet<small>Free-form editing, no limits. Good for copying an existing character.</small></span></label>' +
       '<label><input type="radio" name="ncS" value="random"><span>Random Character Generator<small>A finished, random character. Next you pick the clan, name and XP to spend.</small></span></label></div>' +
-      '<div class="choice" role="radiogroup" aria-label="Actor type"><h3 class="sub">In the Initiative tracker</h3>' +
-      '<label><input type="radio" name="ncA" value="" checked><span>Neither<small>No actor type.</small></span></label>' +
-      '<label><input type="radio" name="ncA" value="player"><span>Player<small>A player\'s character; joiners always see the name.</small></span></label>' +
-      '<label><input type="radio" name="ncA" value="enemy"><span>Enemy<small>Joiners see "Enemy [n]" until the name is revealed.</small></span></label></div>' +
+      '<div class="choice" role="group" aria-label="Actor type (optional)"><h3 class="sub">In the Initiative tracker <small class="muted">optional</small></h3>' +
+      '<label><input type="checkbox" name="ncA" value="player"><span>Player<small>A player\'s character; joiners always see the name.</small></span></label>' +
+      '<label><input type="checkbox" name="ncA" value="enemy"><span>Enemy<small>Joiners see "Enemy [n]" until the name is revealed.</small></span></label>' +
+      '<p class="muted small" style="margin:4px 0 0">Leave both off for no actor type.</p></div>' +
+      '<label class="switch nc-goon" for="ncGoon"><input type="checkbox" role="switch" id="ncGoon"><span class="track" aria-hidden="true"></span><span class="txt"><strong>Goon HP</strong><small>4 Health Levels instead of 7: Hurt −1, Wounded −3, Crippled −5, Incapacitated.</small></span></label>' +
       '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Create</button></div>');
     if (pre.start) document.querySelector('input[name="ncS"][value="' + pre.start + '"]').checked = true;
-    if (pre.tag != null) document.querySelector('input[name="ncA"][value="' + pre.tag + '"]').checked = true;
+    if (pre.tag) { var pt = document.querySelector('input[name="ncA"][value="' + pre.tag + '"]'); if (pt) pt.checked = true; }
+    if (pre.goon) $('ncGoon').checked = true;
+    /* Player and Enemy: one or neither. */
+    var actT = function () { var x = document.querySelector('input[name="ncA"]:checked'); return x ? x.value : ''; };
+    document.querySelectorAll('input[name="ncA"]').forEach(function (r) { r.addEventListener('change', function () { if (r.checked) document.querySelectorAll('input[name="ncA"]').forEach(function (o) { if (o !== r) o.checked = false; }); }); });
     var okLbl = function () { $('mOk').textContent = document.querySelector('input[name="ncS"]:checked').value === 'random' ? 'Next…' : 'Create'; };
     document.querySelectorAll('input[name="ncS"]').forEach(function (r) { r.addEventListener('change', okLbl); }); okLbl();
     $('mNo').onclick = closeModal;
     $('mOk').onclick = function () {
       var start = document.querySelector('input[name="ncS"]:checked').value, tid = document.querySelector('input[name="ncT"]:checked').value;
-      if (start === 'random') return genModal({ name: $('ncName').value.trim(), tag: document.querySelector('input[name="ncA"]:checked').value, tmpl: TEMPLATES.filter(function (t) { return t.id === tid; })[0] || TEMPLATES[0] });
+      if (start === 'random') return genModal({ name: $('ncName').value.trim(), tag: actT(), goon: $('ncGoon').checked, tmpl: TEMPLATES.filter(function (t) { return t.id === tid; })[0] || TEMPLATES[0] });
       var c = blankKindred($('ncName').value.trim());
       c.template = tid;
       if (tid === 'thin') { setThinGen(c, 14); syncDerived(c); }
       if (libDest) { placeIn(c.id, libDest); libDest = ''; }
       if (start === 'blank') { c.mode = 'edit'; c.creation.done = true; }
-      c.tracker.type = document.querySelector('input[name="ncA"]:checked').value;
+      c.tracker.type = actT();
+      if ($('ncGoon').checked) c.goon = true;
       store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
       closeModal(); commit(); window.scrollTo({ top: 0 });
     };
@@ -9464,11 +9609,12 @@ V1.5
     var h = c.health, t = hTotal(c), g = genInfo(c), wp = woundPenalty(c);
     var opts = charOptions(false);
     var boxes = '';
-    for (var i = 0; i < 7; i++) {
+    var HL = hLevels(c);
+    for (var i = 0; i < HL.length; i++) {
       var typ = i < h.a ? 'a' : i < h.a + h.l ? 'l' : i < t ? 'b' : '';
-      boxes += '<span class="hbox ' + typ + '" title="' + HEALTH[i][0] + '">' + ({ a: '✱', l: '✕', b: '/', '': '' }[typ]) + '</span>';
+      boxes += '<span class="hbox ' + typ + '" title="' + HL[i][0] + '">' + ({ a: '✱', l: '✕', b: '/', '': '' }[typ]) + '</span>';
     }
-    var status = t === 7 ? (h.b === 0 ? (h.a === 7 ? 'Final Death on more aggravated damage' : 'Torpor') : 'Incapacitated') : t === 0 ? 'Unhurt' : HEALTH[t - 1][0] + ' · ' + (wp ? wp + ' dice' : 'no penalty');
+    var status = t >= HL.length ? (h.b === 0 ? (h.a >= HL.length ? 'Final Death on more aggravated damage' : 'Torpor') : 'Incapacitated') : t === 0 ? 'Unhurt' : HL[t - 1][0] + ' · ' + (wp ? wp + ' dice' : 'no penalty');
     var fort = c.disc.Fortitude || 0, arm = wornArmor(c), ar = arm ? (+arm.rating || 0) : 0;
     var html = '<div class="mod-head"><label class="vh" for="cmModSel">Active character</label><select id="cmModSel">' + opts + '</select>' + actingTag(c) +
       '<button type="button" class="btn small" data-act="goChars">Open sheet</button><button type="button" class="btn small" data-act="toInit">Add to Initiative</button></div>';
@@ -9646,7 +9792,7 @@ V1.5
     openModal('<h2>Boost</h2><p class="muted small">Each blood point raises Strength, Dexterity or Stamina by one dot for the scene. Up to ' + g.turn + ' blood this turn (' + ord(c.info.generation) + ' Generation). ' +
       'Dots above ' + free + ' last only 3 turns after you stop spending; nothing goes above 10.</p>' +
       (c.blood.cur < 1 ? '<p class="untrained-warn" role="note"><b>No blood:</b> the blood pool is empty.</p>' : '') +
-      (X > 1 || bloodReserve(c) ? '<p class="muted small" role="note">' + (X > 1 ? 'Thin blood: each dot costs ' + X + ' blood. ' : '') + (bloodReserve(c) ? 'Fourteenth Generation: the last ' + bloodReserve(c) + ' blood can\'t be used.' : '') + '</p>' : '') +
+      (X > 1 || (bloodReserve(c) && c.blood.cur - need <= bloodReserve(c)) ? '<p class="muted small" role="note">' + (X > 1 ? 'Thin blood: each dot costs ' + X + ' blood. ' : '') + (bloodReserve(c) && c.blood.cur - need <= bloodReserve(c) ? reserveNote(c).replace(/^Past the /, 'This goes past the ') : '') + '</p>' : '') +
       '<div class="boost-rows">' + rows + '</div>' +
       '<p class="small" style="margin:10px 0 0">' + (cost ? 'Spend <b>' + need + '</b> blood (' + (cost + spent) + ' of ' + g.turn + ' this turn, ' + c.blood.cur + ' in the pool).' : 'Blood pool: ' + c.blood.cur + ' / ' + g.blood + '.' + (spent ? ' Already spent ' + spent + ' of ' + g.turn + ' this turn.' : '')) + '</p>' +
       '<div class="acts">' + (anyBoost(c) ? '<button type="button" class="btn" id="mEnd" title="The scene is over: back to normal ratings">End all boosts</button>' : '') +
@@ -9712,7 +9858,7 @@ V1.5
   /* Host: a joiner's sheet, kept as a read-only copy. Numbers are forced to numbers, since it came from someone else. */
   function cleanRemote(c) {
     function nums(o, max) { Object.keys(o || {}).forEach(function (k) { o[k] = clamp(Math.round(+o[k] || 0), 0, max); }); }
-    nums(c.attrs, 10); nums(c.abil, 10); nums(c.disc, 10); nums(c.bg, 10); nums(c.virt, 10); nums(c.boost, 10); nums(c.health, 7); nums(c.sorc, 10);
+    nums(c.attrs, 10); nums(c.abil, 10); nums(c.disc, 10); nums(c.bg, 10); nums(c.virt, 10); nums(c.boost, 10); nums(c.health, 7); c.goon = !!c.goon; nums(c.sorc, 10);
     c.blood.cur = clamp(Math.round(+c.blood.cur || 0), 0, 50);
     c.willpower.perm = clamp(Math.round(+c.willpower.perm || 0), 0, 10); c.willpower.cur = clamp(Math.round(+c.willpower.cur || 0), 0, 10);
     c.morality.dots = clamp(Math.round(+c.morality.dots || 0), 0, 10);
@@ -9864,7 +10010,7 @@ V1.5
     if (typingHere()) { shRenderLater = true; return; }
     renderBar(); renderModule();
     if (store.view === 'chars' && cur() && ['play', 'tracker'].indexOf(activeTab()) >= 0) renderSheet();
-    if (apLast && !$('actorsPop').hidden) window.cmActorsList.apply(null, apLast);
+    if (libPick && !$('actorsPop').hidden) renderLib();   // the Actors list is the Character Browser
   }
   window.cmShowChar = function (id) {
     if (!store.chars[id]) return;
@@ -9901,69 +10047,9 @@ V1.5
   };
   function healthStatus(c) {
     var h = c.health, t = hTotal(c), wp = woundPenalty(c);
-    return t === 7 ? (h.b === 0 ? (h.a === 7 ? 'Final Death on more aggravated damage' : 'Torpor') : 'Incapacitated') : t === 0 ? 'Unhurt' : HEALTH[t - 1][0] + (wp ? ' (' + wp + ' dice)' : '');
+    var HL = hLevels(c);
+    return t >= HL.length ? (h.b === 0 ? (h.a >= HL.length ? 'Final Death on more aggravated damage' : 'Torpor') : 'Incapacitated') : t === 0 ? 'Unhurt' : HL[t - 1][0] + (wp ? ' (' + wp + ' dice)' : '');
   }
-  /* The quick summary in the Actors list. */
-  function charSummary(c) {
-    var g = genInfo(c), fort = c.disc.Fortitude || 0, arm = wornArmor(c), ar = arm ? (+arm.rating || 0) : 0, sta = phys(c, 'stamina'), i = iniInfo(c);
-    var discs = Object.keys(c.disc).filter(function (k) { return c.disc[k] > 0; }).map(function (k) { return k + ' ' + c.disc[k]; });
-    var eq = c.weapons.filter(function (w) { return w.equipped; }).map(function (w) { return (w.name || 'Weapon') + ' (' + w.dmg + ' ' + (DMG_T[w.type] || '').toLowerCase() + ')'; });
-    var rows = [
-      ['Clan', (c.info.clan || '—') + ' · ' + ord(c.info.generation) + ' Generation'],
-      ['Health', healthStatus(c)],
-      ['Blood', c.blood.cur + ' / ' + g.blood + ' (up to ' + g.turn + ' a turn)'],
-      ['Willpower', c.willpower.cur + ' / ' + c.willpower.perm],
-      ['Initiative', iniText(c) + ' (' + i.full + ')'],
-      ['Soak', (sta + fort + ar) + ' bashing/lethal · ' + (fort + ar) + ' fangs/claws · ' + fort + ' fire/sun'],
-      ['Physical', PHYS.map(function (k) { return labelOf(c, 'attr.' + k) + ' ' + phys(c, k) + (boostOf(c, k) ? ' (+' + boostOf(c, k) + ')' : ''); }).join(' · ')],
-      ['Disciplines', discs.length ? discs.join(', ') : 'None'],
-      ['Equipped', (eq.length ? eq.join(', ') : 'No weapons') + (arm ? '; ' + (arm.name || 'armor') + ' (rating ' + ar + ')' : '')]
-    ];
-    return '<dl class="ap-dl">' + rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>';
-  }
-  /* Actors list (in the Initiative tracker): every sheet, with a summary and Original / Duplicate buttons. */
-  var apOpen = {}, apLast = null;
-  var TYPE_LBL = { player: 'Player', enemy: 'Enemy' };
-  window.cmActorsList = function (ul, q, sort, desc, join) {
-    apLast = [ul, q, sort, desc, join];
-    var ids = store.order.concat(store.synced || []).filter(function (id) { return store.chars[id] && (!q || (store.chars[id].info.name || 'Unnamed').toLowerCase().indexOf(q) >= 0); });
-    var dir = desc ? -1 : 1, rank = { player: 0, enemy: 1, '': 2 };
-    function nm(x) { return (x.info.name || 'Unnamed').toLowerCase(); }
-    function byName(x, y) { return nm(x) < nm(y) ? -1 : nm(x) > nm(y) ? 1 : 0; }
-    ids.sort(function (a, b) {
-      var x = store.chars[a], y = store.chars[b];
-      var r = sort === 'cel' ? (y.disc.Celerity || 0) - (x.disc.Celerity || 0) : sort === 'mod' ? iniInfo(y).rating - iniInfo(x).rating : sort === 'type' ? rank[x.tracker.type || ''] - rank[y.tracker.type || ''] : byName(x, y);
-      return r ? r * dir : byName(x, y);
-    });
-    var r0 = R(), enc = join ? (r0 && r0.mine ? r0.mine() : []) : encounterIds();
-    ul.innerHTML = ids.map(function (id) {
-      var c = store.chars[id], open = !!apOpen[id], inE = enc.indexOf(id) >= 0, tk = c.tracker || {};
-      var tags = (tk.type ? '<span class="tag">' + TYPE_LBL[tk.type] + '</span>' : '') + (!tk.type && tk.rev ? '<span class="tag">Revealed</span>' : '') +
-        (c.disc.Celerity ? '<span class="tag">Celerity ' + c.disc.Celerity + '</span>' : '') + (inE ? '<span class="tag on">In encounter</span>' : '') + (isReceived(c) ? '<span class="tag" title="Shared with you by ' + esc(c.share.owner || 'its owner') + '">Synced</span>' : '');
-      return '<li class="ap-char"><div class="ap-crow"><button type="button" class="ap-item ap-exp" data-apx="' + id + '" aria-expanded="' + open + '" title="Show a summary">' +
-        '<svg class="chev" viewBox="0 0 14 14" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg>' +
-        '<span class="nm">' + esc(c.info.name || 'Unnamed') + '</span>' + tags + '<span class="md" title="Initiative">' + esc(iniText(c)) + '</span></button>' +
-        (join ? '<span class="ap-btns"><button type="button" class="btn-sec ap-add" data-apj="' + id + '"' + (inE ? ' disabled title="Already in the host\'s encounter"' : ' title="Add this character to the host\'s encounter as a Persistent Player that you control"') + '>' + (inE ? 'In encounter' : 'Add to encounter') + '</button></span></div>' :
-        '<span class="ap-btns"><button type="button" class="btn-sec ap-add" data-apo="' + id + '"' + (inE ? ' disabled title="Already in this encounter: an original can only be added once"' : ' title="Add this sheet itself: changes in the encounter change the sheet"') + '>Original</button>' +
-        '<button type="button" class="btn-sec ap-add" data-apd="' + id + '" title="Add a temporary copy: its changes stay on the copy">Duplicate</button></span></div>') +
-        '<div class="ap-sum"' + (open ? '' : ' hidden') + '>' + charSummary(c) + '</div></li>';
-    }).join('');
-    ul.onclick = function (e) {
-      var b = e.target.closest ? e.target.closest('button') : null; if (!b) return;
-      var x = b.getAttribute('data-apx'), o = b.getAttribute('data-apo'), d = b.getAttribute('data-apd'), jn = b.getAttribute('data-apj');
-      if (jn) {
-        var jc = store.chars[jn], ok = jc && pushSheet(jc, 'add');
-        if ($('actorsMsg')) $('actorsMsg').textContent = ok ? 'Sent ' + (jc.info.name || 'Unnamed') + ' to the host.' : 'Couldn\'t send it: check the connection to the room.';
-        return;
-      }
-      if (x) { apOpen[x] = !apOpen[x]; window.cmActorsList.apply(null, apLast); var nb = ul.querySelector('[data-apx="' + x + '"]'); if (nb) nb.focus(); return; }
-      var c = store.chars[o || d]; if (!c) return;
-      var err = o ? addOriginal(c) : addDuplicate(c), msg = $('actorsMsg');
-      if (msg) msg.textContent = err || ('Added ' + (o ? (c.info.name || 'Unnamed') : 'a duplicate of ' + (c.info.name || 'Unnamed')) + '.');
-      window.cmActorsList.apply(null, apLast);
-    };
-    return { shown: ids.length, total: store.order.length + (store.synced || []).length };
-  };
   /* Tracker tab: how this sheet shows up in the Initiative tracker. Celerity and initiative come from the sheet itself. */
   function trackerTab(c) {
     var tk = c.tracker, i = iniInfo(c), inE = inEncounter(c.id), r = R();
@@ -10075,19 +10161,22 @@ V1.5
     openModal('<h2>' + esc(c.info.name || 'Portrait') + '</h2><img class="portrait-big" src="' + s + '" alt="Portrait of ' + esc(c.info.name || 'the character') + '"><div class="acts"><button type="button" class="btn primary" id="mNo">Close</button></div>', 'img-modal');
     $('mNo').onclick = closeModal; $('mNo').focus();
   }
-  function imgPick() {
+  /* For the open character, or any one (the Character Browser's ⋯ menu). */
+  function imgPick(cid) {
+    cid = cid || store.cur;
     var f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
-    f.onchange = function () { if (f.files && f.files[0]) cropModal(f.files[0]); };
+    f.onchange = function () { if (f.files && f.files[0]) cropModal(f.files[0], cid); };
     f.click();
   }
-  function imgRemove() {
-    var c = cur(); if (!c) return;
-    confirmBox('Remove ' + (c.info.name || 'this character') + '\'s portrait?', 'Remove', function () { delete c.img; commit(); });
+  function imgDone() { commit(); if (typeof libOpen !== 'undefined' && libOpen) renderLib(); }
+  function imgRemove(cid) {
+    var c = store.chars[cid || store.cur]; if (!c) return;
+    confirmBox('Remove ' + (c.info.name || 'this character') + '\'s portrait?', 'Remove', function () { delete c.img; imgDone(); });
   }
 
   /* ---- Crop overlay: always square. Drag to move the picture, zoom with the slider, the mouse wheel or a pinch;
      arrow keys move it and +/- zoom when the picture has focus. */
-  function cropModal(file) {
+  function cropModal(file, cid) {
     if (!/^image\//.test(file.type || '')) return toast('That file isn\'t an image.');
     var url = URL.createObjectURL(file), im = new Image();
     im.onerror = function () { URL.revokeObjectURL(url); toast('Couldn\'t open that image.'); };
@@ -10156,8 +10245,8 @@ V1.5
         if (data.length > IMG_MAX || !IMG_RE.test(data)) { $('cropMsg').textContent = 'Couldn\'t make that image small enough. Try another one.'; return; }
         $('mOk').disabled = true;
         imgHash(data).then(function (h) {
-          var c = cur(); if (!c) return;
-          imgPut(h, data); c.img = h; URL.revokeObjectURL(url); closeModal(); commit(); toast('Portrait saved.');
+          var c = store.chars[cid || store.cur]; if (!c) return;
+          imgPut(h, data); c.img = h; URL.revokeObjectURL(url); closeModal(); imgDone(); toast('Portrait saved.');
         }, function () { $('mOk').disabled = false; $('cropMsg').textContent = 'Something went wrong. Try again.'; });
       };
       cv.focus();
@@ -11597,6 +11686,8 @@ V1.5
   }
   normLib();
   var libOpen = false, libDir = '', libQ = '', libMenu = null, libEdit = null, libDest = '', libDrag = null;
+  /* 'host' or 'join' while the browser stands in for the tracker's Actors list (the same browser, mounted in that popup). */
+  var libPick = null, libPickDir = '';
   var CLAN_HUE = { 'Assamite': 150, 'Brujah': 20, 'Followers of Set': 45, 'Gangrel': 95, 'Giovanni': 280, 'Lasombra': 250, 'Malkavian': 300, 'Nosferatu': 120, 'Ravnos': 30, 'Toreador': 330, 'Tremere': 0, 'Tzimisce': 200, 'Ventrue': 220, 'Caitiff': 260 };
   function folderOf(id) { return store.lib.place[id] || ''; }
   function folderById(id) { return store.lib.folders.filter(function (f) { return f.id === id; })[0] || null; }
@@ -11648,8 +11739,21 @@ V1.5
       '</dl>' +
       '<div class="lib-foot">' + (discs.length ? '<p class="lib-disc">' + discs.slice(0, 3).map(function (d) { return esc(d) + ' ' + c.disc[d]; }).join(' · ') + (discs.length > 3 ? ' · +' + (discs.length - 3) : '') + '</p>' : '<p class="lib-disc muted">No Disciplines</p>') +
       '<span class="lib-xp" title="XP available">' + xpA + ' XP</span></div>' +
-      (path ? '<p class="lib-path">In ' + esc(path) + '</p>' : '') +
+      (path ? '<p class="lib-path">In ' + esc(path) + '</p>' : '') + pickBtns(id) +
       '</div>';
+  }
+  /* Actors list: add the sheet itself or a temporary copy to the encounter (a joiner sends it to the host). */
+  function pickBtns(id) {
+    if (!libPick) return '';
+    var c = store.chars[id], nm = esc(c.info.name || 'Unnamed');
+    if (isTemp(c)) return '';
+    if (libPick === 'join') {
+      var r0 = R(), mine = r0 && r0.mine ? r0.mine() : [], inJ = mine.indexOf(id) >= 0;
+      return '<div class="lib-add"><button type="button" class="btn" data-lib="addJ" data-id="' + id + '"' + (inJ ? ' disabled title="Already in the host\'s encounter"' : ' title="Add ' + nm + ' to the host\'s encounter as a Persistent Player that you control"') + '>Add to encounter</button></div>';
+    }
+    var inE = encounterIds().indexOf(id) >= 0;
+    return '<div class="lib-add"><button type="button" class="btn" data-lib="addO" data-id="' + id + '"' + (inE ? ' disabled title="Already in this encounter: an original can only be added once"' : ' title="Add ' + nm + ' itself: changes in the encounter change the sheet"') + '>Original</button>' +
+      '<button type="button" class="btn" data-lib="addD" data-id="' + id + '" title="Add a temporary copy of ' + nm + ': its changes stay on the copy">Duplicate</button></div>';
   }
   function folderTile(f) {
     var n = libCount(f.id), sf = subFolders(f.id).length;
@@ -11715,7 +11819,7 @@ V1.5
       '<div class="lib-body" id="libBody"></div></div>';
     document.body.appendChild(d);
     d.addEventListener('click', libClick);
-    d.addEventListener('mousedown', function (e) { if (e.target === d) d._down = true; });
+    d.addEventListener('mousedown', function (e) { if (e.target === d && !libPick) d._down = true; });
     d.addEventListener('mouseup', function (e) { if (e.target === d && d._down) closeLib(); d._down = false; });
     $('libQ').addEventListener('input', function () { libQ = this.value.trim(); renderLib(); });
     $('libSort').addEventListener('change', function () { store.libSort = this.value; save(); renderLib(); });
@@ -11781,21 +11885,52 @@ V1.5
     renderLib();
     var tile = document.querySelector('.lib-folder[data-fid="' + ed.id + '"] .lib-open'); if (tile) tile.focus();
   }
-  function openLib() {
-    ensureLibDom(); libOpen = true; libQ = ''; $('libQ').value = '';
-    var c = cur(); libDir = c && !c.temp ? folderOf(c.id) : (c && c.temp ? ':enc' : '');
+  function openLib(dir) {
+    ensureLibDom();
+    if (libPick) closeLib();
+    libOpen = true; libQ = ''; $('libQ').value = '';
+    var c = cur(); libDir = dir != null ? dir : c && !c.temp ? folderOf(c.id) : (c && c.temp ? ':enc' : '');
     $('cmLibBack').hidden = false; renderLib();
     var on = document.querySelector('.lib-card.cur .lib-open') || $('libQ'); if (on) on.focus();
   }
   function closeLib() {
     if (!libOpen) return;
+    if (libPick) { var cb = $('actorsClose'); if (cb) cb.click(); else unpickLib(); return; }   // the tracker closes its popup, which puts the browser back
     finishEdit(true, true); libOpen = false; closeLibMenu(); $('cmLibBack').hidden = true;
     var b = document.querySelector('#cmBar .cm-cur'); if (b) b.focus();
   }
+  /* The tracker's Actors list is this browser: it moves into the popup (keeping its place there) and back out when the popup closes. */
+  window.cmActorsPick = function (pop, join) {
+    ensureLibDom();
+    var d = $('cmLibBack'), mode = join ? 'join' : 'host';
+    if (libPick && d.parentNode === pop && libPick === mode) return renderLib();
+    if (libOpen && !libPick) { finishEdit(true, true); closeLibMenu(); }
+    if (!libPick) { libQ = ''; $('libQ').value = ''; libDir = libPickDir; }
+    libPick = mode; libOpen = true;
+    if (d.parentNode !== pop) pop.appendChild(d);
+    d.classList.add('pick'); d.hidden = false; pop.classList.add('lib-mode');
+    d.querySelector('.cm-lib').setAttribute('aria-modal', 'false');
+    $('cmLibTitle').textContent = 'Actors list';
+    renderLib();
+  };
+  function unpickLib() {
+    if (!libPick) return;
+    var d = $('cmLibBack');
+    finishEdit(true, true); closeLibMenu();
+    libPickDir = libDir.charAt(0) === ':' ? '' : libDir;
+    libPick = null; libOpen = false;
+    d.classList.remove('pick'); d.hidden = true; if (d.parentNode && d.parentNode.classList) d.parentNode.classList.remove('lib-mode');
+    d.querySelector('.cm-lib').setAttribute('aria-modal', 'true');
+    $('cmLibTitle').textContent = 'Characters';
+    document.body.appendChild(d);
+  }
+  window.cmActorsUnpick = unpickLib;
   function openChar(id) {
     if (!store.chars[id]) return;
+    var fromPick = !!libPick;
     store.cur = id; store.libSeen[id] = Date.now(); xpMode = false; tabEdit = {}; inline = null;
-    closeLib(); commit(); window.scrollTo({ top: 0 });
+    closeLib(); commit();
+    if (fromPick) setView('chars'); else window.scrollTo({ top: 0 });
   }
   function moveChar(cid, fid) {
     if (!store.chars[cid] || store.chars[cid].temp) return;
@@ -11846,11 +11981,28 @@ V1.5
     if (a === 'open') return openChar(id);
     if (a === 'dir') { libDir = id; libQ = ''; $('libQ').value = ''; return renderLib(); }
     if (a === 'newFolder') { libQ = ''; $('libQ').value = ''; if (libDir.charAt(0) === ':') libDir = ''; libEdit = { id: 'f' + uid().slice(1), isNew: true, parent: libDir }; return renderLib(); }
-    if (a === 'newChar') { libDest = libDir.charAt(0) === ':' ? '' : libDir; closeLib(); return newCharModal(); }
+    if (a === 'newChar') { var fp = !!libPick; libDest = libDir.charAt(0) === ':' ? '' : libDir; closeLib(); if (fp) setView('chars'); return newCharModal(); }
+    if (a === 'addO' || a === 'addD') {
+      var ac = store.chars[id]; if (!ac) return;
+      var err = a === 'addO' ? addOriginal(ac) : addDuplicate(ac), msg = $('actorsMsg');
+      if (msg) msg.textContent = err || ('Added ' + (a === 'addO' ? (ac.info.name || 'Unnamed') : 'a duplicate of ' + (ac.info.name || 'Unnamed')) + '.');
+      renderLib();
+      var nb = document.querySelector('.lib-card[data-cid="' + id + '"] [data-lib="' + (a === 'addO' && !err ? 'addD' : a) + '"]'); if (nb) nb.focus();
+      return;
+    }
+    if (a === 'addJ') {
+      var jc = store.chars[id], ok = jc && pushSheet(jc, 'add');
+      if ($('actorsMsg')) $('actorsMsg').textContent = ok ? 'Sent ' + (jc.info.name || 'Unnamed') + ' to the host.' : 'Couldn\'t send it: check the connection to the room.';
+      return;
+    }
     if (a === 'cardMenu') {
       var c = store.chars[id];
       libMenu = null;
-      showLibMenu(b, '<button type="button" role="menuitem" data-lib="open" data-id="' + id + '"><span>Open</span></button>' + moveList(folderOf(id), 'mvChar').replace(/data-lib="mvChar/g, 'data-id="' + id + '" data-lib="mvChar'));
+      var canPic = c && !c.temp && !(c.share && c.share.role === 'view');
+      showLibMenu(b, '<button type="button" role="menuitem" data-lib="open" data-id="' + id + '"><span>Open</span></button>' +
+        (canPic ? '<button type="button" role="menuitem" data-lib="pic" data-id="' + id + '"><span>' + (c.img ? 'Change picture…' : 'Add picture…') + '</span></button>' +
+          (c.img ? '<button type="button" role="menuitem" data-lib="picRm" data-id="' + id + '"><span>Remove picture</span></button>' : '') : '') +
+        moveList(folderOf(id), 'mvChar').replace(/data-lib="mvChar/g, 'data-id="' + id + '" data-lib="mvChar'));
       return;
     }
     if (a === 'folderMenu') {
@@ -11860,6 +12012,8 @@ V1.5
         moveList(f.parent, 'mvFolder', id).replace(/data-lib="mvFolder/g, 'data-id="' + id + '" data-lib="mvFolder'));
       return;
     }
+    if (a === 'pic') { closeLibMenu(); return imgPick(id); }
+    if (a === 'picRm') { closeLibMenu(); return imgRemove(id); }
     if (a === 'mvChar') { closeLibMenu(); return moveChar(id, b.dataset.to); }
     if (a === 'mvFolder') { closeLibMenu(); return moveFolder(id, b.dataset.to); }
     if (a === 'mvCharNew' || a === 'mvFolderNew') {
@@ -12108,10 +12262,10 @@ V1.5
       var pool = (list || []).filter(function (w) { return w.kind === kind && !out.some(function (o) { return o.base === w.name; }); });
       if (!pool.length) return;
       var bw = wpick(pool.map(function (w) { return [w, genWeaponW(c, w)]; }));
-      out.push({ id: rid(), name: bw.name, base: bw.name, kind: bw.kind, diff: 6, dmg: bw.dmg, type: bw.type, conceal: bw.conceal || '', range: bw.range || '', rate: bw.rate || '', capacity: bw.capacity || '', blunt: !!bw.blunt, stake: !!bw.stake, auto: !!bw.auto, equipped: true });
+      out.push({ id: rid(), name: bw.name, base: bw.name, kind: bw.kind, diff: 6, dmg: bw.dmg, type: bw.type, conceal: bw.conceal || '', range: bw.range || '', rate: bw.rate || '', capacity: bw.capacity || '', blunt: !!bw.blunt, stake: !!bw.stake, auto: !!bw.auto, equipped: false });
     }
     if ((c.disc.Protean || 0) >= 2 && chance(c.info.clan === 'Gangrel' ? 0.9 : 0.7))
-      out.push({ id: rid(), name: 'Feral Claws', kind: 'melee', natural: true, diff: 6, dmg: 'Str+1', type: 'A', conceal: '', equipped: true });
+      out.push({ id: rid(), name: 'Feral Claws', kind: 'melee', natural: true, diff: 6, dmg: 'Str+1', type: 'A', conceal: '', equipped: false });
     /* The stronger skill goes first, so it gets its weapon before the cap of 3. */
     var order = fire > melee ? ['ranged', 'melee'] : ['melee', 'ranged'];
     if (gw.ranged > gw.melee * 1.5) order = ['ranged', 'melee']; else if (gw.melee > gw.ranged * 1.5) order = ['melee', 'ranged'];
@@ -12335,7 +12489,7 @@ V1.5
     var poll = setInterval(function () { if (!$('gnEqNote')) return clearInterval(poll); if ($('gnEq').checked) genWeapNote(); }, 500);
     var num = function (id, lo, hi) { if (!$(id)) return null; var v = parseInt($(id).value, 10); return isNaN(v) ? null : clamp(v, lo, hi); };
     $('mNo').onclick = function () { clearInterval(poll); closeModal(); };
-    $('mBack').onclick = function () { clearInterval(poll); newCharModal({ name: $('gnName').value, tag: base.tag, start: 'random' }); };
+    $('mBack').onclick = function () { clearInterval(poll); newCharModal({ name: $('gnName').value, tag: base.tag, goon: base.goon, start: 'random' }); };
     var go = function () {
       var xp = parseInt($('gnXp').value, 10);
       if (isNaN(xp) || xp < 0) { $('gnXp').focus(); return toast('XP must be 0 or more.'); }
@@ -12353,7 +12507,7 @@ V1.5
       try { localStorage.setItem('vtm-gen', JSON.stringify({ mf: mf, meritMax: o.meritMax, meritPts: o.meritPts, flawMax: o.flawMax, flawPts: o.flawPts, gear: gear, cls: selCls })); } catch (e) {}
       var taken = {}; Object.keys(store.chars).forEach(function (id) { var f = String(store.chars[id].info.name || '').trim().split(/\s+/)[0]; if (f) taken[f.toLowerCase()] = 1; });
       var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, cls: selCls, tmpl: base.tmpl.id, tgen: selGen ? +selGen : 0, xp: Math.min(xp, 2000), mf: mf && base.tmpl.id !== 'thin' ? o : null, gear: gear, weapons: bookW.state === 'ready' ? bookW.list : null, taken: taken });
-      c.template = base.tmpl.id; c.tracker.type = base.tag;
+      c.template = base.tmpl.id; c.tracker.type = base.tag || ''; if (base.goon) c.goon = true;
       store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
       if (libDest) { placeIn(c.id, libDest); libDest = ''; }
       closeModal(); commit(); window.scrollTo({ top: 0 });
