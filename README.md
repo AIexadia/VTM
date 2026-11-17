@@ -228,8 +228,52 @@ V2.7
 	-Every section of the Details tab can be collapsed, and so can each Expanded Background; hovering a collapsed one shows the start of its details.
 	-Added Derangements to the Details tab: pick one from the book (its text is read from the rulebook, with a page reference) or write your own with its own hover text. Each one collapses, showing a summary on hover.
 
-V2.8
+V3.0
 -Added Goon HP to the New Character overlay: the character only has 4 Health Levels (Hurt -1, Wounded -3, Crippled -5, Incapacitated). The Aggravated Penalties setting still applies.
+-Added a Dossier tab to characters (between Story Progression and Tracker), where you can create a Note Board: a corkboard of pinned notes you can drag around, tie together with red string, give shapes and colours, and collapse to their title.
+	-Containers hold other notes, and collapsing one hides everything inside it.
+	-Strings come in several colours (new strings take the last colour used). They run over the notes they cross, and fade over whatever you hover.
+	-Text can be written straight on the board, then moved, resized and turned, in the titles or details font.
+	-Right-click the board (or press and hold) to add things, and right-click anything on it for its shape, colour, font, strings and so on; double-click anything to edit its text.
+	-The board syncs on its own, apart from the rest of the character, with room for a couple of thousand notes.
+	-Strings can carry a label (double-click a string, or right-click it).
+	-Notes can be stamped Final Death, Torpor, Missing, Diablerized, Blood Bound, Ally, Enemy or Suspect.
+	-Search the board: everything else dims, and Enter zooms to what's found (Ctrl+F).
+	-Select several things with Shift-click, Shift-drag a box or Ctrl+A, then move, recolour, reshape, stamp, collapse or delete them together.
+	-Undo and redo (Ctrl+Z / Ctrl+Y, or the arrows by the zoom).
+-Added Privacy to shared characters: once a character is shared with a Viewer, everything on it is private to view-only people until you choose what they see. People who can edit always see everything.
+	-The Privacy button (next to Sharing) has presets: Name only, Identity, At the table, Character sheet and Everything.
+	-Or pick on the sheet itself: tabs, sections, subsections, single fields and board notes can each be made visible or private; making something private takes back what was picked inside it.
+	-View-only people get the sheet with the private parts taken out, and they stay off the character's card too (clan, generation, blood, willpower, humanity, XP...).
+	-A room's host still sees the whole sheet of a character added to the encounter.
+	-Needs the updated sync server.
+-Added account tiers: Guest, Player and Storyteller, shown as a badge next to usernames.
+	-New accounts start as Guests: they get the Roller and Rule Book (saved on their device) and can request access, with an optional note, from Characters or Initiative. Accounts made before this are Players.
+	-Storytellers can share up to 50 characters; Players can share 10.
+	-Rooms need an account with access, and the host sees each watcher's tier.
+	-A banned account only shows that it's banned (and why) until it signs out.
+	-Needs the updated sync server and its database update.
+-Settings > Account has Sign out everywhere, which signs the account out on every device and closes its open shared sheets and rooms.
+-Rooms are now by invitation, with no codes to type: hosting opens a Room window to invite friends, and Invite friends adds more later.
+	-Invited friends get a notification with Join, and can join from the Friends menu for as long as the room is open (after losing the connection too). Nobody else can join.
+	-Friends no longer get a notification whenever someone they know hosts a room.
+	-An account can be in one room at a time: joining from another device takes it out of the room on the first one.
+	-Everyone in a room can see who's in it.
+-Players can use one of their characters' pictures as their profile picture (Settings > Account). It shows next to their name for friends and other players.
+-Added the Skirmish Map to the Initiative Tracker: a live, rough picture of where everyone stands in the encounter, shared with the whole room. Open it with the Skirmish Map button next to Actors list; it takes the Actors list's spot.
+	-Each character is a token about 1 yard/metre across, showing their portrait or initials. Enemies that haven't been revealed show as E1, E2 and so on. Hover a token for its name and details.
+	-Drag a token to move it; everyone sees it move, and who's moving it. Watchers can move their own characters, and the host can move anything (or let watchers move any token).
+	-While you drag, rings show your running speed and half of it (to move and still attack).
+	-Moves leave a faint line for the round; hover one to see it and its distance. Small corrections (within 1 yard/metre) redo the last move instead of adding one, and clicking a line lets you undo that move and any after it.
+	-Tokens close enough to touch within 1 yard/metre are linked as engaged in melee, and dragging shows when you'd be engaging or leaving melee.
+	-Tokens that have lost half or more of their health show claw marks and blood.
+	-Click a token, then a spot or another token, to measure the distance for everyone.
+	-Hover a token for its health (and blood and willpower for the host). Watchers see speeds for player characters, and only a rough wound state for others.
+	-Speeds on the hover card follow wounds: Wounded can only walk, Mauled can hobble 3, Crippled can crawl 1, and Incapacitated is Downed.
+	-The cog has the map's settings: the host picks Metric or Imperial for the room (1 yard = 1 metre = 3 feet), and everyone can turn the grid off or change how strong it is.
+	-Everyone can also pick their own background: Grimy tabletop, Aged parchment, Night street or Elysium marble, or let it match light/dark mode.
+	-Right-click a token (or press and hold it) to give it an Area of Effect (watchers can only use their own characters, unless the host lets them move any token): a radius from the token's edge, a description, a colour, and whether everyone sees it or only you and the host. It moves with the token, stays faint until you hover it (then shows its description), and areas can overlap.
+	-Needs the updated sync server for watchers to see portraits.
 -Fourteenth and Fifteenth Generation blood is no longer locked: past their threshold (the last 2 blood for Fourteenth, the last 4 for Fifteenth, so Fifteenth only has 6 usable) the boxes turn gold with a note on what it can't power, but it can still be spent.
 -Fourteenth Generation keeps Disciplines at 4 or less.
 -The Random Character Generator no longer equips the weapons it gives; armor still starts equipped.
@@ -238,10 +282,14 @@ V2.8
 	-The Actors list is now the Character Browser itself, in the same spot, with Original and Duplicate buttons on each character (Add to encounter when joining a room).
 	-Hide Roll is now a thinner eye button.
 	-Hovering "X watching" while hosting shows who is watching. Needs the updated sync server.
+	-Starting or ending an encounter clears the roll history for everyone in the room.
 -Character Manager Changes:
 	-The character browser's ⋯ menu can add, change or remove a character's picture.
 	-Sections of the Details tab can be moved up and down in edit mode.
 	-XP Plan keeps a trait's raises in order: a lower raise can't go below a higher one of the same trait, moving one brings the others along.
 	-A portrait can be added in the first step of Guided creation.
 	-Each Discipline on the Disciplines tab can be collapsed.
+	-The Quick Reference shows movement per turn (walking, jogging and running in metres/yards, with Celerity), slowed by wounds.
+	-Export can save several characters at once (tick the ones you want), and Import shows what's in the file first: untick any to skip, and for one you already have, choose to overwrite it or add it as a new [Copy].
 -The Rule Book's search settings use toggle switches like the main settings.
+-Each version in the Changelog can be folded open and closed; only the newest starts open.
