@@ -293,3 +293,37 @@ V3.0
 	-Export can save several characters at once (tick the ones you want), and Import shows what's in the file first: untick any to skip, and for one you already have, choose to overwrite it or add it as a new [Copy].
 -The Rule Book's search settings use toggle switches like the main settings.
 -Each version in the Changelog can be folded open and closed; only the newest starts open.
+
+V3.1
+-Skirmish Map Changes:
+	-Tokens are engaged in melee when their edges are within 1 yard/metre of touching.
+	-Tokens can't overlap: at most their edges touch.
+	-Measuring from a token starts at its centre and ends at the other token's nearest edge (or the spot picked), and snaps to the token under the pointer.
+	-During an encounter, moves count against a token's speed for the round. The rings show what's left (running speed, and half of it), dragging stops at the limit, a token with nothing left can't move, and "Over Half" shows once it passes half its running speed.
+	-A token's first move of a round that's shorter than 1 yard/metre (and doesn't engage anyone) is undone instead of counting.
+	-Before an encounter starts, moving tokens leaves no path and has no speed limit.
+	-Hurt tokens only show blood along their bottom edge (no more tint or claw marks), so the portrait stays clear.
+	-Labels no longer cover each other or the token being moved; the distance being moved gets out of the way.
+	-Dragging a token past the edge of the map moves the view along with it.
+	-Added a Full screen button.
+	-The mouse wheel zooms the map.
+	-Escape while dragging a token puts it back.
+-Initiative Tracker Changes:
+	-Each actor's wound state (Unhurt, Hurt, Injured and so on) shows next to their name for everyone in the room; the host also sees their health levels left.
+-Character Manager Changes:
+	-Dossier: the note being edited shows above everything else on the board.
+	-Dossier: new notes use the shape and colour you last picked for a note (remembered on each device).
+	-Dossier: a note's title is optional; a note without one shows just its details.
+	-Dossier: a collapsed note leaves room for its stamp.
+	-Dossier: containers are picked up by their title; dragging anywhere else inside one moves the board.
+	-Dossier: when a selection is dragged and the note you're holding lands in a container, everything selected goes into it.
+	-Dossier: searching marks the matching words inside the notes.
+	-Dossier: containers size themselves to fit what's in them, growing and shrinking as notes go in, come out or change size (an empty container keeps its size and can still be resized by hand).
+	-Dossier: a note stays in its container until its middle is dragged out twice the note's width away from it; closer than that, the container stretches to follow it. Dropped into a different container, it goes straight in. While dragging, the container it would go into glows and the one it would leave fades.
+	-Dossier: notes and containers no longer stack: dropping one on another pushes the one underneath out of the way, a container that grows pushes its neighbours, and a new note finds a free spot.
+	-Dossier: Ctrl+click (Cmd+click on a Mac) a note or container to fit it on screen (zooming in up to 125%); Ctrl+click an empty spot to fit the whole board.
+	-Dossier: string labels run along their string, on its upper side (the right side for upright strings), and never upside down.
+	-Dossier: text can be resized by dragging its corner down as well as sideways.
+	-Dossier: diamond and hexagon notes only react to the pointer inside their shape, so you can grab what's behind their corners.
+	-Dossier: the right-click menu has a Size row with − and + buttons (the menu stays open while you click them): notes and containers go from 50% to 200%, text changes letter size. Works on several selected things at once.
+-Fixed duplicates in the Initiative tracker losing their sheets, and health changes not sticking, when the page was closed (or a phone switched away) right after a change. A duplicate whose sheet is missing is now made again from its original.

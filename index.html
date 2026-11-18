@@ -2147,6 +2147,46 @@ img.user-av { object-fit: cover; border-radius: 50%; padding: 0; }
 .sm-aoe-pop input { -webkit-user-select: text; user-select: text; }
 /* While a board fills the window, its announcement banners sit pinned at the very top, and the board starts below them. */
 body.nb-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
+/* Skirmish Map: full screen, and labels */
+.sm-pop.sm-full { position: fixed; inset: 0; top: var(--ann-h, 0px); z-index: 60; max-height: none; min-height: 0; border-radius: 0; }
+body.sm-full-on { overflow: hidden; }
+body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
+.sm-fullb[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.sm-lbl-over rect { fill: #3a2600; stroke: #f0b13a; stroke-width: 0.03; }
+.sm-lbl-over text { fill: #ffd27a; font: 400 0.3px var(--font-display); }
+.sm-lbl-by text { fill: #9fe0bb; font: 400 0.3px var(--font-display); }
+@media (max-width: 480px) { .sm-fullb { font-size: 0.8rem; } }
+/* Initiative tracker: wound tag next to an actor's name */
+.ini-wnd { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; padding: 1px 7px; border: 1px solid var(--line); border-radius: 999px; font-size: 0.74rem; font-weight: 600; line-height: 1.5; vertical-align: middle; white-space: nowrap; color: var(--muted); }
+.ini-wnd-hp { font-family: var(--font-data); font-weight: 700; color: var(--fg); }
+.ini-wnd-hp:empty { display: none; }
+.ini-wnd.sev1 { color: #b8862a; border-color: color-mix(in srgb, #d9a43a 55%, transparent); }
+.ini-wnd.sev2 { color: var(--accent-text, #c4182b); border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+.ini-wnd.sev3 { color: #fff; background: var(--accent); border-color: var(--accent); }
+.ini-wnd.sev3 .ini-wnd-hp { color: #fff; }
+/* Dossier: search marks, untitled notes, collapsed stamps, containers held by their title */
+.nb-hl { background: #f2c94c; color: #1e140d; border-radius: 2px; padding: 0 1px; box-shadow: 0 0 0 1px rgba(30,20,13,0.25); }
+.nb-node.nb-untitled:not(.nb-fold) > .nb-in > .nb-head { position: absolute; top: 2px; right: 4px; margin: 0; padding: 0; background: none; box-shadow: none; clip-path: none; transform: none; }
+.nb-node.nb-untitled:not(.nb-fold) > .nb-in > .nb-d { padding-right: 20px; }
+/* A collapsed note keeps room for its tilted stamp: its height follows the stamp word's length and the note's width. */
+.nb-node.nb-fold:not(.nb-box):has(> .nb-stamp) { min-height: calc((var(--w, 200px) * 0.0893 + 12px) * 0.97 + (var(--stl, 8) * var(--w, 200px) * 0.0714 + 22px) * 0.242 + 14px); }
+.nb-node.nb-fold:not(.nb-box) > .nb-stamp { top: 50%; }
+.nb-box:not(.nb-fold):not(.editing) { cursor: inherit; }
+.nb-box:not(.nb-fold):not(.editing) > .nb-in > .nb-head { cursor: grab; }
+/* Dossier: while dragging, the container a note would land in glows and the one it would leave fades */
+.nb-box.nb-into { outline: 3px solid rgba(242,201,76,0.85); outline-offset: 3px; box-shadow: 0 0 22px rgba(242,201,76,0.35); }
+.nb-box.nb-leaving { opacity: 0.55; outline: 2px dashed rgba(210,40,60,0.75); outline-offset: 3px; }
+/* Dossier: diamonds and hexagons are only grabbed and hovered inside their shape (the clipped ::before takes the pointer) */
+.nb-node.s-diamond:not(.nb-box), .nb-node.s-hex:not(.nb-box) { pointer-events: none; }
+.nb-node.s-diamond:not(.nb-box)::before, .nb-node.s-hex:not(.nb-box)::before,
+.nb-node.s-diamond:not(.nb-box) > *, .nb-node.s-hex:not(.nb-box) > * { pointer-events: auto; }
+.nb-node.s-diamond:not(.nb-box) > .nb-pin, .nb-node.s-hex:not(.nb-box) > .nb-pin, .nb-node.s-diamond:not(.nb-box) > .nb-stamp, .nb-node.s-hex:not(.nb-box) > .nb-stamp { pointer-events: none; }
+/* The size row in a menu: − value + */
+.nb-mstep { display: flex; align-items: center; gap: 6px; padding: 4px 8px 4px 12px; }
+.nb-mstep .nb-ml { flex: 1; }
+.nb-mstep button { width: 26px; height: 24px; border-radius: 4px; border: 1px solid currentColor; background: transparent; color: inherit; font: 600 15px/1 var(--font-data); cursor: pointer; padding: 0; opacity: 0.85; }
+.nb-mstep button:hover { opacity: 1; background: rgba(217,164,65,0.18); }
+.nb-mval { min-width: 46px; text-align: center; font: 600 12px var(--font-data); }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -2941,7 +2981,7 @@ body.nb-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
           var die = isFinite(+a.die) ? clamp(Math.round(+a.die), -199, 999) : (rolled ? Math.round(+a.init) - mod - applied - (isFinite(+a.ix) ? +a.ix : 0) : 0);
           seen[+a.id] = true;
           seq = Math.max(seq, +a.id + 1);
-          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied + (isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0) : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0, ch: typeof a.ch === 'string' ? a.ch.slice(0, 40) : '', cd: isFinite(+a.cd) ? clamp(Math.round(+a.cd), 0, 10) : 0, mn: typeof a.mn === 'string' ? a.mn.slice(0, 80) : '', wnd: isFinite(+a.wnd) ? clamp(Math.round(+a.wnd), -10, 0) : 0, wndA: isFinite(+a.wndA) ? clamp(Math.round(+a.wndA), -10, 0) : 0, cu: isFinite(+a.cu) ? clamp(Math.round(+a.cu), 0, 10) : 0, ix: isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0, ow: typeof a.ow === 'string' && /^[a-f0-9]{16,64}$/.test(a.ow) ? a.ow : '', rc: typeof a.rc === 'string' ? a.rc.slice(0, 40) : '' });
+          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied + (isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0) : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0, ch: typeof a.ch === 'string' ? a.ch.slice(0, 40) : '', cd: isFinite(+a.cd) ? clamp(Math.round(+a.cd), 0, 10) : 0, mn: typeof a.mn === 'string' ? a.mn.slice(0, 80) : '', wnd: isFinite(+a.wnd) ? clamp(Math.round(+a.wnd), -10, 0) : 0, wndA: isFinite(+a.wndA) ? clamp(Math.round(+a.wndA), -10, 0) : 0, cu: isFinite(+a.cu) ? clamp(Math.round(+a.cu), 0, 10) : 0, ix: isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0, ow: typeof a.ow === 'string' && /^[a-f0-9]{16,64}$/.test(a.ow) ? a.ow : '', rc: typeof a.rc === 'string' ? a.rc.slice(0, 40) : '', of: typeof a.of === 'string' ? a.of.slice(0, 64) : '' });
         });
         st.ini.seq = seq;
         var usedEn = {};
@@ -5111,7 +5151,7 @@ body.nb-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
       c: curAt >= 0 ? pubName(cur) : '',
       z: ini.celerity,
       rows: ord.all.map(function (a) {
-        return { k: a.id, n: pubName(a), i: a.init, b: a.bonus, w: a.bonus !== a.applied, p: a.persistent, q: a.cel ? a.ca : null, s: rowState(a, ord, cur, curAt) };
+        return { k: a.id, h: a.ch && window.cmWound ? ((window.cmWound(a.ch) || {}).w || '') : '', n: pubName(a), i: a.init, b: a.bonus, w: a.bonus !== a.applied, p: a.persistent, q: a.cel ? a.ca : null, s: rowState(a, ord, cur, curAt) };
       })
     };
   }
@@ -5493,6 +5533,11 @@ body.nb-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
       nm.className = 'ini-static';
       nm.textContent = String(a.n).slice(0, 24);
       t2.appendChild(nm);
+      if (typeof a.h === 'string' && a.h) {   // CHARACTERS-MODULE: the wound word (watchers don't see health numbers)
+        var wsev = { Unhurt: 0, Incapacitated: 3 }[a.h], wl = document.createElement('span');
+        wl.className = 'ini-wnd sev' + (wsev != null ? wsev : /Mauled|Crippled/.test(a.h) ? 2 : 1); wl.textContent = a.h.slice(0, 20);
+        t2.appendChild(wl);
+      }
       if (a.p) {
         var pin = document.createElement('span');
         pin.className = 'ini-pin';
@@ -5607,6 +5652,16 @@ body.nb-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
         sb.title = 'Show ' + a.name + ' in the Character module'; sb.setAttribute('aria-label', sb.title);
         sb.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>';
         t2.appendChild(sb);
+      }
+      if (a.ch && window.cmWound) {   // CHARACTERS-MODULE: wound word, and health left (only the host sees this tracker)
+        var wd = window.cmWound(a.ch);
+        if (wd) {
+          var wt = document.createElement('span'); wt.className = 'ini-wnd sev' + wd.sev;
+          wt.innerHTML = '<span class="ini-wnd-w"></span><span class="ini-wnd-hp"></span>';
+          wt.firstChild.textContent = wd.w; wt.lastChild.textContent = wd.left + '/' + wd.m;
+          wt.title = wd.w + ': ' + wd.left + ' of ' + wd.m + ' health levels left' + (wd.b + wd.l + wd.a ? ' (' + [wd.b ? wd.b + ' bashing' : '', wd.l ? wd.l + ' lethal' : '', wd.a ? wd.a + ' aggravated' : ''].filter(Boolean).join(', ') + ')' : '');
+          t2.appendChild(wt);
+        }
       }
       if (hostInfo && !isRev(a)) {
         var hint = document.createElement('span');
@@ -6757,6 +6812,7 @@ V1.5
     /* CHARACTERS-MODULE: the Skirmish Map reads the tracker and sends through the room. */
     mapState: function () { return { ini: ini, hosting: !!hostInfo, watching: !!watchWs, remote: watchWs ? remote : null, mine: Object.keys(mineRows).map(Number) }; },
     mapPush: function () { if (hostInfo) pushState(); },
+    refreshRows: function () { if (!watchWs) renderInit(); },   // a sheet's wounds changed: redraw (and send) the rows
     mapAct: function (a) { joinAct(a); },
     mapPics: function (p) { if (hostWs && hostWs.readyState === 1) { try { hostWs.send(JSON.stringify({ t: 'pics', p: p })); return true; } catch (e) {} } return false; },
     peerName: function (pid) { var w = peerWho[pid] || {}; return String(w.n || peerNames[pid] || '').trim() || 'Someone'; },
@@ -6788,6 +6844,7 @@ V1.5
       if (ini.actors.length === n) return false;
       if (p.ch) {
         var a = ini.actors[ini.actors.length - 1]; a.ch = String(p.ch); linkSet(a, p);
+        if (p.of) a.of = String(p.of).slice(0, 64);   // a duplicate: the sheet it was copied from (to remake it if it's ever lost)
         if (p.ow) { a.ow = String(p.ow); a.rc = String(p.rc || ''); a.persistent = true; a.type = 'player'; a.reveal = false; }   // a joiner's character
         recompute(a); initChanged();
       }
@@ -6803,6 +6860,7 @@ V1.5
       var c = ini.turn ? actorOf(ini.turn) : null; return { live: ini.live, started: ini.started, encounter: ini.encounter, round: ini.round, eid: ini.eid || 0, cur: c && c.ch ? c.ch : null, celerity: ini.celerity };
     },
     linked: function () { return ini.actors.filter(function (a) { return a.ch; }).map(function (a) { return a.ch; }).concat(watchWs ? mineCids() : []); },
+    linkedActors: function () { return ini.actors.filter(function (a) { return a.ch && !a.ow; }).map(function (a) { return { ch: a.ch, name: a.name, of: a.of || '' }; }); },
     celUsed: function (ch) {
       var n = 0;
       if (watchWs && remote) { if (remote.l) Object.keys(mineRows).forEach(function (k) { var m = mineRows[k]; if (m.cid === ch) n = Math.max(n, m.cu || 0); }); return n; }
@@ -7561,15 +7619,24 @@ V1.5
   var saveT = 0;
   function save() {
     clearTimeout(saveT);
-    saveT = setTimeout(function () {
-      privRefreshAll();   // what each private part covers, before it syncs
-      try { localStorage.setItem(KEY, JSON.stringify(store, charRep)); } catch (e) { toast('Couldn\'t save: browser storage is full or blocked.'); }
-      syncInitiative();
-      smMapCheck();   // the Skirmish Map's health and speeds
-      shareChanged();
-      acctChanged();
-    }, 200);
+    saveT = setTimeout(saveRun, 200);
   }
+  function saveRun() {
+    saveT = 0;
+    privRefreshAll();   // what each private part covers, before it syncs
+    try { localStorage.setItem(KEY, JSON.stringify(store, charRep)); } catch (e) { toast('Couldn\'t save: browser storage is full or blocked.'); }
+    syncInitiative();
+    iniWoundCheck();   // the tracker's wound tags
+    smMapCheck();   // the Skirmish Map's health and speeds
+    shareChanged();
+    acctChanged();
+  }
+  /* A change waiting to be saved is saved at once when the page is hidden or closed: phones stop a page's timers the
+     moment you switch away, which used to lose the last changes (a new duplicate's sheet, a health change). */
+  function saveFlush() { if (saveT) { clearTimeout(saveT); saveRun(); } }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saveFlush(); });
+  window.addEventListener('pagehide', saveFlush);
+  window.addEventListener('beforeunload', saveFlush);
   function cur() { return store.chars[store.cur] || null; }
   function uid() { return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
@@ -7625,6 +7692,7 @@ V1.5
       };
       if (b) { o.b = true; o.h = num(x.h, 240, 100, 2400); }
       if (!b && x.st && NB_STAMPS.some(function (k) { return k[0] === x.st; })) o.st = x.st;
+      var sc0 = num(x.sc, 100, 50, 200); if (sc0 !== 100) o.sc = sc0;   // size, in percent
       out[id] = o;
     });
     /* A note can only sit in a container that exists, and never inside itself. */
@@ -10823,9 +10891,30 @@ V1.5
     d.info.name = (c.info.name || 'Unnamed').slice(0, 24 - sfx.length) + sfx;
     d.ui = { tab: 'play', recent: (c.ui && c.ui.recent) || [] }; d.spent = null; d.boostSpend = null;
     store.chars[d.id] = d;
-    if (!r.addActor(iniPayload(d, d.info.name))) { delete store.chars[d.id]; return 'The Initiative tracker is full.'; }
-    save();
+    var pl = iniPayload(d, d.info.name); pl.of = c.id;
+    if (!r.addActor(pl)) { delete store.chars[d.id]; return 'The Initiative tracker is full.'; }
+    save(); saveFlush();   // straight away: the tracker has already saved its new row
     return '';
+  }
+  /* A duplicate in the tracker whose sheet is missing (lost before it could be saved) is made again from the sheet it
+     was copied from, so its row can still be used. Its own changes since then are gone. */
+  function dupRepair(r) {
+    if (!r.linkedActors) return false;
+    var made = [];
+    r.linkedActors().forEach(function (a) {
+      if (store.chars[a.ch] || trash[a.ch] || /^rm-/.test(a.ch)) return;
+      var m = /^(.*) \[(\d+)\]$/.exec(a.name || ''); if (!m && !a.of) return;   // only duplicates ("Name [n]")
+      var o = a.of && store.chars[a.of] && !store.chars[a.of].temp ? store.chars[a.of] : null;
+      if (!o && m) { var base = m[1].toLowerCase(); Object.keys(store.chars).some(function (id) { var x = store.chars[id]; if (!x.temp && (x.info.name || '').slice(0, 24 - m[2].length - 3).toLowerCase() === base) { o = x; return true; } return false; }); }
+      if (!o) return;
+      var d = JSON.parse(JSON.stringify(o));
+      d.id = a.ch; d.temp = { of: o.id, n: m ? +m[2] : dupNumber(o) }; d.created = Date.now(); delete d.share;
+      d.info.name = a.name || ((o.info.name || 'Unnamed') + ' [' + d.temp.n + ']');
+      d.ui = { tab: 'play', recent: (o.ui && o.ui.recent) || [] }; d.spent = null; d.boostSpend = null;
+      store.chars[d.id] = d; made.push(d.info.name);
+    });
+    if (made.length) toast(made.join(', ') + (made.length > 1 ? ' were' : ' was') + ' missing a sheet, so ' + (made.length > 1 ? 'they were' : 'it was') + ' made again from the original.');
+    return made.length > 0;
   }
   /* After every tracker change: drop copies whose actor is gone (kept for this session so Undo can bring them back),
      wear off boosted dots past their 3 turns, and refresh what shows the encounter. */
@@ -10835,6 +10924,7 @@ V1.5
     var r = R(); if (!r || !r.linked) return;
     var has = {}, changed = false;
     r.linked().forEach(function (id) { has[id] = true; if (!store.chars[id] && trash[id]) { store.chars[id] = trash[id]; delete trash[id]; changed = true; } });
+    if (dupRepair(r)) changed = true;
     Object.keys(store.chars).forEach(function (id) { if (store.chars[id].temp && !has[id]) { trash[id] = store.chars[id]; delete store.chars[id]; changed = true; } });
     if (!store.chars[store.cur]) store.cur = store.order[0] || null;
     var t = turnNow();
@@ -13809,10 +13899,10 @@ V1.5
     Object.keys(nbPick).forEach(function (k) { if (!nbOf(c).n[k]) delete nbPick[k]; });
     nbHistSync(c);
     var fi = $('nbFind');
-    fi.addEventListener('input', function () { nbQ = fi.value.trim().toLowerCase(); nbFindApply(); });
+    fi.addEventListener('input', function () { nbQ = fi.value.trim().toLowerCase(); nbDraw(); });   // redraws: the matching words are marked
     fi.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); if (nbMatch) nbFit(Object.keys(nbMatch)); }
-      else if (e.key === 'Escape' && fi.value) { e.preventDefault(); e.stopPropagation(); fi.value = ''; nbQ = ''; nbFindApply(); }
+      else if (e.key === 'Escape' && fi.value) { e.preventDefault(); e.stopPropagation(); fi.value = ''; nbQ = ''; nbDraw(); }
     });
     if (nbEdit && !nbOf(c).n[nbEdit]) nbEdit = null;
     board.addEventListener('pointerdown', nbDown);
@@ -13860,33 +13950,48 @@ V1.5
     } else if (fid) { var fe = stage.querySelector('.nb-node[data-nid="' + fid + '"]'); if (fe) fe.focus(); else if ($('nbBoard')) $('nbBoard').focus(); }
     else if (focusBoard) $('nbBoard').focus();
   }
+  /* Text with what's being searched for marked. */
+  function nbHl(text) {
+    var s = String(text || ''); if (!nbQ) return esc(s);
+    var low = s.toLowerCase(), out = '', i = 0, j;
+    while ((j = low.indexOf(nbQ, i)) >= 0) { out += esc(s.slice(i, j)) + '<mark class="nb-hl">' + esc(s.slice(j, j + nbQ.length)) + '</mark>'; i = j + nbQ.length; }
+    return out + esc(s.slice(i));
+  }
+  /* What new notes look like: the shape and colour last picked for a note, on this device only (not synced). */
+  function nbLastNote() { try { var d = JSON.parse(localStorage.getItem('vtm-nb-note') || 'null') || {}; return { s: NB_SHAPES.some(function (x) { return x[0] === d.s; }) ? d.s : 'rect', k: NB_COLS.some(function (x) { return x[0] === d.k; }) ? d.k : '' }; } catch (e) { return { s: 'rect', k: '' }; } }
+  function nbSetLastNote(part, v) { try { var d = nbLastNote(); d[part] = v; localStorage.setItem('vtm-nb-note', JSON.stringify(d)); } catch (e) {} }
   function nbTextHTML(nb, id, ro) {
     var o = nb.n[id], ed = nbEdit === id && !ro, sel = nbIsSel(id);
     var cls = 'nb-node nb-text f-' + o.fo + (o.k ? ' k-' + o.k : '') + (sel ? ' sel' : '') + (ed ? ' editing' : '');
-    var st = 'left:' + o.x + 'px;top:' + o.y + 'px;width:' + o.w + 'px;--fs:' + o.fs + 'px;--r:' + o.r + 'deg;z-index:' + (1000 + (o.z || 0)) + ';';
+    var st = 'left:' + o.x + 'px;top:' + o.y + 'px;width:' + o.w + 'px;--fs:' + o.fs + 'px;--r:' + o.r + 'deg;z-index:' + (ed ? 100000 : 1000 + (o.z || 0)) + ';';   // being edited: above everything
     return '<div class="' + cls + '" data-nid="' + id + '" style="' + st + '" tabindex="0" role="group" aria-roledescription="text" aria-label="' + esc(nbTitle(o)) + '">' +
-      (ed ? '<textarea class="nb-xi" maxlength="' + NB_XMAX + '" aria-label="Text">' + esc(o.t) + '</textarea>' : '<div class="nb-xt">' + (o.t.trim() ? esc(o.t) : '<span class="nb-ph">Empty text</span>') + '</div>') +
+      (ed ? '<textarea class="nb-xi" maxlength="' + NB_XMAX + '" aria-label="Text">' + esc(o.t) + '</textarea>' : '<div class="nb-xt">' + (o.t.trim() ? nbHl(o.t) : '<span class="nb-ph">Empty text</span>') + '</div>') +
       (ro ? '' : '<span class="nb-rot" title="Drag to turn it (Shift: steps of 15°)" aria-hidden="true"></span><span class="nb-size" title="Drag to resize" aria-hidden="true"></span>') + '</div>';
   }
   function nbNodeHTML(nb, id, ro) {
     var o = nb.n[id], ed = nbEdit === id && !ro, sel = nbIsSel(id);
     if (o.tx) return nbTextHTML(nb, id, ro);
     var cls = 'nb-node s-' + o.s + (o.k ? ' k-' + o.k + (o.b ? '' : ' nb-dark') : '') + (o.b ? ' nb-box' : '') + (o.f ? ' nb-fold' : '') + (sel ? ' sel' : '') + (ed ? ' editing' : '');
-    var st = 'left:' + o.x + 'px;top:' + o.y + 'px;width:' + o.w + 'px;--w:' + o.w + 'px;' + (o.b ? '' : '--r:' + nbTilt(id) + 'deg;') + (o.b && !o.f ? 'height:' + o.h + 'px;' : '') + 'z-index:' + (o.b ? 1 + nbDepth(nb, id) : 1000 + (o.z || 0)) + ';';
+    var sc = (o.sc || 100) / 100, ww = o.b ? o.w : Math.round(o.w * sc);
+    var st = 'left:' + o.x + 'px;top:' + o.y + 'px;width:' + ww + 'px;--w:' + ww + 'px;' + (sc !== 1 ? '--sc:' + sc + ';' : '') + (o.b ? '' : '--r:' + nbTilt(id) + 'deg;') + (o.b && !o.f ? 'height:' + o.h + 'px;' : '') + 'z-index:' + (ed ? 100000 : o.b ? 1 + nbDepth(nb, id) : 1000 + (o.z || 0)) + ';' + (o.st && o.f && !o.b ? '--stl:' + nbStampLen(o) + ';' : '');
     var inside = o.b ? nbDesc(nb, id).length : 0;
     var fold = '<button type="button" class="nb-fb" data-nb="fold" data-id="' + id + '" aria-expanded="' + !o.f + '" aria-label="' + (o.f ? 'Expand ' : 'Collapse ') + esc(nbTitle(o)) + '"' + (ro ? ' disabled' : '') + '>' +
       '<svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg></button>';
-    var title = ed ? '<input class="nb-ti" maxlength="' + NB_TMAX + '" value="' + esc(o.t) + '" aria-label="Title" placeholder="Title">' : '<span class="nb-t">' + esc(nbTitle(o)) + '</span>';
+    var untitled = !o.b && !o.t.trim();   // a note can have no title: then it shows only its details
+    var title = ed ? '<input class="nb-ti" maxlength="' + NB_TMAX + '" value="' + esc(o.t) + '" aria-label="Title" placeholder="Title (optional)">' :
+      untitled ? (o.f ? '<span class="nb-t nb-ph">' + esc((o.d.trim().split('\n')[0] || 'Untitled note').slice(0, 60)) + '</span>' : '') : '<span class="nb-t">' + nbHl(nbTitle(o)) + '</span>';
     var count = o.b && o.f && inside ? '<span class="nb-cnt">' + inside + ' inside</span>' : '';
     var body = o.f ? '' : ed ? '<textarea class="nb-di" maxlength="' + NB_DMAX + '" aria-label="Details" placeholder="Details">' + esc(o.d) + '</textarea>' :
-      (o.d.trim() ? '<div class="nb-d">' + esc(o.d) + '</div>' : (o.b ? '' : '<div class="nb-d nb-ph">No details yet</div>'));
+      (o.d.trim() ? '<div class="nb-d">' + nbHl(o.d) + '</div>' : (o.b ? '' : '<div class="nb-d nb-ph">No details yet</div>'));
+    if (untitled && !ed) cls += ' nb-untitled';
     return '<div class="' + cls + '" data-nid="' + id + '" style="' + st + '" tabindex="0" role="group" aria-roledescription="' + (o.b ? 'container' : 'note') + '" aria-label="' + esc(nbTitle(o)) + (o.f ? ', collapsed' : '') + '">' +
       (o.b ? '' : '<span class="nb-pin" aria-hidden="true"></span>') +
-      '<div class="nb-in"><div class="nb-head">' + fold + title + count + '</div>' + body + '</div>' + nbStampHTML(o) +
+      '<div class="nb-in"' + (sc !== 1 ? ' style="zoom:' + sc + '"' : '') + '><div class="nb-head">' + fold + title + count + '</div>' + body + '</div>' + nbStampHTML(o) +
       (ro ? '' : '<span class="nb-port" title="Drag onto another note to connect them" aria-hidden="true"></span>' +
-        (o.f ? '' : '<span class="nb-size ' + (o.b ? 'both' : 'w') + '" title="Drag to resize" aria-hidden="true"></span>')) + '</div>';
+        (o.f || (o.b && nbKids(nb, id).some(function (k) { return !nb.n[k].tx; })) ? '' : '<span class="nb-size ' + (o.b ? 'both' : 'w') + '" title="Drag to resize" aria-hidden="true"></span>')) + '</div>';   // a container with things in it fits them itself
   }
   /* A rubber stamp across the note (its status). */
+  function nbStampLen(o) { var s0 = NB_STAMPS.filter(function (k) { return k[0] === o.st; })[0]; return s0 ? s0[1].length : 0; }
   function nbStampHTML(o) {
     if (!o.st || o.b) return '';
     var s0 = NB_STAMPS.filter(function (k) { return k[0] === o.st; })[0]; if (!s0) return '';
@@ -13964,13 +14069,17 @@ V1.5
       var A = bx(a), B = bx(b); if (!A || !B) return;
       var p = nbEnd(A, B.x + B.w / 2, B.y + B.h / 2), q = nbEnd(B, A.x + A.w / 2, A.y + A.h / 2);
       var sel = nbSel && nbSel.k === 'l' && nbSel.id === lid, d = nbString(p, q), via = a !== l.a || b !== l.b;
-      var col = nbStrCol(l.c), mid = nbMid(p, q); nbLblAt[lid] = mid;
+      var col = nbStrCol(l.c), mid = nbMid(p, q);
+      /* The label runs along the string, never upside down, on its north side (east when the string is near upright). */
+      var ang = Math.atan2(q[1] - p[1], q[0] - p[0]) * 180 / Math.PI; if (ang > 90) ang -= 180; if (ang <= -90) ang += 180;
+      var ar = ang * Math.PI / 180, ux = Math.sin(ar), uy = -Math.cos(ar), side = (-uy + ux) >= (uy - ux) ? -1 : 1, off = 12;
+      nbLblAt[lid] = [mid[0] - side * ux * off, mid[1] - side * uy * off];
       var lhit = nbQ && l.t && l.t.toLowerCase().indexOf(nbQ) >= 0, dim = nbMatch && !lhit && !(nbMatch[a] || nbMatch[b]);
       h += '<g class="nb-str' + (dim ? ' dim' : '') + '"><path class="nb-sh" d="' + d + '"></path><path class="nb-ln' + (sel ? ' sel' : '') + (via ? ' via' : '') + '" style="stroke:' + col + '" d="' + d + '"></path>';
       hits += '<path class="nb-hit" data-lid="' + lid + '" d="' + d + '"></path>';
       [p, q].forEach(function (e) { h += '<circle class="nb-tack" style="fill:' + col + '" cx="' + e[0].toFixed(1) + '" cy="' + e[1].toFixed(1) + '" r="4.5"></circle>'; });
       /* Its label: a paper tag at the middle of the string. */
-      if (l.t) h += '<g class="nb-lbl' + (lhit ? ' found' : '') + (sel ? ' sel' : '') + '" data-lid="' + lid + '"><rect rx="3" style="stroke:' + col + '"></rect><text x="' + mid[0].toFixed(1) + '" y="' + mid[1].toFixed(1) + '">' + esc(l.t) + '</text></g>';
+      if (l.t) h += '<g class="nb-lbl' + (lhit ? ' found' : '') + (sel ? ' sel' : '') + '" data-lid="' + lid + '" transform="translate(' + mid[0].toFixed(1) + ' ' + mid[1].toFixed(1) + ') rotate(' + ang.toFixed(1) + ') translate(0 ' + (side * off) + ')"><rect rx="3" style="stroke:' + col + '"></rect><text x="0" y="0">' + esc(l.t) + '</text></g>';
       h += '</g>';
     });
     /* The strings sit over everything, under a mask that fades them over whatever the pointer is on. */
@@ -14073,10 +14182,11 @@ V1.5
     var id = rid();
     nb.n[id] = tx ? { tx: true, t: 'New Text', x: x, y: y, w: w, fs: 20, fo: 't', r: 0, k: '', z: nbTopZ(nb), p: '' } :
       box ? { t: 'New container', d: '', x: x, y: y, w: w, s: 'round', k: '', f: false, p: p, z: nbTopZ(nb), b: true, h: 240 } :
-      { t: 'New note', d: '', x: x, y: y, w: w, s: 'rect', k: '', f: false, p: p, z: nbTopZ(nb) };
+      (function () { var ln = nbLastNote(); return { t: 'New note', d: '', x: x, y: y, w: w, s: ln.s, k: ln.k, f: false, p: p, z: nbTopZ(nb) }; })();
     nbSel = { k: 'n', id: id };
     nbChanged(); nbDraw();
-    if (p) { nbGrow(nb, id); nbChanged(); nbDraw(); }
+    if (p) nbGrow(nb, id);
+    nbSettleNow(tx ? [] : [id], [], tx ? [] : [id]);
     var e = nbEl(id); if (e) e.focus({ preventScroll: true });
   }
   /* Grows the container (and the ones around it) so a note dropped inside fits. */
@@ -14091,15 +14201,108 @@ V1.5
       id = o.p; o = p;
     }
   }
+  /* After something lands or changes size: nothing stays stacked, and containers fit what's in them.
+     ids: what was dropped or changed (it stays put; what it covers moves out of the way).
+     olds: containers something just left (they shrink to fit).
+     yieldIds: the new things move to a free spot instead of pushing (a note just added). */
+  var NB_GAP = 12, NB_PAD = 16, NB_HEAD = 40;
+  function nbSettle(ids, olds, yieldIds) {
+    var c = nbC(); if (!c || nbRO(c)) return false;
+    var nb = nbOf(c), st = $('nbStage'), S = {}, before = JSON.stringify(nb.n);
+    function size(k) {
+      var o = nb.n[k]; if (o.b && !o.f) return { w: o.w, h: o.h || 100 };
+      if (!S[k]) { var el = st && st.querySelector('.nb-node[data-nid="' + k + '"]'); S[k] = el ? { w: el.offsetWidth, h: el.offsetHeight } : { w: o.w, h: 80 }; }
+      return S[k];
+    }
+    function rect(k) { var o = nb.n[k], s = size(k); return { x: o.x, y: o.y, w: s.w, h: s.h }; }
+    function over(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
+    function solid(k) { var o = nb.n[k]; return o && !o.tx && !nbHider(nb, k); }
+    function depth(L) { return L ? nbDepth(nb, L) : -1; }
+    /* Fit a container around what's in it (an empty one keeps its size). */
+    function fit(L) {
+      var o = nb.n[L]; if (!o || !o.b || o.f || nbHider(nb, L)) return;
+      var kids = nbKids(nb, L).filter(solid); if (!kids.length) return;
+      var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      kids.forEach(function (k) { var r = rect(k); x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h); });
+      o.x = Math.round(x0 - NB_PAD); o.y = Math.round(y0 - NB_HEAD);
+      o.w = Math.min(2400, Math.max(180, Math.round(x1 + NB_PAD - o.x))); o.h = Math.min(2400, Math.max(100, Math.round(y1 + NB_PAD - o.y)));
+    }
+    /* Push what overlaps the fixed things out of the way, the shortest way that doesn't land on another fixed thing. */
+    function spread(L, fixed, movers) {
+      var sib = Object.keys(nb.n).filter(function (k) { return (nb.n[k].p || '') === L && solid(k); });
+      var F = sib.filter(function (k) { return fixed.indexOf(k) >= 0; });
+      var M = sib.filter(function (k) { return F.indexOf(k) < 0 && (!movers || movers.indexOf(k) >= 0); });
+      var g = 0, hit = true;
+      while (hit && g++ < sib.length * 4 + 10) {
+        hit = false;
+        for (var i = 0; i < M.length && !hit; i++) {
+          var m = M[i], rm = rect(m);
+          var f = F.filter(function (k) { return over(rect(k), rm); })[0]; if (!f) continue;
+          var rf = rect(f), opts = [[rf.x + rf.w + NB_GAP - rm.x, 0], [rf.x - NB_GAP - rm.x - rm.w, 0], [0, rf.y + rf.h + NB_GAP - rm.y], [0, rf.y - NB_GAP - rm.y - rm.h]];
+          opts.sort(function (a, b) { return Math.abs(a[0]) + Math.abs(a[1]) - Math.abs(b[0]) - Math.abs(b[1]); });
+          var pick = opts.filter(function (v) { var r = { x: rm.x + v[0], y: rm.y + v[1], w: rm.w, h: rm.h }; return !F.some(function (k) { return over(rect(k), r); }); })[0] || opts[0];
+          nbMove(nb, m, pick[0], pick[1]);
+          F.push(m); M.splice(i, 1); hit = true;
+        }
+        /* What's moved can still sit on something not yet looked at: keep going until nothing overlaps. */
+        if (!hit && !movers) for (var a = 0; a < sib.length && !hit; a++) for (var b2 = 0; b2 < sib.length && !hit; b2++) {
+          var ka = sib[a], kb = sib[b2]; if (ka === kb || F.indexOf(ka) < 0 || F.indexOf(kb) >= 0) continue;
+          if (over(rect(ka), rect(kb))) { M.push(kb); hit = true; }
+        }
+      }
+    }
+    /* Work from the innermost container out: settle a level, fit its container, then that container is what landed one level up. */
+    var lv = {};
+    function at(L, k) { L = L || ''; if (!lv[L]) lv[L] = { fixed: [], fit: true }; if (k && lv[L].fixed.indexOf(k) < 0) lv[L].fixed.push(k); }
+    (ids || []).forEach(function (k) { if (nb.n[k] && !nb.n[k].tx) at(nb.n[k].p, k); });
+    (olds || []).forEach(function (L) { if (L && nb.n[L]) at(L); });
+    var yl = {}; (yieldIds || []).forEach(function (k) { if (nb.n[k]) yl[nb.n[k].p || ''] = (yl[nb.n[k].p || ''] || []).concat(k); });
+    var done = {}, guard = 0;
+    while (guard++ < 200) {
+      var keys = Object.keys(lv).filter(function (L) { return !done[L]; }); if (!keys.length) break;
+      keys.sort(function (a, b) { return depth(b) - depth(a); });
+      var L = keys[0]; done[L] = 1;
+      if (yl[L]) {
+        /* Something new: it moves to a free spot instead. */
+        var others = Object.keys(nb.n).filter(function (k) { return (nb.n[k].p || '') === L && solid(k) && yl[L].indexOf(k) < 0; });
+        spread(L, others, yl[L]);
+      } else if (lv[L].fixed.length) spread(L, lv[L].fixed);
+      if (L && nb.n[L]) { fit(L); var up = nb.n[L].p || ''; if (done[up]) delete done[up]; at(up, L); }
+    }
+    return JSON.stringify(nb.n) !== before;
+  }
+  /* Draws, settles, and saves what settling changed (one undo step with the change itself). */
+  function nbSettleNow(ids, olds, yieldIds) { nbDraw(); var moved = nbSettle(ids, olds, yieldIds); nbChanged(); if (moved) nbDraw(); }
+  /* Where a dragged note would land: the innermost open container under its middle. */
+  function nbDropTarget(nb, id) {
+    var b = nbBox(id); if (!b || nb.n[id].tx) return '';
+    var cur = nb.n[id].p, P = cur && nb.n[cur];
+    var cx = b.x + b.w / 2, cy = b.y + b.h / 2, bad = {}; bad[id] = 1; nbDesc(nb, id).forEach(function (k) { bad[k] = 1; });
+    var best = '', area = Infinity;
+    Object.keys(nb.n).forEach(function (k) {
+      var o = nb.n[k]; if (!o.b || o.f || bad[k] || nbHider(nb, k)) return;
+      if (cx >= o.x && cx <= o.x + o.w && cy >= o.y && cy <= o.y + o.h && o.w * o.h < area) { best = k; area = o.w * o.h; }
+    });
+    /* A note only leaves its container once its middle is twice its width away from it (closer, the container stretches to follow).
+       Dropped into another container (not one around this one), it goes there straight away. */
+    if (P && P.b && !P.f && !nbHider(nb, cur) && best !== cur) {
+      var up = {}, q = P.p, g = 0; while (q && nb.n[q] && g++ < 50) { up[q] = 1; q = nb.n[q].p; }
+      if (!best || up[best]) {
+        var ox = Math.max(P.x - cx, 0, cx - (P.x + P.w)), oy = Math.max(P.y - cy, 0, cy - (P.y + P.h));
+        if (Math.hypot(ox, oy) < 2 * b.w) return cur;
+      }
+    }
+    return best;
+  }
   function nbDelete(id) {
     var c = nbC(); if (!c) return;
     var nb = nbOf(c), o = nb.n[id]; if (!o) return;
     function go() {
-      nbKids(nb, id).forEach(function (k) { nb.n[k].p = o.p; });
+      var kids0 = nbKids(nb, id); kids0.forEach(function (k) { nb.n[k].p = o.p; });
       Object.keys(nb.l).forEach(function (k) { if (nb.l[k].a === id || nb.l[k].b === id) delete nb.l[k]; });
       delete nb.n[id];
       if (nbEdit === id) nbEdit = null; nbSel = null;
-      nbChanged(); nbDraw(); $('nbBoard').focus();
+      nbSettleNow(kids0, [o.p]); $('nbBoard').focus();
     }
     var kids = o.b ? nbKids(nb, id).length : 0;
     if (!(o.d || '').trim() && !kids) return go();
@@ -14122,10 +14325,11 @@ V1.5
         var p = nb.n[k].p, g = 0; while (p && del[p] && g++ < 50) p = nb.n[p] ? nb.n[p].p : '';
         nb.n[k].p = p || '';
       });
+      var olds0 = ids.map(function (k) { return nb.n[k] && nb.n[k].p; }).filter(function (k) { return k && ids.indexOf(k) < 0; });
       ids.forEach(function (k) { delete nb.n[k]; });
       Object.keys(nb.l).forEach(function (k) { if (del[nb.l[k].a] || del[nb.l[k].b]) delete nb.l[k]; });
       nbEdit = null; nbSel = null; nbPick = {};
-      nbChanged(); nbDraw(); $('nbBoard').focus();
+      nbSettleNow([], olds0); $('nbBoard').focus();
     }
     openModal('<h2>Delete ' + ids.length + ' things</h2><p>Delete the ' + ids.length + ' selected notes, containers and text? Notes inside a deleted container stay on the board. (Ctrl+Z brings them back.)</p>' +
       '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">Delete</button></div>');
@@ -14150,13 +14354,8 @@ V1.5
   /* After a drag: the note goes into the innermost open container under its middle, or out of all of them. */
   function nbDrop(nb, id) {
     if (nb.n[id].tx) { nb.n[id].z = nbTopZ(nb); return; }   // text stays loose on the board
-    var b = nbBox(id); if (!b) return;
-    var cx = b.x + b.w / 2, cy = b.y + b.h / 2, bad = {}; bad[id] = 1; nbDesc(nb, id).forEach(function (k) { bad[k] = 1; });
-    var best = '', area = Infinity;
-    Object.keys(nb.n).forEach(function (k) {
-      var o = nb.n[k]; if (!o.b || o.f || bad[k] || nbHider(nb, k)) return;
-      if (cx >= o.x && cx <= o.x + o.w && cy >= o.y && cy <= o.y + o.h && o.w * o.h < area) { best = k; area = o.w * o.h; }
-    });
+    if (!nbBox(id)) return;
+    var best = nbDropTarget(nb, id);
     nb.n[id].p = best; nb.n[id].z = nbTopZ(nb);
     if (best) nbGrow(nb, id);
   }
@@ -14166,6 +14365,7 @@ V1.5
     /* Leave the field properly first: account and sharing sync wait for that before sending what was typed. */
     var ae = document.activeElement; if (ae && (ae.classList.contains('nb-ti') || ae.classList.contains('nb-di') || ae.classList.contains('nb-xi'))) ae.blur();
     nbRedraw(id); nbChanged();
+    if (nbC() && nbOf(nbC()).n[id]) nbSettleNow([id]);
     if (refocus) { var e = nbEl(id); if (e) { if (nbSel && nbSel.k === 'n' && nbSel.id === id) e.classList.add('sel'); e.focus(); } }
   }
 
@@ -14183,6 +14383,9 @@ V1.5
   function nbMenuHTML(items, base) {
     return items.map(function (it, i) {
       if (!it) return '<hr class="nb-sep">';
+      if (it.step) return '<div class="nb-mstep" role="group" aria-label="' + it.label + '"><span class="nb-ml">' + it.label + '</span>' +
+        '<button type="button" data-step="' + (base + i) + '" data-dir="-1" aria-label="Smaller">−</button><span class="nb-mval" aria-live="polite">' + (it.val ? it.val() : '') + '</span>' +
+        '<button type="button" data-step="' + (base + i) + '" data-dir="1" aria-label="Bigger">+</button></div>';
       var k = base + i, sw = it.sw ? '<span class="nb-sw" style="background:' + it.sw + '"></span>' : '';
       if (it.sub) return '<button type="button" role="menuitem" aria-haspopup="menu" aria-expanded="false" data-mi="' + k + '">' + sw + '<span class="nb-ml">' + it.label + '</span><span class="nb-mx" aria-hidden="true">›</span></button>';
       return '<button type="button" role="' + (it.on != null ? 'menuitemradio' : 'menuitem') + '"' + (it.on != null ? ' aria-checked="' + !!it.on + '"' : '') + ' data-mi="' + k + '"' + (it.danger ? ' class="danger"' : '') + '>' +
@@ -14228,6 +14431,9 @@ V1.5
       else { m.querySelectorAll('.nb-sub').forEach(function (x) { x.remove(); }); m.querySelectorAll('[aria-expanded="true"]').forEach(function (x) { x.setAttribute('aria-expanded', 'false'); }); }
     });
     m.addEventListener('click', function (e) {
+      /* − / + change the size and keep the menu open. */
+      var sb0 = e.target.closest('[data-step]');
+      if (sb0) { var si = nbFind(sb0.getAttribute('data-step')); if (si && si.step) { si.step(+sb0.getAttribute('data-dir')); var vv = sb0.parentNode.querySelector('.nb-mval'); if (vv && si.val) vv.textContent = si.val(); } return; }
       var b = e.target.closest('[data-mi]'); if (!b) return;
       if (b.getAttribute('aria-haspopup')) { var sb = nbSubOpen(b); if (sb && e.detail === 0) sb.querySelector('[data-mi]').focus(); return; }
       var it = nbFind(b.getAttribute('data-mi')); nbMenuClose(true);
@@ -14251,9 +14457,19 @@ V1.5
     function add(kind) { return function () { nbAdd(kind, { x: pt.x - (kind === 'text' ? 10 : 20), y: pt.y - 14 }, box ? inside : ''); }; }
     return [{ label: 'Add note' + where, run: add('note') }, { label: 'Add container' + where, run: add('box') }, { label: 'Add text', run: add('text') }];
   }
-  function nbSet(id, fn) { return function () { var c = nbC(), o = c && nbOf(c).n[id]; if (!o) return; fn(o); nbChanged(); nbDraw(); }; }
+  /* Size steps: notes and containers by 10% (50% to 200%); text by its letter size. */
+  function nbStepOne(o, dir) {
+    if (o.tx) { var f = dir > 0 ? 1.12 : 1 / 1.12, fs = Math.max(10, Math.min(96, Math.round(o.fs * f))); if (fs === o.fs) return; o.w = Math.max(40, Math.min(1200, Math.round(o.w * fs / o.fs))); o.fs = fs; return; }
+    var s = Math.max(50, Math.min(200, (o.sc || 100) + dir * 10)); if (s === 100) delete o.sc; else o.sc = s;
+  }
+  function nbSizeItem(ids) {
+    var nb = nbOf(nbC());
+    return { label: 'Size', step: function (dir) { ids.forEach(function (k) { if (nb.n[k]) nbStepOne(nb.n[k], dir); }); nbSettleNow(ids); },
+      val: ids.length === 1 ? function () { var o = nbOf(nbC()).n[ids[0]]; return !o ? '' : o.tx ? o.fs + ' px' : (o.sc || 100) + '%'; } : null };
+  }
+  function nbSet(id, fn) { return function () { var c = nbC(), o = c && nbOf(c).n[id]; if (!o) return; fn(o); nbSettleNow([id]); }; }
   function nbColours(id, o, ink) {
-    return NB_COLS.map(function (k) { return { label: k[1], on: o.k === k[0], sw: (ink ? NB_INK : NB_SW)[k[0]], run: nbSet(id, function (x) { x.k = k[0]; }) }; });
+    return NB_COLS.map(function (k) { return { label: k[1], on: o.k === k[0], sw: (ink ? NB_INK : NB_SW)[k[0]], run: nbSet(id, function (x) { x.k = k[0]; if (!x.b && !x.tx) nbSetLastNote('k', k[0]); }) }; });
   }
   /* What viewers see on the board: once the sheet has view-only people, notes they can see carry an eye. */
   function nbPrivMark(c, only) {
@@ -14283,14 +14499,14 @@ V1.5
     if (o.tx) {
       return [{ label: 'Edit text', run: function () { nbStartEdit(id); } },
         { label: 'Font', sub: [{ label: 'Titles', on: o.fo === 't', run: nbSet(id, function (x) { x.fo = 't'; }) }, { label: 'Details', on: o.fo === 'd', run: nbSet(id, function (x) { x.fo = 'd'; }) }] },
-        { label: 'Colour', sub: nbColours(id, o, true) }].concat(o.r ? [{ label: 'Straighten', run: nbSet(id, function (x) { x.r = 0; }) }] : []).concat(pv, [null, del]);
+        { label: 'Colour', sub: nbColours(id, o, true) }, nbSizeItem([id])].concat(o.r ? [{ label: 'Straighten', run: nbSet(id, function (x) { x.r = 0; }) }] : []).concat(pv, [null, del]);
     }
-    var shapes = NB_SHAPES.filter(function (s) { return !o.b || NB_BOX_SHAPES[s[0]]; }).map(function (s) { return { label: s[1], on: o.s === s[0], run: nbSet(id, function (x) { x.s = s[0]; }) }; });
+    var shapes = NB_SHAPES.filter(function (s) { return !o.b || NB_BOX_SHAPES[s[0]]; }).map(function (s) { return { label: s[1], on: o.s === s[0], run: nbSet(id, function (x) { x.s = s[0]; if (!x.b && !x.tx) nbSetLastNote('s', s[0]); }) }; });
     var items = [];
     if (o.b && !o.f) items = nbItemsAdd(pt, id).concat([null]);
     var stamps = [{ label: 'None', on: !o.st, run: nbSet(id, function (x) { delete x.st; }) }].concat(NB_STAMPS.map(function (k) { return { label: k[1], on: o.st === k[0], sw: k[2], run: nbSet(id, function (x) { x.st = k[0]; }) }; }));
     items = items.concat([{ label: 'Edit text', run: function () { nbStartEdit(id); } },
-      { label: 'Shape', sub: shapes }, { label: 'Colour', sub: nbColours(id, o) }].concat(o.b ? [] : [{ label: 'Stamp', sub: stamps }]).concat([
+      { label: 'Shape', sub: shapes }, { label: 'Colour', sub: nbColours(id, o) }, nbSizeItem([id])].concat(o.b ? [] : [{ label: 'Stamp', sub: stamps }]).concat([
       { label: o.f ? 'Expand' : 'Collapse', run: nbSet(id, function (x) { x.f = !x.f; if (nbEdit === id) nbEdit = null; }) }]));
     if (o.p && nb.n[o.p]) items.push({ label: 'Take out of ' + esc(nbTitle(nb.n[o.p])), run: nbSet(id, function (x) { x.p = ''; x.z = nbTopZ(nb); }) });
     var links = Object.keys(nb.l).filter(function (k) { return nb.l[k].a === id || nb.l[k].b === id; });
@@ -14300,10 +14516,11 @@ V1.5
   /* Several selected: change them all at once. */
   function nbItemsMany(ids) {
     var c = nbC(), nb = nbOf(c);
-    function each(fn) { return function () { ids.forEach(function (k) { if (nb.n[k]) fn(nb.n[k]); }); nbChanged(); nbDraw(); }; }
+    function each(fn) { return function () { ids.forEach(function (k) { if (nb.n[k]) fn(nb.n[k]); }); nbSettleNow(ids); }; }
     var notes = ids.filter(function (k) { return nb.n[k] && !nb.n[k].tx; }), plain = notes.filter(function (k) { return !nb.n[k].b; });
-    var items = [{ label: 'Colour', sub: NB_COLS.map(function (k) { return { label: k[1], sw: NB_SW[k[0]], run: each(function (x) { x.k = k[0]; }) }; }) }];
-    if (notes.length) items.push({ label: 'Shape', sub: NB_SHAPES.map(function (s0) { return { label: s0[1], run: each(function (x) { if (x.tx || (x.b && !NB_BOX_SHAPES[s0[0]])) return; x.s = s0[0]; }) }; }) });
+    var items = [{ label: 'Colour', sub: NB_COLS.map(function (k) { return { label: k[1], sw: NB_SW[k[0]], run: each(function (x) { x.k = k[0]; if (!x.b && !x.tx) nbSetLastNote('k', k[0]); }) }; }) }];
+    if (notes.length) items.push({ label: 'Shape', sub: NB_SHAPES.map(function (s0) { return { label: s0[1], run: each(function (x) { if (x.tx || (x.b && !NB_BOX_SHAPES[s0[0]])) return; x.s = s0[0]; if (!x.b) nbSetLastNote('s', s0[0]); }) }; }) });
+    items.push(nbSizeItem(ids));
     if (plain.length) items.push({ label: 'Stamp', sub: [{ label: 'None', run: each(function (x) { delete x.st; }) }].concat(NB_STAMPS.map(function (k) { return { label: k[1], sw: k[2], run: each(function (x) { if (!x.tx && !x.b) x.st = k[0]; }) }; })) });
     if (notes.length) {
       var anyOpen = notes.some(function (k) { return !nb.n[k].f; });
@@ -14363,7 +14580,7 @@ V1.5
     }
     if (ro) return;
     if (a === 'undo' || a === 'redo') return nbUndo(a === 'redo');
-    if (a === 'fold' && nb.n[id]) { e.stopPropagation(); nb.n[id].f = !nb.n[id].f; if (nbEdit === id) nbEdit = null; nbChanged(); nbDraw(); var fe = $('nbStage').querySelector('.nb-node[data-nid="' + id + '"] .nb-fb'); if (fe) fe.focus(); return; }
+    if (a === 'fold' && nb.n[id]) { e.stopPropagation(); nb.n[id].f = !nb.n[id].f; if (nbEdit === id) nbEdit = null; nbSettleNow([id]); var fe = $('nbStage').querySelector('.nb-node[data-nid="' + id + '"] .nb-fb'); if (fe) fe.focus(); return; }
   }
   function nbInput(e) {
     var c = nbC(); if (!c || !nbEdit) return;
@@ -14400,6 +14617,14 @@ V1.5
     if (e.button > 0) return;
     var t = e.target, ro = nbRO(c), nb = nbOf(c), ne = t.closest('.nb-node'), board = $('nbBoard');
     if (t.closest('input, textarea, select, button')) return;
+    /* Ctrl+click (Cmd on a Mac): fit that note or container on screen, or the whole board from an empty spot. */
+    if ((e.ctrlKey || e.metaKey) && e.button === 0) {
+      e.preventDefault();
+      if (ne) { var fid0 = ne.getAttribute('data-nid'); nbFit([fid0].concat(nb.n[fid0] && nb.n[fid0].b && !nb.n[fid0].f ? nbDesc(nb, fid0) : [])); } else nbFit();
+      return;
+    }
+    /* An open container is picked up by its title only: anywhere else inside it pans the board (or selects with Shift). */
+    var boxBody = ne && ne.classList.contains('nb-box') && !ne.classList.contains('nb-fold') && !ne.classList.contains('editing') && !t.closest('.nb-head') && !t.classList.contains('nb-port') && !t.classList.contains('nb-size');
     var p = nbPt(e);
     if (!ro && t.classList.contains('nb-port') && ne) {
       nbDrag = { m: 'link', id: ne.getAttribute('data-nid'), sx: e.clientX, sy: e.clientY };
@@ -14408,13 +14633,14 @@ V1.5
       nbDrag = { m: 'rot', id: idr, cx: br.x + br.w / 2, cy: br.y + br.h / 2 };
     } else if (!ro && t.classList.contains('nb-size') && ne) {
       var id0 = ne.getAttribute('data-nid'), o0 = nb.n[id0];
-      nbDrag = { m: 'size', id: id0, px: p.x, py: p.y, w: o0.w, h: o0.h || 0, fs: o0.fs || 0 };
-    } else if (ne) {
+      nbDrag = { m: 'size', id: id0, px: p.x, py: p.y, sc: o0.b || o0.tx ? 1 : (o0.sc || 100) / 100, th: ne.offsetHeight, w: o0.w, h: o0.h || 0, fs: o0.fs || 0 };
+    } else if (ne && !boxBody) {
       var nid = ne.getAttribute('data-nid');
       if (nbEdit === nid) return;
       nbDrag = { m: ro ? 'pick' : 'node', id: nid, px: p.x, py: p.y, sx: e.clientX, sy: e.clientY, moved: false, el: ne, field: t.closest('.nb-d') ? 'd' : '', shift: e.shiftKey };
       /* Dragging one of several selected things moves them all. */
       if (!ro && !e.shiftKey && nbIsSel(nid) && nbSelIds().length > 1) nbDrag.group = nbTops(nb, nbSelIds());
+      nbDrag.olds = (nbDrag.group || [nid]).map(function (k) { return nb.n[k] && nb.n[k].p; }).filter(Boolean);
     } else if (t.classList.contains('nb-hit') || (t.closest && t.closest('.nb-lbl'))) {
       nbDrag = { m: 'linkpick', id: (t.closest('.nb-lbl') || t).getAttribute('data-lid'), sx: e.clientX, sy: e.clientY };
     } else if (!ro && e.shiftKey) {
@@ -14465,7 +14691,7 @@ V1.5
         [gid].concat(nb.n[gid].b ? nbDesc(nb, gid) : []).forEach(function (k) { var el = $('nbStage').querySelector('.nb-node[data-nid="' + k + '"]'); if (el) { el.style.left = nb.n[k].x + 'px'; el.style.top = nb.n[k].y + 'px'; } });
         var ge = nbEl(gid); if (ge) ge.classList.add('dragging');
       });
-      nbLinks(); nbHover(e, d.id);
+      nbLinks(); nbHover(e, d.id); nbDropCue(nb, d.id);
     } else if (d.m === 'rot') {
       var orr = nb.n[d.id], er = nbEl(d.id), ang = Math.round(Math.atan2(p.y - d.cy, p.x - d.cx) * 180 / Math.PI + 90);
       if (e.shiftKey) ang = Math.round(ang / 15) * 15;
@@ -14473,19 +14699,29 @@ V1.5
       orr.r = ang; if (er) er.style.setProperty('--r', ang + 'deg');
     } else if (d.m === 'size' && nb.n[d.id].tx) {
       /* Text scales as a whole: wider means bigger letters. */
-      var ot = nb.n[d.id], et = nbEl(d.id), nw = Math.max(40, Math.min(1200, Math.round(d.w + p.x - d.px)));
+      var fk = Math.max((d.w + p.x - d.px) / d.w, (d.th + p.y - d.py) / Math.max(1, d.th));   // sideways or down, whichever went further
+      var ot = nb.n[d.id], et = nbEl(d.id), nw = Math.max(40, Math.min(1200, Math.round(d.w * fk)));
       ot.w = nw; ot.fs = Math.max(10, Math.min(96, Math.round(d.fs * nw / d.w)));
       if (et) { et.style.width = nw + 'px'; et.style.setProperty('--fs', ot.fs + 'px'); }
     } else if (d.m === 'size') {
       var o = nb.n[d.id], el = $('nbStage').querySelector('.nb-node[data-nid="' + d.id + '"]');
-      o.w = Math.max(o.b ? 180 : 120, Math.min(o.b ? 2400 : 480, Math.round(d.w + p.x - d.px)));
+      o.w = Math.max(o.b ? 180 : 120, Math.min(o.b ? 2400 : 480, Math.round((d.w * d.sc + p.x - d.px) / d.sc)));
       if (o.b) o.h = Math.max(100, Math.min(2400, Math.round(d.h + p.y - d.py)));
-      el.style.width = o.w + 'px'; el.style.setProperty('--w', o.w + 'px'); if (o.b) el.style.height = o.h + 'px'; nbLinks();
+      var rw = Math.round(o.w * d.sc); el.style.width = rw + 'px'; el.style.setProperty('--w', rw + 'px'); if (o.b) el.style.height = o.h + 'px'; nbLinks();
     } else if (d.m === 'link') {
       var b = nbBox(d.id), tmp = $('nbTmp'); if (!b || !tmp) return;
       tmp.setAttribute('x1', b.x + b.w / 2); tmp.setAttribute('y1', b.y + b.h / 2); tmp.setAttribute('x2', p.x); tmp.setAttribute('y2', p.y); tmp.setAttribute('visibility', 'visible');
       nbHover(e, d.id);
     }
+  }
+  /* While dragging: the container it would land in glows; the one it would leave fades. */
+  function nbDropCue(nb, id) {
+    var st = $('nbStage'); if (!st) return;
+    st.querySelectorAll('.nb-into, .nb-leaving').forEach(function (x) { x.classList.remove('nb-into', 'nb-leaving'); });
+    if (!nb || !nb.n[id] || nb.n[id].tx) return;
+    var to = nbDropTarget(nb, id), from = nb.n[id].p || '';
+    var et = to && st.querySelector('.nb-node[data-nid="' + to + '"]'); if (et) et.classList.add('nb-into');
+    if (from && from !== to) { var ef = st.querySelector('.nb-node[data-nid="' + from + '"]'); if (ef) ef.classList.add('nb-leaving'); }
   }
   /* Shows where a drag would land: the note under the pointer (connect) or the container (move). */
   function nbHover(e, id, mode) {
@@ -14524,7 +14760,7 @@ V1.5
       if (ldbl && !nbRO(c)) { var lid0 = d.id; setTimeout(function () { nbLabelEdit(lid0); }, 0); }
       return;
     }
-    if (d.m === 'size') { if (nb.n[d.id].p) nbGrow(nb, d.id); nbChanged(); nbDraw(); return; }
+    if (d.m === 'size') { if (nb.n[d.id].p) nbGrow(nb, d.id); nbSettleNow([d.id]); return; }
     if (d.m === 'rot') { nbChanged(); nbSelect({ k: 'n', id: d.id }); return; }
     if (d.m === 'link') {
       var under = nbHover(e, d.id, 'link'), tmp = $('nbTmp'); if (tmp) tmp.setAttribute('visibility', 'hidden');
@@ -14532,8 +14768,19 @@ V1.5
       nbDraw(); return;
     }
     if (d.m === 'node' && d.moved) {
-      if (d.group) { d.group.forEach(function (k) { if (nb.n[k]) nbDrop(nb, k); }); nbChanged(); nbDraw(); return; }
-      nbDrop(nb, d.id); nbSel = { k: 'n', id: d.id }; nbPick = {}; nbChanged(); nbDraw(); return;
+      if (d.group) {
+        /* The note being held decides: dropped into a container, everything selected goes into it with it. */
+        if (nb.n[d.id]) nbDrop(nb, d.id);
+        var into = nb.n[d.id] && nb.n[d.id].p, inBad = {};
+        if (into) { inBad[into] = 1; var up = nb.n[into] && nb.n[into].p, g0 = 0; while (up && nb.n[up] && g0++ < 50) { inBad[up] = 1; up = nb.n[up].p; } }
+        d.group.forEach(function (k) {
+          var o = nb.n[k]; if (!o || k === d.id) return;
+          if (into && !o.tx && !inBad[k]) { o.p = into; o.z = nbTopZ(nb); nbGrow(nb, k); }
+          else nbDrop(nb, k);
+        });
+        nbDropCue(); nbSettleNow(d.group, d.olds); return;
+      }
+      nbDrop(nb, d.id); nbSel = { k: 'n', id: d.id }; nbPick = {}; nbDropCue(); nbSettleNow([d.id], d.olds); return;
     }
     /* Shift-click adds to (or takes from) the selection. */
     if (d.shift && d.m === 'node') {
@@ -15342,7 +15589,7 @@ V1.5
      The host's tracker holds the map (positions, this round's movement lines, measurements) and sends it to the room;
      watchers move their own characters (or any, if the host allows), and their moves go through the host.
      Kept apart from the tracker's own state, so moving tokens never fills the tracker's Undo. */
-  var SM_KEY = 'vtm-smap', SM_R = 0.45, SM_ENGAGE = 1.5;   // token radius; engaged: centre to the other's edge within 1
+  var SM_KEY = 'vtm-smap', SM_R = 0.45, SM_ENGAGE = 2 * SM_R + 1;   // token radius; engaged: within 1 yard/metre of their edges touching
   /* Areas of Effect: a circle around a token, measured from its edge, that moves with it. Colours to pick from. */
   var SM_AOE_C = [['blood', '#d4202f', 'Crimson'], ['ember', '#ec8a2f', 'Ember'], ['gold', '#e3c24c', 'Gold'], ['venom', '#5fd068', 'Venom'], ['frost', '#4aa8ff', 'Frost'], ['shadow', '#a174ff', 'Shadow'], ['bone', '#e9dcc0', 'Bone']];
   var SM_AOE_MAX = 60, SM_AOE_PER = 12, SM_AOE_RMAX = 100;
@@ -15389,6 +15636,18 @@ V1.5
     var lim = function (v) { return cap == null ? v : Math.min(v, cap); };
     return { walk: lim(7), jog: lim(12 + dex), run: lim(run), wound: w, capped: cap != null };
   }
+  /* The tracker's wound tag: the wound word for everyone, and health left for the host. */
+  window.cmWound = function (ch) {
+    var c = store.chars[ch]; if (!c || !c.health || !c.attrs) return null;
+    var t = hTotal(c), m = hMax(c), w = smWound(c), lv = Math.min(t, m);
+    return { w: w, left: Math.max(0, m - t), m: m, b: +c.health.b || 0, l: +c.health.l || 0, a: +c.health.a || 0, sev: t <= 0 ? 0 : t >= m ? 3 : lv * 2 >= m ? 2 : 1 };
+  };
+  var iniWSig = '';
+  function iniWoundCheck() {
+    var r = typeof R === 'function' ? R() : null; if (!r || !r.linked || !r.refreshRows) return;
+    var sig = r.linked().map(function (id) { var x = window.cmWound(id); return id + ':' + (x ? x.w + '/' + x.left + '/' + x.b + '.' + x.l + '.' + x.a : '-'); }).join('|');
+    if (sig !== iniWSig) { iniWSig = sig; r.refreshRows(); }
+  }
   /* Badly hurt (half or more of the health levels gone): 1; down (every level gone): 2. */
   function smHurt(c) {
     if (!c || !c.health) return 0;
@@ -15396,6 +15655,7 @@ V1.5
     return !m ? 0 : t >= m ? 2 : t * 2 >= m ? 1 : 0;
   }
   function smNum(v) { return Math.round(v * 10) / 10; }
+  function smNum2(v) { return Math.round(v * 100) / 100; }
   function smUnits() { var s = smState(); return s && s.watching ? (s.remote && s.remote.m && s.remote.m.u === 'i' ? 'i' : 'm') : sm.units; }
   /* A distance as the room shows it: metres, or feet with the yards beside them (1 yard = 1 metre = 3 feet). */
   function smFmt(d) { d = smNum(d); return smUnits() === 'i' ? smNum(d * 3) + ' ft (' + d + ' yd)' : d + ' m'; }
@@ -15462,6 +15722,50 @@ V1.5
     var mine = sm.aoe.filter(function (a) { return a.by === pid; }); if (!mine.length) return null;
     return { ma: mine.filter(function (a) { return a.h; }).map(smAoePub), mi: mine.map(function (a) { return a.i; }) };
   };
+  /* Is an encounter on? Before one starts, moving tokens is just setting the scene: no paths, no speed limits. */
+  function smEnc() { var s = smState(); return !!(s && (s.watching ? s.remote && s.remote.e : s.ini.encounter)); }
+  /* How far a token has moved this round, and what its speed allows (null when this page doesn't know its speed). */
+  function smMoved(k) { var n = 0; smLines().forEach(function (l) { if (String(l.a) === String(k)) n += smDist(l.f, l.t); }); return n; }
+  function smRunOf(t) {
+    if (!t) return null;
+    if (smMode() === 'host') { var sp = smSpeeds(t.c); return sp ? { run: sp.run, wound: sp.wound } : null; }
+    return t.s ? { run: +t.s[2] || 0, wound: t.h ? t.h.w : '' } : null;
+  }
+  function smBudget(t) {
+    var sp = smRunOf(t); if (!sp) return null;
+    var moved = smMoved(t.k);
+    return { run: sp.run, wound: sp.wound, moved: moved, left: Math.max(0, sp.run - moved), half: sp.run / 2 };
+  }
+  /* Tokens can't overlap: a spot inside another token is pushed out until their edges just touch. */
+  function smFree(k, p, toks) {
+    var q = [p[0], p[1]], min = 2 * SM_R;
+    for (var it = 0; it < 6; it++) {
+      var moved = false;
+      toks.forEach(function (o) {
+        if (String(o.k) === String(k)) return;
+        var dx = q[0] - o.x, dy = q[1] - o.y, d = Math.sqrt(dx * dx + dy * dy);
+        if (d >= min - 1e-6) return;
+        if (d < 1e-6) { dx = 1; dy = 0; d = 1; }
+        q = [o.x + dx / d * min, o.y + dy / d * min]; moved = true;
+      });
+      if (!moved) break;
+    }
+    return q;
+  }
+  /* A move no longer than what's left of the token's speed this round. */
+  function smClampTo(from, p, max) {
+    var d = smDist(from, p); if (max == null || d <= max) return p;
+    if (max <= 0) return from.slice();
+    return [from[0] + (p[0] - from[0]) / d * max, from[1] + (p[1] - from[1]) / d * max];
+  }
+  /* A measurement's ends: from the measuring token's centre, to another token's nearest edge (or a spot). */
+  function smMeasEnds(fd, td, toks) {
+    var pf = smPoint(fd, toks), pt = smPoint(td, toks); if (!pf || !pt) return null;
+    var fr = 0, tr = td.k ? SM_R : 0, d = smDist(pf, pt);
+    if (d <= fr + tr) { var mid = [(pf[0] + pt[0]) / 2, (pf[1] + pt[1]) / 2]; return [mid, mid.slice()]; }
+    var ux = (pt[0] - pf[0]) / d, uy = (pt[1] - pf[1]) / d;
+    return [[pf[0] + ux * fr, pf[1] + uy * fr], [pt[0] - ux * tr, pt[1] - uy * tr]];
+  }
   function smRound() { var s = smState(); return s ? (s.watching ? (s.remote && +s.remote.r) || 1 : s.ini.round) : 1; }
   /* Host: drop what's gone (actors cleared, lines from earlier rounds). */
   function smPrune() {
@@ -15494,7 +15798,7 @@ V1.5
       return o;
     });
     smSendPics(pics);
-    var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w], f = smPoint(m.f, toks), to = smPoint(m.t, toks); return f && to ? { n: m.n, f: f, t: to } : null; }).filter(Boolean);
+    var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w], e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
     return { u: sm.units, any: sm.any, t: t, a: sm.aoe.filter(function (a) { return !a.h; }).map(smAoePub), l: sm.lines.map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; }), ms: meas, d: sm.drag ? { k: sm.drag.k, by: sm.drag.by } : null };
   };
   /* Token pictures go to the room once each (they're too big to repeat with every update). */
@@ -15538,8 +15842,18 @@ V1.5
       if (sm.drag && sm.drag.k === k && sm.drag.who !== who && now - sm.drag.t < 4000) return;   // someone else has it
       if (o.op === 'drag') { sm.pos[k] = [x, y]; sm.drag = { k: k, by: by, who: who, t: now, from: sm.drag && sm.drag.k === k && sm.drag.from ? sm.drag.from : (Array.isArray(o.from) ? [+o.from[0], +o.from[1]] : sm.pos[k]) }; smPushSoon(); smDrawSoon(); return; }
       var from = Array.isArray(o.from) && isFinite(+o.from[0]) && isFinite(+o.from[1]) ? [+o.from[0], +o.from[1]] : (sm.drag && sm.drag.from) || sm.pos[k] || [x, y];
-      sm.pos[k] = [x, y]; sm.drag = null;
-      smRecord(k, from, [x, y]);
+      var toks0 = smHostTokens(), me0 = toks0.filter(function (t) { return t.k === k; })[0], to0 = [x, y];
+      if (smEnc() && me0) {   // no further than this round's speed allows
+        var bd = smBudget(me0);
+        if (bd) {
+          var rd0 = smRound(), mine0 = sm.lines.filter(function (l) { return l.a === k && l.r === rd0; }), last0 = mine0[mine0.length - 1];
+          if (last0 && smDist(from, to0) <= 1 && smDist(last0.t, from) < 0.01) to0 = smClampTo(last0.f, to0, Math.max(0, bd.run - (bd.moved - smDist(last0.f, last0.t))));
+          else to0 = smClampTo(from, to0, bd.left);
+        }
+      }
+      to0 = smFree(k, to0, toks0);
+      sm.pos[k] = to0; sm.drag = null;
+      smRecord(k, from, to0);
     } else if (o.op === 'undo') {
       var li = sm.lines.filter(function (l) { return l.id === +o.line; })[0]; if (!li) return;
       a = smActor(li.a); if (!a || !smMayMove(a, who)) return;
@@ -15551,7 +15865,7 @@ V1.5
       if (o.clear) delete sm.meas[who];
       else if (ok(o.f) && ok(o.t)) sm.meas[who] = { n: by, f: o.f.k ? { k: String(o.f.k) } : { x: +o.f.x, y: +o.f.y }, t: o.t.k ? { k: String(o.t.k) } : { x: +o.t.x, y: +o.t.y } };
       else return;
-    } else if (o.op === 'cancel') { if (sm.drag && sm.drag.who === who) sm.drag = null; }
+    } else if (o.op === 'cancel') { if (sm.drag && sm.drag.who === who) { if (sm.drag.from) sm.pos[sm.drag.k] = sm.drag.from.slice(); sm.drag = null; } }
     else if (o.op === 'aoe') {   // add or change an Area of Effect (only the one who placed it, or the host, may change it)
       var x0 = o.a || {}, t0 = smActor(x0.k); if (!t0 || !isFinite(+x0.r) || +x0.r <= 0) return;
       var fields = { r: Math.min(SM_AOE_RMAX, Math.round(+x0.r * 100) / 100), d: smAoeText(x0.d), c: smAoeCol(x0.c)[0], h: !!x0.h };
@@ -15572,11 +15886,19 @@ V1.5
   }
   /* A move this round: a new line, or (dropped within a yard/metre of where the token was) the last line redrawn. */
   function smRecord(k, from, to) {
+    if (!smEnc()) return;   // setting the scene before the encounter: no paths
     var rd = smRound(), mine = sm.lines.filter(function (l) { return l.a === k && l.r === rd; }), last = mine[mine.length - 1];
+    if (!mine.length && smDist(from, to) < 1 && !smNewEngage(k, from, to)) { sm.pos[k] = from.slice(); return; }   // a nudge, not a move
     if (last && smDist(from, to) <= 1 && smDist(last.t, from) < 0.01) {
       last.t = to.slice();
       if (smDist(last.f, last.t) < 0.05) sm.lines = sm.lines.filter(function (l) { return l !== last; });
     } else if (smDist(from, to) >= 0.05) sm.lines.push({ id: sm.seq++, a: k, f: from.slice(), t: to.slice(), r: rd });
+  }
+  /* Does moving a token from one spot to another put it in melee with someone it wasn't in melee with? */
+  function smNewEngage(k, from, to) {
+    var toks = smHostTokens(), at = function (p) { return toks.map(function (t) { return t.k === k ? { k: t.k, x: p[0], y: p[1] } : t; }); };
+    var before = {}; smPairs(at(from)).forEach(function (q) { before[q.join('|')] = 1; });
+    return smPairs(at(to)).some(function (q) { return (q[0] === k || q[1] === k) && !before[q.join('|')]; });
   }
   window.cmMapAct = function (pid, a) {
     var r = R();
@@ -15614,8 +15936,16 @@ V1.5
     ab.addEventListener('click', function () { if (smUi.open) smOpen(false); });   // the Actors list takes the same spot
     return b;
   }
+  /* Full screen: the map fills the window (below any announcement banner), like a full-screen Dossier board. */
+  function smFull(on) {
+    var w = $('smWrap'); if (!w) return;
+    smUi.full = !!on; w.classList.toggle('sm-full', smUi.full); document.body.classList.toggle('sm-full-on', smUi.full);
+    var b = w.querySelector('[data-sm="full"]'); if (b) { b.setAttribute('aria-pressed', String(smUi.full)); b.textContent = smUi.full ? 'Exit full screen' : 'Full screen'; b.focus(); }
+    smUi.fitted = false; smDrawSoon();
+  }
   function smOpen(on, refocus) {
     var w = smPanel(); if (!w) return;
+    if (!on && smUi.full) smFull(false);
     smUi.open = on; smUi.set = false; smUi.fitted = false; smUi.pend = null; smUi.act = null; smUi.hover = ''; smUi.hl = null; smMenuClose();
     if (on) {
       if ($('actorsPop') && !$('actorsPop').hidden && $('actorsClose')) $('actorsClose').click();
@@ -15636,6 +15966,7 @@ V1.5
       w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', 'Skirmish Map');
       w.innerHTML = '<div class="ap-head sm-head"><strong class="sm-title">Skirmish Map</strong><span class="sm-tools">' +
         '<button type="button" class="btn-sec sm-z" data-sm="zout" aria-label="Zoom out" title="Zoom out">−</button><button type="button" class="btn-sec sm-z" data-sm="zin" aria-label="Zoom in" title="Zoom in">+</button><button type="button" class="btn-sec sm-fit" data-sm="fit" title="Show every token">Fit</button>' +
+        '<button type="button" class="btn-sec sm-fit sm-fullb" data-sm="full" aria-pressed="false" title="Fill the window with the map">Full screen</button>' +
         '<button type="button" class="btn-sec sm-z sm-cog" data-sm="set" aria-expanded="false" aria-controls="smSet" aria-label="Map settings" title="Map settings"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>' +
         '<button type="button" class="btn-sec ap-x" data-sm="close" aria-label="Close the Skirmish Map">&times;</button></span></div>' +
         '<div class="sm-set" id="smSet" role="group" aria-label="Map settings" hidden></div><div class="sm-body" id="smBody"></div>';
@@ -15657,10 +15988,12 @@ V1.5
       }, true);
       document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape' || !smUi.open) return;
+        if (smUi.act && smUi.act.k && smUi.act.moved) { smDragCancel(); return; }   // mid-drag: the token goes back
         if (smUi.pend || smOwnMeasure()) { smUi.pend = null; smSend({ op: 'meas', clear: true }); smDrawSoon(); return; }
         if (smUi.aoe) { smAoeClose(); var sv0 = smSvgEl(); if (sv0) sv0.focus({ preventScroll: true }); return; }
         if (smUi.menu != null) { smMenuClose(); return; }
         if (smUi.set) { smUi.set = false; smSetDraw(); w.querySelector('[data-sm="set"]').focus(); return; }
+        if (smUi.full) { smFull(false); return; }   // out of full screen first
         if (w.contains(document.activeElement) || document.activeElement === document.body) smOpen(false, true);
       });
     }
@@ -15719,6 +16052,7 @@ V1.5
     h += '<defs><pattern id="smG1" width="1" height="1" patternUnits="userSpaceOnUse"><path d="M1 0H0V1" fill="none" class="sm-g1"/></pattern><pattern id="smG5" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="url(#smG1)"/><path d="M5 0H0V5" fill="none" class="sm-g5"/></pattern>' +
       '<clipPath id="smClip" clipPathUnits="objectBoundingBox"><circle cx="0.5" cy="0.5" r="0.5"/></clipPath><clipPath id="smTokClip"><circle r="' + SM_R + '"/></clipPath></defs>';
     h += '<rect class="sm-bg" x="' + (Math.floor(vb.x / 5) * 5 - 5) + '" y="' + (Math.floor(vb.y / 5) * 5 - 5) + '" width="' + (vb.w + 15) + '" height="' + (vb.h + 15) + '" fill="' + (smView.grid ? 'url(#smG5)' : 'transparent') + '"/>';
+    smLbls = [];
     var byK = {}; toks.forEach(function (t) { byK[t.k] = t; });
     /* Areas of Effect, faint, under everything else; brighter (with their size) while the pointer is in them. */
     var areas = smAreas(), hotA = {}; smUi.ha.forEach(function (i) { hotA[i] = 1; });
@@ -15728,7 +16062,7 @@ V1.5
       h += '<g class="sm-aoe' + (hot ? ' hot' : '') + (a.h ? ' hid' : '') + '" data-aoe="' + esc(a.i) + '" style="--aoe:' + col + '"><circle cx="' + t.x + '" cy="' + t.y + '" r="' + R0 + '"/>' +
         (hot ? smLabel(t.x, t.y - R0 - 0.25, smFmt(a.r) + ' from ' + (smMode() === 'host' ? t.name : t.pub) + '\'s edge', 'sm-lbl-aoe') : '') + '</g>';
     });
-    var act = smUi.act && smUi.act.moved && smUi.act.k ? smUi.act : null;   // a token being dragged (not the view being panned)
+    var act = smUi.act && smUi.act.moved && smUi.act.k && !smUi.act.stuck ? smUi.act : null;   // a token being dragged (not the view being panned, nor one with no movement left)
     var dragK = act ? act.k : mode === 'join' ? (rm.d ? String(rm.d.k) : '') : (sm.drag ? sm.drag.k : '');
     var dragBy = act ? '' : mode === 'join' ? (rm.d ? rm.d.by : '') : (sm.drag ? sm.drag.by : '');
     /* Engaged: a token's centre within a yard/metre of another's edge. Groups can hold any number of tokens. */
@@ -15744,17 +16078,20 @@ V1.5
     if (act) Object.keys(act.startPairs).forEach(function (key) {
       if (pairs.some(function (p) { return p.join('|') === key; })) return;
       var ks = key.split('|'), a = byK[ks[0]], b = byK[ks[1]]; if (!a || !b) return;
-      h += '<line class="sm-leave" x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '"/>'; clash += smLabel((a.x + b.x) / 2, (a.y + b.y) / 2, 'Leaving melee', 'sm-lbl-leave');
+      h += '<line class="sm-leave" x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '"/>'; smLabel((a.x + b.x) / 2, (a.y + b.y) / 2, 'Leaving melee', 'sm-lbl-leave', 1);
     });
-    if (act && pairs.some(function (p) { return (p[0] === act.k || p[1] === act.k) && act.startPairs[p.join('|')] === undefined; })) { var me = byK[act.k]; clash += smLabel(me.x, me.y - 0.95, 'Engaging', 'sm-lbl-eng'); }
-    /* Speed rings, only for whoever is moving the token: running speed, and half of it (move and still attack). */
-    if (act && act.sp) {
-      var c0 = act.from;
-      if (act.sp.run > 0) {
-        h += '<circle class="sm-ring" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + act.sp.run + '"/>' + smLabel(c0[0], c0[1] - act.sp.run - 0.25, 'Run ' + smFmt(act.sp.run), 'sm-lbl-ring');
-        h += '<circle class="sm-ring half" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + act.sp.run / 2 + '"/>' + smLabel(c0[0], c0[1] - act.sp.run / 2 - 0.25, 'Attack ' + smFmt(act.sp.run / 2), 'sm-lbl-ring');
-      } else h += smLabel(c0[0], c0[1] - 0.9, 'Can\'t move (' + act.sp.wound + ')', 'sm-lbl-leave');
+    if (act && pairs.some(function (p) { return (p[0] === act.k || p[1] === act.k) && act.startPairs[p.join('|')] === undefined; })) { var me = byK[act.k]; smLabel(me.x, me.y - SM_R - 0.3, 'Engaging', 'sm-lbl-eng', 1); }
+    /* Speed rings, only for whoever is moving the token, during an encounter: how far it can still go this round, and
+       how far before it passes half its running speed (and can no longer move and still attack). */
+    if (act && act.bud) {
+      var c0 = act.from, bd = act.bud, halfLeft = Math.max(0, bd.half - bd.moved);
+      if (bd.left > 0.05) {
+        h += '<circle class="sm-ring" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + bd.left + '"/>'; smLabel(c0[0], c0[1] - bd.left - 0.25, 'Run ' + smFmt(bd.left) + ' left', 'sm-lbl-ring', 3);
+        if (halfLeft > 0.05) { h += '<circle class="sm-ring half" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + halfLeft + '"/>'; smLabel(c0[0], c0[1] - halfLeft - 0.25, 'Half ' + smFmt(halfLeft), 'sm-lbl-ring', 3); }
+        if (bd.moved + smDist(c0, [byK[act.k].x, byK[act.k].y]) > bd.half + 0.01) smLabel(byK[act.k].x, byK[act.k].y - SM_R - 0.3, 'Over Half', 'sm-lbl-over', 1);
+      }
     }
+    if (smUi.act && smUi.act.stuck && smUi.act.moved && byK[smUi.act.k]) { var st0 = byK[smUi.act.k]; smLabel(st0.x, st0.y - SM_R - 0.3, smUi.act.bud.run <= 0 ? 'Can\'t move (' + smUi.act.bud.wound + ')' : 'No movement left this round', 'sm-lbl-leave', 1); }
     /* This round's moves: faded lines (click one to undo it and what came after). */
     var lines = smLines();
     lines.forEach(function (l) {
@@ -15764,11 +16101,11 @@ V1.5
     /* The move being made now. */
     if (dragK && byK[dragK]) {
       var dt = byK[dragK], from = act ? act.from : (mode === 'host' && sm.drag ? sm.drag.from : null);
-      if (from) h += '<line class="sm-drag-ln" x1="' + from[0] + '" y1="' + from[1] + '" x2="' + dt.x + '" y2="' + dt.y + '"/>' + smLabel((from[0] + dt.x) / 2, (from[1] + dt.y) / 2 - 0.25, smFmt(smDist(from, [dt.x, dt.y])), 'sm-lbl-drag');
+      if (from) h += '<line class="sm-drag-ln" x1="' + from[0] + '" y1="' + from[1] + '" x2="' + dt.x + '" y2="' + dt.y + '"/>' + smLabel((from[0] + dt.x) / 2, (from[1] + dt.y) / 2 - 0.25, smFmt(smDist(from, [dt.x, dt.y])), 'sm-lbl-drag', 9);
     }
     /* Measurements (everyone's), and the one being made here. */
-    var ms = mode === 'join' ? rm.ms || [] : Object.keys(sm.meas).map(function (k) { var m = sm.meas[k], f = smPoint(m.f, toks), t = smPoint(m.t, toks); return f && t ? { n: m.n, f: f, t: t } : null; }).filter(Boolean);
-    if (smUi.pend && smUi.pend.to) { var pf = smPoint(smUi.pend.f, toks); if (pf) ms = ms.concat([{ n: '', f: pf, t: smUi.pend.to, live: true }]); }
+    var ms = mode === 'join' ? rm.ms || [] : Object.keys(sm.meas).map(function (k) { var m = sm.meas[k], e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0], t: e[1] } : null; }).filter(Boolean);
+    if (smUi.pend && (smUi.pend.to || smUi.pend.tk)) { var pe = smMeasEnds(smUi.pend.f, smUi.pend.tk ? { k: smUi.pend.tk } : { x: smUi.pend.to[0], y: smUi.pend.to[1] }, toks); if (pe) ms = ms.concat([{ n: '', f: pe[0], t: pe[1], live: true }]); }
     ms.forEach(function (m) {
       var d = smDist(m.f, m.t);
       h += '<line class="sm-meas' + (m.live ? ' live' : '') + '" x1="' + m.f[0] + '" y1="' + m.f[1] + '" x2="' + m.t[0] + '" y2="' + m.t[1] + '"/><circle class="sm-meas-end" cx="' + m.t[0] + '" cy="' + m.t[1] + '" r="0.1"/>' +
@@ -15781,15 +16118,43 @@ V1.5
       h += '<g class="' + cls + '" data-tok="' + esc(t.k) + '" transform="translate(' + t.x + ' ' + t.y + ')" tabindex="0" role="img" aria-label="' + esc(lab) + '">' +
         '<circle class="sm-tok-ring" r="' + (SM_R + 0.07) + '"/><circle class="sm-tok-bg" r="' + SM_R + '"/>' +
         (t.pic ? '<image href="' + t.pic + '" x="' + -SM_R + '" y="' + -SM_R + '" width="' + 2 * SM_R + '" height="' + 2 * SM_R + '" clip-path="url(#smClip)" preserveAspectRatio="xMidYMid slice"/>' : '<text class="sm-tok-ini" y="0.02">' + esc(ini) + '</text>') + smHurtSvg(t) +
-        (t.k === dragK && dragBy ? '<text class="sm-tok-by" y="' + (-SM_R - 0.2) + '">' + esc(dragBy) + ' is moving</text>' : '') + '</g>';
+        '</g>';
+      if (t.k === dragK && dragBy) smLabel(t.x, t.y - SM_R - 0.3, dragBy + ' is moving', 'sm-lbl-by', 2);
     });
     h += '<g class="sm-clashes">' + clash + '</g>';
+    h += '<g class="sm-lbls">' + smLabelsOut(dragK && byK[dragK] ? [[byK[dragK].x, byK[dragK].y]] : [], toks) + '</g>';   // on top, none overlapping
     svg.innerHTML = h;
     smTip();
   }
-  function smLabel(x, y, text, cls) {
-    var w = Math.max(0.9, text.length * 0.16 + 0.3);
-    return '<g class="sm-lbl ' + (cls || '') + '"><rect x="' + (x - w / 2) + '" y="' + (y - 0.2) + '" width="' + w + '" height="0.4" rx="0.08"/><text x="' + x + '" y="' + (y + 0.01) + '">' + esc(text) + '</text></g>';
+  /* Labels are collected while drawing and placed last, on top, so that none covers another or the token being moved:
+     each takes the nearest free spot above or below where it wants to be. Lower numbers are placed first; the
+     distance of the move being made goes last, so it's the one that moves out of the way. */
+  var smLbls = [];
+  function smLabel(x, y, text, cls, pri) {
+    var big = /sm-lbl-(leave|eng|over|by)/.test(cls || ''), w = Math.max(0.9, text.length * (big ? 0.19 : 0.16) + 0.3);
+    smLbls.push({ x: x, y: y, text: text, cls: cls || '', w: w, h: big ? 0.46 : 0.4, pri: pri == null ? 5 : pri, n: smLbls.length });
+    return '';
+  }
+  function smLabelsOut(avoid, toks) {
+    var placed = [], out = '';
+    var hit = function (a, b) { return Math.abs(a.x - b.x) * 2 < a.w + b.w + 0.04 && Math.abs(a.y - b.y) * 2 < a.h + b.h + 0.04; };
+    var onAny = function (b, list) { return list.some(function (c) { var dx = Math.max(Math.abs(b.x - c[0]) - b.w / 2, 0), dy = Math.max(Math.abs(b.y - c[1]) - b.h / 2, 0); return dx * dx + dy * dy < (SM_R + 0.04) * (SM_R + 0.04); }); };
+    var all = (toks || []).map(function (t) { return [t.x, t.y]; });
+    smLbls.slice().sort(function (a, b) { return a.pri - b.pri || a.n - b.n; }).forEach(function (L) {
+      /* Clear of every token if it can be (within a few steps), otherwise at least of the one being moved. */
+      var best = null;
+      [all, avoid].forEach(function (obst, pass) {
+        for (var i = 0; i < (pass ? 25 : 9) && !best; i++) {
+          var off = (i % 2 ? 1 : -1) * Math.ceil(i / 2) * (L.h + 0.06), c = { x: L.x, y: L.y + off, w: L.w, h: L.h };
+          if (!onAny(c, obst) && !placed.some(function (p) { return hit(p, c); })) best = c;
+        }
+      });
+      if (!best) best = { x: L.x, y: L.y, w: L.w, h: L.h };
+      placed.push(best);
+      out += '<g class="sm-lbl ' + L.cls + '"><rect x="' + (best.x - L.w / 2) + '" y="' + (best.y - L.h / 2) + '" width="' + L.w + '" height="' + L.h + '" rx="0.08"/><text x="' + best.x + '" y="' + (best.y + 0.01) + '">' + esc(L.text) + '</text></g>';
+    });
+    smLbls = [];
+    return out;
   }
   function smLines() {
     var s = smState(), rm = s && s.remote && s.remote.m;
@@ -15805,14 +16170,7 @@ V1.5
     if (!t.hu) return '';
     var R0 = SM_R, ang = (smHash(t.k) * 37) % 50 - 25, bad = t.hu > 1;
     var arc = function (a0, a1, r) { var p0 = [Math.cos(a0) * r, Math.sin(a0) * r], p1 = [Math.cos(a1) * r, Math.sin(a1) * r]; return 'M' + smNum(p0[0] * 100) / 100 + ' ' + smNum(p0[1] * 100) / 100 + 'A' + r + ' ' + r + ' 0 0 1 ' + smNum(p1[0] * 100) / 100 + ' ' + smNum(p1[1] * 100) / 100; };
-    var s = '<g class="sm-hurt' + (bad ? ' bad' : '') + '"><g clip-path="url(#smTokClip)"><circle class="sm-hurt-tint" r="' + R0 + '"/>';
-    /* three short claw marks across one shoulder of the token, so the face or initials stay readable */
-    s += '<g transform="rotate(' + ang + ') translate(0.2 -0.16) rotate(28)">';
-    [-0.09, 0, 0.09].forEach(function (o, i) {
-      var d = 'M' + o + ' ' + (-0.2 + i * 0.02) + 'Q' + smNum((o + 0.03) * 100) / 100 + ' 0 ' + o + ' ' + (0.2 - i * 0.03);
-      s += '<path class="sm-claw-d" d="' + d + '"/><path class="sm-claw" d="' + d + '"/>';
-    });
-    s += '</g></g>';
+    var s = '<g class="sm-hurt' + (bad ? ' bad' : '') + '">';   // only blood along the bottom edge: the token itself stays clear
     /* blood running round the bottom edge, and dripping off it */
     s += '<path class="sm-bleed" d="' + arc(bad ? 0.25 : 0.6, bad ? 2.9 : 2.5, R0 - 0.01) + '"/>';
     s += smDrop(-0.13, R0 + 0.1, 1) + smDrop(0.15, R0 + 0.05, 0.75) + (bad ? smDrop(0.02, R0 + 0.19, 0.95) + smDrop(-0.32, R0 - 0.05, 0.6) : '');
@@ -16006,8 +16364,8 @@ V1.5
       var k = g.getAttribute('data-tok'), t = smTokens().filter(function (x) { return x.k === k; })[0]; if (!t) return;
       smUi.act = { k: k, sx: e.clientX, sy: e.clientY, from: [t.x, t.y], off: [p[0] - t.x, p[1] - t.y], can: smCanMove(t), moved: false, startPairs: {}, pid: e.pointerId };
       smPairs(smTokens()).forEach(function (q) { if (q[0] === k || q[1] === k) smUi.act.startPairs[q.join('|')] = 1; });
-      if (smMode() === 'host') smUi.act.sp = smSpeeds(t.c);
-      else if (t.s) smUi.act.sp = { run: t.s[2], wound: t.h ? t.h.w : '' };
+      /* What's left of this round's speed, worked out now and kept until the token is let go. Before an encounter: no limit. */
+      if (smEnc()) { smUi.act.bud = smBudget(t); if (smUi.act.bud && smUi.act.bud.left <= 0.05) smUi.act.stuck = true; }
       try { smSvgEl().setPointerCapture(e.pointerId); } catch (x) {}
       e.preventDefault();
       /* Press and hold (touch or pen): Areas of Effect. iPhones don't turn a hold into a right-click, so it's timed here.
@@ -16021,7 +16379,7 @@ V1.5
   var smLiveT = 0;
   function smMove(e) {
     if (!smUi.act) smHoverAt(e);
-    if (smUi.pend && !smUi.act) { smUi.pend.to = smToWorld(e); smDrawSoon(); }
+    if (smUi.pend && !smUi.act && smUi.vb) { smUi.pend.to = smToWorld(e); var tk = smTokAt(e); smUi.pend.tk = tk && tk.k !== smUi.pend.f.k ? tk.k : ''; smDrawSoon(); }
     var a = smUi.act; if (!a || a.line) return;
     var far = Math.abs(e.clientX - a.sx) + Math.abs(e.clientY - a.sy) > 4;
     if (a.hold && Math.abs(e.clientX - a.sx) + Math.abs(e.clientY - a.sy) > 8) { clearTimeout(a.hold); a.hold = 0; }   // a drag, not a hold
@@ -16032,8 +16390,45 @@ V1.5
       smUi.vb = { x: a.vb.x - (e.clientX - a.sx) / s, y: a.vb.y - (e.clientY - a.sy) / s, w: a.vb.w, h: a.vb.h }; smDrawSoon(); return;
     }
     if (!a.can || (!far && !a.moved)) return;
+    if (a.stuck) { if (!a.moved) { a.moved = true; smUi.pend = null; smUi.hover = ''; smDrawSoon(); } return; }   // no movement left this round
     if (!a.moved) { a.moved = true; smUi.pend = null; smUi.hover = ''; }
-    var p = smToWorld(e), x = p[0] - a.off[0], y = p[1] - a.off[1];
+    a.ev = { clientX: e.clientX, clientY: e.clientY };
+    smEdgeScroll();
+    smDragTo(a, e);
+  }
+  /* Escape while dragging: the token goes back where it was picked up. */
+  function smDragCancel() {
+    var a = smUi.act; smUi.act = null; if (!a) return;
+    if (a.hold) clearTimeout(a.hold);
+    if (smMode() === 'host') { if (!a.stuck) sm.pos[a.k] = a.from.slice(); sm.drag = null; smSave(); smPushSoon(); }
+    else { delete smUi.local[a.k]; if (!a.stuck) smSend({ op: 'cancel' }); }
+    try { smSvgEl().releasePointerCapture(a.pid); } catch (x) {}
+    smDrawSoon();
+  }
+  /* Dragging a token to (or past) the edge of the map moves the view along with it. */
+  var smEdgeT = 0;
+  function smEdgeScroll() { if (!smEdgeT) smEdgeT = requestAnimationFrame(smEdgeTick); }
+  function smEdgeTick() {
+    smEdgeT = 0;
+    var a = smUi.act, svg = smSvgEl(); if (!a || !a.k || !a.moved || a.stuck || !a.ev || !svg || !smUi.vb) return;
+    /* Only when the pointer is at (or past) an edge, having been dragged towards it: a token picked up near an edge
+       and dragged inwards doesn't make the view move. */
+    var r = svg.getBoundingClientRect(), E = 10, x = a.ev.clientX, y = a.ev.clientY;
+    var dx = x < r.left + E && x < a.sx ? x - (r.left + E) : x > r.right - E && x > a.sx ? x - (r.right - E) : 0;
+    var dy = y < r.top + E && y < a.sy ? y - (r.top + E) : y > r.bottom - E && y > a.sy ? y - (r.bottom - E) : 0;
+    if (!dx && !dy) return;
+    var s = Math.min(r.width / smUi.vb.w, r.height / smUi.vb.h), sp = function (d) { return Math.sign(d) * Math.min(16, 2 + Math.abs(d) * 0.25); };
+    smUi.vb = { x: smUi.vb.x + sp(dx) / s, y: smUi.vb.y + sp(dy) / s, w: smUi.vb.w, h: smUi.vb.h };
+    smDragTo(a, a.ev);
+    smEdgeT = requestAnimationFrame(smEdgeTick);
+  }
+  /* Where a dragged token goes: under the pointer, but no further than its speed left, and never on top of another. */
+  function smDragTo(a, e) {
+    var p = smToWorld(e), q = [p[0] - a.off[0], p[1] - a.off[1]], toks = smTokens();
+    if (a.bud) q = smClampTo(a.from, q, a.bud.left);
+    q = smFree(a.k, q, toks);
+    if (a.bud && smDist(a.from, q) > a.bud.left + 0.01) q = smFree(a.k, smClampTo(a.from, q, a.bud.left), toks);
+    var x = q[0], y = q[1];
     a.to = [x, y];
     if (smMode() === 'host') { sm.pos[a.k] = [x, y]; sm.drag = { k: a.k, by: myName() || 'Host', who: 'host', t: Date.now(), from: a.from }; smPushSoon(); }
     else { smUi.local[a.k] = [x, y]; var now = Date.now(); if (now - smLiveT > 90) { smLiveT = now; smSend({ op: 'drag', id: +a.k, x: smNum(x), y: smNum(y), from: a.from }); } }
@@ -16050,6 +16445,7 @@ V1.5
       return;
     }
     if (a.pan) { if (!a.moved) smEmptyClick(e); return; }
+    if (a.moved && a.stuck) { smDrawSoon(); return; }   // it couldn't move: nothing to drop
     if (a.moved) {
       var to = a.to || a.from;
       if (smMode() === 'host') { sm.drag = null; smHostDo('host', myName() || 'Host', { op: 'drop', id: +a.k, x: to[0], y: to[1], from: a.from }); }
@@ -16084,6 +16480,7 @@ V1.5
     var b = e.target.closest('[data-sm]'); if (!b) return;
     var a = b.getAttribute('data-sm');
     if (a === 'close') { smOpen(false, true); return; }
+    if (a === 'full') { smFull(!smUi.full); return; }
     if (a === 'set') { smUi.set = !smUi.set; smSetDraw(); var f = smUi.set && $('smSet').querySelector('input'); if (f) f.focus(); return; }
     if (a === 'fit') { smUi.fitted = false; smDraw(); return; }
     if (a === 'zin' || a === 'zout') { var vb = smUi.vb; if (!vb) return; var f = a === 'zin' ? 0.8 : 1.25, cx = vb.x + vb.w / 2, cy = vb.y + vb.h / 2; smUi.vb = { x: cx - vb.w * f / 2, y: cy - vb.h * f / 2, w: vb.w * f, h: vb.h * f }; smDraw(); return; }
@@ -16111,7 +16508,7 @@ V1.5
     var svg = smSvgEl(); if (svg) svg.style.setProperty('--sm-go', String(smView.op / 100));
   }
   function smWheel(e) {
-    if (!(e.ctrlKey || e.metaKey) || !smUi.vb || !smSvgEl() || !smSvgEl().contains(e.target)) return;
+    if (!smUi.vb || !smSvgEl() || !smSvgEl().contains(e.target)) return;   // the wheel zooms the map (towards the pointer)
     e.preventDefault();
     var p = smToWorld(e), vb = smUi.vb, f = e.deltaY > 0 ? 1.12 : 1 / 1.12;
     smUi.vb = { x: p[0] - (p[0] - vb.x) * f, y: p[1] - (p[1] - vb.y) * f, w: vb.w * f, h: vb.h * f }; smDrawSoon();
