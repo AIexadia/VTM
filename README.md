@@ -334,3 +334,10 @@ V3.1.1
 	-Map settings have a Background marks switch and a Marks opacity slider, to fade or hide the stains and marks on the background without changing its colour (your own view only).
 -Initiative Tracker Changes:
 	-The wound word, and the health left shown to the host, only count lethal and aggravated damage.
+
+V3.1.2
+-Character Manager Changes:
+	-New Rage button under the Blood Pool on Active Play: spend 1 blood (2 for thin blood, still 1 towards the turn's limit) to ignore wound penalties, both dice and movement speed, for the rest of that round. It only works during an encounter in the Initiative tracker, once per round.
+	-Quick rolls of a Virtue, Willpower or Humanity/Path no longer take wound penalties (soak never did).
+-Skirmish Map Changes:
+	-A raging character moves at full speed this round, for everyone in the room; the hover card says so.

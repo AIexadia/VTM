@@ -2190,6 +2190,10 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
 /* Skirmish Map: the stains and marks have their own layer, so they can be faded or hidden without touching the base colour */
 .sm-pat { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-image: var(--sm-stain); background-size: var(--sm-stain-size, 700px 700px); opacity: var(--sm-po, 1); }
 .sm-stage.no-pat > .sm-pat, .sm-stage.no-pat::before { display: none; }
+/* Blood pool row: Spend, Feed, Boost, Rage */
+.def-row.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.rage-btn.on { background: var(--blood, #8b1a1a); border-color: var(--blood, #8b1a1a); color: #fff; }
+.rage-btn[aria-disabled="true"]:not(.on) { opacity: 0.55; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -7997,7 +8001,7 @@ V1.5
   }
   /* Levels that count for the wound penalty: all of them, or only aggravated with Aggravated Penalties on. */
   function penLevels(c) { return store.settings.aggPen ? c.health.a : hTotal(c); }
-  function woundPenalty(c) { var t = Math.min(penLevels(c), hMax(c)); return t === 0 ? 0 : hLevels(c)[t - 1][1]; }
+  function woundPenalty(c) { var t = Math.min(penLevels(c), hMax(c)), p = t === 0 ? 0 : hLevels(c)[t - 1][1]; return p && rageNow(c) ? 0 : p; }   // Rage: no wound penalty this round (Incapacitated stays)
   /* Initiative rating (V20 p. 271): Dexterity + Wits, plus Celerity dots not used for extra actions, minus wound penalties. */
   function iniInfo(c) {
     var dex = phys(c, 'dexterity'), wits = c.attrs.wits, cel = c.disc.Celerity || 0, wp = woundPenalty(c) || 0;
@@ -8441,7 +8445,7 @@ V1.5
     }
     var wp = woundPenalty(c), status = '';
     if (t >= HM) status = (h.b === 0) ? (h.a >= HM ? 'Final Death if more aggravated damage lands.' : 'Torpor.') : 'Incapacitated.';
-    else if (pl > 0) status = 'Wound penalty: ' + (wp === 0 ? 'none' : '−' + (-wp) + ' dice') + (store.settings.aggPen ? ' (aggravated only)' : '');
+    else if (pl > 0) status = 'Wound penalty: ' + (rageNow(c) ? 'none, raging this round' : (wp === 0 ? 'none' : '−' + (-wp) + ' dice') + (store.settings.aggPen ? ' (aggravated only)' : ''));
     else if (t > 0 && store.settings.aggPen) status = 'No wound penalty (only aggravated damage counts).';
     var bloodBoxes = '';
     for (i = 0; i < g.blood; i++) bloodBoxes += '<button type="button" class="box' + (i < c.blood.cur ? ' on' : '') + (i < c.blood.cur && pastReserve(c) ? ' reserve' : '') + '" data-act="pool" data-k="blood" data-i="' + i + '" aria-label="Blood ' + (i + 1) + (i < bloodReserve(c) ? ', past the Generation threshold' : '') + '"></button>';
@@ -8457,7 +8461,10 @@ V1.5
         (bloodX(c) > 1 ? ' · <span title="Disciplines, healing and boosts cost double (' + esc(thinGen(c) === 15 ? 'Fifteenth Generation' : 'Thin Blood') + ')">thin blood: 2 per point</span>' : '') +
         (bloodReserve(c) && !pastReserve(c) ? ' · <span title="' + esc(reserveNote(c).replace(/^Past the /, 'The ')) + '">last ' + bloodReserve(c) + ' limited</span>' : '') +
         (pastReserve(c) ? '<span class="reserve-note" role="note">' + esc(reserveNote(c)) + '</span>' : '') +
-        '</div><div class="def-row cols-3" role="group" aria-label="Blood pool"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1"' + (bloodX(c) > 1 ? ' title="Costs ' + bloodX(c) + ' blood (thin blood)"' : '') + '>Spend 1' + (bloodX(c) > 1 ? ' (' + bloodX(c) + ')' : '') + '</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button></div>' + boostLine(c) +
+        '</div><div class="def-row cols-4" role="group" aria-label="Blood pool"><button class="btn small" data-act="poolAdj" data-k="blood" data-d="-1"' + (bloodX(c) > 1 ? ' title="Costs ' + bloodX(c) + ' blood (thin blood)"' : '') + '>Spend 1' + (bloodX(c) > 1 ? ' (' + bloodX(c) + ')' : '') + '</button><button class="btn small" data-act="poolAdj" data-k="blood" data-d="1">Feed +1</button><button class="btn small" data-act="boost" title="Spend blood to raise Physical Attributes">Boost</button>' +
+        (function () { var on = rageNow(c), enc = !!turnNow(); return '<button class="btn small rage-btn' + (on ? ' on' : '') + '" data-act="rage" aria-pressed="' + on + '"' + (on || !enc ? ' aria-disabled="true"' : '') +
+          ' title="' + (on ? 'Raging: wound penalties (dice and speed) are ignored for the rest of this round' : !enc ? 'Rage lasts one round of an encounter: start one in the Initiative tracker' : 'Spend 1 blood' + (bloodX(c) > 1 ? ' (' + bloodX(c) + ', thin blood)' : '') + ': ignore wound penalties, dice and speed, for this round') + '">' + (on ? 'Raging' : 'Rage') + '</button>'; })() +
+        '</div>' + boostLine(c) +
       '</div><div data-pv="sub:play:willpower"><div class="pool-head" style="margin-top:8px"><h3 class="sub" data-bk="wp">Willpower</h3><strong>' + c.willpower.cur + ' / ' + c.willpower.perm + '</strong></div><div class="boxes wp">' + wpBoxes + '</div>' +
       '<div class="def-row" role="group" aria-label="Willpower"><button class="btn small" data-act="poolAdj" data-k="wp" data-d="-1">Spend 1</button><button class="btn small" data-act="poolAdj" data-k="wp" data-d="1">Regain 1</button></div></div></div>' +
       /* Collapsible like the Damage module's "Average damage expected" row; the summary shows soak and initiative. */
@@ -9761,6 +9768,20 @@ V1.5
       if (k === 'blood' && creating(c)) c.creation.bloodSet = true;
       commit();
     },
+    rage: function () {
+      var c = cur(), t = turnNow(), nm = c.info.name || 'This character';
+      if (!t) return toast('Rage lasts one round of an encounter: start one in the Initiative tracker first.');
+      if (rageNow(c)) return toast(nm + ' is already raging this round.');
+      if (woundPenalty(c) === null) return toast(nm + ' is Incapacitated.');
+      var X = bloodX(c);
+      if (c.blood.cur < X) return toast('Not enough blood' + (X > 1 ? ': thin blood costs ' + X + ' per point' : '') + '.');
+      var wasPast = pastReserve(c);
+      c.blood.cur -= X; noteSpend(c, 1); c.rage = { eid: t.eid, round: t.round };
+      if (!wasPast && pastReserve(c)) toast(reserveNote(c));
+      var lim0 = genInfo(c).turn;
+      toast(spentNow(c) > lim0 ? 'That\'s ' + spentNow(c) + ' blood this turn; the limit for ' + ord(c.info.generation) + ' Generation is ' + lim0 + '.' : nm + ' rages: wound penalties are ignored this round.');
+      return commit();
+    },
     poolAdj: function (el) {
       var c = cur(), d = +el.dataset.d;
       if (el.dataset.k === 'blood') {
@@ -10387,8 +10408,10 @@ V1.5
       var v = tv(c, p), bo = v - val(c, p); dice += v; parts.push(labelOf(c, p) + ' ' + v + (bo ? ' (+' + bo + ' blood)' : ''));
       if (c.spec[p] && specAllowed(c, p)) specs.push(c.spec[p]);
     });
+    /* Wound penalties don't touch Virtue, Willpower or Humanity/Path rolls (soak never gets them either). */
+    var noWound = [pb.a, pb.b].filter(Boolean).every(function (p) { return ['virt', 'willpower', 'morality'].indexOf(kind(p)) >= 0; });
     var wp = woundPenalty(c), incap = wp === null;
-    if (!incap && wp) { mod += wp; mods.push('Wounds ' + wp); }
+    if (!incap && wp && !noWound) { mod += wp; mods.push('Wounds ' + wp); }
     var arm = wornArmor(c), ap = arm ? (+arm.penalty || 0) : 0;
     if (ap && (pb.a === 'attr.dexterity' || pb.b === 'attr.dexterity')) { mod -= ap; mods.push('Armor −' + ap); }
     /* Untrained: a Skill with no dots costs one die; a Knowledge with no dots normally can't be rolled. */
@@ -10512,7 +10535,7 @@ V1.5
     if (rec.length) h += '<div class="qr-group qr-recent"><span class="qr-gl">Recent</span><div class="qr-chips">' + rec.map(function (x, i) {
       return '<button type="button" class="qr-chip" data-act="qrRecent" data-i="' + i + '">' + esc(labelOf(c, x.a) + (x.b ? ' + ' + labelOf(c, x.b) : '')) + '<b title="Difficulty">diff ' + x.diff + '</b></button>';
     }).join('') + '</div></div>';
-    h += pb.a ? '<div class="qr-sum">' + pickSummary(c) + '</div>' : '<p class="muted small" style="margin:0">Tap one or two traits. Wound penalties are added for you.</p>';
+    h += pb.a ? '<div class="qr-sum">' + pickSummary(c) + '</div>' : '<p class="muted small" style="margin:0">Tap one or two traits. Wound penalties are added for you (not to Virtue, Willpower or ' + esc(c.morality.name || 'Humanity') + ' rolls).</p>';
     return h;
   }
   /* Character module: the Active Play layout when there's room, a compact one when the module is narrow (container queries). */
@@ -10758,7 +10781,7 @@ V1.5
   /* What a joiner sends the host: the sheet without UI state, trimmed of long text if it would be too big to send. */
   var lastPushed = {};
   function sheetForHost(c) {
-    var d = JSON.parse(JSON.stringify(c)); delete d.ui; delete d.spent; delete d.boostSpend; delete d.share;
+    var d = JSON.parse(JSON.stringify(c)); delete d.ui; delete d.spent; delete d.boostSpend; delete d.share;   // Rage goes along: the host's map uses it
     delete d.priv; delete d.pvm; delete d.pubv;   // the host sees the whole sheet: the tracker needs it
     delete d.thumb; if (c.img && smThumbs[c.img]) d.thumb = smThumbs[c.img];   // its token picture for the Skirmish Map
     if (JSON.stringify(d).length > 55000) { d.journal = []; d.backstory = { story: '', facts: '' }; d.details.other = ''; d.enotes = {}; }
@@ -10817,6 +10840,7 @@ V1.5
     var c;
     try { c = cleanRemote(normalize(JSON.parse(JSON.stringify(sheet)))); } catch (e) { return; }
     var old = store.chars[id];
+    var rg0 = sheet.rage; c.rage = rg0 && typeof rg0 === 'object' && isFinite(+rg0.eid) && isFinite(+rg0.round) ? { eid: +rg0.eid, round: +rg0.round } : null;
     delete c.share; c.id = id; c.temp = { remote: pid, of: cid }; c.ui = (old && old.ui) || { tab: 'play' }; c.mode = 'play'; c.creation.done = true;
     store.chars[id] = c;
     if (isAdd && !inE) {
@@ -10873,6 +10897,9 @@ V1.5
   function celUsedNow(c) { var r = R(); return r && r.celUsed ? r.celUsed(c.id) : 0; }
   /* Blood spent this turn (one tracker round), for the per-turn limit set by Generation. */
   function spentNow(c) { var t = turnNow(), s = c.spent; return t && s && s.eid === t.eid && s.round === t.round ? s.n : 0; }
+  /* Rage: one blood point (double for thin blood, still one towards the turn's limit) and wound penalties, dice and
+     speed, don't count for the rest of that round of the encounter. */
+  function rageNow(c) { var t = turnNow(), g = c && c.rage; return !!(t && g && g.eid === t.eid && g.round === t.round); }
   function noteSpend(c, n) { var t = turnNow(); if (!t) return; c.spent = { eid: t.eid, round: t.round, n: spentNow(c) + n }; }
   function dupNumber(orig) {
     var used = {};
@@ -10892,7 +10919,7 @@ V1.5
     var d = JSON.parse(JSON.stringify(c));
     d.id = uid(); d.temp = { of: c.id, n: n }; d.created = Date.now(); delete d.share;
     d.info.name = (c.info.name || 'Unnamed').slice(0, 24 - sfx.length) + sfx;
-    d.ui = { tab: 'play', recent: (c.ui && c.ui.recent) || [] }; d.spent = null; d.boostSpend = null;
+    d.ui = { tab: 'play', recent: (c.ui && c.ui.recent) || [] }; d.spent = null; d.boostSpend = null; d.rage = null;
     store.chars[d.id] = d;
     var pl = iniPayload(d, d.info.name); pl.of = c.id;
     if (!r.addActor(pl)) { delete store.chars[d.id]; return 'The Initiative tracker is full.'; }
@@ -10913,7 +10940,7 @@ V1.5
       var d = JSON.parse(JSON.stringify(o));
       d.id = a.ch; d.temp = { of: o.id, n: m ? +m[2] : dupNumber(o) }; d.created = Date.now(); delete d.share;
       d.info.name = a.name || ((o.info.name || 'Unnamed') + ' [' + d.temp.n + ']');
-      d.ui = { tab: 'play', recent: (o.ui && o.ui.recent) || [] }; d.spent = null; d.boostSpend = null;
+      d.ui = { tab: 'play', recent: (o.ui && o.ui.recent) || [] }; d.spent = null; d.boostSpend = null; d.rage = null;
       store.chars[d.id] = d; made.push(d.info.name);
     });
     if (made.length) toast(made.join(', ') + (made.length > 1 ? ' were' : ' was') + ' missing a sheet, so ' + (made.length > 1 ? 'they were' : 'it was') + ' made again from the original.');
@@ -15638,10 +15665,11 @@ V1.5
      boosts and every Celerity dot (movement is per round: extra actions don't add more). Wounds slow a character down. */
   function smSpeeds(c) {
     if (!c || !c.attrs) return null;
-    var dex = phys(c, 'dexterity') + ((c.disc && c.disc.Celerity) || 0), run = 20 + 3 * dex, w = smWound(c);
+    var dex = phys(c, 'dexterity') + ((c.disc && c.disc.Celerity) || 0), run = 20 + 3 * dex, w = smWound(c), rg = rageNow(c) && w !== 'Incapacitated';
+    if (rg) w = '';   // Rage: wounds don't slow them this round
     var cap = { Injured: run / 2, Wounded: 7, Mauled: 3, Crippled: 1, Incapacitated: 0 }[w];
     var lim = function (v) { return cap == null ? v : Math.min(v, cap); };
-    return { walk: lim(7), jog: lim(12 + dex), run: lim(run), wound: w, capped: cap != null };
+    return { walk: lim(7), jog: lim(12 + dex), run: lim(run), wound: w, capped: cap != null, rage: rg };
   }
   /* The tracker's wound tag: the wound word for everyone, and health left for the host. */
   window.cmWound = function (ch) {
@@ -15736,7 +15764,7 @@ V1.5
   function smRunOf(t) {
     if (!t) return null;
     if (smMode() === 'host') { var sp = smSpeeds(t.c); return sp ? { run: sp.run, wound: sp.wound } : null; }
-    return t.s ? { run: +t.s[2] || 0, wound: t.h ? t.h.w : '' } : null;
+    return t.s ? { run: +t.s[2] || 0, wound: t.s[4] ? '' : t.h ? t.h.w : '' } : null;
   }
   function smBudget(t) {
     var sp = smRunOf(t); if (!sp) return null;
@@ -15799,7 +15827,7 @@ V1.5
       if (x.hu) o.hu = x.hu;   // watchers already see a wound word; this only draws it
       if (x.rev && x.pic && x.c && x.c.img) { o.p = 'i:' + x.c.img; pics[o.p] = x.pic; }
       if (x.c && x.c.health) {
-        if (x.pl) { o.h = { b: x.c.health.b, l: x.c.health.l, a: x.c.health.a, m: hMax(x.c), w: smWound(x.c) }; var sp = smSpeeds(x.c); if (sp) o.s = [sp.walk, sp.jog, sp.run, sp.capped ? 1 : 0]; }
+        if (x.pl) { o.h = { b: x.c.health.b, l: x.c.health.l, a: x.c.health.a, m: hMax(x.c), w: smWound(x.c) }; var sp = smSpeeds(x.c); if (sp) o.s = [sp.walk, sp.jog, sp.run, sp.capped ? 1 : 0, sp.rage ? 1 : 0]; }
         else o.w = smWound(x.c);
       }
       return o;
@@ -16248,12 +16276,12 @@ V1.5
         var g = genInfo(c);
         h += '<span>Health: ' + esc(smWound(c)) + ' · ' + hTotal(c) + ' / ' + hMax(c) + (hTotal(c) ? ' (' + [c.health.b ? c.health.b + ' bashing' : '', c.health.l ? c.health.l + ' lethal' : '', c.health.a ? c.health.a + ' aggravated' : ''].filter(Boolean).join(', ') + ')' : '') + '</span>' +
           '<span>Blood: ' + c.blood.cur + ' / ' + g.blood + '</span><span>Willpower: ' + c.willpower.cur + ' / ' + c.willpower.perm + '</span>';
-        var sp = smSpeeds(c); if (sp) h += '<span>' + smSpeedLine(sp.walk, sp.jog, sp.run, sp.wound, false) + '</span>';
+        var sp = smSpeeds(c); if (sp) h += '<span>' + smSpeedLine(sp.walk, sp.jog, sp.run, sp.wound, false, sp.rage) + '</span>';
       }
     } else if (t.pl) {
       h = '<b>' + esc(t.name) + '</b>';
       if (t.h) h += '<span>Health: ' + esc(t.h.w) + ' · ' + (t.h.b + t.h.l + t.h.a) + ' / ' + t.h.m + '</span>';
-      if (t.s) h += '<span>' + smSpeedLine(t.s[0], t.s[1], t.s[2], t.h ? t.h.w : '', !!t.s[3]) + '</span>';
+      if (t.s) h += '<span>' + smSpeedLine(t.s[0], t.s[1], t.s[2], t.s[4] ? '' : t.h ? t.h.w : '', !!t.s[3], !!t.s[4]) + '</span>';
     } else {
       h = '<b>' + esc(t.name) + '</b>' + (t.w ? '<span>' + esc(t.w) + '</span>' : '');
     }
@@ -16352,7 +16380,8 @@ V1.5
     var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true });
   }
   /* The hover card's speeds: from Wounded on only walking is left, then hobbling, crawling, and nothing. */
-  function smSpeedLine(walk, jog, run, wound, slowed) {
+  function smSpeedLine(walk, jog, run, wound, slowed, rage) {
+    if (rage) return 'Speed: walk ' + smFmt(walk) + ' · jog ' + smFmt(jog) + ' · run ' + smFmt(run) + ' (raging: wounds ignored this round)';
     if (wound === 'Incapacitated') return 'Speed: Downed';
     if (wound === 'Crippled') return 'Speed: crawl ' + smFmt(1);
     if (wound === 'Mauled') return 'Speed: hobble ' + smFmt(3);
