@@ -327,3 +327,10 @@ V3.1
 	-Dossier: diamond and hexagon notes only react to the pointer inside their shape, so you can grab what's behind their corners.
 	-Dossier: the right-click menu has a Size row with − and + buttons (the menu stays open while you click them): notes and containers go from 50% to 200%, text changes letter size. Works on several selected things at once.
 -Fixed duplicates in the Initiative tracker losing their sheets, and health changes not sticking, when the page was closed (or a phone switched away) right after a change. A duplicate whose sheet is missing is now made again from its original.
+
+V3.1.1
+-Skirmish Map Changes:
+	-Bashing damage no longer sets a character's wound state on the map: speed limits and the wound marks only count lethal and aggravated damage (bashing counts once it spills over into lethal on a full health track).
+	-Map settings have a Background marks switch and a Marks opacity slider, to fade or hide the stains and marks on the background without changing its colour (your own view only).
+-Initiative Tracker Changes:
+	-The wound word, and the health left shown to the host, only count lethal and aggravated damage.

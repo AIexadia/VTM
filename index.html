@@ -1983,9 +1983,9 @@ img.user-av { object-fit: cover; border-radius: 50%; padding: 0; }
 .sm-range.off { opacity: 0.5; }
 .sm-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .sm-stage { position: relative; flex: 1; min-height: 260px; border: 1px solid #000; border-radius: 8px; overflow: hidden; touch-action: none;
-  background-color: var(--sm-paper); background-image: var(--sm-stain); background-size: var(--sm-stain-size, 700px 700px); isolation: isolate;
+  background-color: var(--sm-paper); isolation: isolate;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--sm-blood) 35%, transparent), 0 6px 20px rgba(0, 0, 0, 0.35); }
-.sm-stage::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.42 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 220px 220px; opacity: var(--sm-grain-op); mix-blend-mode: multiply; }
+.sm-stage::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.42 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 220px 220px; opacity: calc(var(--sm-grain-op) * var(--sm-po, 1)); mix-blend-mode: multiply; }
 .sm-stage::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: var(--sm-glow, none), radial-gradient(ellipse at 50% 45%, transparent 52%, var(--sm-vig) 100%); }
 .sm-svg { position: relative; z-index: 1; width: 100%; height: 100%; display: block; user-select: none; -webkit-user-select: none; }
 .sm-svg:focus { outline: none; }
@@ -2187,6 +2187,9 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
 .nb-mstep button { width: 26px; height: 24px; border-radius: 4px; border: 1px solid currentColor; background: transparent; color: inherit; font: 600 15px/1 var(--font-data); cursor: pointer; padding: 0; opacity: 0.85; }
 .nb-mstep button:hover { opacity: 1; background: rgba(217,164,65,0.18); }
 .nb-mval { min-width: 46px; text-align: center; font: 600 12px var(--font-data); }
+/* Skirmish Map: the stains and marks have their own layer, so they can be faded or hidden without touching the base colour */
+.sm-pat { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-image: var(--sm-stain); background-size: var(--sm-stain-size, 700px 700px); opacity: var(--sm-po, 1); }
+.sm-stage.no-pat > .sm-pat, .sm-stage.no-pat::before { display: none; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -15610,7 +15613,8 @@ V1.5
   var smView = (function () {
     var d = null; try { d = JSON.parse(localStorage.getItem('vtm-smap-view') || 'null'); } catch (e) {}
     d = d && typeof d === 'object' ? d : {};
-    return { grid: d.grid !== false, op: isFinite(+d.op) && d.op !== null ? Math.max(5, Math.min(100, Math.round(+d.op))) : 60, style: SM_STYLES.some(function (x) { return x[0] === d.style; }) ? d.style : 'auto' };
+    return { grid: d.grid !== false, op: isFinite(+d.op) && d.op !== null ? Math.max(5, Math.min(100, Math.round(+d.op))) : 60,
+      pat: d.pat !== false, pop: isFinite(+d.pop) && d.pop !== null ? Math.max(5, Math.min(100, Math.round(+d.pop))) : 100, style: SM_STYLES.some(function (x) { return x[0] === d.style; }) ? d.style : 'auto' };
   })();
   function smViewSave() { try { localStorage.setItem('vtm-smap-view', JSON.stringify(smView)); } catch (e) {} }
   var smThumbs = {}, smThumbBusy = {}, smPics = {}, smSent = {};
@@ -15622,9 +15626,12 @@ V1.5
   function smLen(x, y) { return Math.sqrt(x * x + y * y); }
   function smDist(p, q) { return smLen(p[0] - q[0], p[1] - q[1]); }
   /* Wounds by the total of all damage (shown even when, with the aggravated-damage rule, they carry no penalty). */
+  /* On the map and in the tracker only lethal and aggravated damage hurt: bashing counts once it spills over into lethal
+     (a full track turns more bashing into lethal). */
+  function smHarm(c) { return (+c.health.l || 0) + (+c.health.a || 0); }
   function smWound(c) {
     if (!c || !c.health) return '';
-    var lv = hLevels(c), t = Math.min(lv.length, hTotal(c));
+    var lv = hLevels(c), t = Math.min(lv.length, smHarm(c));
     return t ? lv[t - 1][0] : 'Unhurt';
   }
   /* Speeds in yards/metres per turn (V20): walking 7, jogging 12 + Dexterity, running 20 + 3 × Dexterity. Dexterity counts
@@ -15639,7 +15646,7 @@ V1.5
   /* The tracker's wound tag: the wound word for everyone, and health left for the host. */
   window.cmWound = function (ch) {
     var c = store.chars[ch]; if (!c || !c.health || !c.attrs) return null;
-    var t = hTotal(c), m = hMax(c), w = smWound(c), lv = Math.min(t, m);
+    var t = smHarm(c), m = hMax(c), w = smWound(c), lv = Math.min(t, m);
     return { w: w, left: Math.max(0, m - t), m: m, b: +c.health.b || 0, l: +c.health.l || 0, a: +c.health.a || 0, sev: t <= 0 ? 0 : t >= m ? 3 : lv * 2 >= m ? 2 : 1 };
   };
   var iniWSig = '';
@@ -15651,7 +15658,7 @@ V1.5
   /* Badly hurt (half or more of the health levels gone): 1; down (every level gone): 2. */
   function smHurt(c) {
     if (!c || !c.health) return 0;
-    var t = hTotal(c), m = hMax(c);
+    var t = smHarm(c), m = hMax(c);
     return !m ? 0 : t >= m ? 2 : t * 2 >= m ? 1 : 0;
   }
   function smNum(v) { return Math.round(v * 10) / 10; }
@@ -16007,13 +16014,15 @@ V1.5
     var s = smState(), mode = smMode(), rm = s && s.remote && s.remote.m;
     var room = mode === 'host' ? smSwitch('smUnits', sm.units === 'i', 'Imperial units', 'Feet, with yards beside them (1 yard = 1 metre).') + (s && s.hosting ? smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') : '')
       : '<p class="sm-set-note">' + (rm && rm.u === 'i' ? 'Feet, with yards beside them' : 'Metres') + ' (the host\'s choice). ' + (rm && rm.any ? 'You can move any token.' : 'You can move your own characters.') + '</p>';
-    var key = mode + '|' + room + '|' + smView.grid + '|' + smView.style;
+    var key = mode + '|' + room + '|' + smView.grid + '|' + smView.style + '|' + smView.pat;
     if (box.getAttribute('data-k') === key) return;
     box.setAttribute('data-k', key);
     box.innerHTML = '<span class="sm-set-h">Room</span>' + room + '<span class="sm-set-h">Your view</span>' + '<fieldset class="sm-styles"><legend>Background</legend>' + SM_STYLES.map(function (x) {
         return '<label class="sm-sty' + (x[0] === 'auto' ? ' all' : '') + '"><input type="radio" name="smStyle" value="' + x[0] + '"' + (smView.style === x[0] ? ' checked' : '') + '><span class="sm-sw-dot ' + x[0] + '" aria-hidden="true"></span><span>' + x[1] + '</span></label>';
       }).join('') + '</fieldset>' + smSwitch('smGridOn', smView.grid, 'Grid lines', '') +
-      '<label class="sm-range' + (smView.grid ? '' : ' off') + '" for="smGridOp"><span>Grid opacity</span><input type="range" id="smGridOp" min="5" max="100" step="5" value="' + smView.op + '"' + (smView.grid ? '' : ' disabled') + '><output id="smGridOut">' + smView.op + '%</output></label>';
+      '<label class="sm-range' + (smView.grid ? '' : ' off') + '" for="smGridOp"><span>Grid opacity</span><input type="range" id="smGridOp" min="5" max="100" step="5" value="' + smView.op + '"' + (smView.grid ? '' : ' disabled') + '><output id="smGridOut">' + smView.op + '%</output></label>' +
+      smSwitch('smPatOn', smView.pat, 'Background marks', '') +
+      '<label class="sm-range' + (smView.pat ? '' : ' off') + '" for="smPatOp"><span>Marks opacity</span><input type="range" id="smPatOp" min="5" max="100" step="5" value="' + smView.pop + '"' + (smView.pat ? '' : ' disabled') + '><output id="smPatOut">' + smView.pop + '%</output></label>';
   }
   function smOwnMeasure() {
     var mode = smMode();
@@ -16036,11 +16045,12 @@ V1.5
     var body = $('smBody');
     if (mode === 'join' && !rm) { body.innerHTML = '<p class="hint">The host\'s tracker doesn\'t share a map.</p>'; return; }
     if (!body.querySelector('svg')) {
-      body.innerHTML = '<div class="sm-stage" id="smStage"><svg class="sm-svg" id="smSvg" role="application" aria-label="Skirmish Map: drag your tokens; click a token to measure from it" tabindex="0"></svg><div class="sm-tip" id="smTip" hidden></div><div class="sm-menu" id="smMenu" hidden></div><div class="sm-aoe-pop" id="smAoe" role="dialog" aria-label="Areas of effect" hidden></div></div><p class="hint sm-help" id="smHelp"></p>';
+      body.innerHTML = '<div class="sm-stage" id="smStage"><div class="sm-pat" aria-hidden="true"></div><svg class="sm-svg" id="smSvg" role="application" aria-label="Skirmish Map: drag your tokens; click a token to measure from it" tabindex="0"></svg><div class="sm-tip" id="smTip" hidden></div><div class="sm-menu" id="smMenu" hidden></div><div class="sm-aoe-pop" id="smAoe" role="dialog" aria-label="Areas of effect" hidden></div></div><p class="hint sm-help" id="smHelp"></p>';
     }
     $('smHelp').textContent = toks.length ? 'Drag a token to move it, hover it for details. Hover a line to see that move; click it to undo. Click a token, then a spot or another token, to measure. Right-click a token (or press and hold it) for an area of effect. 1 square = 1 ' + (smUnits() === 'i' ? 'yard (3 ft)' : 'metre') + '.' : 'Add actors to the tracker and they show up here.';
     var svg = smSvgEl(), stage = $('smStage');
-    stage.className = 'sm-stage' + (smView.style !== 'auto' ? ' sty-' + smView.style : '');
+    stage.className = 'sm-stage' + (smView.style !== 'auto' ? ' sty-' + smView.style : '') + (smView.pat ? '' : ' no-pat');
+    stage.style.setProperty('--sm-po', String(smView.pop / 100));
     if (!toks.length) { svg.innerHTML = ''; return; }
     var W = stage.clientWidth || 600, H = stage.clientHeight || 380;
     if (!smUi.vb || !smUi.fitted) { smFit(toks, W, H); smUi.fitted = true; }
@@ -16499,9 +16509,16 @@ V1.5
     if (e.target.id === 'smUnits') { sm.units = e.target.checked ? 'i' : 'm'; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smAny') { sm.any = e.target.checked; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smGridOn') { smView.grid = e.target.checked; smViewSave(); smDraw(); }
+    if (e.target.id === 'smPatOn') { smView.pat = e.target.checked; smViewSave(); smDraw(); }
     if (e.target.name === 'smStyle') { smView.style = e.target.value; smViewSave(); smDraw(); var r = $('smSet').querySelector('input[name="smStyle"]:checked'); if (r) r.focus(); }
   }
   function smInput(e) {
+    if (e.target.id === 'smPatOp') {
+      smView.pop = Math.max(5, Math.min(100, Math.round(+e.target.value) || 100)); smViewSave();
+      var po = $('smPatOut'); if (po) po.textContent = smView.pop + '%';
+      var stg = $('smStage'); if (stg) stg.style.setProperty('--sm-po', String(smView.pop / 100));
+      return;
+    }
     if (e.target.id !== 'smGridOp') return;
     smView.op = Math.max(5, Math.min(100, Math.round(+e.target.value) || 60)); smViewSave();
     var o = $('smGridOut'); if (o) o.textContent = smView.op + '%';
