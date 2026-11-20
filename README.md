@@ -351,3 +351,8 @@ V3.1.4
 	-Dossier: a container's title and details are never covered. Notes and containers inside it move down below them, including when the details get longer, and the container sizes itself around them.
 	-Dossier: containers no longer have a size limit; they grow as far as what's inside them needs.
 	-Dossier: dragging a text's corner now resizes its text box (width and height) without changing the letter size; letter size is set with the Size row in its right-click menu.
+	
+V3.1.5
+-Character Manager Changes:
+	-New CQM button on Active Play, left of Soak and Defend: Close Combat Maneuvers (Bite, Claw, Clinch, Disarm, Hold, Kick, Strike, Sweep, Tackle). Each shows its traits, difficulty and damage; picking one rolls the attack in the main roller and readies its damage in the Damage module.
+	-Low Generations raise the trait maximum past 5, while a character is being made too: 7th Generation up to 6, 6th up to 7, 5th up to 8, 4th up to 9, and 3rd (now selectable) up to 10.

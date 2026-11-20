@@ -7531,7 +7531,8 @@ V1.5
   var ARCHETYPES = ['Architect', 'Autocrat', 'Bon Vivant', 'Bravo', 'Capitalist', 'Caregiver', 'Celebrant', 'Chameleon', 'Child', 'Competitor', 'Conformist', 'Conniver', 'Creep Show', 'Curmudgeon', 'Dabbler', 'Deviant', 'Director', 'Enigma', 'Eye of the Storm', 'Fanatic', 'Gallant', 'Guru', 'Idealist', 'Judge', 'Loner', 'Martyr', 'Masochist', 'Monster', 'Pedagogue', 'Penitent', 'Perfectionist', 'Rebel', 'Rogue', 'Sadist', 'Scientist', 'Sociopath', 'Soldier', 'Survivor', 'Thrill-Seeker', 'Traditionalist', 'Trickster', 'Visionary'];
   var PATHS = ['Humanity', 'Path of Blood', 'Path of the Bones', 'Path of Caine', 'Path of Cathari', 'Path of Death and the Soul', 'Path of Evil Revelations', 'Path of the Feral Heart', 'Path of Honorable Accord', 'Path of Lilith', 'Path of Metamorphosis', 'Path of Night', 'Path of Paradox', 'Path of Power and the Inner Voice', 'Path of Typhon'];
   /* Generation: [highest trait rating, blood pool, blood per turn] */
-  var GEN = { 4: [9, 50, 10], 5: [8, 40, 8], 6: [7, 30, 6], 7: [6, 20, 4], 8: [5, 15, 3], 9: [5, 14, 2], 10: [5, 13, 1], 11: [5, 12, 1], 12: [5, 11, 1], 13: [5, 10, 1], 14: [5, 10, 1], 15: [5, 10, 1] };
+  var GEN = { 3: [10, 50, 10], 4: [9, 50, 10],   // 3rd: trait maximum 10 (the book gives no blood figures, so 4th's are used)
+     5: [8, 40, 8], 6: [7, 30, 6], 7: [6, 20, 4], 8: [5, 15, 3], 9: [5, 14, 2], 10: [5, 13, 1], 11: [5, 12, 1], 12: [5, 11, 1], 13: [5, 10, 1], 14: [5, 10, 1], 15: [5, 10, 1] };
   var HEALTH = [['Bruised', 0], ['Hurt', -1], ['Injured', -1], ['Wounded', -2], ['Mauled', -2], ['Crippled', -5], ['Incapacitated', null]];
   /* Goon HP: a shorter track for minor characters. */
   var HEALTH_GOON = [['Hurt', -1], ['Wounded', -3], ['Crippled', -5], ['Incapacitated', null]];
@@ -7884,8 +7885,7 @@ V1.5
     if (k === 'spath') return 5;
     if (k === 'disc' && thinGen(c) === 15) return 3;   // Fifteenth Generation
     if (k === 'disc' && thinGen(c) === 14) return Math.min(4, creating(c) ? 5 : genInfo(c).max);   // Fourteenth Generation: no Discipline above 4
-    if (creating(c)) return 5;
-    return Math.max(5, genInfo(c).max);
+    return Math.max(5, genInfo(c).max);   // 7th Generation and lower go past 5, while being made too (up to 10)
   }
   /* Clan Disciplines: the clan's own, plus any this character treats as clan (added during creation, or marked later).
      Caitiff have no clan Disciplines, so nothing is added for them. */
@@ -8176,7 +8176,7 @@ V1.5
         fld(c, 'Name', 'info.name', c.info.name) + fld(c, 'Player', 'info.player', c.info.player) + fld(c, 'Chronicle', 'info.chronicle', c.info.chronicle) +
         fld(c, 'Nature', 'info.nature', c.info.nature, ' list="dl-arch"') + fld(c, 'Demeanor', 'info.demeanor', c.info.demeanor, ' list="dl-arch"') + fld(c, 'Concept', 'info.concept', c.info.concept) +
         clanSelect(c) +
-        (c.mode === 'edit' ? '<label class="fld"><span class="cm-lbl">Generation</span><input type="number" min="4" max="15" data-f="info.generation" data-num data-rr value="' + c.info.generation + '"></label>' : '') +
+        (c.mode === 'edit' ? '<label class="fld"><span class="cm-lbl">Generation</span><input type="number" min="3" max="15" data-f="info.generation" data-num data-rr value="' + c.info.generation + '"></label>' : '') +
         fld(c, 'Sire', 'info.sire', c.info.sire) +
         '</div></div></section>';
     }
@@ -8435,7 +8435,7 @@ V1.5
     }
     return '<div class="hicons"><span class="hi-grp" role="group" aria-label="Damage">' + dmg('b') + dmg('l') + dmg('a') + '</span><span class="hi-sep" aria-hidden="true"></span>' +
       '<span class="hi-grp" role="group" aria-label="Heal">' + heal('b', !h.b) + heal('l', !h.l) + heal('a', !h.a) + heal('n', !h.b && !h.l) + '</span>' +
-      '</div><div class="def-row" role="group" aria-label="Defense"><button type="button" class="btn small" data-act="soak">Soak</button><button type="button" class="btn small" data-act="defend" title="Block, dodge or parry">Defend</button></div>';
+      '</div><div class="def-row" role="group" aria-label="Defense"><button type="button" class="btn small" data-act="cqm" title="Close combat maneuvers: bite, claw, clinch, disarm, hold, kick, strike, sweep, tackle">CQM</button><button type="button" class="btn small" data-act="soak">Soak</button><button type="button" class="btn small" data-act="defend" title="Block, dodge or parry">Defend</button></div>';
   }
   function qrefOpen() { return !!(store.ui && store.ui.qrefOpen); }
   function vitalsSection(c, bare) {
@@ -10061,7 +10061,7 @@ V1.5
       if (!c.morality.name.trim()) c.morality.name = 'Humanity';
       if (c.morality.name === 'Humanity') c.virtNames = { conscience: 'Conscience', selfControl: 'Self-Control' };
     }
-    if (f === 'info.generation') c.info.generation = clamp(c.info.generation || 13, 4, 15);
+    if (f === 'info.generation') c.info.generation = clamp(c.info.generation || 13, 3, 15);
     syncDerived(c); commit();
   });
   function clanChanged(c, prev) {
@@ -10715,6 +10715,70 @@ V1.5
       };
     });
   }
+  /* Close Combat Maneuvers (V20 pp. 275-276), rolled at once in the main roller with the damage made ready.
+     [key, name, attribute, ability, difficulty +, extra dice, damage, damage kind, what it does (in our words)] */
+  var cqs = null;
+  var CQM_OPTS = [
+    ['bite', 'Bite', 'dexterity', 'abil.brawl', 0, 1, 'Str+1', 'aggravated', 'Vampires only, after a clinch, hold or tackle that worked last turn. Can be a Kiss instead: no damage, and feeding starts.'],
+    ['claw', 'Claw', 'dexterity', 'abil.brawl', 0, 0, 'Str+1', 'claw', 'Needs claws: Feral Claws do aggravated damage, Bonecraft spurs lethal.'],
+    ['clinch', 'Clinch', 'strength', 'abil.brawl', 0, 0, 'Str', 'bashing', 'Locks you both together. Each later turn: Strength damage without rolling to hit, or try to break free (resisted Strength + Brawl). Nothing else until someone does.'],
+    ['disarm', 'Disarm', 'dexterity', 'abil.melee', 1, 0, 'weapon', 'special', 'Roll damage as usual: more damage successes than the target\'s Strength knocks their weapon away instead of hurting them. A botch drops yours, or their weapon hits you.'],
+    ['hold', 'Hold', 'strength', 'abil.brawl', 0, 0, '', '', 'No damage: pins the target until their next action, then resisted Strength + Brawl each turn until they win free.'],
+    ['kick', 'Kick', 'dexterity', 'abil.brawl', 1, 0, 'Str+1', 'bashing', 'Fancier kicks can cost more difficulty for more damage, if the Storyteller allows.'],
+    ['strike', 'Strike', 'dexterity', 'abil.brawl', 0, 0, 'Str', 'bashing', 'A punch. The Storyteller may adjust it for the kind of blow.'],
+    ['sweep', 'Sweep', 'dexterity', 'abil.brawl', 1, 0, 'Str', 'bashing', 'Knockdown: the target rolls Dexterity + Athletics (difficulty 8) or falls. With a staff or chain it\'s Melee and the weapon\'s damage.'],
+    ['tackle', 'Tackle', 'strength', 'abil.brawl', 1, 0, 'Str+1', 'bashing', 'Knockdown: you both roll Dexterity + Athletics (difficulty 7) or fall. Even standing, the target has +1 difficulty next turn.']
+  ];
+  actions.cqm = function () { var c = cur(); if (!c) return; cqs = { dmod: 0, mod: 0 }; cqmModal(c); };
+  function cqmWeapon(c) { return c.weapons.filter(function (w) { return w.equipped && w.kind === 'melee' && !w.natural; })[0] || null; }
+  function cqmDmg(c, o) {
+    if (!o[6]) return null;
+    var w = o[6] === 'weapon' ? cqmWeapon(c) : null, s = o[6] === 'weapon' ? (w ? w.dmg : 'Str') : o[6];
+    var kind = o[7] === 'claw' ? ((c.disc.Protean || 0) >= 2 ? 'aggravated' : 'lethal') : o[7] === 'special' ? (w ? ({ B: 'bashing', L: 'lethal', A: 'aggravated' }[w.type] || 'lethal') : 'bashing') : o[7];
+    return { pool: dmgPool(c, s), text: (w ? w.name + ' ' : '') + s.replace('Str', 'Strength ').replace('+', '+ ').trim() + ', ' + kind };
+  }
+  function cqmPool(c, o) {
+    var attr = o[2], skill = o[3], wp = woundPenalty(c), arm = wornArmor(c), ap = arm ? (+arm.penalty || 0) : 0, auto = [], mod = 0;
+    if (wp) { mod += wp; auto.push('Wounds ' + wp); }
+    if (ap) { mod -= ap; auto.push('Armor −' + ap); }
+    if (o[5]) { mod += o[5]; auto.push('Accuracy +' + o[5]); }
+    if (untrained(c, skill) === 'skill') { mod -= 1; auto.push('Untrained −1'); }
+    disciplineBonus(c, ['attr.' + attr]).forEach(function (x) { mod += x[1]; if (x[1]) auto.push(x[0] + ' +' + x[1]); });
+    var base = phys(c, attr) + val(c, skill);
+    return { base: base, mod: mod, total: base + mod + cqs.mod, auto: auto, traits: LABELS[attr] + ' ' + phys(c, attr) + ' + ' + LABELS[split(skill)[1]] + ' ' + val(c, skill) };
+  }
+  function cqmModal(c) {
+    var incap = woundPenalty(c) === null, sg = function (n) { return (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n); };
+    var step = function (k, lbl, v) {
+      return '<div class="def-step"><span class="def-lbl">' + lbl + '</span><span class="qr-diff"><button type="button" class="qr-step" data-qstep="' + k + '" data-d="-1" aria-label="Lower ' + lbl + '">−</button><b>' + v + '</b><button type="button" class="qr-step" data-qstep="' + k + '" data-d="1" aria-label="Raise ' + lbl + '">+</button></span></div>';
+    };
+    openModal('<h2>Close Combat Maneuvers</h2><p class="muted small">The attack rolls at once in the main roller; its damage is made ready in the Damage module. Wound penalties, armor, Celerity and Potence are added for you.</p>' +
+      (incap ? '<p class="untrained-warn">' + esc(c.info.name || 'This character') + ' is Incapacitated and can\'t attack.</p>' : '') +
+      '<div class="def-steps">' + step('dmod', 'Difficulty mod', sg(cqs.dmod)) + step('mod', 'Dice mod', sg(cqs.mod)) + '</div><div class="soak-opts">' + CQM_OPTS.map(function (o) {
+        var p = cqmPool(c, o), d = cqmDmg(c, o), diff = clamp(6 + o[4] + cqs.dmod, 2, 10);
+        return '<button type="button" class="soak-opt" data-cqm="' + o[0] + '"' + (incap || p.total < 1 ? ' disabled' : '') + '><span><b>' + o[1] + '</b><small>' + esc(p.traits) + ' · difficulty ' + diff +
+          ' · ' + (d ? 'damage ' + esc(d.text) : o[0] === 'hold' ? 'no damage' : '') + (p.auto.length || cqs.mod ? ' · ' + esc(p.auto.concat(cqs.mod ? ['Mod ' + sg(cqs.mod)] : []).join(', ')) : '') + '</small><small class="muted">' + esc(o[8]) + '</small></span><span class="soak-n">' + Math.max(0, p.total) + '</span></button>';
+      }).join('') + '</div><div class="acts"><button type="button" class="btn" id="mNo">Cancel</button></div>', 'cm-def');
+    $('mNo').onclick = closeModal;
+    Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-qstep]'), function (b) {
+      b.onclick = function () {
+        var k = b.dataset.qstep, dd = +b.dataset.d;
+        if (k === 'dmod') cqs.dmod = clamp(cqs.dmod + dd, -8, 8); else cqs.mod = clamp(cqs.mod + dd, -20, 20);
+        cqmModal(c); var again = $('cmModal').querySelector('[data-qstep="' + k + '"][data-d="' + dd + '"]'); if (again) again.focus();
+      };
+    });
+    Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-cqm]'), function (bt) {
+      bt.onclick = function () {
+        var o = CQM_OPTS.filter(function (x) { return x[0] === bt.dataset.cqm; })[0], p = cqmPool(c, o), d = cqmDmg(c, o), r2 = R(), who = c.info.name || 'Unnamed'; closeModal();
+        if (!r2 || !r2.mainOn()) return toast('Turn on the Main Roller in Settings > Modules to roll maneuvers.');
+        r2.setMain({ pool: Math.max(1, p.base), diff: 6 + o[4], tdiff: o[4], spec: false, mod: p.mod + cqs.mod, dmod: cqs.dmod, ctx: { kind: 'generic', char: who, traits: p.traits, auto: p.auto, note: 'Close combat: ' + o[1] } });
+        var opened = false;
+        if (d && d.pool != null) { r2.setDamage({ pool: Math.max(0, d.pool), diff: 6, ctx: { char: who, traits: o[1] + ': ' + d.text + (c.disc.Potence && /Strength/.test(d.text) ? ' (Potence ' + c.disc.Potence + ')' : ''), auto: [] } }); opened = r2.openModule('damage'); }
+        setView('roller'); r2.rollMain();
+        toast(o[1] + (d ? (opened ? ': damage (' + d.text + ') is ready in the Damage module.' : ': damage ' + d.text + '.') : o[0] === 'hold' ? ': no damage, the target is held.' : '.'));
+      };
+    });
+  }
   /* Boost: spend blood to raise Strength, Dexterity or Stamina for the scene (V20 p. 268). One turn's spending at most
      (per-turn limit from Generation); dots above the generational maximum + 1 only last 3 turns after spending stops; cap 10.
      A negative step ends boosted dots early (no blood back). */
@@ -10819,7 +10883,7 @@ V1.5
     c.blood.cur = clamp(Math.round(+c.blood.cur || 0), 0, 50);
     c.willpower.perm = clamp(Math.round(+c.willpower.perm || 0), 0, 10); c.willpower.cur = clamp(Math.round(+c.willpower.cur || 0), 0, 10);
     c.morality.dots = clamp(Math.round(+c.morality.dots || 0), 0, 10);
-    c.info.generation = clamp(Math.round(+c.info.generation || 13), 4, 15);
+    c.info.generation = clamp(Math.round(+c.info.generation || 13), 3, 15);
     c.xp.base = +c.xp.base || 0; c.xp.log.forEach(function (e) { e.amount = +e.amount || 0; });
     c.armor.forEach(function (a) { a.rating = +a.rating || 0; a.penalty = +a.penalty || 0; });
     return c;
