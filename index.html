@@ -10802,7 +10802,15 @@ V1.5
   function cleanRemote(c) {
     function nums(o, max) { Object.keys(o || {}).forEach(function (k) { o[k] = clamp(Math.round(+o[k] || 0), 0, max); }); }
     if (typeof c.thumb !== 'string' || c.thumb.length > 40000 || !/^data:image\/(webp|jpeg|png);base64,/.test(c.thumb)) delete c.thumb;   // Skirmish Map token picture
-    nums(c.attrs, 10); nums(c.abil, 10); nums(c.disc, 10); nums(c.bg, 10); nums(c.virt, 10); nums(c.boost, 10); nums(c.health, 7); c.goon = !!c.goon; nums(c.sorc, 10);
+    nums(c.attrs, 10); nums(c.abil, 10); nums(c.disc, 10); nums(c.bg, 10); nums(c.virt, 10); nums(c.boost, 10); nums(c.health, 7); c.goon = !!c.goon;
+    /* Sorcery: per Discipline, a primary path name and named secondary paths with their dots (never flattened to numbers). */
+    var so0 = c.sorc, so1 = {};
+    Object.keys(isObj(so0) ? so0 : {}).forEach(function (d) {
+      var x = so0[d]; if (!isObj(x) || BAD_KEYS[d] || d.length > 40) return;
+      var ps = {}; Object.keys(isObj(x.paths) ? x.paths : {}).forEach(function (pn) { if (!BAD_KEYS[pn] && pn.length <= 80) ps[pn] = clamp(Math.round(+x.paths[pn] || 0), 0, 10); });
+      so1[d] = { primary: typeof x.primary === 'string' ? x.primary.slice(0, 80) : '', paths: ps };
+    });
+    c.sorc = so1;
     c.blood.cur = clamp(Math.round(+c.blood.cur || 0), 0, 50);
     c.willpower.perm = clamp(Math.round(+c.willpower.perm || 0), 0, 10); c.willpower.cur = clamp(Math.round(+c.willpower.cur || 0), 0, 10);
     c.morality.dots = clamp(Math.round(+c.morality.dots || 0), 0, 10);

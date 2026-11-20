@@ -341,3 +341,6 @@ V3.1.2
 	-Quick rolls of a Virtue, Willpower or Humanity/Path no longer take wound penalties (soak never did).
 -Skirmish Map Changes:
 	-A raging character moves at full speed this round, for everyone in the room; the hover card says so.
+
+V3.1.3
+-Fixed Thaumaturgy and Necromancy paths (the primary path's name and secondary paths) being wiped on shared sheets, and on the host's copy of a joiner's sheet in a room.
