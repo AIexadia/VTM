@@ -2194,6 +2194,10 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
 .def-row.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .rage-btn.on { background: var(--blood, #8b1a1a); border-color: var(--blood, #8b1a1a); color: #fff; }
 .rage-btn[aria-disabled="true"]:not(.on) { opacity: 0.55; }
+/* Dossier: attaching text to a note or container */
+.nb-board.nb-attaching, .nb-board.nb-attaching .nb-node { cursor: crosshair; }
+.nb-board.nb-attaching .nb-node:not(.nb-text):hover { outline: 2px solid rgba(242,201,76,0.85); outline-offset: 3px; }
+.nb-node.nb-anchor { outline: 2px dashed rgba(242,201,76,0.8); outline-offset: 4px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -7689,15 +7693,16 @@ V1.5
       cnt++;
       if (x.tx) {
         out[id] = { tx: true, t: String(x.t == null ? '' : x.t).slice(0, NB_XMAX), x: num(x.x, 0, -20000, 20000), y: num(x.y, 0, -20000, 20000), w: num(x.w, 160, 40, 1200),
-          fs: num(x.fs, 20, 10, 96), fo: x.fo === 'd' ? 'd' : 't', r: num(x.r, 0, -180, 180), k: cols[x.k] ? x.k : '', z: num(x.z, 0, 0, 1e9), p: '' };
+          fs: num(x.fs, 20, 10, 96), fo: x.fo === 'd' ? 'd' : 't', r: num(x.r, 0, -180, 180), k: cols[x.k] ? x.k : '', z: num(x.z, 0, 0, 1e9), p: typeof x.p === 'string' ? x.p : '' };   // p: the note or container it's attached to
+        var th0 = num(x.h, 0, 0, 40000); if (th0) out[id].h = th0;   // the text box's height, when stretched
         return;
       }
       var b = !!x.b, o = {
         t: String(x.t == null ? '' : x.t).slice(0, NB_TMAX), d: String(x.d == null ? '' : x.d).slice(0, NB_DMAX),
-        x: num(x.x, 0, -20000, 20000), y: num(x.y, 0, -20000, 20000), w: num(x.w, b ? 360 : 200, b ? 180 : 120, b ? 2400 : 480),
+        x: num(x.x, 0, -20000, 20000), y: num(x.y, 0, -20000, 20000), w: num(x.w, b ? 360 : 200, b ? 180 : 120, b ? 40000 : 480),
         s: shapes[x.s] && (!b || NB_BOX_SHAPES[x.s]) ? x.s : (b ? 'round' : 'rect'), k: cols[x.k] ? x.k : '', f: !!x.f, p: typeof x.p === 'string' ? x.p : '', z: num(x.z, 0, 0, 1e9)
       };
-      if (b) { o.b = true; o.h = num(x.h, 240, 100, 2400); }
+      if (b) { o.b = true; o.h = num(x.h, 240, 100, 40000); }
       if (!b && x.st && NB_STAMPS.some(function (k) { return k[0] === x.st; })) o.st = x.st;
       var sc0 = num(x.sc, 100, 50, 200); if (sc0 !== 100) o.sc = sc0;   // size, in percent
       out[id] = o;
@@ -7705,7 +7710,7 @@ V1.5
     /* A note can only sit in a container that exists, and never inside itself. */
     Object.keys(out).forEach(function (id) {
       var o = out[id], seen = {}, q = o.p;
-      if (o.tx) return;
+      if (o.tx) { if (q && (!out[q] || out[q].tx)) o.p = ''; return; }   // text attaches to a note or container that exists
       if (q && (!out[q] || !out[q].b)) { o.p = ''; return; }
       while (q) { if (q === id || seen[q]) { o.p = ''; return; } seen[q] = 1; q = out[q] ? out[q].p : ''; }
     });
@@ -13817,7 +13822,7 @@ V1.5
   function nbDesc(nb, id) { var out = [], q = [id]; while (q.length) { var k = q.shift(); nbKids(nb, k).forEach(function (x) { out.push(x); q.push(x); }); } return out; }
   function nbDepth(nb, id) { var d = 0, p = nb.n[id] && nb.n[id].p; while (p && nb.n[p] && d < 50) { d++; p = nb.n[p].p; } return d; }
   /* The top collapsed container that hides this note, or '' when it shows. */
-  function nbHider(nb, id) { var h = '', p = nb.n[id] && nb.n[id].p, g = 0; while (p && nb.n[p] && g++ < 50) { if (nb.n[p].f) h = p; p = nb.n[p].p; } return h; }
+  function nbHider(nb, id) { if (nb.n[id] && nb.n[id].tx && nb.n[id].p) return nb.n[nb.n[id].p] ? nbHider(nb, nb.n[id].p) : ''; var h = '', p = nb.n[id] && nb.n[id].p, g = 0; while (p && nb.n[p] && g++ < 50) { if (nb.n[p].f) h = p; p = nb.n[p].p; } return h; }
   /* Each note sits a little askew, the same way every time (from its id). */
   function nbTilt(id) { var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0; return ((Math.abs(h) % 7) - 3) * 0.6; }
   function nbTitle(o) { return o.t.trim().split('\n')[0].slice(0, 80) || (o.b ? 'Untitled container' : o.tx ? 'Empty text' : 'Untitled note'); }
@@ -13981,6 +13986,7 @@ V1.5
     $('nbEmpty').hidden = ids.length > 0;
     nbApplyView();
     nbFindApply();   // marks what's found and draws the strings
+    nbAnchorCue();
     if (nbEdit) {
       var ti = stage.querySelector('.nb-node[data-nid="' + nbEdit + '"] .nb-ti');
       var di0 = stage.querySelector('.nb-node[data-nid="' + nbEdit + '"] .nb-di, .nb-node[data-nid="' + nbEdit + '"] .nb-xi'); if (di0) { di0.style.height = 'auto'; di0.style.height = di0.scrollHeight + 'px'; if (!ti) di0.focus(); }
@@ -14001,7 +14007,7 @@ V1.5
   function nbTextHTML(nb, id, ro) {
     var o = nb.n[id], ed = nbEdit === id && !ro, sel = nbIsSel(id);
     var cls = 'nb-node nb-text f-' + o.fo + (o.k ? ' k-' + o.k : '') + (sel ? ' sel' : '') + (ed ? ' editing' : '');
-    var st = 'left:' + o.x + 'px;top:' + o.y + 'px;width:' + o.w + 'px;--fs:' + o.fs + 'px;--r:' + o.r + 'deg;z-index:' + (ed ? 100000 : 1000 + (o.z || 0)) + ';';   // being edited: above everything
+    var st = 'left:' + o.x + 'px;top:' + o.y + 'px;width:' + o.w + 'px;--fs:' + o.fs + 'px;--r:' + o.r + 'deg;' + (o.h ? 'min-height:' + o.h + 'px;' : '') + 'z-index:' + (ed ? 100000 : 1000 + (o.z || 0)) + ';';   // being edited: above everything
     return '<div class="' + cls + '" data-nid="' + id + '" style="' + st + '" tabindex="0" role="group" aria-roledescription="text" aria-label="' + esc(nbTitle(o)) + '">' +
       (ed ? '<textarea class="nb-xi" maxlength="' + NB_XMAX + '" aria-label="Text">' + esc(o.t) + '</textarea>' : '<div class="nb-xt">' + (o.t.trim() ? nbHl(o.t) : '<span class="nb-ph">Empty text</span>') + '</div>') +
       (ro ? '' : '<span class="nb-rot" title="Drag to turn it (Shift: steps of 15°)" aria-hidden="true"></span><span class="nb-size" title="Drag to resize" aria-hidden="true"></span>') + '</div>';
@@ -14012,7 +14018,7 @@ V1.5
     var cls = 'nb-node s-' + o.s + (o.k ? ' k-' + o.k + (o.b ? '' : ' nb-dark') : '') + (o.b ? ' nb-box' : '') + (o.f ? ' nb-fold' : '') + (sel ? ' sel' : '') + (ed ? ' editing' : '');
     var sc = (o.sc || 100) / 100, ww = o.b ? o.w : Math.round(o.w * sc);
     var st = 'left:' + o.x + 'px;top:' + o.y + 'px;width:' + ww + 'px;--w:' + ww + 'px;' + (sc !== 1 ? '--sc:' + sc + ';' : '') + (o.b ? '' : '--r:' + nbTilt(id) + 'deg;') + (o.b && !o.f ? 'height:' + o.h + 'px;' : '') + 'z-index:' + (ed ? 100000 : o.b ? 1 + nbDepth(nb, id) : 1000 + (o.z || 0)) + ';' + (o.st && o.f && !o.b ? '--stl:' + nbStampLen(o) + ';' : '');
-    var inside = o.b ? nbDesc(nb, id).length : 0;
+    var inside = o.b ? nbDesc(nb, id).filter(function (k) { return !nb.n[k].tx; }).length : 0;
     var fold = '<button type="button" class="nb-fb" data-nb="fold" data-id="' + id + '" aria-expanded="' + !o.f + '" aria-label="' + (o.f ? 'Expand ' : 'Collapse ') + esc(nbTitle(o)) + '"' + (ro ? ' disabled' : '') + '>' +
       '<svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg></button>';
     var untitled = !o.b && !o.t.trim();   // a note can have no title: then it shows only its details
@@ -14047,11 +14053,28 @@ V1.5
   }
   function nbEl(id) { return $('nbStage') && $('nbStage').querySelector('.nb-node[data-nid="' + id + '"]'); }
   /* Selecting only restyles what's there (redrawing would break a double-click). */
+  /* Attaching text: the next click on a note or container holds it there (Escape or a click elsewhere cancels). */
+  var nbAttach = null;
+  function nbAttachKey(e) { if (e.key === 'Escape' && nbAttach) { e.preventDefault(); e.stopPropagation(); nbAttachEnd(); } }
+  function nbAttachStart(id) {
+    nbAttach = id; var bd = $('nbBoard'); if (bd) bd.classList.add('nb-attaching');
+    document.addEventListener('keydown', nbAttachKey, true);
+    toast('Click the note or container to attach this text to. Escape cancels.');
+  }
+  function nbAttachEnd() { nbAttach = null; var bd = $('nbBoard'); if (bd) bd.classList.remove('nb-attaching'); document.removeEventListener('keydown', nbAttachKey, true); }
+  /* A selected text shows what it's attached to. */
+  function nbAnchorCue() {
+    var st = $('nbStage'), c = nbC(); if (!st || !c) return;
+    st.querySelectorAll('.nb-anchor').forEach(function (x) { x.classList.remove('nb-anchor'); });
+    var nb = nbOf(c), o = nbSel && nbSel.k === 'n' && nb.n[nbSel.id];
+    if (o && o.tx && o.p) { var e = nbEl(o.p); if (e) e.classList.add('nb-anchor'); }
+  }
   function nbSelect(sel, keepPick) {
     nbSel = sel; if (!keepPick) nbPick = {};
     var st = $('nbStage'); if (!st) return;
     st.querySelectorAll('.nb-node.sel').forEach(function (x) { x.classList.remove('sel'); });
     nbSelIds().forEach(function (k) { var e = nbEl(k); if (e) e.classList.add('sel'); });
+    nbAnchorCue();
     nbLinks();
   }
   /* Redraws one note in place (starting or ending an edit) without touching the toolbar. */
@@ -14234,8 +14257,8 @@ V1.5
       var p = nb.n[o.p], b = nbBox(id) || { x: o.x, y: o.y, w: o.w, h: 80 }, pad = 16;
       if (b.x < p.x + pad) { var dx = p.x + pad - b.x; p.x -= dx; p.w += dx; }
       if (b.y < p.y + 40) { var dy = p.y + 40 - b.y; p.y -= dy; p.h += dy; }
-      p.w = Math.min(2400, Math.max(p.w, b.x + b.w + pad - p.x));
-      p.h = Math.min(2400, Math.max(p.h, b.y + b.h + pad - p.y));
+      p.w = Math.min(40000, Math.max(p.w, b.x + b.w + pad - p.x));
+      p.h = Math.min(40000, Math.max(p.h, b.y + b.h + pad - p.y));
       id = o.p; o = p;
     }
   }
@@ -14256,17 +14279,36 @@ V1.5
     function over(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
     function solid(k) { var o = nb.n[k]; return o && !o.tx && !nbHider(nb, k); }
     function depth(L) { return L ? nbDepth(nb, L) : -1; }
+    /* How tall a container's title and details are (in board units, whatever the zoom). */
+    function headH(L) {
+      var el = st && st.querySelector('.nb-node[data-nid="' + L + '"]'), inn = el && el.querySelector(':scope > .nb-in');
+      if (!inn || !el.offsetHeight) return NB_HEAD - 8;
+      var r1 = el.getBoundingClientRect(), r2 = inn.getBoundingClientRect(), k = r1.height / el.offsetHeight || 1;
+      return Math.max(24, Math.round((r2.bottom - r1.top) / k));
+    }
+    /* Nothing sits on a container's title and details: what covers them moves down below them. */
+    function headRect(L) { var o = nb.n[L]; return !o || !o.b || o.f || nbHider(nb, L) ? null : { x: o.x - 4000, y: o.y - 4000, w: o.w + 8000, h: 4000 + headH(L) + NB_GAP / 2 }; }
+    function clearHead(L) {
+      var h0 = headRect(L), moved = []; if (!h0) return moved;
+      var hb = h0.y + h0.h;
+      nbKids(nb, L).filter(solid).forEach(function (k) { var r = rect(k); if (over(h0, r)) { nbMove(nb, k, 0, hb + NB_GAP / 2 - r.y); moved.push(k); } });
+      return moved;
+    }
     /* Fit a container around what's in it (an empty one keeps its size). */
     function fit(L) {
       var o = nb.n[L]; if (!o || !o.b || o.f || nbHider(nb, L)) return;
       var kids = nbKids(nb, L).filter(solid); if (!kids.length) return;
       var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       kids.forEach(function (k) { var r = rect(k); x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h); });
-      o.x = Math.round(x0 - NB_PAD); o.y = Math.round(y0 - NB_HEAD);
-      o.w = Math.min(2400, Math.max(180, Math.round(x1 + NB_PAD - o.x))); o.h = Math.min(2400, Math.max(100, Math.round(y1 + NB_PAD - o.y)));
+      var ox0 = o.x, oy0 = o.y;
+      o.x = Math.round(x0 - NB_PAD); o.y = Math.round(y0 - headH(L) - NB_GAP);
+      /* Text attached to the container keeps its place relative to the container's corner. */
+      if (o.x !== ox0 || o.y !== oy0) nbKids(nb, L).forEach(function (k) { var t = nb.n[k]; if (t.tx) { t.x += o.x - ox0; t.y += o.y - oy0; } });
+      o.w = Math.min(40000, Math.max(180, Math.round(x1 + NB_PAD - o.x))); o.h = Math.min(40000, Math.max(100, Math.round(y1 + NB_PAD - o.y)));
     }
     /* Push what overlaps the fixed things out of the way, the shortest way that doesn't land on another fixed thing. */
-    function spread(L, fixed, movers) {
+    function spread(L, fixed, movers, obst) {
+      obst = obst || [];
       var sib = Object.keys(nb.n).filter(function (k) { return (nb.n[k].p || '') === L && solid(k); });
       var F = sib.filter(function (k) { return fixed.indexOf(k) >= 0; });
       var M = sib.filter(function (k) { return F.indexOf(k) < 0 && (!movers || movers.indexOf(k) >= 0); });
@@ -14278,7 +14320,7 @@ V1.5
           var f = F.filter(function (k) { return over(rect(k), rm); })[0]; if (!f) continue;
           var rf = rect(f), opts = [[rf.x + rf.w + NB_GAP - rm.x, 0], [rf.x - NB_GAP - rm.x - rm.w, 0], [0, rf.y + rf.h + NB_GAP - rm.y], [0, rf.y - NB_GAP - rm.y - rm.h]];
           opts.sort(function (a, b) { return Math.abs(a[0]) + Math.abs(a[1]) - Math.abs(b[0]) - Math.abs(b[1]); });
-          var pick = opts.filter(function (v) { var r = { x: rm.x + v[0], y: rm.y + v[1], w: rm.w, h: rm.h }; return !F.some(function (k) { return over(rect(k), r); }); })[0] || opts[0];
+          var pick = opts.filter(function (v) { var r = { x: rm.x + v[0], y: rm.y + v[1], w: rm.w, h: rm.h }; return !F.some(function (k) { return over(rect(k), r); }) && !obst.some(function (q) { return over(q, r); }); })[0] || opts.filter(function (v) { return v[1] > 0; })[0] || opts[0];
           nbMove(nb, m, pick[0], pick[1]);
           F.push(m); M.splice(i, 1); hit = true;
         }
@@ -14292,7 +14334,7 @@ V1.5
     /* Work from the innermost container out: settle a level, fit its container, then that container is what landed one level up. */
     var lv = {};
     function at(L, k) { L = L || ''; if (!lv[L]) lv[L] = { fixed: [], fit: true }; if (k && lv[L].fixed.indexOf(k) < 0) lv[L].fixed.push(k); }
-    (ids || []).forEach(function (k) { if (nb.n[k] && !nb.n[k].tx) at(nb.n[k].p, k); });
+    (ids || []).forEach(function (k) { if (nb.n[k] && !nb.n[k].tx) { at(nb.n[k].p, k); if (nb.n[k].b) at(k); } });   // a container's own contents get checked too (its details may have grown)
     (olds || []).forEach(function (L) { if (L && nb.n[L]) at(L); });
     var yl = {}; (yieldIds || []).forEach(function (k) { if (nb.n[k]) yl[nb.n[k].p || ''] = (yl[nb.n[k].p || ''] || []).concat(k); });
     var done = {}, guard = 0;
@@ -14303,14 +14345,23 @@ V1.5
       if (yl[L]) {
         /* Something new: it moves to a free spot instead. */
         var others = Object.keys(nb.n).filter(function (k) { return (nb.n[k].p || '') === L && solid(k) && yl[L].indexOf(k) < 0; });
-        spread(L, others, yl[L]);
-      } else if (lv[L].fixed.length) spread(L, lv[L].fixed);
+        spread(L, others, yl[L], L ? [headRect(L)].filter(Boolean) : []);
+      } else if (lv[L].fixed.length) spread(L, lv[L].fixed, null, L ? [headRect(L)].filter(Boolean) : []);
+      if (L) {
+        /* Nothing stays on its title and details; what had to move down can't land on the others. */
+        var mv = clearHead(L);
+        if (mv.length) { var fx = lv[L].fixed.filter(function (k) { return nb.n[k] && (nb.n[k].p || '') === L; }); spread(L, fx.length ? fx : mv.slice(0, 1), null, [headRect(L)].filter(Boolean)); }
+      }
       if (L && nb.n[L]) { fit(L); var up = nb.n[L].p || ''; if (done[up]) delete done[up]; at(up, L); }
     }
     return JSON.stringify(nb.n) !== before;
   }
   /* Draws, settles, and saves what settling changed (one undo step with the change itself). */
-  function nbSettleNow(ids, olds, yieldIds) { nbDraw(); var moved = nbSettle(ids, olds, yieldIds); nbChanged(); if (moved) nbDraw(); }
+  function nbSettleNow(ids, olds, yieldIds) {
+    nbDraw(); var moved = nbSettle(ids, olds, yieldIds);
+    for (var i = 0; moved && i < 3; i++) { nbDraw(); moved = nbSettle(ids, olds); }   // again with what moved drawn: details may wrap differently
+    nbChanged(); nbDraw();
+  }
   /* Where a dragged note would land: the innermost open container under its middle. */
   function nbDropTarget(nb, id) {
     var b = nbBox(id); if (!b || nb.n[id].tx) return '';
@@ -14336,7 +14387,7 @@ V1.5
     var c = nbC(); if (!c) return;
     var nb = nbOf(c), o = nb.n[id]; if (!o) return;
     function go() {
-      var kids0 = nbKids(nb, id); kids0.forEach(function (k) { nb.n[k].p = o.p; });
+      var kids0 = nbKids(nb, id); kids0.forEach(function (k) { nb.n[k].p = nb.n[k].tx ? '' : o.p; });
       Object.keys(nb.l).forEach(function (k) { if (nb.l[k].a === id || nb.l[k].b === id) delete nb.l[k]; });
       delete nb.n[id];
       if (nbEdit === id) nbEdit = null; nbSel = null;
@@ -14385,7 +14436,7 @@ V1.5
     nb.l[rid()] = nl; nbChanged(); return true;
   }
   function nbMove(nb, id, dx, dy) {
-    [id].concat(nb.n[id].b ? nbDesc(nb, id) : []).forEach(function (k) {
+    [id].concat(nbDesc(nb, id)).forEach(function (k) {   // a container's contents, and text attached to it
       var o = nb.n[k]; o.x = Math.max(-20000, Math.min(20000, Math.round(o.x + dx))); o.y = Math.max(-20000, Math.min(20000, Math.round(o.y + dy)));
     });
   }
@@ -14535,9 +14586,10 @@ V1.5
     var del = { label: 'Delete', danger: true, run: function () { nbDelete(id); } };
     var pv = nbPrivItem(c, [id]);
     if (o.tx) {
-      return [{ label: 'Edit text', run: function () { nbStartEdit(id); } },
+      var att = o.p && nb.n[o.p] ? [{ label: 'Detach from ' + esc(nbTitle(nb.n[o.p])), run: nbSet(id, function (x) { x.p = ''; }) }] : [{ label: 'Attach to…', run: function () { nbAttachStart(id); } }];
+      return [{ label: 'Edit text', run: function () { nbStartEdit(id); } }].concat(att, [
         { label: 'Font', sub: [{ label: 'Titles', on: o.fo === 't', run: nbSet(id, function (x) { x.fo = 't'; }) }, { label: 'Details', on: o.fo === 'd', run: nbSet(id, function (x) { x.fo = 'd'; }) }] },
-        { label: 'Colour', sub: nbColours(id, o, true) }, nbSizeItem([id])].concat(o.r ? [{ label: 'Straighten', run: nbSet(id, function (x) { x.r = 0; }) }] : []).concat(pv, [null, del]);
+        { label: 'Colour', sub: nbColours(id, o, true) }, nbSizeItem([id])]).concat(o.r ? [{ label: 'Straighten', run: nbSet(id, function (x) { x.r = 0; }) }] : []).concat(pv, [null, del]);
     }
     var shapes = NB_SHAPES.filter(function (s) { return !o.b || NB_BOX_SHAPES[s[0]]; }).map(function (s) { return { label: s[1], on: o.s === s[0], run: nbSet(id, function (x) { x.s = s[0]; if (!x.b && !x.tx) nbSetLastNote('s', s[0]); }) }; });
     var items = [];
@@ -14654,6 +14706,14 @@ V1.5
     if ($('nbMenu')) nbMenuClose(true);
     if (e.button > 0) return;
     var t = e.target, ro = nbRO(c), nb = nbOf(c), ne = t.closest('.nb-node'), board = $('nbBoard');
+    if (nbAttach) {
+      e.preventDefault(); e.stopPropagation();
+      var from = nbAttach, to = ne && ne.getAttribute('data-nid'); nbAttachEnd();
+      if (ro || !to || to === from || !nb.n[to] || nb.n[to].tx || !nb.n[from]) { toast('Not attached.'); return; }
+      nb.n[from].p = to; nbSel = { k: 'n', id: from }; nbSettleNow([]); nbAnchorCue();
+      toast('Attached to ' + nbTitle(nb.n[to]) + ': it moves with it.');
+      return;
+    }
     if (t.closest('input, textarea, select, button')) return;
     /* Ctrl+click (Cmd on a Mac): fit that note or container on screen, or the whole board from an empty spot. */
     if ((e.ctrlKey || e.metaKey) && e.button === 0) {
@@ -14726,7 +14786,7 @@ V1.5
       (d.group || [d.id]).forEach(function (gid) {
         if (!nb.n[gid]) return;
         nbMove(nb, gid, dx, dy);
-        [gid].concat(nb.n[gid].b ? nbDesc(nb, gid) : []).forEach(function (k) { var el = $('nbStage').querySelector('.nb-node[data-nid="' + k + '"]'); if (el) { el.style.left = nb.n[k].x + 'px'; el.style.top = nb.n[k].y + 'px'; } });
+        [gid].concat(nbDesc(nb, gid)).forEach(function (k) { var el = $('nbStage').querySelector('.nb-node[data-nid="' + k + '"]'); if (el) { el.style.left = nb.n[k].x + 'px'; el.style.top = nb.n[k].y + 'px'; } });
         var ge = nbEl(gid); if (ge) ge.classList.add('dragging');
       });
       nbLinks(); nbHover(e, d.id); nbDropCue(nb, d.id);
@@ -14737,14 +14797,14 @@ V1.5
       orr.r = ang; if (er) er.style.setProperty('--r', ang + 'deg');
     } else if (d.m === 'size' && nb.n[d.id].tx) {
       /* Text scales as a whole: wider means bigger letters. */
-      var fk = Math.max((d.w + p.x - d.px) / d.w, (d.th + p.y - d.py) / Math.max(1, d.th));   // sideways or down, whichever went further
-      var ot = nb.n[d.id], et = nbEl(d.id), nw = Math.max(40, Math.min(1200, Math.round(d.w * fk)));
-      ot.w = nw; ot.fs = Math.max(10, Math.min(96, Math.round(d.fs * nw / d.w)));
-      if (et) { et.style.width = nw + 'px'; et.style.setProperty('--fs', ot.fs + 'px'); }
+      /* Dragging resizes the text box only (width, and a height it won't shrink below); letter size is the menu's Size row. */
+      var ot = nb.n[d.id], et = nbEl(d.id), nw = Math.max(40, Math.min(1200, Math.round(d.w + p.x - d.px))), nh = Math.max(0, Math.min(40000, Math.round(d.th + p.y - d.py)));
+      ot.w = nw; if (nh > 0) ot.h = nh; else delete ot.h;
+      if (et) { et.style.width = nw + 'px'; et.style.minHeight = ot.h ? ot.h + 'px' : ''; }
     } else if (d.m === 'size') {
       var o = nb.n[d.id], el = $('nbStage').querySelector('.nb-node[data-nid="' + d.id + '"]');
-      o.w = Math.max(o.b ? 180 : 120, Math.min(o.b ? 2400 : 480, Math.round((d.w * d.sc + p.x - d.px) / d.sc)));
-      if (o.b) o.h = Math.max(100, Math.min(2400, Math.round(d.h + p.y - d.py)));
+      o.w = Math.max(o.b ? 180 : 120, Math.min(o.b ? 40000 : 480, Math.round((d.w * d.sc + p.x - d.px) / d.sc)));
+      if (o.b) o.h = Math.max(100, Math.min(40000, Math.round(d.h + p.y - d.py)));
       var rw = Math.round(o.w * d.sc); el.style.width = rw + 'px'; el.style.setProperty('--w', rw + 'px'); if (o.b) el.style.height = o.h + 'px'; nbLinks();
     } else if (d.m === 'link') {
       var b = nbBox(d.id), tmp = $('nbTmp'); if (!b || !tmp) return;

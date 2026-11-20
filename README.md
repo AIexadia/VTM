@@ -344,3 +344,10 @@ V3.1.2
 
 V3.1.3
 -Fixed Thaumaturgy and Necromancy paths (the primary path's name and secondary paths) being wiped on shared sheets, and on the host's copy of a joiner's sheet in a room.
+
+V3.1.4
+-Character Manager Changes:
+	-Dossier: text can be attached to a note or container (right-click the text, Attach to…, then click the note or container). There's no string: the text keeps its place next to it, moving with it and hiding when it's inside a collapsed container. Detach it from the same menu; deleting the note leaves the text loose. A selected text shows what it's attached to with a dashed outline.
+	-Dossier: a container's title and details are never covered. Notes and containers inside it move down below them, including when the details get longer, and the container sizes itself around them.
+	-Dossier: containers no longer have a size limit; they grow as far as what's inside them needs.
+	-Dossier: dragging a text's corner now resizes its text box (width and height) without changing the letter size; letter size is set with the Size row in its right-click menu.
