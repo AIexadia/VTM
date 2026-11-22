@@ -2198,6 +2198,12 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
 .nb-board.nb-attaching, .nb-board.nb-attaching .nb-node { cursor: crosshair; }
 .nb-board.nb-attaching .nb-node:not(.nb-text):hover { outline: 2px solid rgba(242,201,76,0.85); outline-offset: 3px; }
 .nb-node.nb-anchor { outline: 2px dashed rgba(242,201,76,0.8); outline-offset: 4px; }
+/* Friends rows: the name shortens, the tier badge keeps its size and sits level with it */
+.fr-txt b { display: flex; align-items: center; min-width: 0; max-width: 100%; overflow: visible; }
+.fr-txt .fr-nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-txt .tier-badge { flex: none; margin-left: 6px; font-size: 0.62rem; line-height: 1.45; padding: 0 6px; }
+.soak-arm { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; font-size: 0.9rem; cursor: pointer; }
+.soak-arm input { width: 18px; height: 18px; accent-color: var(--accent, #8b1a1a); }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -2992,7 +2998,7 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
           var die = isFinite(+a.die) ? clamp(Math.round(+a.die), -199, 999) : (rolled ? Math.round(+a.init) - mod - applied - (isFinite(+a.ix) ? +a.ix : 0) : 0);
           seen[+a.id] = true;
           seq = Math.max(seq, +a.id + 1);
-          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied + (isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0) : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0, ch: typeof a.ch === 'string' ? a.ch.slice(0, 40) : '', cd: isFinite(+a.cd) ? clamp(Math.round(+a.cd), 0, 10) : 0, mn: typeof a.mn === 'string' ? a.mn.slice(0, 80) : '', wnd: isFinite(+a.wnd) ? clamp(Math.round(+a.wnd), -10, 0) : 0, wndA: isFinite(+a.wndA) ? clamp(Math.round(+a.wndA), -10, 0) : 0, cu: isFinite(+a.cu) ? clamp(Math.round(+a.cu), 0, 10) : 0, ix: isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0, ow: typeof a.ow === 'string' && /^[a-f0-9]{16,64}$/.test(a.ow) ? a.ow : '', rc: typeof a.rc === 'string' ? a.rc.slice(0, 40) : '', of: typeof a.of === 'string' ? a.of.slice(0, 64) : '' });
+          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied + (isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0) : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0, ch: typeof a.ch === 'string' ? a.ch.slice(0, 40) : '', cd: isFinite(+a.cd) ? clamp(Math.round(+a.cd), 0, 10) : 0, mn: typeof a.mn === 'string' ? a.mn.slice(0, 80) : '', wnd: isFinite(+a.wnd) ? clamp(Math.round(+a.wnd), -10, 0) : 0, wndA: isFinite(+a.wndA) ? clamp(Math.round(+a.wndA), -10, 0) : 0, cu: isFinite(+a.cu) ? clamp(Math.round(+a.cu), 0, 10) : 0, ix: isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0, ow: typeof a.ow === 'string' && /^[a-f0-9]{16,64}$/.test(a.ow) ? a.ow : '', rc: typeof a.rc === 'string' ? a.rc.slice(0, 40) : '', of: typeof a.of === 'string' ? a.of.slice(0, 64) : '', inc: !!a.inc, incOut: !!a.incOut });
         });
         st.ini.seq = seq;
         var usedEn = {};
@@ -4924,9 +4930,9 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
   /* Highest initiative first; a tie goes to the bigger modifier, then to whoever was added first. Persistent actors still waiting for a result stay
      at the top, other actors without a roll sit at the bottom. */
   function initOrder() {
-    var rolled = ini.actors.filter(function (a) { return a.init !== null; }).sort(function (a, b) { return b.init - a.init || a.tie - b.tie || (b.mod + (b.ix || 0)) - (a.mod + (a.ix || 0)) || a.id - b.id; });
-    var top = ini.actors.filter(function (a) { return a.init === null && a.persistent; });
-    var rest = ini.actors.filter(function (a) { return a.init === null && !a.persistent; });
+    var rolled = ini.actors.filter(function (a) { return a.init !== null && !a.inc; }).sort(function (a, b) { return b.init - a.init || a.tie - b.tie || (b.mod + (b.ix || 0)) - (a.mod + (a.ix || 0)) || a.id - b.id; });
+    var top = ini.actors.filter(function (a) { return a.init === null && a.persistent && !a.inc; });
+    var rest = ini.actors.filter(function (a) { return !a.inc && a.init === null && !a.persistent; }).concat(ini.actors.filter(function (a) { return a.inc; }));   // Incapacitated: at the bottom
     return { rolled: rolled, all: top.concat(rolled, rest) };
   }
   /* Remote viewers only see an actor's name once the host reveals it; until then it reads "Enemy [n]", with a number that stays with the actor. */
@@ -4959,6 +4965,7 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
   function linkSet(a, p) {
     a.mod = clamp(Math.round(+p.mod || 0), -99, 99); a.cd = clamp(Math.round(+p.cd || 0), 0, 10); a.mn = String(p.mn || '').slice(0, 80);
     a.wnd = clamp(Math.round(+p.wnd || 0), -10, 0); if (!ini.live) a.wndA = a.wnd;
+    a.inc = !!p.inc;   // Incapacitated
     a.bl = p.bl == null ? null : clamp(Math.round(+p.bl || 0), 0, 99);
     a.cel = !!p.cel; if (!a.cel) a.ca = 0; else if (a.ca > celMax(a)) a.ca = celMax(a);
     if (a.ow) { a.type = 'player'; a.reveal = false; }   // a joiner's character is always a Player
@@ -5019,6 +5026,8 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
     ini.actors.forEach(function (a) { a.cu = a.cd ? Math.min(a.ca, celMax(a)) : 0; a.wndA = a.wnd || 0; a.applied = a.bonus; recompute(a); });
     if (first) ini.actors.forEach(function (a) { if (a.init === null && (!a.persistent || st.initPersist || st.initFresh)) rollActor(a); });   // results entered beforehand stay; Persistent actors wait for theirs
     else if (st.initFresh) ini.actors.forEach(rollActor);   // Fresh initiative: everyone again, Persistent actors included
+    /* Incapacitated: no initiative this round; back up again, they roll. */
+    ini.actors.forEach(function (a) { if (a.inc) { a.init = null; a.incOut = true; } else if (a.incOut) { a.incOut = false; if (a.init === null) rollActor(a); } });
     var rolled = initOrder().rolled;
     if (!rolled.length) { setTurnMsg('Nobody has an initiative yet. Enter results for the Persistent actors first.'); return false; }
     prepSound();
@@ -5831,8 +5840,12 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
     if (!ini.live) { if (startRound()) initChanged(); return; }
     var rolled = initOrder().rolled;
     if (!rolled.length) return;
-    var at = ini.turn ? rolled.indexOf(actorOf(ini.turn)) : -1;
-    if (at < 0) ini.turn = rolled[0].id;
+    var cur0 = ini.turn ? actorOf(ini.turn) : null, at = cur0 ? rolled.indexOf(cur0) : -1;
+    if (at < 0 && cur0 && cur0.inc && cur0.init !== null) {
+      /* The actor whose turn it was went down: the turn goes to whoever comes after them. */
+      var after = rolled.filter(function (x) { return x.init < cur0.init || (x.init === cur0.init && x.tie > cur0.tie); })[0];
+      if (after) ini.turn = after.id; else passTurn(rolled, rolled.length - 1);
+    } else if (at < 0) ini.turn = rolled[0].id;
     else passTurn(rolled, at);
     initChanged();
   });
@@ -6058,6 +6071,7 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
         { label: 'Reveal Name', hidden: function () { return a.type === 'player'; }, checked: function () { return a.reveal; }, run: function () { a.reveal = !a.reveal; autoUpdate(a); initChanged(); } }
       ] },
       { label: a.persistent ? 'Remove Persistent' : 'Set as Persistent', run: function () { a.persistent = !a.persistent; initChanged(); } },
+      { label: 'Show on map', hidden: function () { return !window.cmMapFocus; }, run: function () { window.cmMapFocus(a.id); } },
       { label: 'Delete', danger: true, run: function () { deleteActor(a); } }
     ], tr.querySelector('.ini-cell'));
   }
@@ -6911,7 +6925,7 @@ V1.5
     syncActor: function (ch, p) {
       var changed = false;
       ini.actors.forEach(function (a) {
-        if (a.ch !== ch || (a.mod === p.mod && a.cd === (p.cd || 0) && (a.bl == null ? null : a.bl) === (p.bl == null ? null : p.bl) && a.wnd === (p.wnd || 0) && a.mn === (p.mn || '') && a.cel === !!p.cel && (a.ow ? a.type === 'player' : a.type === (p.type || '') && (a.type === 'enemy' || a.reveal === (!p.type && !!p.rev))))) return;
+        if (a.ch !== ch || (a.inc === !!p.inc && a.mod === p.mod && a.cd === (p.cd || 0) && (a.bl == null ? null : a.bl) === (p.bl == null ? null : p.bl) && a.wnd === (p.wnd || 0) && a.mn === (p.mn || '') && a.cel === !!p.cel && (a.ow ? a.type === 'player' : a.type === (p.type || '') && (a.type === 'enemy' || a.reveal === (!p.type && !!p.rev))))) return;
         linkSet(a, p); recompute(a); changed = true;
       });
       if (changed) initChanged();
@@ -10498,7 +10512,7 @@ V1.5
   function iniPayload(c, name) {
     var i = iniInfo(c);
     var tk = c.tracker || {}, joiner = !!(c.temp && c.temp.remote), bl = bloodPts(c) + celPaidNow(c);
-    return { name: name, mod: i.mod, type: joiner ? 'player' : tk.type || '', cel: i.cel > 0, rev: !tk.type && !!tk.rev, ch: c.id, cd: i.cel, bl: bl, mn: i.note, wnd: i.wp };
+    return { name: name, mod: i.mod, type: joiner ? 'player' : tk.type || '', cel: i.cel > 0, rev: !tk.type && !!tk.rev, ch: c.id, cd: i.cel, bl: bl, mn: i.note, wnd: i.wp, inc: woundPenalty(c) === null };   // inc: Incapacitated (no initiative, turn skipped)
   }
   /* After each save, characters already in the tracker pick up new wounds, Celerity or Dexterity/Wits. */
   function syncInitiative() {
@@ -10604,19 +10618,23 @@ V1.5
   actions.goChars = function (el) { setView('chars'); var c = cur(); if (c && !el.dataset.new) { c.ui.tab = 'play'; commit(); } if (el.dataset.new) newCharModal(); };
   /* Soak: pick the kind of damage, then roll it in the main roller at difficulty 6 (V20).
      Aggravated needs Fortitude or worn armor; armor helps against fangs and claws, never fire or sunlight. */
-  actions.soak = function () {
-    var c = cur(); if (!c) return;
-    var fort = c.disc.Fortitude || 0, arm = wornArmor(c), ar = arm ? (+arm.rating || 0) : 0, sta = phys(c, 'stamina');
+  actions.soak = function () { var c = cur(); if (c) soakModal(c, false); };
+  /* noArmor: leave worn armor out of this one soak (the window opens with it on again next time, while it's still worn). */
+  function soakModal(c, noArmor) {
+    var fort = c.disc.Fortitude || 0, worn = wornArmor(c), arm = noArmor ? null : worn, ar = arm ? (+arm.rating || 0) : 0, sta = phys(c, 'stamina');
     var opts = [['normal', 'Normal', 'Bashing or lethal damage', sta + fort + ar, 'Stamina ' + sta + (boostOf(c, 'stamina') ? ' (+' + boostOf(c, 'stamina') + ' blood)' : '') + (fort ? ' + Fortitude ' + fort : '') + (ar ? ' + armor ' + ar : '')]];
     if (fort > 0 || ar > 0) {
       opts.push(['claws', 'Aggravated: fangs & claws', 'Bites and claws (armor counts)', fort + ar, (fort ? 'Fortitude ' + fort : '') + (fort && ar ? ' + ' : '') + (ar ? 'armor ' + ar : '')]);
       opts.push(['fire', 'Aggravated: fire & sunlight', 'Armor doesn\'t help here', fort, fort ? 'Fortitude ' + fort : 'Needs Fortitude']);
     }
-    openModal('<h2>Soak</h2><p class="muted small">What kind of damage? The roll goes to the main roller at difficulty 6.</p><div class="soak-opts">' + opts.map(function (o) {
+    openModal('<h2>Soak</h2><p class="muted small">What kind of damage? The roll goes to the main roller at difficulty 6.</p>' +
+      (worn ? '<label class="soak-arm"><input type="checkbox" id="soakArm"' + (noArmor ? '' : ' checked') + '> Wear armor for this soak <span class="muted">(' + esc(worn.name || 'Armor') + ', ' + (+worn.rating || 0) + ')</span></label>' : '') +
+      '<div class="soak-opts">' + opts.map(function (o) {
       return '<button type="button" class="soak-opt" data-soak="' + o[0] + '" data-n="' + o[3] + '"' + (o[3] < 1 ? ' disabled' : '') + '><span><b>' + esc(o[1]) + '</b><small>' + esc(o[2]) + ' · ' + esc(o[4]) + '</small></span><span class="soak-n">' + o[3] + '<small>dice</small></span></button>';
     }).join('') + '</div>' + (fort > 0 || ar > 0 ? '' : '<p class="muted small">Aggravated damage can only be soaked with Fortitude (or armor, against fangs and claws).</p>') +
       '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button></div>');
     $('mNo').onclick = closeModal;
+    var sa = $('soakArm'); if (sa) sa.onchange = function () { soakModal(c, !sa.checked); var s2 = $('soakArm'); if (s2) s2.focus(); };
     Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-soak]'), function (bt) {
       bt.onclick = function () {
         var n = +bt.dataset.n, r = R(); closeModal();
@@ -10626,7 +10644,7 @@ V1.5
         setView('roller'); r.rollMain();
       };
     });
-  };
+  }
   /* Defensive Maneuver (V20 p. 282): Block (Dexterity + Brawl), Dodge (Dexterity + Athletics), Parry (Dexterity + Melee),
      rolled at once in the main roller as the defense in a resisted roll. Difficulty 6 unless the Storyteller called the roll
      (then it's locked, and only modifiers change). Defending all turn: each defense after the first loses one die. */
@@ -12271,7 +12289,7 @@ V1.5
     var have = people.map(function (p) { return p.pid; }), list = fr.friends.filter(function (f) { return have.indexOf(f.pid) < 0; });
     if (!fr.friends.length) return '';
     return '<h3 class="sub">Or a friend</h3>' + (list.length ? '<ul class="fr-list sh-friends">' + list.map(function (f) {
-      return '<li class="fr-row">' + userAv(f) + '<span class="fr-txt"><b>' + esc(f.name) + tierBadge(f.tier) + '</b><small class="mono">' + esc(fmtP(f.pid)) + '</small></span><button type="button" class="btn small" data-shfr="' + esc(f.pid) + '">Share</button></li>';
+      return '<li class="fr-row">' + userAv(f) + '<span class="fr-txt"><b><span class="fr-nm">' + esc(f.name) + '</span>' + tierBadge(f.tier) + '</b><small class="mono">' + esc(fmtP(f.pid)) + '</small></span><button type="button" class="btn small" data-shfr="' + esc(f.pid) + '">Share</button></li>';
     }).join('') + '</ul>' : '<p class="muted small">All your friends already have it.</p>');
   }
   function drawShare(c, res) {
@@ -12510,7 +12528,7 @@ V1.5
     var n = fr.incoming.length; b.hidden = !n; b.textContent = n > 9 ? '9+' : String(n);
     btn.setAttribute('aria-label', n ? 'Friends, ' + n + ' request' + (n > 1 ? 's' : '') : 'Friends');
     var p = $('friendsPanel'); if (!p || p.hidden) return;
-    var row = function (x, btns) { return '<li class="fr-row">' + userAv(x) + '<span class="fr-txt"><b>' + esc(x.name) + tierBadge(x.tier) + '</b><small class="mono">' + esc(fmtP(x.pid)) + '</small></span>' + btns + '</li>'; };
+    var row = function (x, btns) { return '<li class="fr-row">' + userAv(x) + '<span class="fr-txt"><b><span class="fr-nm">' + esc(x.name) + '</span>' + tierBadge(x.tier) + '</b><small class="mono">' + esc(fmtP(x.pid)) + '</small></span>' + btns + '</li>'; };
     var h = '';
     if (fr.incoming.length) h += '<h3 class="fr-h">Requests</h3><ul class="fr-list">' + fr.incoming.map(function (x) {
       return row(x, '<button type="button" class="fr-ic ok" data-fracc="' + esc(x.pid) + '" aria-label="Accept ' + esc(x.name) + '" title="Accept">✓</button><button type="button" class="fr-ic" data-frdec="' + esc(x.pid) + '" aria-label="Decline ' + esc(x.name) + '" title="Decline">✕</button>');
@@ -12631,7 +12649,7 @@ V1.5
     else h += '<ul class="room-list">' + fri.map(function (x) {
       var on = !!roomInv.pick[x.pid];
       return '<li><button type="button" class="room-pick' + (on ? ' on' : '') + '" data-rpick="' + esc(x.pid) + '" aria-pressed="' + on + '">' + userAv(x) +
-        '<span class="fr-txt"><b>' + esc(x.name) + tierBadge(x.tier) + '</b><small>' + (x.invited ? 'Invited' + (on ? ' · will be reminded' : '') : 'Not invited') + '</small></span><span class="room-tick" aria-hidden="true">' + (on ? '✓' : '') + '</span></button></li>';
+        '<span class="fr-txt"><b><span class="fr-nm">' + esc(x.name) + '</span>' + tierBadge(x.tier) + '</b><small>' + (x.invited ? 'Invited' + (on ? ' · will be reminded' : '') : 'Not invited') + '</small></span><span class="room-tick" aria-hidden="true">' + (on ? '✓' : '') + '</span></button></li>';
     }).join('') + '</ul>';
     h += '<div class="adm-btns room-acts"><button type="button" class="btn small" data-room="done">' + (roomInv.first ? 'Not now' : 'Done') + '</button>' +
       (fri.length ? '<button type="button" class="btn small primary" data-room="send"' + (n && !roomInv.busy ? '' : ' disabled') + '>' + (n ? 'Invite ' + n : 'Invite') + '</button>' : '') + '</div>';
@@ -13787,6 +13805,14 @@ V1.5
       }
     }
     if (opt.gear) genGear(c, opt.weapons, cls);
+    /* Fighters can use what they fight with: at least 2 dots in Brawl (claws, fists), Melee (blades, clubs) or Firearms (guns). */
+    if (cls && /^(brawl|melee|firearms)$/.test(cls.ab[0])) {
+      var need = {}; need[cls.ab[0]] = 1;
+      (c.weapons || []).forEach(function (w) { need[w.natural ? 'brawl' : w.kind === 'ranged' ? 'firearms' : 'melee'] = 1; });
+      Object.keys(need).forEach(function (k) { if ((c.abil[k] || 0) < 2) c.abil[k] = 2; });
+    }
+    /* Ready to go: a full blood pool and Willpower. */
+    c.blood.cur = genInfo(c).blood; c.willpower.cur = c.willpower.perm;
     c.ui = { tab: 'play' };
     return c;
   }
@@ -14910,8 +14936,13 @@ V1.5
         var l0 = el.offsetLeft, t0 = el.offsetTop, r0 = l0 + el.offsetWidth, b0 = t0 + el.offsetHeight;
         if (r0 >= x0 && l0 <= x1 && b0 >= y0 && t0 <= y1) got.push(el.getAttribute('data-nid'));
       });
-      nbPick = {}; got.forEach(function (k) { nbPick[k] = 1; });
-      nbSelect(got.length ? { k: 'n', id: got[0] } : null, true);
+      /* A Shift box adds what it catches to the selection; if everything it caught was already selected, it takes them out. */
+      if (!got.length) return;
+      var had = nbSelIds(); had.forEach(function (k) { nbPick[k] = 1; });
+      var allIn = got.every(function (k) { return had.indexOf(k) >= 0; });
+      got.forEach(function (k) { if (allIn) delete nbPick[k]; else nbPick[k] = 1; });
+      var left2 = Object.keys(nbPick);
+      nbSel = null; nbSelect(left2.length ? { k: 'n', id: left2[0] } : null, true);
       return;
     }
     if (d.m === 'linkpick') {
@@ -15379,7 +15410,7 @@ V1.5
         '<button type="button" class="sound-btn" id="admClose" aria-label="Close the admin panel" title="Close"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>' +
         '<div class="adm-tabs" role="tablist" id="admTabs"></div><div class="adm-body" id="admBody" aria-live="polite"></div></div>';
       document.body.appendChild(back);
-      back.addEventListener('click', function (e) { if (e.target === back) admClose(); else admClick(e); });
+      back.addEventListener('click', function (e) { if (e.target === back || (e.target.closest && e.target.closest('#admClose'))) admClose(); else admClick(e); });
       back.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); if (db.ed && adm.tab === 'db') { db.ed = null; admDraw(); } else if (adm.step) { adm.step = ''; admDraw(); } else if (adm.uid) admBack(); else admClose(); }
         if (e.key === 'Enter' && e.target.id === 'admQ') { e.preventDefault(); adm.q = e.target.value; adm.page = 0; admLoad(); }
@@ -16110,6 +16141,16 @@ V1.5
     var b = w.querySelector('[data-sm="full"]'); if (b) { b.setAttribute('aria-pressed', String(smUi.full)); b.textContent = smUi.full ? 'Exit full screen' : 'Full screen'; b.focus(); }
     smUi.fitted = false; smDrawSoon();
   }
+  /* The tracker's "Show on map": open the map and centre it on that actor's token. */
+  window.cmMapFocus = function (id) {
+    var k = String(id);
+    if (!smUi.open) smOpen(true);
+    smDraw();
+    var t = smTokens().filter(function (x) { return x.k === k; })[0], vb = smUi.vb;
+    if (!t || !vb) return;
+    smUi.vb = { x: t.x - vb.w / 2, y: t.y - vb.h / 2, w: vb.w, h: vb.h }; smUi.fitted = true;
+    smDraw();
+  };
   function smOpen(on, refocus) {
     var w = smPanel(); if (!w) return;
     if (!on && smUi.full) smFull(false);
@@ -16362,6 +16403,7 @@ V1.5
     return out;
   }
   function smFit(toks, W, H) {
+    var up = toks.filter(function (t) { return t.hu !== 2; }); if (up.length) toks = up;   // Incapacitated tokens don't count (unless everyone's down)
     var xs = toks.map(function (t) { return t.x; }), ys = toks.map(function (t) { return t.y; });
     var x0 = Math.min.apply(null, xs) - 3, x1 = Math.max.apply(null, xs) + 3, y0 = Math.min.apply(null, ys) - 3, y1 = Math.max.apply(null, ys) + 3;
     var w = Math.max(12, x1 - x0), h = Math.max(8, y1 - y0), ar = W / H;

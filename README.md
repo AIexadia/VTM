@@ -356,3 +356,16 @@ V3.1.5
 -Character Manager Changes:
 	-New CQM button on Active Play, left of Soak and Defend: Close Combat Maneuvers (Bite, Claw, Clinch, Disarm, Hold, Kick, Strike, Sweep, Tackle). Each shows its traits, difficulty and damage; picking one rolls the attack in the main roller and readies its damage in the Damage module.
 	-Low Generations raise the trait maximum past 5, while a character is being made too: 7th Generation up to 6, 6th up to 7, 5th up to 8, 4th up to 9, and 3rd (now selectable) up to 10.
+
+V3.1.6
+-Character Manager Changes:
+	-Randomly generated fighters (Bruiser, Gunner) always have at least 2 dots in the skill for what they fight with: Brawl for claws or fists, Melee for blades and clubs, Firearms for guns.
+	-Randomly generated characters start with a full blood pool and full Willpower.
+	-The Soak window has a "Wear armor for this soak" box: untick it to leave your armor out of that one roll (it's ticked again next time).
+	-Dossier: Shift-dragging a box adds what it catches to the selection; if everything it caught was already selected, it deselects them instead. Shift-click still adds or removes one at a time.
+-Initiative Tracker Changes:
+	-Incapacitated characters don't roll initiative and are skipped by Next turn; they're listed at the bottom and roll again at the start of the next round once they're back up.
+	-New "Show on map" in each actor's right-click menu: opens the Skirmish Map centred on that actor.
+-Skirmish Map Changes:
+	-Fit leaves out Incapacitated tokens (unless everyone's down).
+-Fixed tier badges being squished or cut off next to long names in Friends and the Share window.
