@@ -374,3 +374,11 @@ V3.1.7
 -Character Manager Changes:
 	-The Soak window's "Wear armor for this soak" option is now a switch, like the ones in Settings.
 -Fixed syncs interrupting you: changes arriving from another device, a shared sheet or a room now wait while you're typing, pressing or dragging, or have a menu open, and show up as soon as you're done. This covers the Dossier (dragging the board or notes, editing, menus), character sheets, the Initiative tracker's rows and menus, Friends, and Settings > Account.
+
+V3.1.8
+-Character Manager Changes:
+	-New Temp Mod button on Active Play (far right, level with CQM, Soak and Defend): give a character temporary bonuses or penalties to any Attribute, with an optional short note. They count right away in every roll, soak, damage, movement and initiative that uses the Attribute, show on the button (with how many are in effect) and next to the Attribute on the sheet, and stay until you remove them with the X in the list.
+	-CQM, Soak and Defend now fit on one line.
+-Initiative Tracker Changes:
+	-A blood boost or Temp Mod to Dexterity or Wits during a round applies to everything at once, but only moves the character in the initiative order when the next round starts.
+	-Boosted dots above your Generation's limit (6 for 8th Generation and above, up to 10 for 4th and lower) last 3 rounds from the round they're bought, each purchase on its own clock; dots up to the limit last the whole encounter.

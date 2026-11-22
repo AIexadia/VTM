@@ -2203,6 +2203,20 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
 .fr-txt .fr-nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fr-txt .tier-badge { flex: none; margin-left: 6px; font-size: 0.62rem; line-height: 1.45; padding: 0 6px; }
 .soak-arm { margin: 2px 0 10px; }
+/* Temp Mods */
+.tmod-wrap { margin-top: auto; display: flex; justify-content: flex-end; padding-top: 10px; }
+.tmod-btn { min-width: 120px; justify-content: center; gap: 6px; }
+.tmod-btn.on { border-color: var(--accent, #8b1a1a); box-shadow: 0 0 0 1px var(--accent, #8b1a1a) inset; }
+.tmod-btn .tm-n { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--accent, #8b1a1a); color: #fff; font: 700 0.72rem/1 var(--font-data); }
+.tm-tag { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 6px; font: 700 0.72rem/1.5 var(--font-data); color: #fff; background: #a0302b; vertical-align: middle; }
+.tm-tag.up { background: #3d7f55; }
+.tm-add { display: grid; grid-template-columns: minmax(0, 1.2fr) 90px minmax(0, 1.6fr) auto; gap: 8px; align-items: end; margin: 6px 0 12px; }
+.tm-add select, .tm-add input { width: 100%; }
+.tm-list { list-style: none; padding: 0; margin: 0 0 4px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.tm-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--well, transparent); }
+.tm-list li span { display: flex; flex-direction: column; min-width: 0; }
+.tm-list small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 560px) { .tm-add { grid-template-columns: 1fr 1fr; } .tm-add .tm-d { grid-column: 1 / -1; } .tm-list { grid-template-columns: 1fr; } }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -2997,7 +3011,7 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
           var die = isFinite(+a.die) ? clamp(Math.round(+a.die), -199, 999) : (rolled ? Math.round(+a.init) - mod - applied - (isFinite(+a.ix) ? +a.ix : 0) : 0);
           seen[+a.id] = true;
           seq = Math.max(seq, +a.id + 1);
-          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied + (isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0) : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0, ch: typeof a.ch === 'string' ? a.ch.slice(0, 40) : '', cd: isFinite(+a.cd) ? clamp(Math.round(+a.cd), 0, 10) : 0, mn: typeof a.mn === 'string' ? a.mn.slice(0, 80) : '', wnd: isFinite(+a.wnd) ? clamp(Math.round(+a.wnd), -10, 0) : 0, wndA: isFinite(+a.wndA) ? clamp(Math.round(+a.wndA), -10, 0) : 0, cu: isFinite(+a.cu) ? clamp(Math.round(+a.cu), 0, 10) : 0, ix: isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0, ow: typeof a.ow === 'string' && /^[a-f0-9]{16,64}$/.test(a.ow) ? a.ow : '', rc: typeof a.rc === 'string' ? a.rc.slice(0, 40) : '', of: typeof a.of === 'string' ? a.of.slice(0, 64) : '', inc: !!a.inc, incOut: !!a.incOut });
+          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied + (isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0) : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0, ch: typeof a.ch === 'string' ? a.ch.slice(0, 40) : '', cd: isFinite(+a.cd) ? clamp(Math.round(+a.cd), 0, 10) : 0, mn: typeof a.mn === 'string' ? a.mn.slice(0, 80) : '', wnd: isFinite(+a.wnd) ? clamp(Math.round(+a.wnd), -10, 0) : 0, wndA: isFinite(+a.wndA) ? clamp(Math.round(+a.wndA), -10, 0) : 0, cu: isFinite(+a.cu) ? clamp(Math.round(+a.cu), 0, 10) : 0, ix: isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0, ow: typeof a.ow === 'string' && /^[a-f0-9]{16,64}$/.test(a.ow) ? a.ow : '', rc: typeof a.rc === 'string' ? a.rc.slice(0, 40) : '', of: typeof a.of === 'string' ? a.of.slice(0, 64) : '', inc: !!a.inc, incOut: !!a.incOut, modN: a.modN == null || !isFinite(+a.modN) ? null : clamp(Math.round(+a.modN), -99, 99) });
         });
         st.ini.seq = seq;
         var usedEn = {};
@@ -4962,7 +4976,9 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
   function celMax(a) { var m = a.cd || 9; if (a.bl != null) m = Math.min(m, a.bl); return m; }
   /* A linked actor's wound penalty counts from the next round (like a bonus), or at once between rounds. */
   function linkSet(a, p) {
-    a.mod = clamp(Math.round(+p.mod || 0), -99, 99); a.cd = clamp(Math.round(+p.cd || 0), 0, 10); a.mn = String(p.mn || '').slice(0, 80);
+    var nm = clamp(Math.round(+p.mod || 0), -99, 99);
+    if (ini.live && a.init !== null) { if (nm !== a.mod) a.modN = nm; else a.modN = null; } else { a.mod = nm; a.modN = null; }   // mid-round: the order moves at the next round
+    a.cd = clamp(Math.round(+p.cd || 0), 0, 10); a.mn = String(p.mn || '').slice(0, 80);
     a.wnd = clamp(Math.round(+p.wnd || 0), -10, 0); if (!ini.live) a.wndA = a.wnd;
     a.inc = !!p.inc;   // Incapacitated
     a.bl = p.bl == null ? null : clamp(Math.round(+p.bl || 0), 0, 99);
@@ -5022,7 +5038,7 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
   function startRound() {
     if (!ini.actors.length) return false;
     var first = !ini.started;
-    ini.actors.forEach(function (a) { a.cu = a.cd ? Math.min(a.ca, celMax(a)) : 0; a.wndA = a.wnd || 0; a.applied = a.bonus; recompute(a); });
+    ini.actors.forEach(function (a) { if (a.modN != null) { a.mod = a.modN; a.modN = null; } a.cu = a.cd ? Math.min(a.ca, celMax(a)) : 0; a.wndA = a.wnd || 0; a.applied = a.bonus; recompute(a); });
     if (first) ini.actors.forEach(function (a) { if (a.init === null && (!a.persistent || st.initPersist || st.initFresh)) rollActor(a); });   // results entered beforehand stay; Persistent actors wait for theirs
     else if (st.initFresh) ini.actors.forEach(rollActor);   // Fresh initiative: everyone again, Persistent actors included
     /* Incapacitated: no initiative this round; back up again, they roll. */
@@ -6932,7 +6948,7 @@ V1.5
     syncActor: function (ch, p) {
       var changed = false;
       ini.actors.forEach(function (a) {
-        if (a.ch !== ch || (a.inc === !!p.inc && a.mod === p.mod && a.cd === (p.cd || 0) && (a.bl == null ? null : a.bl) === (p.bl == null ? null : p.bl) && a.wnd === (p.wnd || 0) && a.mn === (p.mn || '') && a.cel === !!p.cel && (a.ow ? a.type === 'player' : a.type === (p.type || '') && (a.type === 'enemy' || a.reveal === (!p.type && !!p.rev))))) return;
+        if (a.ch !== ch || (a.inc === !!p.inc && (a.modN != null ? a.modN : a.mod) === p.mod && a.cd === (p.cd || 0) && (a.bl == null ? null : a.bl) === (p.bl == null ? null : p.bl) && a.wnd === (p.wnd || 0) && a.mn === (p.mn || '') && a.cel === !!p.cel && (a.ow ? a.type === 'player' : a.type === (p.type || '') && (a.type === 'enemy' || a.reveal === (!p.type && !!p.rev))))) return;
         linkSet(a, p); recompute(a); changed = true;
       });
       if (changed) initChanged();
@@ -7709,7 +7725,7 @@ V1.5
       virt: { conscience: 1, selfControl: 1, courage: 1 },
       virtNames: { conscience: 'Conscience', selfControl: 'Self-Control' },
       morality: { name: 'Humanity', dots: 2 }, willpower: { perm: 1, cur: 1 },
-      blood: { cur: 0 }, health: { b: 0, l: 0, a: 0 }, boost: { strength: 0, dexterity: 0, stamina: 0 }, tracker: { type: '', rev: false }, clanExtra: [],
+      blood: { cur: 0 }, health: { b: 0, l: 0, a: 0 }, boost: { strength: 0, dexterity: 0, stamina: 0 }, tmods: [], tracker: { type: '', rev: false }, clanExtra: [],
       merits: [], flaws: [], weapons: [], armor: [], stored: { weapons: [], armor: [] }, xp: { base: 0, log: [] }, enotes: {},
       details: { aes: {}, bgx: {}, poss: [], der: [], other: '' },
       backstory: { story: '', facts: '' }, journal: [],
@@ -7793,6 +7809,7 @@ V1.5
     if (!c.stored || typeof c.stored !== 'object') c.stored = {};
     ['weapons', 'armor'].forEach(function (k) { if (!Array.isArray(c.stored[k])) c.stored[k] = []; c.stored[k].forEach(function (x) { if (!x.id) x.id = rid(); x.equipped = false; if (k === 'weapons' && !x.kind) x.kind = 'melee'; }); });
     if (!c.details.aes) c.details.aes = {};
+    c.tmods = normTmods(c.tmods);
     if (!c.details.bgx) c.details.bgx = {};
     if (!Array.isArray(c.details.der)) c.details.der = [];
     if (c.details.order && !Array.isArray(c.details.order)) delete c.details.order;
@@ -7911,18 +7928,28 @@ V1.5
      Initiative use the boosted rating; the sheet keeps the real one. */
   var PHYS = ['strength', 'dexterity', 'stamina'];
   function boostOf(c, k) { return (c.boost && +c.boost[k]) || 0; }
-  function phys(c, k) { return (c.attrs[k] || 0) + boostOf(c, k); }
-  function tv(c, p) { var s = split(p); return s[0] === 'attr' ? val(c, p) + boostOf(c, s[1]) : val(c, p); }
+  /* Temp Mods: bonuses and penalties to Attributes, kept until removed by hand. They count in every roll, soak, damage,
+     speed and initiative that uses the Attribute (never in the dots themselves). */
+  var TM_ATTRS = ['strength', 'dexterity', 'stamina', 'charisma', 'manipulation', 'appearance', 'perception', 'intelligence', 'wits'];
+  function normTmods(a) {
+    return (Array.isArray(a) ? a : []).filter(function (x) { return x && TM_ATTRS.indexOf(x.k) >= 0 && isFinite(+x.n) && Math.round(+x.n) !== 0; }).slice(0, 20).map(function (x) {
+      return { id: typeof x.id === 'string' && /^[\w-]{1,24}$/.test(x.id) ? x.id : rid(), k: x.k, n: clamp(Math.round(+x.n), -10, 10), d: String(x.d || '').slice(0, 40) };
+    });
+  }
+  function tmodOf(c, k) { return (c.tmods || []).reduce(function (s, x) { return s + (x.k === k ? x.n : 0); }, 0); }
+  function bphys(c, k) { return (c.attrs[k] || 0) + boostOf(c, k); }   // rating + blood boost (what boosts are counted on)
+  function phys(c, k) { return Math.max(0, bphys(c, k) + tmodOf(c, k)); }
+  function tv(c, p) { var s = split(p); return s[0] === 'attr' ? Math.max(0, val(c, p) + boostOf(c, s[1]) + tmodOf(c, s[1])) : val(c, p); }
   function boostFree(c) { return Math.min(10, genInfo(c).max + 1); }   // free up to one above the generational maximum
   function anyBoost(c) { return PHYS.some(function (k) { return boostOf(c, k) > 0; }); }
   function boostLine(c) {
     if (!anyBoost(c)) return '';
     var free = boostFree(c), short = 0;
     var parts = PHYS.filter(function (k) { return boostOf(c, k) > 0; }).map(function (k) {
-      short += Math.max(0, phys(c, k) - Math.max(free, c.attrs[k]));
-      return esc(labelOf(c, 'attr.' + k)) + ' ' + phys(c, k) + ' <span class="muted">(+' + boostOf(c, k) + ')</span>';
+      short += Math.max(0, bphys(c, k) - Math.max(free, c.attrs[k]));
+      return esc(labelOf(c, 'attr.' + k)) + ' ' + bphys(c, k) + ' <span class="muted">(+' + boostOf(c, k) + ')</span>';
     });
-    return '<div class="boost-line small"><span class="cm-tag on">Blood boost</span> ' + parts.join(' · ') + (short ? ' <span class="muted">· ' + short + ' dot' + (short > 1 ? 's' : '') + ' above ' + free + ' last 3 turns after you stop spending</span>' : '') + '</div>';
+    return '<div class="boost-line small"><span class="cm-tag on">Blood boost</span> ' + parts.join(' · ') + (short ? ' <span class="muted">· ' + short + ' dot' + (short > 1 ? 's' : '') + ' above ' + free + ' last 3 rounds from when they were bought</span>' : '') + '</div>';
   }
   function maxFor(c, p) {
     var k = kind(p);
@@ -8055,7 +8082,7 @@ V1.5
   function woundPenalty(c) { var t = Math.min(penLevels(c), hMax(c)), p = t === 0 ? 0 : hLevels(c)[t - 1][1]; return p && rageNow(c) ? 0 : p; }   // Rage: no wound penalty this round (Incapacitated stays)
   /* Initiative rating (V20 p. 271): Dexterity + Wits, plus Celerity dots not used for extra actions, minus wound penalties. */
   function iniInfo(c) {
-    var dex = phys(c, 'dexterity'), wits = c.attrs.wits, cel = c.disc.Celerity || 0, wp = woundPenalty(c) || 0;
+    var dex = phys(c, 'dexterity'), wits = Math.max(0, (c.attrs.wits || 0) + tmodOf(c, 'wits')), cel = c.disc.Celerity || 0, wp = woundPenalty(c) || 0;
     return { mod: dex + wits + cel, cel: cel, wp: wp, rating: dex + wits + cel + wp,
       note: 'Dexterity ' + dex + ' + Wits ' + wits + (cel ? ' + Celerity ' + cel : ''),
       full: 'Dexterity ' + dex + ' + Wits ' + wits + (cel ? ' + Celerity ' + cel : '') + (wp ? ' − wounds ' + (-wp) : '') };
@@ -8157,6 +8184,10 @@ V1.5
     /* In Play, Attribute/Ability/Virtue names can be picked to build a dice pool for the roller. */
     var pick = ctx.pick && PICKABLE[kind(p)], picked = pick && (pb.a === p || pb.b === p);
     var name = pick ? '<span class="pick-lbl" data-pick="' + esc(p) + '" role="button" tabindex="0" aria-pressed="' + !!picked + '" title="Pick for a roll">' + esc(labelOf(c, p)) + '</span>' : esc(labelOf(c, p));
+    if (kind(p) === 'attr' && tmodOf(c, split(p)[1])) {   // a Temp Mod in effect on this Attribute
+      var tmv = tmodOf(c, split(p)[1]), tml = (c.tmods || []).filter(function (x) { return x.k === split(p)[1]; }).map(function (x) { return (x.n > 0 ? '+' : '−') + Math.abs(x.n) + (x.d ? ' ' + x.d : ''); }).join(', ');
+      name += ' <span class="tm-tag' + (tmv > 0 ? ' up' : '') + '" title="' + esc('Temp Mod: ' + tml) + '">' + (tmv > 0 ? '+' : '−') + Math.abs(tmv) + '</span>';
+    }
     return '<div class="trait' + (picked ? ' picked' : '') + '"><span class="tn"><span class="cm-nm" data-bk="trait:' + esc(p) + '"' + (kind(p) === 'bg' && sumFor(c, 'bg', split(p)[1]) ? ' data-sum="' + esc(sumFor(c, 'bg', split(p)[1])) + '"' : '') + '>' + name + (tags || '') + noteBtn(c, p, labelOf(c, p), ctx.notes) + '</span>' + specHTML(c, p, ctx) + '</span>' +
       dotsHTML(c, p, ctx.live(p)) + (rm || '') + '</div>';
   }
@@ -8481,7 +8512,7 @@ V1.5
     }
     return '<div class="hicons"><span class="hi-grp" role="group" aria-label="Damage">' + dmg('b') + dmg('l') + dmg('a') + '</span><span class="hi-sep" aria-hidden="true"></span>' +
       '<span class="hi-grp" role="group" aria-label="Heal">' + heal('b', !h.b) + heal('l', !h.l) + heal('a', !h.a) + heal('n', !h.b && !h.l) + '</span>' +
-      '</div><div class="def-row" role="group" aria-label="Defense"><button type="button" class="btn small" data-act="cqm" title="Close combat maneuvers: bite, claw, clinch, disarm, hold, kick, strike, sweep, tackle">CQM</button><button type="button" class="btn small" data-act="soak">Soak</button><button type="button" class="btn small" data-act="defend" title="Block, dodge or parry">Defend</button></div>';
+      '</div><div class="def-row cols-3" role="group" aria-label="Defense"><button type="button" class="btn small" data-act="cqm" title="Close combat maneuvers: bite, claw, clinch, disarm, hold, kick, strike, sweep, tackle">CQM</button><button type="button" class="btn small" data-act="soak">Soak</button><button type="button" class="btn small" data-act="defend" title="Block, dodge or parry">Defend</button></div>';
   }
   function qrefOpen() { return !!(store.ui && store.ui.qrefOpen); }
   function vitalsSection(c, bare) {
@@ -8531,7 +8562,11 @@ V1.5
       '<dt>Wound penalty</dt><dd>' + (wp === null ? '—' : wp === 0 ? '0' : '−' + (-wp)) + '</dd>' +
       '<dt>' + esc(c.morality.name || 'Humanity') + '</dt><dd>' + c.morality.dots + '</dd>' +
       '<dt>Generation</dt><dd>' + ord(c.info.generation) + '</dd>' +
-      '<dt>XP available</dt><dd>' + xpAvail(c) + '</dd></dl></div>' +
+      '<dt>XP available</dt><dd>' + xpAvail(c) + '</dd></dl>' +
+      (function () {   /* Temp Mod: at the far right, level with CQM / Soak / Defend */
+        var n = (c.tmods || []).length, lst = (c.tmods || []).map(function (x) { return labelOf(c, 'attr.' + x.k) + ' ' + (x.n > 0 ? '+' : '−') + Math.abs(x.n) + (x.d ? ' (' + x.d + ')' : ''); }).join(', ');
+        return '<div class="tmod-wrap"><button type="button" class="btn small tmod-btn' + (n ? ' on' : '') + '" data-act="tmod" title="' + esc(n ? 'Temp Mods in effect: ' + lst : 'Temporary bonuses and penalties to Attributes') + '">Temp Mod' + (n ? ' <span class="tm-n">' + n + '</span>' : '') + '</button></div>';
+      })() + '</div>' +
       '</div></section>';
     if (bare) { var gi = out.indexOf('<div class="vit-grid">'); return out.slice(gi, out.length - '</section>'.length); }
     return out;
@@ -10456,7 +10491,8 @@ V1.5
     var dice = 0, parts = [], specs = [], mods = [], mod = 0;
     [pb.a, pb.b].forEach(function (p) {
       if (!p) return;
-      var v = tv(c, p), bo = v - val(c, p); dice += v; parts.push(labelOf(c, p) + ' ' + v + (bo ? ' (+' + bo + ' blood)' : ''));
+      var v = tv(c, p), sp0 = split(p), bo = sp0[0] === 'attr' ? boostOf(c, sp0[1]) : 0, tm = sp0[0] === 'attr' ? tmodOf(c, sp0[1]) : 0; dice += v;
+      parts.push(labelOf(c, p) + ' ' + v + (bo ? ' (+' + bo + ' blood)' : '') + (tm ? ' (' + (tm > 0 ? '+' : '−') + Math.abs(tm) + ' temp)' : ''));
       if (c.spec[p] && specAllowed(c, p)) specs.push(c.spec[p]);
     });
     /* Wound penalties don't touch Virtue, Willpower or Humanity/Path rolls (soak never gets them either). */
@@ -10765,6 +10801,35 @@ V1.5
       };
     });
   }
+  /* Temp Mod: bonuses and penalties to Attributes, until removed. */
+  actions.tmod = function () { var c = cur(); if (c) tmodModal(c); };
+  function tmodModal(c, keep) {
+    if (!Array.isArray(c.tmods)) c.tmods = [];
+    var ro = isReadOnly(c), sg = function (n) { return (n > 0 ? '+' : '−') + Math.abs(n); };
+    keep = keep || { k: 'dexterity', n: -1, d: '' };
+    openModal('<h2>Temp Mods</h2><p class="muted small">Bonuses and penalties to Attributes. They count right away in every roll, soak, damage, movement and initiative that uses the Attribute (the initiative order moves at the next round), and stay until you remove them.</p>' +
+      (ro ? '' : '<div class="tm-add"><label class="fld"><span class="cm-lbl">Attribute</span><select id="tmK">' + TM_ATTRS.map(function (k) { return '<option value="' + k + '"' + (k === keep.k ? ' selected' : '') + '>' + esc(labelOf(c, 'attr.' + k)) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="fld tm-n"><span class="cm-lbl">Change</span><input type="number" id="tmN" min="-10" max="10" step="1" value="' + keep.n + '"></label>' +
+        '<label class="fld tm-d"><span class="cm-lbl">Note (optional)</span><input id="tmD" maxlength="40" placeholder="e.g. blinded, drunk" value="' + esc(keep.d) + '"></label>' +
+        '<button type="button" class="btn primary" id="tmAdd">Add</button></div>') +
+      (c.tmods.length ? '<ul class="tm-list">' + c.tmods.map(function (x) {
+        return '<li><span><b>' + esc(labelOf(c, 'attr.' + x.k)) + ' ' + sg(x.n) + '</b>' + (x.d ? '<small>' + esc(x.d) + '</small>' : '') + '</span>' +
+          (ro ? '' : '<button type="button" class="x-btn" data-tmx="' + esc(x.id) + '" aria-label="Remove ' + esc(labelOf(c, 'attr.' + x.k)) + ' ' + sg(x.n) + '" title="Remove">×</button>') + '</li>';
+      }).join('') + '</ul>' : '<p class="muted small">No Temp Mods.</p>') +
+      '<div class="acts"><button type="button" class="btn" id="mNo">Close</button></div>', 'cm-tmod');
+    $('mNo').onclick = closeModal;
+    if ($('tmAdd')) $('tmAdd').onclick = function () {
+      var k = $('tmK').value, n = Math.round(+$('tmN').value), d = $('tmD').value.trim().slice(0, 40);
+      if (!n || !isFinite(n)) { toast('Enter a number other than 0 (− for a penalty).'); $('tmN').focus(); return; }
+      if (c.tmods.length >= 20) return toast('That\'s the most Temp Mods a character can have (20).');
+      c.tmods.push({ id: rid(), k: k, n: clamp(n, -10, 10), d: d }); commit(); tmodModal(c, { k: k, n: n, d: '' });
+      var f = $('tmD'); if (f) f.focus();
+    };
+    Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-tmx]'), function (b) {
+      b.onclick = function () { c.tmods = c.tmods.filter(function (x) { return x.id !== b.dataset.tmx; }); commit(); tmodModal(c); var nb0 = $('cmModal').querySelector('[data-tmx]') || $('tmAdd') || $('mNo'); if (nb0) nb0.focus(); };
+    });
+    var ki = $('tmD'); if (ki) ki.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); $('tmAdd').click(); } };
+  }
   /* Close Combat Maneuvers (V20 pp. 275-276), rolled at once in the main roller with the damage made ready.
      [key, name, attribute, ability, difficulty +, extra dice, damage, damage kind, what it does (in our words)] */
   var cqs = null;
@@ -10830,7 +10895,7 @@ V1.5
     });
   }
   /* Boost: spend blood to raise Strength, Dexterity or Stamina for the scene (V20 p. 268). One turn's spending at most
-     (per-turn limit from Generation); dots above the generational maximum + 1 only last 3 turns after spending stops; cap 10.
+     (per-turn limit from Generation); dots above the generational maximum + 1 only last 3 rounds from when they're bought (in an encounter); cap 10.
      A negative step ends boosted dots early (no blood back). */
   var bst = null;
   actions.boost = function () { var c = cur(); if (!c) return; bst = { strength: 0, dexterity: 0, stamina: 0 }; boostModal(c); };
@@ -10840,9 +10905,9 @@ V1.5
     var need = cost * X;   // blood actually taken (thin blood pays double)
     var changed = PHYS.some(function (k) { return bst[k] !== 0; });
     var rows = PHYS.map(function (k) {
-      var base = c.attrs[k], now = phys(c, k), next = now + bst[k], over = Math.max(0, next - Math.max(free, base)), lbl = labelOf(c, 'attr.' + k);
+      var base = c.attrs[k], now = bphys(c, k), next = now + bst[k], over = Math.max(0, next - Math.max(free, base)), lbl = labelOf(c, 'attr.' + k);
       var info = 'Rating ' + base + (now !== base ? ', boosted to ' + now : '') + (bst[k] ? ' → <b class="boost-to">' + next + '</b>' : '') +
-        (bst[k] < 0 ? ' (ends ' + (-bst[k]) + ', no blood back)' : '') + (over ? '<br><span class="boost-over">' + over + ' dot' + (over > 1 ? 's' : '') + ' above ' + free + ': lasts 3 turns after you stop spending blood</span>' : '');
+        (bst[k] < 0 ? ' (ends ' + (-bst[k]) + ', no blood back)' : '') + (over ? '<br><span class="boost-over">' + over + ' dot' + (over > 1 ? 's' : '') + ' above ' + free + ': lasts 3 rounds from now</span>' : '');
       return '<div class="boost-row"><span class="boost-txt"><b>' + esc(lbl) + '</b><small>' + info + '</small></span><span class="qr-diff">' +
         '<button type="button" class="qr-step" data-bk="' + k + '" data-d="-1" aria-label="Less ' + esc(lbl) + '"' + (bst[k] <= -boostOf(c, k) ? ' disabled' : '') + '>−</button><b>' + (bst[k] > 0 ? '+' : '') + bst[k] + '</b>' +
         '<button type="button" class="qr-step" data-bk="' + k + '" data-d="1" aria-label="More ' + esc(lbl) + '"' + (cost >= room || next >= 10 ? ' disabled' : '') + '>+</button></span></div>';
@@ -10859,8 +10924,19 @@ V1.5
     if ($('mEnd')) $('mEnd').onclick = function () { PHYS.forEach(function (k) { c.boost[k] = 0; }); closeModal(); commit(); toast('Blood boosts ended.'); };
     $('mOk').onclick = function () {
       var did = PHYS.filter(function (k) { return bst[k]; }).map(function (k) { return labelOf(c, 'attr.' + k) + ' ' + (bst[k] > 0 ? '+' : '') + bst[k]; });
-      c.blood.cur -= need; if (cost) { noteSpend(c, cost); var t0 = turnNow(); if (t0) c.boostSpend = { eid: t0.eid, round: t0.round }; }
+      var t0 = turnNow(), free0 = boostFree(c), overOf = function (k) { return Math.max(0, bphys(c, k) - Math.max(free0, c.attrs[k])); }, ov0 = {};
+      PHYS.forEach(function (k) { ov0[k] = overOf(k); });
+      c.blood.cur -= need; if (cost) { noteSpend(c, cost); if (t0) c.boostSpend = { eid: t0.eid, round: t0.round }; }
       PHYS.forEach(function (k) { c.boost[k] = Math.max(0, boostOf(c, k) + bst[k]); });
+      /* Dots past the limit last 3 rounds from the round they're bought (each purchase keeps its own clock). */
+      c.boostOver = (Array.isArray(c.boostOver) ? c.boostOver : []).filter(function (e) { return t0 && e.eid === t0.eid; });
+      PHYS.forEach(function (k) {
+        var now = overOf(k), add = now - ov0[k];
+        if (add > 0 && t0) c.boostOver.push({ k: k, n: add, eid: t0.eid, round: t0.round });
+        var keep = now, list = c.boostOver.filter(function (e) { return e.k === k; }).reverse();   // fewer dots past the limit: the newest go first
+        list.forEach(function (e) { var tot = c.boostOver.filter(function (x) { return x.k === k; }).reduce(function (s, x) { return s + x.n; }, 0); if (tot > keep) { e.n -= Math.min(e.n, tot - keep); } });
+      });
+      c.boostOver = c.boostOver.filter(function (e) { return e.n > 0; });
       closeModal(); commit();
       toast((cost ? 'Spent ' + need + ' blood: ' : 'Boost: ') + did.join(', ') + '.');
     };
@@ -10900,7 +10976,7 @@ V1.5
   /* What a joiner sends the host: the sheet without UI state, trimmed of long text if it would be too big to send. */
   var lastPushed = {};
   function sheetForHost(c) {
-    var d = JSON.parse(JSON.stringify(c)); delete d.ui; delete d.spent; delete d.boostSpend; delete d.share;   // Rage goes along: the host's map uses it
+    var d = JSON.parse(JSON.stringify(c)); delete d.ui; delete d.spent; delete d.boostSpend; delete d.boostOver; delete d.share;   // Rage goes along: the host's map uses it
     delete d.priv; delete d.pvm; delete d.pubv;   // the host sees the whole sheet: the tracker needs it
     delete d.thumb; if (c.img && smThumbs[c.img]) d.thumb = smThumbs[c.img];   // its token picture for the Skirmish Map
     if (JSON.stringify(d).length > 55000) { d.journal = []; d.backstory = { story: '', facts: '' }; d.details.other = ''; d.enotes = {}; }
@@ -10921,7 +10997,7 @@ V1.5
   function cleanRemote(c) {
     function nums(o, max) { Object.keys(o || {}).forEach(function (k) { o[k] = clamp(Math.round(+o[k] || 0), 0, max); }); }
     if (typeof c.thumb !== 'string' || c.thumb.length > 40000 || !/^data:image\/(webp|jpeg|png);base64,/.test(c.thumb)) delete c.thumb;   // Skirmish Map token picture
-    nums(c.attrs, 10); nums(c.abil, 10); nums(c.disc, 10); nums(c.bg, 10); nums(c.virt, 10); nums(c.boost, 10); nums(c.health, 7); c.goon = !!c.goon;
+    nums(c.attrs, 10); nums(c.abil, 10); nums(c.disc, 10); nums(c.bg, 10); nums(c.virt, 10); nums(c.boost, 10); nums(c.health, 7); c.goon = !!c.goon; c.tmods = normTmods(c.tmods);
     /* Sorcery: per Discipline, a primary path name and named secondary paths with their dots (never flattened to numbers). */
     var so0 = c.sorc, so1 = {};
     Object.keys(isObj(so0) ? so0 : {}).forEach(function (d) {
@@ -11046,7 +11122,7 @@ V1.5
     var d = JSON.parse(JSON.stringify(c));
     d.id = uid(); d.temp = { of: c.id, n: n }; d.created = Date.now(); delete d.share;
     d.info.name = (c.info.name || 'Unnamed').slice(0, 24 - sfx.length) + sfx;
-    d.ui = { tab: 'play', recent: (c.ui && c.ui.recent) || [] }; d.spent = null; d.boostSpend = null; d.rage = null;
+    d.ui = { tab: 'play', recent: (c.ui && c.ui.recent) || [] }; d.spent = null; d.boostSpend = null; d.boostOver = null; d.rage = null;
     store.chars[d.id] = d;
     var pl = iniPayload(d, d.info.name); pl.of = c.id;
     if (!r.addActor(pl)) { delete store.chars[d.id]; return 'The Initiative tracker is full.'; }
@@ -11067,7 +11143,7 @@ V1.5
       var d = JSON.parse(JSON.stringify(o));
       d.id = a.ch; d.temp = { of: o.id, n: m ? +m[2] : dupNumber(o) }; d.created = Date.now(); delete d.share;
       d.info.name = a.name || ((o.info.name || 'Unnamed') + ' [' + d.temp.n + ']');
-      d.ui = { tab: 'play', recent: (o.ui && o.ui.recent) || [] }; d.spent = null; d.boostSpend = null; d.rage = null;
+      d.ui = { tab: 'play', recent: (o.ui && o.ui.recent) || [] }; d.spent = null; d.boostSpend = null; d.boostOver = null; d.rage = null;
       store.chars[d.id] = d; made.push(d.info.name);
     });
     if (made.length) toast(made.join(', ') + (made.length > 1 ? ' were' : ' was') + ' missing a sheet, so ' + (made.length > 1 ? 'they were' : 'it was') + ' made again from the original.');
@@ -11086,12 +11162,18 @@ V1.5
     if (!store.chars[store.cur]) store.cur = store.order[0] || null;
     var t = turnNow();
     if (t) Object.keys(store.chars).forEach(function (id) {
-      var c = store.chars[id], bs = c.boostSpend;
-      if (!bs || bs.eid !== t.eid || t.round < bs.round + 4 || !anyBoost(c)) return;
-      var free = boostFree(c), cut = 0;
-      PHYS.forEach(function (k) { var lim = Math.max(free, c.attrs[k]); if (phys(c, k) > lim) { cut += phys(c, k) - lim; c.boost[k] = lim - c.attrs[k]; } });
-      c.boostSpend = null; changed = true;
-      if (cut) toast((c.info.name || 'Unnamed') + ': ' + cut + ' boosted dot' + (cut > 1 ? 's' : '') + ' above ' + free + ' wore off (3 turns without spending blood).');
+      var c = store.chars[id], bo = c.boostOver;
+      if (!Array.isArray(bo) || !bo.length || isRemote(c) || isReadOnly(c)) return;
+      /* Each purchase of dots past the limit lasts 3 rounds from its own round; a new encounter ends them all. */
+      var free = boostFree(c), cut = 0, keep = [];
+      bo.forEach(function (e) {
+        if (e.eid === t.eid && t.round < e.round + 3) { keep.push(e); return; }
+        var over = Math.max(0, bphys(c, e.k) - Math.max(free, c.attrs[e.k])), n = Math.min(e.n, over);
+        if (n > 0) { c.boost[e.k] = Math.max(0, boostOf(c, e.k) - n); cut += n; }
+      });
+      if (keep.length === bo.length) return;
+      c.boostOver = keep; changed = true;
+      if (cut) toast((c.info.name || 'Unnamed') + ': ' + cut + ' boosted dot' + (cut > 1 ? 's' : '') + ' above ' + free + ' wore off (3 rounds).');
     });
     /* Celerity (V20 p. 150): each extra action costs a blood point, paid when the round starts, beyond the Generation
        per-turn limit. Joiners pay for their own characters on their own device. */
