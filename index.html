@@ -2202,8 +2202,7 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
 .fr-txt b { display: flex; align-items: center; min-width: 0; max-width: 100%; overflow: visible; }
 .fr-txt .fr-nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fr-txt .tier-badge { flex: none; margin-left: 6px; font-size: 0.62rem; line-height: 1.45; padding: 0 6px; }
-.soak-arm { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; font-size: 0.9rem; cursor: pointer; }
-.soak-arm input { width: 18px; height: 18px; accent-color: var(--accent, #8b1a1a); }
+.soak-arm { margin: 2px 0 10px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -5629,7 +5628,15 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
     if (window.cmInitChanged) window.cmInitChanged();
     setTimeout(renderRollPanel, 0);
     if (window.cmMapDraw) window.cmMapDraw();   // the Skirmish Map follows the tracker   // CHARACTERS-MODULE: every tracker change (Undo included) redraws here
+  function iniBusy() {
+    var a = document.activeElement, b = $('initBodyRows');
+    if (a && b && b.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return true;
+    var ms = document.querySelectorAll('[role="menu"]');
+    for (var i = 0; i < ms.length; i++) if (!ms[i].hidden && ms[i].getClientRects().length) return true;
+    return false;
+  }
     if (watchWs) return;   // a joiner is looking at the host's table instead
+    if (iniBusy()) { if (!renderInit.later) renderInit.later = setInterval(function () { if (!iniBusy()) { clearInterval(renderInit.later); renderInit.later = 0; renderInit(); } }, 250); return; }   // typing in a row or a menu open: redraw once done
     undoWatch();
     var ord = initOrder();
     var cur = ini.turn ? actorOf(ini.turn) : null;
@@ -7493,6 +7500,31 @@ V1.5
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var KEY = 'vtm-characters';
+  /* Busy: someone is typing, pressing, has a menu open, or is dragging or editing on a Dossier board. Redraws that come
+     from a sync (another device, a shared sheet, a room) wait for vtmWhenFree instead of pulling the rug out from under them. */
+  var vbPtr = 0, vbJobs = {}, vbTimer = 0;
+  document.addEventListener('pointerdown', function () { vbPtr = Date.now(); }, true);
+  ['pointerup', 'pointercancel'].forEach(function (ev) { document.addEventListener(ev, function () { vbPtr = 0; }, true); });
+  window.addEventListener('blur', function () { vbPtr = 0; });
+  window.vtmBusy = function () {
+    if (vbPtr && Date.now() - vbPtr < 20000) return true;   // a press held longer than that was missed (released outside the page)
+    var a = document.activeElement;
+    if (a && a !== document.body && (a.tagName === 'TEXTAREA' || a.tagName === 'SELECT' || a.isContentEditable || (a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|color|file|reset|image)$/.test(a.type)))) return true;
+    var ms = document.querySelectorAll('[role="menu"]');
+    for (var i = 0; i < ms.length; i++) if (!ms[i].hidden && ms[i].getClientRects().length) return true;
+    return !!(window.nbBusyNow && window.nbBusyNow());
+  };
+  /* Runs fn now if nobody is busy, or once they're done (the latest fn for a key wins). */
+  window.vtmWhenFree = function (key, fn) {
+    if (!window.vtmBusy()) { delete vbJobs[key]; fn(); return true; }
+    vbJobs[key] = fn;
+    if (!vbTimer) vbTimer = setInterval(function () {
+      if (window.vtmBusy()) return;
+      var j = vbJobs; vbJobs = {}; clearInterval(vbTimer); vbTimer = 0;
+      Object.keys(j).forEach(function (k) { try { j[k](); } catch (e) { if (window.console) console.error(e); } });
+    }, 250);
+    return false;
+  };
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   function keyOf(l) { return l.toLowerCase().replace(/[^a-z]/g, ''); }
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -10628,7 +10660,7 @@ V1.5
       opts.push(['fire', 'Aggravated: fire & sunlight', 'Armor doesn\'t help here', fort, fort ? 'Fortitude ' + fort : 'Needs Fortitude']);
     }
     openModal('<h2>Soak</h2><p class="muted small">What kind of damage? The roll goes to the main roller at difficulty 6.</p>' +
-      (worn ? '<label class="soak-arm"><input type="checkbox" id="soakArm"' + (noArmor ? '' : ' checked') + '> Wear armor for this soak <span class="muted">(' + esc(worn.name || 'Armor') + ', ' + (+worn.rating || 0) + ')</span></label>' : '') +
+      (worn ? '<label class="switch soak-arm" for="soakArm"><input type="checkbox" role="switch" id="soakArm"' + (noArmor ? '' : ' checked') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>Wear armor for this soak</strong><small>' + esc(worn.name || 'Armor') + ', rating ' + (+worn.rating || 0) + '</small></span></label>' : '') +
       '<div class="soak-opts">' + opts.map(function (o) {
       return '<button type="button" class="soak-opt" data-soak="' + o[0] + '" data-n="' + o[3] + '"' + (o[3] < 1 ? ' disabled' : '') + '><span><b>' + esc(o[1]) + '</b><small>' + esc(o[2]) + ' · ' + esc(o[4]) + '</small></span><span class="soak-n">' + o[3] + '<small>dice</small></span></button>';
     }).join('') + '</div>' + (fort > 0 || ar > 0 ? '' : '<p class="muted small">Aggravated damage can only be soaked with Fortitude (or armor, against fangs and claws).</p>') +
@@ -11701,7 +11733,7 @@ V1.5
   function syncNow() {
     if (!signedIn() || !acctReady()) return Promise.resolve();
     if (acctState.busy) { acctState.again = true; return Promise.resolve(); }
-    acctState.busy = true; acctState.err = ''; renderAcct();
+    acctState.busy = true; acctState.err = ''; window.vtmWhenFree('acct', function () { renderAcct(); });
     /* The first page starts a little early (to catch pushes that overlapped); the pages after it continue exactly. */
     function pullAll(exact) {
       return api('sync?since=' + (exact ? acct.since : Math.max(0, acct.since - 3000))).then(function (res) {
@@ -11713,7 +11745,7 @@ V1.5
     return pullAll().then(pushChanges).then(shareReconcile).then(function () { acctState.last = acct.last = Date.now(); saveAcct(); annFetch(); }, function (e) {
       if (e.message !== 'signed-out') acctState.err = 'Couldn\'t sync just now (' + e.message + '). It will try again.';
     }).then(function () {
-      acctState.busy = false; renderAcct();
+      acctState.busy = false; window.vtmWhenFree('acct', function () { renderAcct(); });
       if (acctState.again) { acctState.again = false; acctSchedule(1000); }
     });
   }
@@ -12110,12 +12142,13 @@ V1.5
     if (!a || !a.closest || !a.closest('#cmView, #cmModule, #cmLibBack')) return false;
     return a.tagName === 'TEXTAREA' || a.isContentEditable || (a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|range|color|file)$/.test(a.type));
   }
-  function remoteRender() { if (typingHere()) { shRenderLater = true; return; } render(); }
+  function remoteRender() { shRenderLater = true; window.vtmWhenFree('cm', flushLater); }   // waits while anyone is typing, pressing, in a menu or dragging
   /* Catch up once the field is left, but never in the middle of a click or tap: rebuilding the page between press and
      release would swallow the click (and the text just typed), e.g. an Add button next to the field. */
   var ptrDown = false;
   function flushLater() {
-    if (!shRenderLater || typingHere() || ptrDown) return;
+    if (!shRenderLater) return;
+    if (typingHere() || ptrDown || window.vtmBusy()) { window.vtmWhenFree('cm', flushLater); return; }
     var a = document.activeElement, sel = '';
     if (a && a.closest && a.closest('#cmView, #cmModule') && a.dataset && a.dataset.act) sel = '[data-act="' + a.dataset.act + '"]' + (a.dataset.k ? '[data-k="' + a.dataset.k + '"]' : '') + (a.dataset.d ? '[data-d="' + a.dataset.d + '"]' : '');
     /* Text waiting in Add boxes (Discipline, Background, path) survives the refresh. */
@@ -12496,7 +12529,7 @@ V1.5
       /* Requests that are no longer pending (answered here or on another device) drop their notifications. */
       dropNotifs(function (n) { return n.kind === 'friendReq' && !inc.some(function (x) { return x.pid === n.pid; }); });
       acct.frSnap = { inc: inc.map(function (x) { return x.pid; }), out: out.map(function (x) { return x.pid; }), hosts: hosts, invs: invs }; saveAcct();
-      renderFriends(); roomInviteDraw();
+      window.vtmWhenFree('fr', function () { renderFriends(); roomInviteDraw(); });   // a background refresh waits while you're busy
     }).catch(function () {}).then(function () { frBusy = false; });
   }
   /* Join a friend's room: the Roller's Initiative tracker connects with their code. */
@@ -14145,6 +14178,7 @@ V1.5
   /* Selecting only restyles what's there (redrawing would break a double-click). */
   /* Attaching text: the next click on a note or container holds it there (Escape or a click elsewhere cancels). */
   var nbAttach = null;
+  window.nbBusyNow = function () { return !!(nbDrag || nbEdit || nbAttach); };   // dragging, editing or attaching: syncs wait
   function nbAttachKey(e) { if (e.key === 'Escape' && nbAttach) { e.preventDefault(); e.stopPropagation(); nbAttachEnd(); } }
   function nbAttachStart(id) {
     nbAttach = id; var bd = $('nbBoard'); if (bd) bd.classList.add('nb-attaching');

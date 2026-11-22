@@ -369,3 +369,8 @@ V3.1.6
 -Skirmish Map Changes:
 	-Fit leaves out Incapacitated tokens (unless everyone's down).
 -Fixed tier badges being squished or cut off next to long names in Friends and the Share window.
+
+V3.1.7
+-Character Manager Changes:
+	-The Soak window's "Wear armor for this soak" option is now a switch, like the ones in Settings.
+-Fixed syncs interrupting you: changes arriving from another device, a shared sheet or a room now wait while you're typing, pressing or dragging, or have a menu open, and show up as soon as you're done. This covers the Dossier (dragging the board or notes, editing, menus), character sheets, the Initiative tracker's rows and menus, Friends, and Settings > Account.
