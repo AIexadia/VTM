@@ -449,5 +449,11 @@ V3.5
 	-New "Draw" button (a pencil) in the map's header, with a drawing toolbar: free-hand, line (Shift: steps of 45°), rectangle (Shift: square), circle (Shift: perfect circle), path (click each point; double-click or Enter finishes) and erase (click a shape, or drag over several). Six colours and three thicknesses. The hand tool goes back to moving the map and tokens.
 	-The toolbar is one row: the tools, then the pen button (colour, thickness, and the "Sizes" switch, which shows lengths and sizes while drawing and resizing) and ⋯ (Copy, Paste, Delete, Presets… and Maps…).
 	-Select tool: click a shape (Shift-click for more, or drag a box); drag to move, the corner handle to resize. Copy, Paste and Delete (also Ctrl+C, Ctrl+V, Delete; Ctrl+A selects everything). Picking a colour or thickness changes the selected shapes.
-	-Presets…: save selected shapes to use again, and place them in the middle of the view. Maps… (host): save the whole drawing, and load it back (it replaces what's drawn, after a second click). Presets and maps are saved to your account.
+	-Presets…: save selected shapes to use again, and place them. Maps… (host): save the whole drawing, and load it back (it replaces what's drawn, after a second click). Presets and maps are saved to your account.
+	-Undo and Redo (buttons, or Ctrl+Z and Ctrl+Y): your own drawing changes, including placed presets and loaded maps.
+	-Select tool: right-click for Copy, Paste, Delete and Presets….
+	-Placing a preset: it follows the pointer and is only put down where you click (Escape or a right-click cancels).
+	-The middle mouse button always drags the map, whatever tool is on. The pointer shows the tool in use.
+	-The browser's own handling of presses on the map (selecting text, dragging the picture, middle-button scrolling) is off.
+	-Imperial units: Feet and Yards switches (side by side, under it). With both on, sizes show as before (feet, with yards beside them); with one, only that unit.
 	-Only the host draws, unless they turn on "Watchers can draw" in the map's settings. Everyone in the room sees the drawing, including people who join later.

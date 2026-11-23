@@ -2339,6 +2339,17 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 .sm-dmore { gap: 6px; min-width: 160px; }
 .sm-dmore .btn-sec { justify-content: flex-start; text-align: left; }
 @media (max-width: 520px) { .sm-dt.sm-z { min-width: 26px; height: 28px; padding: 0 3px; } .sm-dt svg { width: 14px; height: 14px; } }
+/* Drawing: the pointer follows the tool (the map's own grab hand only with the hand tool) */
+[data-dtool="f"] .sm-svg, [data-dtool="f"] .sm-svg *, [data-dtool="l"] .sm-svg, [data-dtool="l"] .sm-svg *, [data-dtool="r"] .sm-svg, [data-dtool="r"] .sm-svg *,
+[data-dtool="e"] .sm-svg, [data-dtool="e"] .sm-svg *, [data-dtool="p"] .sm-svg, [data-dtool="p"] .sm-svg * { cursor: crosshair; }
+[data-dtool="x"] .sm-svg, [data-dtool="x"] .sm-svg * { cursor: cell; }
+[data-dtool="sel"] .sm-svg, [data-dtool="sel"] .sm-svg * { cursor: default; }
+[data-dtool="sel"] .sm-shapes.live .sm-shp { cursor: move; }
+[data-dtool="sel"] .sm-svg .sm-selh { cursor: nwse-resize; }
+.sm-shp-ln.ghost { opacity: 0.55; pointer-events: none; stroke-dasharray: 0.25 0.12; }
+.sm-stage { user-select: none; -webkit-user-select: none; }
+.sm-sw-row { display: flex; gap: 14px; flex-wrap: wrap; padding-left: 20px; }
+.sm-sw-row .sm-sw { flex: 0 0 auto; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -16338,9 +16349,9 @@ V1.5
     var d = null; try { d = JSON.parse(localStorage.getItem(SM_KEY) || 'null'); } catch (e) {}
     d = d && typeof d === 'object' ? d : {};
     return { pos: d.pos && typeof d.pos === 'object' ? d.pos : {}, lines: Array.isArray(d.lines) ? d.lines : [], meas: d.meas && typeof d.meas === 'object' ? d.meas : {},
-      units: d.units === 'i' ? 'i' : 'm', any: !!d.any, dj: !!d.dj, dr: Array.isArray(d.dr) ? d.dr.slice(0, 1500) : [], seq: +d.seq || 1, drag: null, hid: d.hid && typeof d.hid === 'object' && !Array.isArray(d.hid) ? d.hid : {}, aoe: Array.isArray(d.aoe) ? d.aoe.filter(smAoeOk).slice(0, SM_AOE_MAX) : [] };
+      units: d.units === 'i' ? 'i' : 'm', uf: d.uf !== false, uy: d.uy !== false, any: !!d.any, dj: !!d.dj, dr: Array.isArray(d.dr) ? d.dr.slice(0, 1500) : [], seq: +d.seq || 1, drag: null, hid: d.hid && typeof d.hid === 'object' && !Array.isArray(d.hid) ? d.hid : {}, aoe: Array.isArray(d.aoe) ? d.aoe.filter(smAoeOk).slice(0, SM_AOE_MAX) : [] };
   })();
-  function smSave() { try { localStorage.setItem(SM_KEY, JSON.stringify({ pos: sm.pos, lines: sm.lines, meas: sm.meas, units: sm.units, any: sm.any, seq: sm.seq, aoe: sm.aoe, hid: sm.hid, dj: sm.dj, dr: sm.dr })); } catch (e) {} }
+  function smSave() { try { localStorage.setItem(SM_KEY, JSON.stringify({ pos: sm.pos, lines: sm.lines, meas: sm.meas, units: sm.units, any: sm.any, seq: sm.seq, aoe: sm.aoe, hid: sm.hid, dj: sm.dj, dr: sm.dr, uf: sm.uf, uy: sm.uy })); } catch (e) {} }
   var smUi = { open: false, set: false, vb: null, fitted: false, act: null, pend: null, menu: null, local: {}, hover: '', hl: null, ha: [], hp: null, aoe: null };
   /* Each person's own view: grid lines on or off, and how strong they are. */
   /* Background styles: each person's own pick; "auto" follows light/dark mode (grimy tabletop / aged parchment). */
@@ -16401,7 +16412,13 @@ V1.5
   function smNum2(v) { return Math.round(v * 100) / 100; }
   function smUnits() { var s = smState(); return s && s.watching ? (s.remote && s.remote.m && s.remote.m.u === 'i' ? 'i' : 'm') : sm.units; }
   /* A distance as the room shows it: metres, or feet with the yards beside them (1 yard = 1 metre = 3 feet). */
-  function smFmt(d) { d = smNum(d); return smUnits() === 'i' ? smNum(d * 3) + ' ft (' + d + ' yd)' : d + ' m'; }
+  /* Imperial: feet and yards, or just one of them (the room's choice). */
+  function smFY() { var s = smState(), m = s && s.watching ? s.remote && s.remote.m : null; return m ? [m.uf !== 0, m.uy !== 0] : [sm.uf !== false, sm.uy !== false]; }
+  function smFmt(d) {
+    d = smNum(d); if (smUnits() !== 'i') return d + ' m';
+    var fy = smFY();
+    return fy[0] && !fy[1] ? smNum(d * 3) + ' ft' : fy[1] && !fy[0] ? d + ' yd' : smNum(d * 3) + ' ft (' + d + ' yd)';
+  }
   function smThumb(hash) {
     if (smThumbs[hash] || smThumbBusy[hash] || !imgMem[hash]) return Promise.resolve(smThumbs[hash]);
     smThumbBusy[hash] = 1;
@@ -16578,7 +16595,7 @@ V1.5
     var okK = {}; toks.forEach(function (x) { if (smPubOk(x)) okK[x.k] = 1; });
     var hk = function (k) { return !!(k && !okK[String(k)]); };
     var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w]; if (hk(m.f.k) || hk(m.t.k)) return null; var e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
-    return { u: sm.units, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
+    return { u: sm.units, uf: sm.uf === false ? 0 : 1, uy: sm.uy === false ? 0 : 1, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
   };
   /* One token as watchers get it. */
   function smPubTok(x, pics) {
@@ -16904,6 +16921,9 @@ V1.5
       w.addEventListener('pointercancel', smUp);
       w.addEventListener('pointerleave', function () { if (smUi.hover || smUi.hl != null || smUi.ha.length) { smUi.hover = ''; smUi.hl = null; smUi.ha = []; smTip(); smDrawSoon(); } }, true);
       w.addEventListener('contextmenu', smCtx);
+      /* The browser's own handling of presses on the map (selecting text, dragging the picture, the middle-button scroll) is off. */
+      w.addEventListener('mousedown', function (e) { var sv = smSvgEl(); if (sv && sv.contains(e.target) && (e.button === 0 || e.button === 1)) { e.preventDefault(); if (smDoc().activeElement !== sv && !(e.target.closest && e.target.closest('.sm-tok'))) sv.focus({ preventScroll: true }); } });
+      w.addEventListener('dragstart', function (e) { var sv = smSvgEl(); if (sv && sv.contains(e.target)) e.preventDefault(); });
       w.addEventListener('submit', smAoeSubmit);
       w.addEventListener('wheel', smWheel, { passive: false });
       document.addEventListener('pointerdown', smDocDown, true);
@@ -16932,7 +16952,8 @@ V1.5
     box.hidden = !smUi.set; if (cog) cog.setAttribute('aria-expanded', String(smUi.set));
     if (!smUi.set) return;
     var s = smState(), mode = smMode(), rm = s && s.remote && s.remote.m;
-    var room = mode === 'host' ? smSwitch('smUnits', sm.units === 'i', 'Imperial units', 'Feet, with yards beside them (1 yard = 1 metre).') + (s && s.hosting ? smSwitch('smDj', !!sm.dj, 'Watchers can draw', 'They get the Draw button too') + smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') : '')
+    var room = mode === 'host' ? smSwitch('smUnits', sm.units === 'i', 'Imperial units', 'Feet, with yards beside them (1 yard = 1 metre).') +
+      (sm.units === 'i' ? '<div class="sm-sw-row">' + smSwitch('smUF', sm.uf !== false, 'Feet') + smSwitch('smUY', sm.uy !== false, 'Yards') + '</div>' : '') + (s && s.hosting ? smSwitch('smDj', !!sm.dj, 'Watchers can draw', 'They get the Draw button too') + smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') : '')
       : '<p class="sm-set-note">' + (rm && rm.u === 'i' ? 'Feet, with yards beside them' : 'Metres') + ' (the host\'s choice). ' + (rm && rm.any ? 'You can move any token.' : 'You can move your own characters.') + '</p>';
     var key = mode + '|' + room + '|' + smView.grid + '|' + smView.style + '|' + smView.pat;
     if (box.getAttribute('data-k') === key) return;
@@ -17232,6 +17253,7 @@ V1.5
   }
   function smCtx(e) {
     var svg = smSvgEl(); if (!svg || !svg.contains(e.target) || !smUi.vb) return;
+    if (smDrawCtx(e)) return;   // drawing: its own menu (or cancelling a preset being placed)
     if (Date.now() - (smUi.holdAt || 0) < 1000) { e.preventDefault(); return; }   // the same press and hold already opened it (Android sends both)
     var t = smTokAt(e); if (!t) return;
     if (!smCanMove(t) && !smAreas().some(function (a) { return a.k === t.k && a.mine; })) return;   // not theirs, and nothing of theirs on it
@@ -17349,6 +17371,13 @@ V1.5
   }
   /* ---- pointer: drag a token, click to measure, drag the empty grid to look around ---- */
   function smDown(e) {
+    /* The middle button always drags the map, whatever tool is on. */
+    if (e.button === 1 && smSvgEl() && smSvgEl().contains(e.target) && smUi.vb) {
+      e.preventDefault(); smMenuClose();
+      smUi.act = { pan: true, mid: true, sx: e.clientX, sy: e.clientY, vb: Object.assign({}, smUi.vb), moved: false };
+      try { smSvgEl().setPointerCapture(e.pointerId); } catch (x) {}
+      return;
+    }
     if (smDrawDown(e)) return;   // drawing
     if (e.button !== 0 || !smSvgEl() || !smSvgEl().contains(e.target)) return;
     smMenuClose();
@@ -17442,7 +17471,7 @@ V1.5
       if (t && smCanMove(t)) smMenuOpen(e, a.line, t);
       return;
     }
-    if (a.pan) { if (!a.moved) smEmptyClick(e); return; }
+    if (a.pan) { if (!a.moved && !a.mid) smEmptyClick(e); return; }
     if (a.moved && a.stuck) { smDrawSoon(); return; }   // it couldn't move: nothing to drop
     if (a.moved) {
       var to = a.to || a.from;
@@ -17511,7 +17540,12 @@ V1.5
       smSend({ op: 'hide', id: +tv.k, on: true, v: v });
       return;
     }
-    if (e.target.id === 'smUnits') { sm.units = e.target.checked ? 'i' : 'm'; smSave(); smPushSoon(); smDraw(); }
+    if (e.target.id === 'smUnits') { sm.units = e.target.checked ? 'i' : 'm'; smSave(); smPushSoon(); smDraw(); smSetDraw(); var u0 = smQ('smUnits'); if (u0) u0.focus(); }
+    if (e.target.id === 'smUF' || e.target.id === 'smUY') {   // at least one of feet and yards stays on
+      sm[e.target.id === 'smUF' ? 'uf' : 'uy'] = e.target.checked;
+      if (sm.uf === false && sm.uy === false) { sm[e.target.id === 'smUF' ? 'uy' : 'uf'] = true; var o2 = smQ(e.target.id === 'smUF' ? 'smUY' : 'smUF'); if (o2) o2.checked = true; }
+      smSave(); smPushSoon(); smDraw();
+    }
     if (e.target.id === 'smAny') { sm.any = e.target.checked; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smDj') { sm.dj = e.target.checked; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smGridOn') { smView.grid = e.target.checked; smViewSave(); smDraw(); }
@@ -17553,7 +17587,7 @@ V1.5
   var smDw = (function () {
     var d = null; try { d = JSON.parse(localStorage.getItem('vtm-smap-draw') || 'null'); } catch (e) {}
     d = d && typeof d === 'object' ? d : {};
-    return { on: false, tool: 'f', col: isFinite(+d.col) ? Math.max(0, Math.min(5, +d.col)) : 0, w: isFinite(+d.w) ? Math.max(0, Math.min(2, +d.w)) : 1, sizes: d.sizes !== false, sel: {}, act: null, path: null, clip: null, dlg: '', seq: 0 };
+    return { hist: [], fut: [], ghost: null, on: false, tool: 'f', col: isFinite(+d.col) ? Math.max(0, Math.min(5, +d.col)) : 0, w: isFinite(+d.w) ? Math.max(0, Math.min(2, +d.w)) : 1, sizes: d.sizes !== false, sel: {}, act: null, path: null, clip: null, dlg: '', seq: 0 };
   })();
   function smDwSave() { try { localStorage.setItem('vtm-smap-draw', JSON.stringify({ col: smDw.col, w: smDw.w, sizes: smDw.sizes })); } catch (e) {} }
   if (!Array.isArray(sm.dr)) sm.dr = [];
@@ -17589,6 +17623,19 @@ V1.5
     } else smDrHost(ops, 'host');
     smDrawSoon();
   }
+  /* Undo and redo (this page's own changes, newest first): each change keeps what undoes it. */
+  function smDrDo(ops) {
+    if (!ops.length) return;
+    var cur = smShapes(), byId = {}; cur.forEach(function (x) { byId[x.i] = x; });
+    var inv = ops.slice().reverse().map(function (o) { var old = byId[String(o.i)]; return old ? { i: old.i, s: JSON.parse(JSON.stringify(old)) } : { i: String(o.i), d: 1 }; });
+    smDw.hist.push({ u: inv, r: ops }); if (smDw.hist.length > 100) smDw.hist.shift(); smDw.fut = [];
+    smDrSend(ops); smDrUIhist();
+  }
+  function smDrUndo(redo) {
+    var from = redo ? smDw.fut : smDw.hist, to = redo ? smDw.hist : smDw.fut, h = from.pop(); if (!h) return;
+    smDw.sel = {}; to.push(h); smDrSend(redo ? h.r : h.u); smDrUI(); smDrawSoon();
+  }
+  function smDrUIhist() { var bar = smQ('smDtools'); if (!bar) return; var u = bar.querySelector('[data-sm="dwUndo"]'), r = bar.querySelector('[data-sm="dwRedo"]'); if (u) u.disabled = !smDw.hist.length; if (r) r.disabled = !smDw.fut.length; }
   function smDrChunks(ops) {
     var out = [], cur = [], n = 0;
     ops.forEach(function (o) { var l = JSON.stringify(o).length; if (cur.length && n + l > 40000) { out.push(cur); cur = []; n = 0; } cur.push(o); n += l; });
@@ -17680,6 +17727,7 @@ V1.5
       var bx = Math.min(a.from[0], a.to[0]), by = Math.min(a.from[1], a.to[1]);
       h += '<rect class="sm-band" x="' + bx + '" y="' + by + '" width="' + Math.abs(a.to[0] - a.from[0]) + '" height="' + Math.abs(a.to[1] - a.from[1]) + '"/>';
     }
+    if (smDw.ghost) smDw.ghost.sh.forEach(function (s0) { var s = smDrMoved(s0, smDw.ghost.at[0], smDw.ghost.at[1]); h += '<path class="sm-shp-ln ghost" d="' + smDrPathD(s) + '" stroke="' + SMD_COLS[s.c][0] + '" stroke-width="' + SMD_W[s.w][0] + '"/>'; });
     var sb = smDw.on && smDw.tool === 'sel' ? smDrSelBox() : null;
     if (sb) {
       var ab = a && a.m === 'move' ? { x0: sb.x0 + (a.dx || 0), y0: sb.y0 + (a.dy || 0), x1: sb.x1 + (a.dx || 0), y1: sb.y1 + (a.dy || 0) } : a && a.m === 'size' ? { x0: sb.x0, y0: sb.y0, x1: a.ox + (sb.x1 - a.ox) * (a.fx || 1), y1: a.oy + (sb.y1 - a.oy) * (a.fy || 1) } : sb;
@@ -17702,8 +17750,11 @@ V1.5
   /* ---- pointer ---- */
   function smDrShapeAt(e) { var el = smDoc().elementFromPoint(e.clientX, e.clientY), g = el && el.closest && el.closest('.sm-shp'); return g ? g.getAttribute('data-di') : ''; }
   function smDrawDown(e) {
-    if (!smDw.on || smDw.tool === 'pan' || !smMayDraw()) return false;
+    if (!smDw.on || !smMayDraw()) return false;
     if (e.button !== 0 || !smSvgEl() || !smSvgEl().contains(e.target)) return false;   // only presses on the map itself
+    if (smDw.ghost) { e.preventDefault(); smDrGhostPut(smToWorld(e)); return true; }
+    if (smDw.tool === 'pan') return false;
+    smSvgEl().focus({ preventScroll: true });   // so Delete, Ctrl+Z and the rest reach it
     var p = smToWorld(e), tool = smDw.tool, svg = smSvgEl();
     smMenuClose(); e.preventDefault();
     try { svg.setPointerCapture(e.pointerId); } catch (x) {}
@@ -17731,6 +17782,7 @@ V1.5
     return true;
   }
   function smDrawMove(e) {
+    if (smDw.ghost && smDw.on && smSvgEl()) { smDw.ghost.at = smToWorld(e); smDrawSoon(); return !smDw.act; }
     var a = smDw.act;
     if (!a) { if (smDw.path && smDw.on && smDw.tool === 'p') { var ph = smToWorld(e); smDw.path.hov = [smDrN(ph[0]), smDrN(ph[1])]; smDrawSoon(); } return false; }
     var p = smToWorld(e);
@@ -17764,11 +17816,11 @@ V1.5
       var b = smDrBox(s);
       if (b.x1 - b.x0 < 0.08 && b.y1 - b.y0 < 0.08) { smDrawSoon(); return true; }   // a click, not a shape
       s.i = smDrId(); s.c = smDw.col; s.w = smDw.w;
-      smDrSend([{ i: s.i, s: s }]);
+      smDrDo([{ i: s.i, s: s }]);
       return true;
     }
-    if (a.m === 'move') { if (a.dx || a.dy) smDrSend(smShapes().filter(function (s) { return smDw.sel[s.i]; }).map(function (s) { return { i: s.i, s: smDrMoved(s, a.dx, a.dy) }; })); smDrawSoon(); return true; }
-    if (a.m === 'size') { if (a.fx || a.fy) smDrSend(smShapes().filter(function (s) { return smDw.sel[s.i]; }).map(function (s) { return { i: s.i, s: smDrScaled(s, a.ox, a.oy, a.fx || 1, a.fy || 1) }; })); smDrawSoon(); return true; }
+    if (a.m === 'move') { if (a.dx || a.dy) smDrDo(smShapes().filter(function (s) { return smDw.sel[s.i]; }).map(function (s) { return { i: s.i, s: smDrMoved(s, a.dx, a.dy) }; })); smDrawSoon(); return true; }
+    if (a.m === 'size') { if (a.fx || a.fy) smDrDo(smShapes().filter(function (s) { return smDw.sel[s.i]; }).map(function (s) { return { i: s.i, s: smDrScaled(s, a.ox, a.oy, a.fx || 1, a.fy || 1) }; })); smDrawSoon(); return true; }
     if (a.m === 'band') {
       if (!a.add) smDw.sel = {};
       if (a.to) {
@@ -17777,7 +17829,7 @@ V1.5
       }
       smDrUI(); smDrawSoon(); return true;
     }
-    if (a.m === 'erase') { var ids = Object.keys(a.gone); if (ids.length) smDrSend(ids.map(function (i) { return { i: i, d: 1 }; })); return true; }
+    if (a.m === 'erase') { var ids = Object.keys(a.gone); if (ids.length) smDrDo(ids.map(function (i) { return { i: i, d: 1 }; })); return true; }
     return true;
   }
   function smDrEraseAt(e) {
@@ -17788,13 +17840,15 @@ V1.5
   function smDrPathEnd() {
     var P = smDw.path; smDw.path = null; if (!P) return;
     var pts = P.p.filter(function (q, i) { return !i || smDist(q, P.p[i - 1]) > 0.02; });
-    if (pts.length >= 2) { var s = { i: smDrId(), t: 'p', p: pts, c: smDw.col, w: smDw.w }; smDrSend([{ i: s.i, s: s }]); }
+    if (pts.length >= 2) { var s = { i: smDrId(), t: 'p', p: pts, c: smDw.col, w: smDw.w }; smDrDo([{ i: s.i, s: s }]); }
     smDrawSoon();
   }
   /* ---- keys (while the map has focus and drawing is on) ---- */
   function smDrawKey(e) {
     if (!smDw.on || !smMayDraw() || (e.target.closest && e.target.closest('input, textarea, select'))) return;
     var mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+    if (smDw.ghost && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); smDw.ghost = null; smDrawSoon(); return; }
+    if (mod && (k === 'z' || k === 'y')) { e.preventDefault(); smDrUndo(k === 'y' || e.shiftKey); return; }
     if (smDw.path && (e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); smDrPathEnd(); return; }
     if (smDw.act && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); smDw.act = null; smDrawSoon(); return; }
     if (smDw.tool !== 'sel') return;
@@ -17804,8 +17858,29 @@ V1.5
     if (mod && k === 'a') { e.preventDefault(); smDw.sel = {}; smShapes().forEach(function (s) { smDw.sel[s.i] = 1; }); smDrUI(); smDrawSoon(); return; }
     if (e.key === 'Escape' && Object.keys(smDw.sel).length) { e.preventDefault(); e.stopPropagation(); smDw.sel = {}; smDrUI(); smDrawSoon(); }
   }
+  /* Right-click: cancels a preset being placed; with the Select tool, a menu (Copy, Paste, Delete, Presets). */
+  function smDrawCtx(e) {
+    if (!smDw.on || !smMayDraw()) return false;
+    if (smDw.ghost) { e.preventDefault(); smDw.ghost = null; smDrawSoon(); return true; }
+    if (smDw.tool !== 'sel') { e.preventDefault(); return true; }
+    e.preventDefault();
+    var hit = smDrShapeAt(e); if (hit && !smDw.sel[hit]) { smDw.sel = {}; smDw.sel[hit] = 1; smDrUI(); smDrawSoon(); }
+    var m = smQ('smMenu'), st = smQ('smStage'); if (!m || !st) return true;
+    var r = st.getBoundingClientRect(), n = Object.keys(smDw.sel).length;
+    smUi.menu = 'draw';
+    m.innerHTML = '<span class="sm-menu-t">' + (n ? (n === 1 ? '1 shape' : n + ' shapes') : 'Drawing') + '</span>' +
+      '<button type="button" class="btn-sec" role="menuitem" data-sm="dwCopy"' + (n ? '' : ' disabled') + '>Copy</button>' +
+      '<button type="button" class="btn-sec" role="menuitem" data-sm="dwPaste"' + (smDw.clip ? '' : ' disabled') + '>Paste</button>' +
+      '<button type="button" class="btn-sec" role="menuitem" data-sm="dwDel"' + (n ? '' : ' disabled') + '>Delete</button>' +
+      '<button type="button" class="btn-sec" role="menuitem" data-sm="dwPresets" aria-haspopup="dialog">Presets…</button>';
+    m.setAttribute('role', 'menu'); m.hidden = false;
+    m.style.left = Math.max(4, Math.min(e.clientX - r.left, st.clientWidth - m.offsetWidth - 4)) + 'px';
+    m.style.top = Math.max(4, Math.min(e.clientY - r.top + 6, st.clientHeight - m.offsetHeight - 4)) + 'px';
+    var f = m.querySelector('button:not([disabled])'); if (f) f.focus({ preventScroll: true });
+    return true;
+  }
   function smDrSelected() { return smShapes().filter(function (s) { return smDw.sel[s.i]; }); }
-  function smDrDel() { var ids = Object.keys(smDw.sel); smDw.sel = {}; smDrSend(ids.map(function (i) { return { i: i, d: 1 }; })); smDrUI(); }
+  function smDrDel() { var ids = Object.keys(smDw.sel); smDw.sel = {}; smDrDo(ids.map(function (i) { return { i: i, d: 1 }; })); smDrUI(); }
   function smDrCopy() { var L = smDrSelected(); if (!L.length) return; smDw.clip = JSON.parse(JSON.stringify(L)); smDrUI(); toast(L.length === 1 ? 'Shape copied.' : L.length + ' shapes copied.'); }
   /* Pastes (or places a preset): a step down and right of the copies, or in the middle of the view. */
   function smDrPlace(shapes, centre) {
@@ -17816,10 +17891,26 @@ V1.5
     if (centre && vb) { dx = smDrN(vb.x + vb.w / 2 - (b.x0 + b.x1) / 2); dy = smDrN(vb.y + vb.h / 2 - (b.y0 + b.y1) / 2); }
     var ops = shapes.map(function (s) { var n = smDrMoved(s, dx, dy); n.i = smDrId(); return { i: n.i, s: n }; });
     smDw.sel = {}; ops.forEach(function (o) { smDw.sel[o.i] = 1; });
-    smDw.tool = 'sel'; smDrSend(ops); smDrUI();
+    smDw.tool = 'sel'; smDrDo(ops); smDrUI();
     if (!centre) smDw.clip = ops.map(function (o) { return o.s; });   // pasting again steps further
   }
   function smDrPaste() { smDrPlace(smDw.clip, false); }
+  /* A preset follows the pointer (centred on it) until a click puts it down; Escape or a right-click cancels. */
+  function smDrGhost(shapes) {
+    if (!shapes.length) return;
+    var b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    shapes.forEach(function (s) { var q = smDrBox(s); b.x0 = Math.min(b.x0, q.x0); b.y0 = Math.min(b.y0, q.y0); b.x1 = Math.max(b.x1, q.x1); b.y1 = Math.max(b.y1, q.y1); });
+    var cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2, vb = smUi.vb;
+    smDw.ghost = { sh: shapes.map(function (s) { return smDrMoved(s, -cx, -cy); }), at: vb ? [vb.x + vb.w / 2, vb.y + vb.h / 2] : [0, 0] };
+    var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true });
+    smDrUI(); smDrawSoon();
+  }
+  function smDrGhostPut(at) {
+    var g = smDw.ghost; smDw.ghost = null; if (!g) return;
+    var ops = g.sh.map(function (s) { var n = smDrMoved(s, smDrN(at[0]), smDrN(at[1])); n.i = smDrId(); return { i: n.i, s: n }; });
+    smDw.sel = {}; ops.forEach(function (o) { smDw.sel[o.i] = 1; });
+    smDw.tool = 'sel'; smDrDo(ops); smDrUI(); smDrawSoon();
+  }
 
   /* ---- toolbar ---- */
   var SMD_ICO = {
@@ -17841,10 +17932,14 @@ V1.5
     var bar = smQ('smDtools'); if (!bar) return;
     bar.hidden = !smDw.on;
     var svg = smSvgEl(); if (svg) svg.classList.toggle('drawing', smDw.on && smDw.tool !== 'pan');
+    w.setAttribute('data-dtool', smDw.on ? smDw.tool : '');   // the pointer's look follows the tool
     if (!smDw.on) { bar.innerHTML = ''; return; }
     var nsel = Object.keys(smDw.sel).length, host = smMode() === 'host', pop = smDw.pop || '';
     /* One row: the tools, then the pen (colour, thickness, sizes) and More (copy, paste, delete, presets, maps) as small pop-ups. */
+    var hadFocus = bar.contains(smDoc().activeElement);
     bar.innerHTML = '<span class="sm-dgrp" role="radiogroup" aria-label="Tool">' + SMD_TOOLS.map(function (t) { return '<button type="button" class="btn-sec sm-z sm-dt" role="radio" data-sm="dwTool" data-v="' + t[0] + '" aria-checked="' + (smDw.tool === t[0]) + '" aria-label="' + t[1] + '" title="' + t[1] + '">' + smDrIco(t[0]) + '</button>'; }).join('') + '</span>' +
+      '<span class="sm-dgrp"><button type="button" class="btn-sec sm-z sm-dt" data-sm="dwUndo" aria-label="Undo (Ctrl+Z)" title="Undo (Ctrl+Z)"' + (smDw.hist.length ? '' : ' disabled') + '><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>' +
+      '<button type="button" class="btn-sec sm-z sm-dt" data-sm="dwRedo" aria-label="Redo (Ctrl+Y)" title="Redo (Ctrl+Y)"' + (smDw.fut.length ? '' : ' disabled') + '><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></button></span>' +
       '<span class="sm-dpw"><button type="button" class="btn-sec sm-z sm-dt sm-dpen" data-sm="dwPop" data-v="style" aria-haspopup="true" aria-expanded="' + (pop === 'style') + '" aria-label="Pen: ' + SMD_COLS[smDw.col][1] + ', ' + SMD_W[smDw.w][1] + '" title="Colour, thickness and sizes"><span class="sm-dpen-c" style="--c:' + SMD_COLS[smDw.col][0] + ';height:' + (3 + smDw.w * 2.5) + 'px"></span></button>' +
       (pop === 'style' ? '<div class="sm-dpop" role="group" aria-label="Pen">' +
         '<span class="sm-dgrp" role="radiogroup" aria-label="Colour">' + SMD_COLS.map(function (c, i) { return '<button type="button" class="sm-dcol" role="radio" data-sm="dwCol" data-v="' + i + '" aria-checked="' + (smDw.col === i) + '" aria-label="' + c[1] + '" title="' + c[1] + '" style="--c:' + c[0] + '"></button>'; }).join('') + '</span>' +
@@ -17854,8 +17949,11 @@ V1.5
       (pop === 'more' ? '<div class="sm-dpop sm-dmore" role="menu">' +
         (smDw.tool === 'sel' ? '<button type="button" class="btn-sec" role="menuitem" data-sm="dwCopy"' + (nsel ? '' : ' disabled') + '>Copy</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwPaste"' + (smDw.clip ? '' : ' disabled') + '>Paste</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwDel"' + (nsel ? '' : ' disabled') + '>Delete</button>' : '<span class="sm-dlg-note muted">Copy, paste and delete: with the Select tool.</span>') +
         '<button type="button" class="btn-sec" role="menuitem" data-sm="dwPresets" aria-haspopup="dialog">Presets…</button>' + (host ? '<button type="button" class="btn-sec" role="menuitem" data-sm="dwMaps" aria-haspopup="dialog">Maps…</button>' : '') + '</div>' : '') + '</span>';
+    if (hadFocus && !bar.contains(smDoc().activeElement)) { var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); }   // focus stays in the map (for Delete and the rest)
   }
   function smDrawClick(b, a) {
+    if (/^dw/.test(a) && smUi.menu === 'draw') { smMenuClose(); var sv0 = smSvgEl(); if (sv0 && a !== 'dwPresets') sv0.focus({ preventScroll: true }); }
+    if (a === 'dwUndo' || a === 'dwRedo') { smDrUndo(a === 'dwRedo'); return true; }
     if (a === 'draw') {
       smDw.on = !smDw.on && smMayDraw(); smDw.act = null; smDw.path = null; if (!smDw.on) { smDw.sel = {}; smDrDlgClose(); }
       if (smDw.on && smDw.tool === 'pan') smDw.tool = 'f';
@@ -17864,8 +17962,8 @@ V1.5
     if (a === 'dwPop') { var v0 = b.getAttribute('data-v'); smDw.pop = smDw.pop === v0 ? '' : v0; smDrUI(); var f0 = smQ('smDtools').querySelector('.sm-dpop button:not([disabled]), .sm-dpop input'); if (smDw.pop && f0) f0.focus(); else { var tb = smQ('smDtools').querySelector('[data-sm="dwPop"][data-v="' + v0 + '"]'); if (tb) tb.focus(); } return true; }
     if (/^dw(Copy|Paste|Del|Presets|Maps)$/.test(a)) smDw.pop = '';   // a choice from More closes it
     if (a === 'dwTool') { smDw.pop = ''; if (smDw.path) smDrPathEnd(); smDw.tool = b.getAttribute('data-v'); if (smDw.tool !== 'sel') smDw.sel = {}; smDrUI(); smDrawSoon(); var nb = smQ('smDtools').querySelector('[data-v="' + smDw.tool + '"][data-sm="dwTool"]'); if (nb) nb.focus(); return true; }
-    if (a === 'dwCol') { smDw.col = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwCol"][data-v="' + smDw.col + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSend(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { c: smDw.col }) }; })); smDrUI(); return true; }
-    if (a === 'dwW') { smDw.w = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwW"][data-v="' + smDw.w + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSend(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { w: smDw.w }) }; })); smDrUI(); return true; }
+    if (a === 'dwCol') { smDw.col = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwCol"][data-v="' + smDw.col + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrDo(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { c: smDw.col }) }; })); smDrUI(); return true; }
+    if (a === 'dwW') { smDw.w = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwW"][data-v="' + smDw.w + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrDo(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { w: smDw.w }) }; })); smDrUI(); return true; }
     if (a === 'dwCopy') { smDrCopy(); return true; }
     if (a === 'dwPaste') { smDrPaste(); return true; }
     if (a === 'dwDel') { smDrDel(); return true; }
@@ -17898,7 +17996,7 @@ V1.5
     var f = box.querySelector('#smDrName:not([disabled])') || box.querySelector('button'); if (f) f.focus();
     var nm = box.querySelector('#smDrName'); if (nm) nm.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); smDrSaveNamed(); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); smDrDlgClose(); } };
   }
-  function smDrDlgClose() { smDw.dlg = ''; var box = smQ('smDlg'); if (box) { box.hidden = true; box.innerHTML = ''; } }
+  function smDrDlgClose() { smDw.dlg = ''; var box = smQ('smDlg'); if (box) { var had = box.contains(smDoc().activeElement); box.hidden = true; box.innerHTML = ''; var sv = smSvgEl(); if (had && sv) sv.focus({ preventScroll: true }); } }
   function smDrSaveNamed() {
     var kind = smDw.dlg, nm = smQ('smDrName'); if (!kind || !nm) return;
     var name = nm.value.trim().slice(0, 40); if (!name) { nm.focus(); return; }
@@ -17912,12 +18010,12 @@ V1.5
   function smDrDlgAct(a, id, btn) {
     var kind = smDw.dlg, D = smd(), x = D[kind].filter(function (y) { return y.id === id; })[0]; if (!x) return;
     if (a === 'dwRm') { D[kind] = D[kind].filter(function (y) { return y.id !== id; }); save(); smDrDlg(kind); return; }
-    if (a === 'dwPlace') { smDrPlace(JSON.parse(JSON.stringify(x.sh)), true); smDrDlgClose(); return; }
+    if (a === 'dwPlace') { smDrGhost(JSON.parse(JSON.stringify(x.sh))); smDrDlgClose(); return; }
     if (a === 'dwLoad') {
       if (smMode() !== 'host') return;
       if (sm.dr.length && btn.getAttribute('data-sure') !== '1') { btn.setAttribute('data-sure', '1'); btn.textContent = 'Replace?'; return; }   // a second click replaces what's drawn
-      sm.dr = []; smDrApply(sm.dr, x.sh.map(function (s) { var n = JSON.parse(JSON.stringify(s)); n.i = smDrId(); return { i: n.i, s: n }; })); smSave();
-      smDw.sel = {}; smDrSendAll(); smDrDlgClose(); smDrUI(); smDrawSoon(); toast('Map “' + x.n + '” loaded.');
+      var ops = sm.dr.map(function (s) { return { i: s.i, d: 1 }; }).concat(x.sh.map(function (s) { var n = JSON.parse(JSON.stringify(s)); n.i = smDrId(); return { i: n.i, s: n }; }));
+      smDw.sel = {}; smDrDo(ops); smDrDlgClose(); smDrUI(); smDrawSoon(); toast('Map “' + x.n + '” loaded (Undo puts the old drawing back).');
     }
   }
   window.cmMapDrawAll = smDrSendAll;
