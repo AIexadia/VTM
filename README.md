@@ -495,3 +495,7 @@ V3.6.2
 -Skirmish Map Changes:
 	-Fixed a move's bends making it impossible to go back: dragging the token back near the last bend now takes that bend away.
 	-The speed rings while dragging follow a move's bends: they're centred on the last bend, smaller by the distance it took to get there, so they show how far the token can really still go.
+
+V3.6.3
+-Skirmish Map Changes:
+	-A move's bends now go away as soon as they're no longer needed (when the way straight past a bend crosses no wall), not only when the token is dragged back near them.

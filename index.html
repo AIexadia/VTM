@@ -17523,9 +17523,6 @@ V1.5
     q = smWallMove(a.to || a.from, q);   // walls stop it (it slides along them)
     /* The way it went, pulled tight around walls: that's the distance moved (and no more than its speed allows). */
     if (!a.trail) a.trail = [a.from.slice()];
-    /* Back near the last bend: it's taken away (the way it went is forgotten from there), so the token can go back. */
-    var lb = a.via && a.via.length ? a.via[a.via.length - 1] : null;
-    if (lb && smDist(q, lb) < SM_R + 0.15) a.trail = [a.from.slice()].concat(a.via.slice(0, -1).map(function (v) { return v.slice(); }));
     var P = [a.from].concat(smPathPull(a.trail.concat([q])), [q]);
     if (a.bud && smPLen(P) > a.bud.left + 0.01) { P = smPCut(P, a.bud.left); q = P[P.length - 1]; }
     if (smDist(a.trail[a.trail.length - 1], q) >= 0.15) a.trail.push(q.slice());
@@ -17990,6 +17987,13 @@ V1.5
       var nv = best || T[i - 1];
       if (smDist(nv, a) < 1e-3) { i++; continue; }
       out.push({ p: nv, c: !!best }); a = nv;
+    }
+    /* Only the bends still needed stay: one goes when the way straight past it (from the point before to the one after)
+       crosses no wall. */
+    for (var again = true, n = 0; again && n < 200; n++) {
+      again = false;
+      var Q = [T[0]].concat(out.map(function (o) { return o.p; }), [T[T.length - 1]]);
+      for (var k = 1; k < Q.length - 1; k++) if (clear(Q[k - 1], Q[k + 1])) { out.splice(k - 1, 1); again = true; break; }
     }
     /* Then each bend at a wall's corner steps a token's radius out from it (the wall lies inside the bend). */
     var P = [T[0]].concat(out.map(function (o) { return o.p; }), [T[T.length - 1]]);
