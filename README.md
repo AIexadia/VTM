@@ -424,3 +424,15 @@ V3.3
 	-People who joined only see player characters until an encounter starts; everyone else (in the tracker and on the Skirmish Map) appears once it does.
 	-Actors hidden on the Skirmish Map also stay out of the tracker for those who can't see them, until someone who joined has seen them; from then on they stay in the tracker, even if hidden again.
 	-"Enemy [n]" numbers are handed out in the order enemies are first seen by those who joined, so a hidden enemy leaves no gap in the numbering.
+
+V3.4
+-Chronicles (Storytellers and Admins):
+	-New "Chronicles" tab, next to Roller and Characters: your chronicles as cards (title and description). Make new ones; rename them; deleting one asks twice.
+	-Players: invite friends to a chronicle. They get a notification and accept or decline it; once in, they put their own characters in from the sheet. Each player shows with their characters; you can remove a player, or take a character out.
+	-Characters in a chronicle are shared with its Storyteller automatically, as an editor. Automatic shares don't count towards the player's sharing limit.
+	-Right-click a character there (or use ⋯) to mark it Missing, Unavailable or Final Death, or clear the mark.
+	-"Your characters here": add your own characters (or ones shared with you) to a chronicle's Players tab.
+	-Notable NPCs: sections you make, rename, reorder and delete, each holding your own characters (or ones shared with you), with the same marks.
+	-Grand Dossier: a Dossier board for the whole chronicle, holding about 2.5 times as much, with character cards (portrait and name) that open the sheet (right-click the board, Add a character…).
+-Character Manager Changes:
+	-The sheet's Chronicle field: in a chronicle you've joined, "Assign…" puts the character in it. While it's in one the field shows the chronicle's title, locked (it follows renames); in several it shows "N Chronicles", listing them on hover. Taking it out unlocks the field, keeping the last title, and ends the automatic share.

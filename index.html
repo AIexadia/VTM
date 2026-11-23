@@ -2247,6 +2247,56 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 /* Actors list (host): "Add hidden" sits on its own line under the search and buttons. */
 .lib-tools { flex-wrap: wrap; }
 .lib-tools .lib-hidsw { order: 10; flex: 1 1 100%; grid-column: 1 / -1; margin: 2px 0 0; }
+/* ---- Chronicles (V3.4) ---- */
+.chr-view { display: flex; flex-direction: column; gap: 14px; }
+.chr-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.chr-head h2 { margin: 0; }
+.chr-head .chr-title { flex: 1; min-width: 200px; }
+.chr-head .chr-title p { margin: 2px 0 0; }
+.chr-head > .btn.primary { margin-left: auto; }
+.chr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.chr-cardx { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 14px 40px 14px 16px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); min-height: 110px; }
+.chr-cardx:hover { border-color: var(--accent); }
+.chr-cardx b { font-size: 1.1rem; }
+.chr-cardx p { margin: 0; font-size: 0.9rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.chr-cardx small { margin-top: auto; color: var(--muted); }
+.chr-cardx-open { position: absolute; inset: 0; background: none; border: 0; border-radius: 10px; cursor: pointer; }
+.chr-cardx-more { position: absolute; top: 8px; right: 8px; z-index: 1; }
+.chr-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line-strong); }
+.chr-tabs .tab-btn { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; font: inherit; color: var(--muted); cursor: pointer; }
+.chr-tabs .tab-btn[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); font-weight: 600; }
+.chr-tools { display: flex; gap: 8px; }
+.chr-pl .card-head, .chr-sec .card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chr-pl h3, .chr-sec h3 { margin: 0; flex: 1; }
+.chr-sec-tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.chr-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+.chr-ch { position: relative; display: flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg); }
+.chr-ch-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 34px 8px 8px; background: none; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; border-radius: 8px; }
+.chr-ch-id { display: flex; flex-direction: column; min-width: 0; }
+.chr-ch-id b, .chr-ch-id small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chr-ch-id small { color: var(--muted); font-size: 0.8rem; }
+.chr-ch-more { position: absolute; top: 4px; right: 4px; background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 1.1rem; padding: 2px 6px; border-radius: 6px; }
+.chr-ch-more:hover { color: var(--fg); background: var(--surface-2); }
+.chr-mk { align-self: flex-start; margin-top: 3px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; background: #d9a441; color: #1d1820; }
+.chr-ch.mk-unavail .chr-mk { background: #8a8494; color: #fff; }
+.chr-ch.mk-dead { opacity: 0.75; }
+.chr-ch.mk-dead .chr-mk { background: #5a1a24; color: #f3dede; }
+.chr-ch.mk-dead .chr-ch-id b { text-decoration: line-through; }
+.chr-menu hr { border: 0; border-top: 1px solid var(--line-strong); margin: 4px 0; }
+.chr-plist { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow: auto; margin: 8px 0; }
+.chr-pk { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg); text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.chr-pk span { display: flex; flex-direction: column; } .chr-pk small { color: var(--muted); }
+.chr-inv { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.chr-inv span:first-child { display: flex; flex-direction: column; } .chr-inv small { color: var(--muted); }
+.chr-alist { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
+.chr-val { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+.chr-fld .chr-row { display: flex; align-items: center; gap: 8px; min-height: 36px; }
+.chr-pick { margin-left: 6px; vertical-align: middle; }
+.fld .chr-pick { margin: 4px 0 0; align-self: flex-start; }
+/* Grand Dossier: character cards */
+.nb-node.nb-ref .nb-head { align-items: center; }
+.nb-node.nb-ref .nb-av { width: 30px; height: 30px; flex: none; font-size: 0.75rem; margin-right: 2px; }
+.nb-node.nb-ref .nb-open { margin-top: 6px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -2256,7 +2306,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
       <h1 id="title">VTM Player Companion</h1>
       <p id="subtitle">Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.</p>
       <!-- CHARACTERS-MODULE:BEGIN switch -->
-      <div class="view-switch" role="tablist" aria-label="View"><button type="button" role="tab" id="viewRoller" aria-selected="true">Roller</button><button type="button" role="tab" id="viewChars" aria-selected="false">Characters</button></div>
+      <div class="view-switch" role="tablist" aria-label="View"><button type="button" role="tab" id="viewRoller" aria-selected="true">Roller</button><button type="button" role="tab" id="viewChars" aria-selected="false">Characters</button><button type="button" role="tab" id="viewChron" aria-selected="false" hidden>Chronicles</button></div>
 <!-- CHARACTERS-MODULE:END switch -->
     </div>
     <div class="top-btns">
@@ -2731,6 +2781,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
     <div id="cmSheet"></div>
     <div class="pick-bar cm" id="cmPick" hidden></div>
   </section>
+  <section class="cm-view cm chr-view" id="chronView" aria-label="Chronicles" hidden></section>
 
 <!-- CHARACTERS-MODULE:END view -->
 </main>
@@ -7823,6 +7874,7 @@ V1.5
         s: shapes[x.s] && (!b || NB_BOX_SHAPES[x.s]) ? x.s : (b ? 'round' : 'rect'), k: cols[x.k] ? x.k : '', f: !!x.f, p: typeof x.p === 'string' ? x.p : '', z: num(x.z, 0, 0, 1e9)
       };
       if (b) { o.b = true; o.h = num(x.h, 240, 100, 40000); }
+      if (!b && typeof x.cr === 'string' && /^[\w.:-]{1,80}$/.test(x.cr)) o.cr = x.cr;   // a character it stands for (a chronicle's Grand Dossier)
       if (!b && x.st && NB_STAMPS.some(function (k) { return k[0] === x.st; })) o.st = x.st;
       var sc0 = num(x.sc, 100, 50, 200); if (sc0 !== 100) o.sc = sc0;   // size, in percent
       out[id] = o;
@@ -8307,7 +8359,7 @@ V1.5
   function infoSection(c, editable, notesEd) {
     if (editable) {
       return '<section class="card" data-pv="sec:sheet:identity"><h2>Identity</h2><div class="info-wrap">' + (c.mode === 'edit' ? portraitHTML(c, true) : '') + '<div class="info-grid">' +
-        fld(c, 'Name', 'info.name', c.info.name) + fld(c, 'Player', 'info.player', c.info.player) + fld(c, 'Chronicle', 'info.chronicle', c.info.chronicle) +
+        fld(c, 'Name', 'info.name', c.info.name) + fld(c, 'Player', 'info.player', c.info.player) + window.cmChrFld(c, fld(c, 'Chronicle', 'info.chronicle', c.info.chronicle)) +
         fld(c, 'Nature', 'info.nature', c.info.nature, ' list="dl-arch"') + fld(c, 'Demeanor', 'info.demeanor', c.info.demeanor, ' list="dl-arch"') + fld(c, 'Concept', 'info.concept', c.info.concept) +
         clanSelect(c) +
         (c.mode === 'edit' ? '<label class="fld"><span class="cm-lbl">Generation</span><input type="number" min="3" max="15" data-f="info.generation" data-num data-rr value="' + c.info.generation + '"></label>' : '') +
@@ -8320,6 +8372,7 @@ V1.5
       '<div class="info-wrap">' + portraitHTML(c, false) + '<dl class="info-view">' + items.map(function (x) {
         var v = x[1] ? I[x[1]] : ord(I.generation);
         var shown = (x[1] && x[1] !== 'clan') ? dblF('info.' + x[1], v, esc(v || '—'), { label: x[0], list: (x[1] === 'nature' || x[1] === 'demeanor') ? 'dl-arch' : '' }) : esc(v || '—');
+        if (x[1] === 'chronicle') shown = window.cmChrView(c, shown);   // locked while it's in a chronicle
         return '<div><dt' + ({ clan: ' data-bk="clan"', nature: ' data-bk="nature"', demeanor: ' data-bk="demeanor"' }[x[1]] || '') + '>' + x[0] + '</dt><dd>' + shown + (x[1] ? noteBtn(c, 'info.' + x[1], x[0], notesEd) : '') + '</dd></div>';
       }).join('') + '</dl></div></section>';
   }
@@ -8731,7 +8784,7 @@ V1.5
     var clanCard = '<section class="card clan-card"><h2>' + (c.info.clan ? esc(c.info.clan) : 'Clan') + '</h2>' +
       (cl ? '<dl><dt>Disciplines</dt><dd>' + (cl.disc.length ? cl.disc.join(', ') : 'Any three (Caitiff have no clan Disciplines)') + '</dd><dt>Weakness</dt><dd>' + esc(cl.weak) + '</dd></dl>' : '<p class="muted">Choose a clan to see its Disciplines and weakness.</p>') + '</section>';
     return '<section class="card"><h2>Concept</h2><p class="muted">Who was this person before the Embrace, and who are they now?</p><div class="info-wrap">' + portraitHTML(c, true) + '<div class="info-grid">' +
-      fld(c, 'Name', 'info.name', c.info.name) + fld(c, 'Player', 'info.player', c.info.player) + fld(c, 'Chronicle', 'info.chronicle', c.info.chronicle) +
+      fld(c, 'Name', 'info.name', c.info.name) + fld(c, 'Player', 'info.player', c.info.player) + window.cmChrFld(c, fld(c, 'Chronicle', 'info.chronicle', c.info.chronicle)) +
       fld(c, 'Concept', 'info.concept', c.info.concept, ' placeholder="e.g. Burned-out detective"') + clanSelect(c) + fld(c, 'Sire', 'info.sire', c.info.sire) +
       fld(c, 'Nature', 'info.nature', c.info.nature, ' list="dl-arch"') + fld(c, 'Demeanor', 'info.demeanor', c.info.demeanor, ' list="dl-arch"') +
       '</div></div></section>' + clanCard;
@@ -10488,15 +10541,19 @@ V1.5
     try { localStorage.setItem('vtm-show-prog', e.target.checked ? '1' : '0'); } catch (x) {}
     render(); var s = $('progSw'); if (s) s.focus();
   });
-  function setView(v) { if (v !== 'chars') nbLeave(); store.view = v; save(); applyView(); sheetWatch(); if (v === 'chars') render(); window.scrollTo({ top: 0 }); }
+  function setView(v) { if (v === 'chron' && !(window.cmChrIsST && window.cmChrIsST())) v = 'roller'; if (v !== 'chars') nbLeave(); store.view = v; save(); applyView(); sheetWatch(); if (v === 'chars') render(); window.scrollTo({ top: 0 }); }
   function applyView() {
-    var on = store.view === 'chars', main = document.querySelector('main.wrap');
-    if (main) main.classList.toggle('cm-on', on);
+    var on = store.view === 'chars', ch = store.view === 'chron', main = document.querySelector('main.wrap');
+    if (main) main.classList.toggle('cm-on', on || ch);
     $('cmView').hidden = !on;
-    $('viewRoller').setAttribute('aria-selected', String(!on));
+    if ($('chronView')) $('chronView').hidden = !ch;
+    $('viewRoller').setAttribute('aria-selected', String(!on && !ch));
     $('viewChars').setAttribute('aria-selected', String(on));
+    if ($('viewChron')) $('viewChron').setAttribute('aria-selected', String(ch));
+    if (ch && window.cmChrRender) window.cmChrRender();
+    else if (!ch && $('chronView') && $('chronView').innerHTML) { if (nbHostC) { nbHostC = null; nbLeave(); } $('chronView').innerHTML = ''; }   // the Grand Dossier's board leaves the page
     /* The subtitle follows the view. */
-    if ($('subtitle')) $('subtitle').textContent = on ? 'Build, play and keep track of your Kindred: sheets, experience, equipment and sharing, synced across your devices.' : 'Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.';
+    if ($('subtitle')) $('subtitle').textContent = ch ? 'Run your chronicles: invite your players, keep track of their characters, your Notable NPCs and the Grand Dossier.' : on ? 'Build, play and keep track of your Kindred: sheets, experience, equipment and sharing, synced across your devices.' : 'Roll a pool of d10s against a difficulty, using the World of Darkness 20th Anniversary rules.';
     if (!on) hideTip();
   }
   $('viewRoller').addEventListener('click', function () { setView('roller'); });
@@ -12576,6 +12633,10 @@ V1.5
       if (x.kind === 'friendReq') return '<li class="notif-item"><div class="notif-go"><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + '</small></div>' +
         '<span class="notif-acts"><button type="button" class="fr-ic ok" data-nacc="' + esc(x.pid) + '" aria-label="Accept ' + esc(x.name || 'request') + '" title="Accept">✓</button><button type="button" class="fr-ic" data-ndec="' + esc(x.pid) + '" aria-label="Decline ' + esc(x.name || 'request') + '" title="Decline">✕</button></span>' +
         '<button type="button" class="notif-x" data-nx="' + x.id + '" aria-label="Clear this notification (the request stays in Friends)">×</button></li>';
+      /* A Storyteller invited this player to a chronicle: accept (✓) or decline (✕) right here. */
+      if (x.kind === 'chrInv') return '<li class="notif-item"><div class="notif-go"><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + '</small></div>' +
+        '<span class="notif-acts"><button type="button" class="fr-ic ok" data-ncacc="' + esc(x.code) + '" aria-label="Accept the invitation to ' + esc(x.name) + '" title="Accept">✓</button><button type="button" class="fr-ic" data-ncdec="' + esc(x.code) + '" aria-label="Decline the invitation to ' + esc(x.name) + '" title="Decline">✕</button></span>' +
+        '<button type="button" class="notif-x" data-nx="' + x.id + '" aria-label="Clear this notification (the invitation stays)">×</button></li>';
       /* A friend is hosting a tracker room: join it without typing the code. */
       if (x.kind === 'host') return '<li class="notif-item"><div class="notif-go"><span class="notif-txt">' + esc(x.text) + '</span><small>' + ago(x.t) + ' · while the room is open</small></div>' +
         '<span class="notif-acts"><button type="button" class="btn small primary" data-njoin="' + esc(x.id) + '">Join</button></span>' +
@@ -12600,6 +12661,8 @@ V1.5
       p.addEventListener('click', function (e) {
         var acc = e.target.closest('[data-nacc]'), dec = e.target.closest('[data-ndec]');
         if (acc || dec) { respondFriend((acc || dec).getAttribute(acc ? 'data-nacc' : 'data-ndec'), !!acc); return; }
+        var cacc = e.target.closest('[data-ncacc]'), cdec = e.target.closest('[data-ncdec]');
+        if (cacc || cdec) { window.cmChrRespond((cacc || cdec).getAttribute(cacc ? 'data-ncacc' : 'data-ncdec'), !!cacc); return; }
         var jn = e.target.closest('[data-njoin]');
         if (jn) { var hn = notifs.filter(function (n) { return n.id === jn.getAttribute('data-njoin'); })[0]; if (hn) { dropNotifs(function (n) { return n.id === hn.id; }); closeNotifs(true); joinFriendRoom(hn.code, hn.name); } return; }
         var x = e.target.closest('[data-nx]'), g = e.target.closest('[data-ngo]');
@@ -14100,14 +14163,14 @@ V1.5
   function nbTopZ(nb) { var z = 0; Object.keys(nb.n).forEach(function (k) { z = Math.max(z, nb.n[k].z || 0); }); return z + 1; }
   function nbLinked(nb, a, b) { return Object.keys(nb.l).some(function (k) { var l = nb.l[k]; return (l.a === a && l.b === b) || (l.a === b && l.b === a); }); }
   function nbSize(c) { return JSON.stringify(nbOf(c)).length; }
-  function nbFull(c, extra) { return nbSize(c) + (extra || 0) > NB_BYTES; }
+  function nbFull(c, extra) { return nbSize(c) + (extra || 0) > (c.nbMax || NB_BYTES); }
   /* How full the board is (it syncs on its own, up to a size the server allows). */
   function nbCap() {
     var c = nbC(), el = $('nbCap'); if (!c || !el) return;
-    var pc = Math.min(100, Math.round(nbSize(c) / NB_BYTES * 100));
+    var pc = Math.min(100, Math.round(nbSize(c) / (c.nbMax || NB_BYTES) * 100));
     el.textContent = pc >= 1 ? 'Board ' + pc + '% full' : ''; el.classList.toggle('warn', pc >= 85);
   }
-  function nbChanged() { var c = nbC(); if (c) nbRecord(c); save(); nbCap(); nbUndoBtns(); }
+  function nbChanged() { var c = nbC(); if (c) nbRecord(c); if (c && c.nbSave) c.nbSave(); else save(); nbCap(); nbUndoBtns(); }
 
   /* ---- undo and redo (this device, this session): snapshots of the board ---- */
   var nbHist = {};
@@ -14238,7 +14301,9 @@ V1.5
     var v = nbV(c);
     if (v.fit) { v.fit = false; if (Object.keys(nbOf(c).n).length) nbFit(); }
   }
-  function nbC() { var c = cur(); return c && c.id === nbCid ? c : null; }
+  /* nbHostC: a board that isn't a character's (a chronicle's Grand Dossier) while it's on screen. */
+  var nbHostC = null;
+  function nbC() { var c = nbHostC || cur(); return c && c.id === nbCid ? c : null; }
 
   /* ---- drawing ---- */
   function nbDraw() {
@@ -14297,6 +14362,8 @@ V1.5
     var fold = '<button type="button" class="nb-fb" data-nb="fold" data-id="' + id + '" aria-expanded="' + !o.f + '" aria-label="' + (o.f ? 'Expand ' : 'Collapse ') + esc(nbTitle(o)) + '"' + (ro && (!nbC() || isReadOnly(nbC())) ? ' disabled' : '') + '>' +
       '<svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg></button>';
     var untitled = !o.b && !o.t.trim();   // a note can have no title: then it shows only its details
+    var rc = o.cr ? store.chars[o.cr] : null;   // a character reference (Grand Dossier): portrait, and a button to open the sheet
+    if (o.cr) cls += ' nb-ref';
     var title = ed ? '<input class="nb-ti" maxlength="' + NB_TMAX + '" value="' + esc(o.t) + '" aria-label="Title" placeholder="Title (optional)">' :
       untitled ? (o.f ? '<span class="nb-t nb-ph">' + esc((o.d.trim().split('\n')[0] || 'Untitled note').slice(0, 60)) + '</span>' : '') : '<span class="nb-t">' + nbHl(nbTitle(o)) + '</span>';
     var count = o.b && o.f && inside ? '<span class="nb-cnt">' + inside + ' inside</span>' : '';
@@ -14305,7 +14372,8 @@ V1.5
     if (untitled && !ed) cls += ' nb-untitled';
     return '<div class="' + cls + '" data-nid="' + id + '" style="' + st + '" tabindex="0" role="group" aria-roledescription="' + (o.b ? 'container' : 'note') + '" aria-label="' + esc(nbTitle(o)) + (o.f ? ', collapsed' : '') + '">' +
       (o.b ? '' : '<span class="nb-pin" aria-hidden="true"></span>') +
-      '<div class="nb-in"' + (sc !== 1 ? ' style="zoom:' + sc + '"' : '') + '><div class="nb-head">' + fold + title + count + '</div>' + body + '</div>' + nbStampHTML(o) +
+      '<div class="nb-in"' + (sc !== 1 ? ' style="zoom:' + sc + '"' : '') + '><div class="nb-head">' + fold + (o.cr ? (rc ? avatar(rc, 'nb-av') : '<span class="lib-av nb-av" aria-hidden="true">?</span>') : '') + title + count + '</div>' + body +
+      (o.cr && !o.f ? '<button type="button" class="btn small nb-open" data-nb="openRef" data-id="' + id + '"' + (rc ? '' : ' disabled title="Not on this device"') + '>Open sheet</button>' : '') + '</div>' + nbStampHTML(o) +
       (ro ? '' : '<span class="nb-port" title="Drag onto another note to connect them" aria-hidden="true"></span>' +
         (o.f || (o.b && nbKids(nb, id).some(function (k) { return !nb.n[k].tx; })) ? '' : '<span class="nb-size ' + (o.b ? 'both' : 'w') + '" title="Drag to resize" aria-hidden="true"></span>')) + '</div>';   // a container with things in it fits them itself
   }
@@ -14688,7 +14756,7 @@ V1.5
   /* ---- changes ---- */
   /* Adds a note, a container or a piece of text where the board was right-clicked (or in the middle of the view).
      Nothing opens for editing: double-click it for that. */
-  function nbAdd(kind, at, inside) {
+  function nbAdd(kind, at, inside, ref) {
     var c = nbC(); if (!c || nbRO(c)) return;
     var nb = nbOf(c), box = kind === 'box', tx = kind === 'text';
     if (Object.keys(nb.n).length >= NB_MAX) return toast('A board holds up to ' + NB_MAX + ' notes.');
@@ -14701,7 +14769,7 @@ V1.5
     var id = rid();
     nb.n[id] = tx ? { tx: true, t: 'New Text', x: x, y: y, w: w, fs: 20, fo: 't', r: 0, k: '', z: nbTopZ(nb), p: '' } :
       box ? { t: 'New container', d: '', x: x, y: y, w: w, s: 'round', k: '', f: false, p: p, z: nbTopZ(nb), b: true, h: 240 } :
-      (function () { var ln = nbLastNote(); return { t: 'New note', d: '', x: x, y: y, w: w, s: ln.s, k: ln.k, f: false, p: p, z: nbTopZ(nb) }; })();
+      (function () { var ln = nbLastNote(), o = { t: 'New note', d: '', x: x, y: y, w: w, s: ln.s, k: ln.k, f: false, p: p, z: nbTopZ(nb) }; if (ref && store.chars[ref]) { o.t = (store.chars[ref].info.name || 'Unnamed').slice(0, NB_TMAX); o.cr = ref; } return o; })();
     nbSel = { k: 'n', id: id };
     nbChanged(); nbDraw();
     if (p) nbGrow(nb, id);
@@ -15024,7 +15092,10 @@ V1.5
   function nbItemsAdd(pt, inside) {
     var c = nbC(), box = inside && nbOf(c).n[inside], where = box ? ' in ' + esc(nbTitle(box)) : '';
     function add(kind) { return function () { nbAdd(kind, { x: pt.x - (kind === 'text' ? 10 : 20), y: pt.y - 14 }, box ? inside : ''); }; }
-    return [{ label: 'Add note' + where, run: add('note') }, { label: 'Add container' + where, run: add('box') }, { label: 'Add text', run: add('text') }];
+    var out = [{ label: 'Add note' + where, run: add('note') }, { label: 'Add container' + where, run: add('box') }, { label: 'Add text', run: add('text') }];
+    /* On a chronicle's Grand Dossier: a card for one of your characters (or one shared with you) that opens its sheet. */
+    if (c && c.chrRefs) out.splice(1, 0, { label: 'Add a character' + where + '…', run: function () { chrPickChar([], function (cid) { nbAdd('note', { x: pt.x - 20, y: pt.y - 14 }, box ? inside : '', cid); }); } });
+    return out;
   }
   /* Size steps: notes and containers by 10% (50% to 200%); text by its letter size. */
   function nbStepOne(o, dir) {
@@ -15150,6 +15221,7 @@ V1.5
       b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'Exit full screen' : 'Full screen';
       return;
     }
+    if (a === 'openRef' && nb.n[id] && store.chars[nb.n[id].cr]) { e.stopPropagation(); store.cur = nb.n[id].cr; setView('chars'); commit(); window.scrollTo({ top: 0 }); return; }
     if (a === 'fold' && nb.n[id] && !isReadOnly(c)) { e.stopPropagation(); nb.n[id].f = !nb.n[id].f; if (nbEdit === id) nbEdit = null; nbSettleNow([id]); var fe = $('nbStage').querySelector('.nb-node[data-nid="' + id + '"] .nb-fb'); if (fe) fe.focus(); return; }
     if (ro) return;
     if (a === 'undo' || a === 'redo') return nbUndo(a === 'redo');
@@ -17387,6 +17459,393 @@ V1.5
   }
   window.addEventListener('resize', function () { if (smUi.open) { smPlace(); smUi.fitted = false; smDrawSoon(); } });
   setTimeout(smDrawSoon, 0);
+  /* ================= CHRONICLES =================
+     Storytellers (and Admins) run chronicles from their own main tab: cards with a title and a description, then for each
+     one its Players (invited friends and the characters they put in it), Notable NPCs (sections of characters) and the
+     Grand Dossier. Marks (Missing, Unavailable, Final Death) sit on any character there. Players accept an invitation
+     from their notifications and put their own characters in from the sheet's Chronicle field: the character is then
+     shared with the Storyteller as an editor (not counted towards their sharing limit), and the field shows the
+     chronicle's title, locked, until it's taken out again. */
+  var CHR_MARKS = [['missing', 'Missing'], ['unavail', 'Unavailable'], ['dead', 'Final Death']];
+  var chr = { list: null, busy: false, cur: '', tab: 'players', det: {}, saveT: 0, sids: {}, menu: null, dirty: {}, gdHost: null };
+  function chrIsST() { var t = acct.user && acct.user.tier; return signedIn() && (t === 'storyteller' || t === 'admin'); }
+  function chrMarkLbl(k) { for (var i = 0; i < CHR_MARKS.length; i++) if (CHR_MARKS[i][0] === k) return CHR_MARKS[i][1]; return ''; }
+  /* The main tab shows only for Storytellers and up. */
+  function chrTabBtn() {
+    var b = $('viewChron'); if (!b) return;
+    b.hidden = !chrIsST();
+    if (b.hidden && store.view === 'chron') setView('roller');
+  }
+  function loadChronicles() {
+    if (!signedIn() || !acctReady() || chr.busy) { chrTabBtn(); return Promise.resolve(); }
+    chr.busy = true;
+    return api('chronicles').then(function (res) {
+      chr.list = res;
+      /* Invitations: each one notifies once (with Accept and Decline); answered ones drop their notification. */
+      var mem = res.member || [], seen = acct.chrSeen || [];
+      mem.forEach(function (x) {
+        if (x.status !== 'invited') return;
+        var has = notifs.some(function (n) { return n.kind === 'chrInv' && n.code === x.id; });
+        if (!has && seen.indexOf(x.id) < 0) notify(x.st + ' invited you to the chronicle “' + x.title + '”.', { kind: 'chrInv', code: x.id, name: x.title });
+      });
+      dropNotifs(function (n) { return n.kind === 'chrInv' && !mem.some(function (x) { return x.id === n.code && x.status === 'invited'; }); });
+      acct.chrSeen = mem.filter(function (x) { return x.status === 'invited'; }).map(function (x) { return x.id; }); saveAcct();
+      /* Which chronicles each shared sheet is in (a player's own, and the Storyteller's). */
+      var map = {};
+      mem.forEach(function (x) { (x.sids || []).forEach(function (s) { (map[s] = map[s] || []).push({ id: x.id, title: x.title }); }); });
+      (res.own || []).forEach(function (x) { (x.sids || []).forEach(function (s) { (map[s] = map[s] || []).push({ id: x.id, title: x.title, own: true }); }); });
+      var changed = JSON.stringify(map) !== JSON.stringify(chr.sids); chr.sids = map;
+      chrTabBtn();
+      if (chrSyncFields() || changed) window.vtmWhenFree('cm', function () { if (store.view === 'chars') render(); });
+      if (store.view === 'chron') window.vtmWhenFree('chr', chrRender);
+    }).catch(function () {}).then(function () { chr.busy = false; });
+  }
+  setInterval(function () { if (signedIn() && !document.hidden) loadChronicles(); }, 30000);
+  setTimeout(loadChronicles, 1500);
+  /* A character's chronicles: [{id, title, own}] (own: the Storyteller's own chronicle). */
+  function chrOf(c) { return c && isShared(c) ? chr.sids[c.share.sid] || [] : []; }
+  /* A player's own character keeps its Chronicle field on the chronicle's title (it follows renames); with several it
+     holds them all. */
+  function chrSyncFields() {
+    var any = false;
+    Object.keys(store.chars).forEach(function (id) {
+      var c = store.chars[id]; if (!isShared(c) || c.share.role !== 'owner') return;
+      var L = chrOf(c).filter(function (x) { return !x.own; }); if (!L.length) return;
+      var want = L.map(function (x) { return x.title; }).join(', ').slice(0, 200);
+      if (c.info.chronicle !== want) { c.info.chronicle = want; any = true; }
+    });
+    if (any) save();
+    return any;
+  }
+  function chrMine(c) { return !!c && !isReceived(c) && !isTemp(c) && !isRemote(c); }
+  function chrJoined() { return ((chr.list && chr.list.member) || []).filter(function (x) { return x.status === 'accepted'; }); }
+  /* The Chronicle field on the sheet: locked to the chronicle's title while the character is in one (several: "N
+     Chronicles", with the list on hover); the character's owner gets a button to put it in or take it out. */
+  function chrLockHTML(c, L) {
+    var names = L.map(function (x) { return x.title; });
+    return '<span class="chr-val" tabindex="0" title="In ' + esc(names.join(', ')) + ' (set by the chronicle' + (L.length > 1 ? 's' : '') + ')"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>' +
+      esc(L.length > 1 ? L.length + ' Chronicles' : names[0]) + '</span>';
+  }
+  function chrPickBtn(c, L) {
+    if (!chrMine(c) || !signedIn() || (!chrJoined().length && !L.length)) return '';
+    return '<button type="button" class="btn small chr-pick" data-act="chrPick" title="Put this character in one of your chronicles, or take it out">' + (L.length ? 'Chronicles…' : 'Assign…') + '</button>';
+  }
+  window.cmChrFld = function (c, fieldHTML) {
+    var L = chrOf(c), btn = chrPickBtn(c, L);
+    if (!L.length) return btn ? fieldHTML.replace(/<\/label>$/, btn + '</label>') : fieldHTML;
+    return '<div class="fld chr-fld"><span class="cm-lbl">Chronicle</span><span class="chr-row">' + chrLockHTML(c, L) + btn + '</span></div>';
+  };
+  window.cmChrView = function (c, shownHTML) {
+    var L = chrOf(c), btn = chrPickBtn(c, L);
+    return (L.length ? chrLockHTML(c, L) : shownHTML) + btn;
+  };
+  /* Putting a character in a chronicle shares it first if it isn't (an automatic share, not counted). */
+  function chrEnsureShared(c) {
+    if (isShared(c) && c.share.role === 'owner') return Promise.resolve(c.share.sid);
+    return api('sheets', { data: shareDoc(c), cid: /^[\w.-]{1,64}$/.test(c.id) ? c.id : undefined, auto: true }).then(function (res) {
+      c.share = { sid: res.sid, role: 'owner', owner: myName(), v: res.v || 1, pending: [] };
+      shState(res.sid).base = shareDoc(c); save(); shConnect(c);
+      return res.sid;
+    });
+  }
+  actions.chrPick = function () {
+    var c = cur(); if (!chrMine(c)) return;
+    var draw = function (msg) {
+      var L = chrOf(c), mem = ((chr.list && chr.list.member) || []);
+      var rows = mem.map(function (x) {
+        if (x.status !== 'accepted') return '<p class="muted small">' + esc(x.title) + ' (' + esc(x.st) + '): accept the invitation first (in your notifications).</p>';
+        var on = L.some(function (y) { return y.id === x.id; });
+        return '<label class="switch" for="chrA_' + x.id + '"><input type="checkbox" role="switch" id="chrA_' + x.id + '" data-chr-a="' + x.id + '"' + (on ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>' + esc(x.title) + '</strong><small>Storyteller: ' + esc(x.st) + '</small></span></label>';
+      }).join('');
+      openModal('<h2>Chronicles for ' + esc(c.info.name || 'this character') + '</h2><p class="muted small">In a chronicle, the character is shared with its Storyteller, who can edit it (this doesn\'t count towards your sharing limit). Taking it out stops that, unless you shared it with them yourself.</p>' +
+        '<div class="chr-alist">' + (rows || '<p class="muted small">You\'re not in any chronicle yet. A Storyteller has to invite you.</p>') + '</div>' + (msg ? '<p class="small" role="status">' + esc(msg) + '</p>' : '') +
+        '<div class="acts"><button type="button" class="btn" id="mNo">Close</button></div>', 'chr-modal');
+      $('mNo').onclick = closeModal;
+      Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-chr-a]'), function (inp) {
+        inp.onchange = function () {
+          var id = inp.getAttribute('data-chr-a'), on = inp.checked, x = mem.filter(function (y) { return y.id === id; })[0];
+          Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-chr-a]'), function (q) { q.disabled = true; });
+          var job = on ? chrEnsureShared(c).then(function (sid) { return api('chronicles/' + id + '/assign', { sid: sid }); })
+            : api('chronicles/' + id + '/unassign', { sid: c.share.sid }).then(function (res) {
+              if (res.dropped) { var sid0 = c.share.sid; shClose(sid0); delete shs[sid0]; delete c.share; save(); }
+            });
+          job.then(function () { return loadChronicles(); }).then(function () {
+            if (!on && !chrOf(c).filter(function (y) { return !y.own; }).length && x) { c.info.chronicle = x.title; save(); }   // out of every chronicle: the field keeps the last title
+            commit(); draw(on ? 'In “' + x.title + '” now.' : 'Taken out of “' + x.title + '”.');
+          }, function (e) { draw('Couldn\'t change that (' + e.message + ').'); });
+        };
+      });
+    };
+    draw('');
+  };
+  /* The notification's Accept / Decline. */
+  window.cmChrRespond = function (id, accept) {
+    return api('chronicles/' + id + '/respond', { accept: !!accept }).then(function () {
+      dropNotifs(function (n) { return n.kind === 'chrInv' && n.code === id; });
+      toast(accept ? 'Joined the chronicle. Put a character in it from its sheet (the Chronicle field).' : 'Invitation declined.');
+      return loadChronicles();
+    }, function (e) { toast('Couldn\'t answer (' + e.message + ').'); });
+  };
+
+  /* ---------- the Storyteller's tab ---------- */
+  function chrData(d) {
+    var x = d && typeof d === 'object' && !Array.isArray(d) ? d : {};
+    return {
+      npc: (Array.isArray(x.npc) ? x.npc : []).filter(function (s) { return s && typeof s === 'object'; }).slice(0, 60).map(function (s) { return { id: String(s.id || ('n' + Math.random().toString(36).slice(2, 8))).slice(0, 16), t: String(s.t || 'Section').slice(0, 80), ch: (Array.isArray(s.ch) ? s.ch : []).map(String).slice(0, 200) }; }),
+      stc: (Array.isArray(x.stc) ? x.stc : []).map(String).slice(0, 200),
+      mk: x.mk && typeof x.mk === 'object' && !Array.isArray(x.mk) ? x.mk : {},
+      gd: x.gd && typeof x.gd === 'object' && !Array.isArray(x.gd) ? x.gd : null
+    };
+  }
+  /* Saving waits a moment after the last change; the Grand Dossier is only sent when it changed. */
+  function chrSave(id, gd) {
+    chr.dirty[id] = chr.dirty[id] || {}; chr.dirty[id][gd ? 'gd' : 'data'] = true;
+    clearTimeout(chr.saveT);
+    chr.saveT = setTimeout(function () {
+      var d = chr.det[id], dt = chr.dirty[id]; if (!d || !dt) return;
+      var body = { m: Date.now() }; if (dt.data) body.data = d.data; if (dt.gd) body.gd = d.gd || null;
+      delete chr.dirty[id];
+      api('chronicles/' + id, body).then(function () {}, function (e) {
+        if (e.message === 'stale') { toast('This chronicle was changed on another device: loaded that version.'); chrOpen(id); }
+        else if (e.message === 'too-big') toast('This chronicle is full. Remove something (the Grand Dossier is usually the biggest part).');
+        else toast('Couldn\'t save the chronicle (' + e.message + '). It\'ll try again with your next change.');
+      });
+    }, 700);
+  }
+  function chrOpen(id) {
+    chr.cur = id;
+    return api('chronicles/' + id).then(function (res) {
+      res.data = chrData(res.data); chr.det[id] = res; if (chr.gdHost && chr.gdHost._chr === id) chr.gdHost = null; chrRender();
+      /* Players' characters not on this device yet: fetch them, then show them. */
+      if (res.chars.some(function (c) { return !store.chars['sh-' + c.sid]; })) shareReconcile().then(function () { if (chr.cur === id && store.view === 'chron') window.vtmWhenFree('chr', chrRender); });
+    }, function (e) { toast('Couldn\'t open it (' + e.message + ').'); chr.cur = ''; chrRender(); });
+  }
+  function chrCard(key, opt) {
+    var c = store.chars[key], d = chr.det[chr.cur], mk = d && d.data.mk[key];
+    var name = c ? (c.info.name || 'Unnamed') : (opt.name || 'Not synced yet');
+    return '<div class="chr-ch' + (mk ? ' mk-' + mk : '') + '" data-ck="' + esc(key) + '" data-src="' + opt.src + '"' + (opt.sec ? ' data-sec="' + esc(opt.sec) + '"' : '') + (opt.sid ? ' data-sid="' + esc(opt.sid) + '"' : '') + '>' +
+      '<button type="button" class="chr-ch-open" data-chr="openC" aria-label="Open ' + esc(name) + '">' + (c ? avatar(c) : '<span class="lib-av" aria-hidden="true">?</span>') +
+      '<span class="chr-ch-id"><b>' + esc(name) + '</b><small>' + esc(c ? cardSub(c, true) : 'Opens once it has synced') + '</small>' + (mk ? '<span class="chr-mk">' + esc(chrMarkLbl(mk)) + '</span>' : '') + '</span></button>' +
+      '<button type="button" class="chr-ch-more" data-chr="cmenu" aria-label="More for ' + esc(name) + '" aria-haspopup="menu">⋯</button></div>';
+  }
+  function chrRender() {
+    var el = $('chronView'); if (!el) return;
+    if (nbHostC && !(chr.cur && chr.tab === 'dossier')) { nbHostC = null; nbLeave(); }   // leaving the Grand Dossier: Edit goes back to off
+    if (!chrIsST()) { el.innerHTML = '<section class="card"><p class="muted">Chronicles are for Storytellers.</p></section>'; return; }
+    if (!chr.list) { el.innerHTML = '<section class="card"><p class="muted">Loading…</p></section>'; loadChronicles(); return; }
+    var d = chr.cur && chr.det[chr.cur];
+    if (!chr.cur) {
+      var own = chr.list.own || [];
+      el.innerHTML = '<div class="chr-head"><h2>Your chronicles</h2><button type="button" class="btn primary" data-chr="new">New chronicle</button></div>' +
+        (own.length ? '<div class="chr-grid">' + own.map(function (x) {
+          return '<div class="chr-cardx" data-id="' + x.id + '"><button type="button" class="chr-cardx-open" data-chr="open" aria-label="Open ' + esc(x.title) + '"></button><b>' + esc(x.title) + '</b>' +
+            (x.descr ? '<p>' + esc(x.descr) + '</p>' : '<p class="muted">No description</p>') + '<small>' + (x.players === 1 ? '1 player' : x.players + ' players') + '</small>' +
+            '<button type="button" class="lib-more chr-cardx-more" data-chr="menu" aria-label="More for ' + esc(x.title) + '" aria-haspopup="menu">⋯</button></div>';
+        }).join('') + '</div>' : '<section class="card"><p class="muted">No chronicles yet. Make one, then invite your players from its Players tab.</p></section>');
+      return;
+    }
+    if (!d) { el.innerHTML = '<section class="card"><p class="muted">Loading…</p></section>'; return; }
+    var tabs = [['players', 'Players'], ['npcs', 'Notable NPCs'], ['dossier', 'Grand Dossier']];
+    var h = '<div class="chr-head"><button type="button" class="btn" data-chr="back">← All chronicles</button><div class="chr-title"><h2>' + esc(d.title) + '</h2>' + (d.descr ? '<p class="muted">' + esc(d.descr) + '</p>' : '') + '</div>' +
+      '<button type="button" class="btn" data-chr="edit">Edit title</button></div>' +
+      '<nav class="tabs chr-tabs" role="tablist" aria-label="Chronicle sections">' + tabs.map(function (t) { return '<button type="button" role="tab" class="tab-btn" data-chr="tab" data-t="' + t[0] + '" aria-selected="' + (chr.tab === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</nav>';
+    if (chr.tab === 'players') {
+      h += '<div class="chr-tools"><button type="button" class="btn" data-chr="invite">Invite friends</button></div>';
+      h += d.players.length ? d.players.map(function (p) {
+        var cs = d.chars.filter(function (c) { return c.player === p.uid; });
+        return '<section class="card chr-pl"><div class="card-head"><h3>' + esc(p.name) + (p.status === 'invited' ? ' <small class="muted">invited, hasn\'t answered yet</small>' : '') + '</h3><button type="button" class="btn small" data-chr="rmPl" data-uid="' + esc(p.uid) + '" data-name="' + esc(p.name) + '">Remove</button></div>' +
+          (cs.length ? '<div class="chr-cards">' + cs.map(function (c) { return chrCard('sh-' + c.sid, { src: 'pl', sid: c.sid, name: c.name }); }).join('') + '</div>' : '<p class="muted small">' + (p.status === 'invited' ? 'Once they accept, they put their characters in from the sheet.' : 'No characters in it yet: they add them from the sheet\'s Chronicle field.') + '</p>') + '</section>';
+      }).join('') : '<section class="card"><p class="muted">Nobody yet. Invite friends: once they accept, they can put their characters in.</p></section>';
+      h += '<section class="card chr-pl"><div class="card-head"><h3>Your characters here</h3><button type="button" class="btn small" data-chr="addC" data-to="stc">Add a character</button></div>' +
+        (d.data.stc.length ? '<div class="chr-cards">' + d.data.stc.map(function (k) { return chrCard(k, { src: 'stc' }); }).join('') + '</div>' : '<p class="muted small">Characters of yours (or shared with you) that belong in this chronicle.</p>') + '</section>';
+    } else if (chr.tab === 'npcs') {
+      h += '<div class="chr-tools"><button type="button" class="btn" data-chr="newSec">New section</button></div>';
+      h += d.data.npc.length ? d.data.npc.map(function (sec, i) {
+        return '<section class="card chr-sec" data-sec="' + esc(sec.id) + '"><div class="card-head"><h3>' + esc(sec.t) + '</h3><span class="chr-sec-tools">' +
+          '<button type="button" class="btn small" data-chr="secUp" aria-label="Move ' + esc(sec.t) + ' up"' + (i ? '' : ' disabled') + '>↑</button><button type="button" class="btn small" data-chr="secDn" aria-label="Move ' + esc(sec.t) + ' down"' + (i < d.data.npc.length - 1 ? '' : ' disabled') + '>↓</button>' +
+          '<button type="button" class="btn small" data-chr="secRen">Rename</button><button type="button" class="btn small" data-chr="secDel">Delete</button><button type="button" class="btn small primary" data-chr="addC" data-to="npc">Add a character</button></span></div>' +
+          (sec.ch.length ? '<div class="chr-cards">' + sec.ch.map(function (k) { return chrCard(k, { src: 'npc', sec: sec.id }); }).join('') + '</div>' : '<p class="muted small">Empty. Add your own characters (or ones shared with you).</p>') + '</section>';
+      }).join('') : '<section class="card"><p class="muted">No sections yet: make one (the Prince\'s court, the Anarchs, mortals…), then add characters to it.</p></section>';
+    } else {
+      h += window.cmChrDossier ? window.cmChrDossier(d) : '';
+    }
+    el.innerHTML = h;
+    if (chr.tab === 'dossier' && window.cmChrDossierMount) window.cmChrDossierMount(d);
+  }
+  function chrModalNamed(title, t0, d0, okLbl, done) {
+    openModal('<h2>' + esc(title) + '</h2><label class="fld"><span class="cm-lbl">Title</span><input id="chrT" maxlength="80" value="' + esc(t0 || '') + '"></label>' +
+      (d0 != null ? '<label class="fld"><span class="cm-lbl">Description</span><textarea id="chrD" maxlength="400" rows="3">' + esc(d0) + '</textarea></label>' : '') +
+      '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn primary" id="mOk">' + esc(okLbl) + '</button></div>');
+    $('mNo').onclick = closeModal; $('chrT').focus();
+    $('mOk').onclick = function () { var t = $('chrT').value.trim(); if (!t) { $('chrT').focus(); return; } $('mOk').disabled = true; done(t, $('chrD') ? $('chrD').value.trim() : null); };
+    $('chrT').onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); $('mOk').click(); } };
+  }
+  function chrConfirm(title, text, okLbl, done) {
+    openModal('<h2>' + esc(title) + '</h2><p>' + text + '</p><div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn danger" id="mOk">' + esc(okLbl) + '</button></div>');
+    $('mNo').onclick = closeModal; $('mNo').focus(); $('mOk').onclick = function () { $('mOk').disabled = true; done(); };
+  }
+  /* A character picker: your own characters and the ones shared with you (not those already there). */
+  function chrPickChar(have, done) {
+    var ids = store.order.concat(store.synced || []).filter(function (id, i, a) { var c = store.chars[id]; return c && !isTemp(c) && !isRemote(c) && have.indexOf(id) < 0 && a.indexOf(id) === i; });
+    var draw = function (q) {
+      var L = ids.filter(function (id) { return !q || (store.chars[id].info.name || '').toLowerCase().indexOf(q) >= 0; });
+      $('chrPL').innerHTML = L.length ? L.map(function (id) { var c = store.chars[id]; return '<button type="button" class="chr-pk" data-id="' + id + '">' + avatar(c) + '<span><b>' + esc(c.info.name || 'Unnamed') + '</b><small>' + esc(cardSub(c, true)) + '</small></span></button>'; }).join('') : '<p class="muted small">No characters to add.</p>';
+    };
+    openModal('<h2>Add a character</h2><input type="search" id="chrPQ" placeholder="Search by name" aria-label="Search characters"><div class="chr-plist" id="chrPL"></div><div class="acts"><button type="button" class="btn" id="mNo">Close</button></div>', 'chr-modal');
+    draw(''); $('mNo').onclick = closeModal; $('chrPQ').focus();
+    $('chrPQ').oninput = function () { draw($('chrPQ').value.trim().toLowerCase()); };
+    $('chrPL').onclick = function (e) { var b = e.target.closest('[data-id]'); if (b) { closeModal(); done(b.getAttribute('data-id')); } };
+  }
+  function chrMenuClose() { if (chr.menu) { var b = chr.menu._from; chr.menu.remove(); chr.menu = null; if (b && document.body.contains(b)) b.focus(); } }
+  function chrMenu(at, html, from) {
+    chrMenuClose();
+    var m = document.createElement('div'); m.className = 'cm-ctx chr-menu'; m.setAttribute('role', 'menu'); m.innerHTML = html; m._from = from;
+    document.body.appendChild(m); chr.menu = m;
+    var w = m.offsetWidth, hh = m.offsetHeight;
+    m.style.left = Math.max(8, Math.min(at.x, window.innerWidth - w - 8)) + 'px';
+    m.style.top = Math.max(8, Math.min(at.y, window.innerHeight - hh - 8)) + 'px';
+    var f = m.querySelector('button'); if (f) f.focus();
+    m.addEventListener('click', chrMenuClick);
+    m.addEventListener('keydown', function (e) {
+      var bs = Array.prototype.slice.call(m.querySelectorAll('button:not([disabled])')), i = bs.indexOf(document.activeElement);
+      if (e.key === 'Escape') { e.preventDefault(); chrMenuClose(); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); bs[(i + (e.key === 'ArrowDown' ? 1 : bs.length - 1)) % bs.length].focus(); }
+    });
+  }
+  document.addEventListener('mousedown', function (e) { if (chr.menu && !chr.menu.contains(e.target)) chrMenuClose(); });
+  function chrCardMenu(card, at, from) {
+    var d = chr.det[chr.cur]; if (!d) return;
+    var key = card.getAttribute('data-ck'), mk = d.data.mk[key], src = card.getAttribute('data-src');
+    chr.menuCard = { key: key, src: src, sec: card.getAttribute('data-sec') || '', sid: card.getAttribute('data-sid') || '' };
+    chrMenu(at, CHR_MARKS.map(function (x) { return '<button type="button" role="menuitemradio" aria-checked="' + (mk === x[0]) + '" data-cm="mark" data-v="' + x[0] + '">' + x[1] + (mk === x[0] ? ' ✓' : '') + '</button>'; }).join('') +
+      '<button type="button" role="menuitem" data-cm="mark" data-v=""' + (mk ? '' : ' disabled') + '>Clear mark</button><hr>' +
+      '<button type="button" role="menuitem" data-cm="rm">' + (src === 'pl' ? 'Take out of the chronicle' : src === 'npc' ? 'Remove from this section' : 'Remove from this list') + '</button>', from);
+  }
+  function chrMenuClick(e) {
+    var b = e.target.closest('[data-cm]'); if (!b || b.disabled) return;
+    var a = b.getAttribute('data-cm'), d = chr.det[chr.cur], mc = chr.menuCard; chrMenuClose(); if (!d) return;
+    if (a === 'mark') { if (b.getAttribute('data-v')) d.data.mk[mc.key] = b.getAttribute('data-v'); else delete d.data.mk[mc.key]; chrSave(d.id); chrRender(); return; }
+    if (a === 'rm') {
+      if (mc.src === 'pl') {
+        var c = store.chars[mc.key];
+        chrConfirm('Take ' + (c ? c.info.name || 'this character' : 'this character') + ' out?', 'It leaves this chronicle, and stops being shared with you as an editor (unless its player shared it with you themselves).', 'Take out', function () {
+          api('chronicles/' + d.id + '/unassign', { sid: mc.sid }).then(function () { closeModal(); delete d.data.mk[mc.key]; chrSave(d.id); return chrOpen(d.id); }).then(function () { loadChronicles(); shareReconcile(); }, function (er) { closeModal(); toast('Couldn\'t (' + er.message + ').'); });
+        });
+        return;
+      }
+      if (mc.src === 'stc') d.data.stc = d.data.stc.filter(function (k) { return k !== mc.key; });
+      else d.data.npc.forEach(function (s) { if (s.id === mc.sec) s.ch = s.ch.filter(function (k) { return k !== mc.key; }); });
+      chrSave(d.id); chrRender();
+    }
+  }
+  function chrView(e) {
+    var el = e.target.closest('[data-chr]'); if (!el || el.disabled) return;
+    var a = el.getAttribute('data-chr'), d = chr.det[chr.cur];
+    if (a === 'new') return chrModalNamed('New chronicle', '', '', 'Create', function (t, ds) {
+      api('chronicles', { title: t, descr: ds }).then(function (res) { closeModal(); chr.tab = 'players'; return loadChronicles().then(function () { return chrOpen(res.id); }); }, function (er) { closeModal(); toast(er.message === 'too-many' ? 'That\'s the most chronicles one Storyteller can have.' : 'Couldn\'t make it (' + er.message + ').'); });
+    });
+    if (a === 'open') { chr.tab = 'players'; return chrOpen(el.closest('[data-id]').getAttribute('data-id')); }
+    if (a === 'menu') {
+      var card = el.closest('[data-id]'), r = el.getBoundingClientRect(); chr.menuChron = card.getAttribute('data-id');
+      chrMenu({ x: r.right - 160, y: r.bottom + 4 }, '<button type="button" role="menuitem" data-cm2="ren">Edit title</button><button type="button" role="menuitem" data-cm2="del" class="danger">Delete…</button>', el);
+      chr.menu.addEventListener('click', function (ev) {
+        var b = ev.target.closest('[data-cm2]'); if (!b) return; var id = chr.menuChron, x = (chr.list.own || []).filter(function (y) { return y.id === id; })[0]; chrMenuClose(); if (!x) return;
+        if (b.getAttribute('data-cm2') === 'ren') chrRename(x);
+        else chrDelete(x);
+      });
+      return;
+    }
+    if (a === 'back') { chr.cur = ''; loadChronicles(); return chrRender(); }
+    if (!d) return;
+    if (a === 'edit') return chrRename(d);
+    if (a === 'tab') { chr.tab = el.getAttribute('data-t'); return chrRender(); }
+    if (a === 'openC') {
+      var k = el.closest('[data-ck]').getAttribute('data-ck');
+      if (!store.chars[k]) { toast('That character hasn\'t synced to this device yet: try again in a moment.'); shareReconcile(); return; }
+      store.cur = k; setView('chars'); commit(); window.scrollTo({ top: 0 }); return;
+    }
+    if (a === 'cmenu') { var rr = el.getBoundingClientRect(); return chrCardMenu(el.closest('[data-ck]'), { x: rr.right - 180, y: rr.bottom + 4 }, el); }
+    if (a === 'invite') return chrInvite(d);
+    if (a === 'rmPl') {
+      var uid = el.getAttribute('data-uid');
+      return chrConfirm('Remove ' + el.getAttribute('data-name') + '?', 'They leave this chronicle, and their characters with them (no longer shared with you, unless they shared one with you themselves).', 'Remove', function () {
+        api('chronicles/' + d.id + '/remove', { uid: uid }).then(function () { closeModal(); return chrOpen(d.id); }).then(function () { shareReconcile(); }, function (er) { closeModal(); toast('Couldn\'t (' + er.message + ').'); });
+      });
+    }
+    if (a === 'addC') {
+      var to = el.getAttribute('data-to'), sec = to === 'npc' ? el.closest('[data-sec]').getAttribute('data-sec') : '', S = d.data.npc.filter(function (s) { return s.id === sec; })[0];
+      return chrPickChar(to === 'stc' ? d.data.stc : S.ch, function (id) { if (to === 'stc') d.data.stc.push(id); else S.ch.push(id); chrSave(d.id); chrRender(); });
+    }
+    if (a === 'newSec') return chrModalNamed('New section', '', null, 'Create', function (t) { closeModal(); d.data.npc.push({ id: 'n' + Date.now().toString(36), t: t, ch: [] }); chrSave(d.id); chrRender(); });
+    var secEl = el.closest('[data-sec]'), si = secEl ? d.data.npc.map(function (s) { return s.id; }).indexOf(secEl.getAttribute('data-sec')) : -1; if (si < 0) return;
+    if (a === 'secUp' || a === 'secDn') { var j = si + (a === 'secUp' ? -1 : 1), t0 = d.data.npc[si]; d.data.npc[si] = d.data.npc[j]; d.data.npc[j] = t0; chrSave(d.id); chrRender(); var nb = document.querySelector('#chronView [data-sec="' + t0.id + '"] [data-chr="' + a + '"]:not([disabled])'); if (nb) nb.focus(); return; }
+    if (a === 'secRen') return chrModalNamed('Rename section', d.data.npc[si].t, null, 'Rename', function (t) { closeModal(); d.data.npc[si].t = t; chrSave(d.id); chrRender(); });
+    if (a === 'secDel') return chrConfirm('Delete “' + d.data.npc[si].t + '”?', 'The section goes; the characters in it stay yours.', 'Delete', function () { closeModal(); d.data.npc.splice(si, 1); chrSave(d.id); chrRender(); });
+  }
+  function chrRename(x) {
+    chrModalNamed('Edit chronicle', x.title, x.descr || '', 'Save', function (t, ds) {
+      api('chronicles/' + x.id, { title: t, descr: ds }).then(function () { closeModal(); if (chr.det[x.id]) { chr.det[x.id].title = t; chr.det[x.id].descr = ds; } return loadChronicles(); }).then(chrRender, function (er) { closeModal(); toast('Couldn\'t save (' + er.message + ').'); });
+    });
+  }
+  /* Deleting asks twice. */
+  function chrDelete(x) {
+    chrConfirm('Delete “' + x.title + '”?', 'Its players leave it, their characters stop being shared with you through it, and its Notable NPC sections, marks and Grand Dossier are deleted. The characters themselves stay with their owners.', 'Delete…', function () {
+      chrConfirm('Are you sure?', 'Deleting “' + esc(x.title) + '” can\'t be undone.', 'Delete for good', function () {
+        api('chronicles/' + x.id + '/delete', {}).then(function () { closeModal(); delete chr.det[x.id]; if (chr.cur === x.id) chr.cur = ''; toast('Chronicle deleted.'); return loadChronicles(); }).then(function () { chrRender(); shareReconcile(); }, function (er) { closeModal(); toast('Couldn\'t delete it (' + er.message + ').'); });
+      });
+    });
+  }
+  function chrInvite(d) {
+    var draw = function (msg) {
+      var have = {}; d.players.forEach(function (p) { have[p.pid] = p.status; });
+      var L = (fr.friends || []);
+      openModal('<h2>Invite to ' + esc(d.title) + '</h2><p class="muted small">Friends you invite get a notification. Once they accept, they can put their characters in from the sheet\'s Chronicle field.</p>' +
+        '<div class="chr-plist">' + (L.length ? L.map(function (f) {
+          return '<div class="chr-inv"><span><b>' + esc(f.name) + '</b><small>' + fmtP(f.pid) + '</small></span>' + (have[f.pid] ? '<span class="muted small">' + (have[f.pid] === 'accepted' ? 'In it' : 'Invited') + '</span>' : '<button type="button" class="btn small primary" data-inv="' + esc(f.pid) + '">Invite</button>') + '</div>';
+        }).join('') : '<p class="muted small">' + (frLoaded ? 'No friends yet: add them from the Friends panel first.' : 'Loading your friends…') + '</p>') + '</div>' +
+        (msg ? '<p class="small" role="status">' + esc(msg) + '</p>' : '') + '<div class="acts"><button type="button" class="btn" id="mNo">Close</button></div>', 'chr-modal');
+      $('mNo').onclick = function () { closeModal(); chrRender(); };
+      Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-inv]'), function (b) {
+        b.onclick = function () {
+          b.disabled = true;
+          api('chronicles/' + d.id + '/invite', { pids: [b.getAttribute('data-inv')] }).then(function (res) {
+            return api('chronicles/' + d.id).then(function (r2) { r2.data = chrData(r2.data); chr.det[d.id] = r2; d = r2; draw((res.invited || []).length ? 'Invited.' : 'Couldn\'t invite them.'); });
+          }, function (er) { draw('Couldn\'t invite (' + er.message + ').'); });
+        };
+      });
+    };
+    draw(''); loadFriends().then(function () { if ($('cmModal').querySelector('.chr-plist')) draw(''); });   // the list as it is now, then fresh
+  }
+  var chrEl = $('chronView');
+  if (chrEl) {
+    chrEl.addEventListener('click', chrView);
+    chrEl.addEventListener('contextmenu', function (e) {
+      var card = e.target.closest('.chr-ch'); if (!card) return;
+      e.preventDefault(); chrCardMenu(card, { x: e.clientX, y: e.clientY }, card.querySelector('.chr-ch-more'));
+    });
+  }
+  if ($('viewChron')) $('viewChron').addEventListener('click', function () { setView('chron'); });
+  /* ---------- the Grand Dossier: the Dossier board, for the whole chronicle ----------
+     It works like a character's Dossier (Edit switch, notes, containers, strings...), holds more (about 2.5 times as
+     much) and can hold character cards: a portrait and name that open the sheet. */
+  function chrGdHost(d) {
+    if (chr.gdHost && chr.gdHost._chr === d.id) { chr.gdHost.info.name = d.title; return chr.gdHost; }
+    var fresh = !(d.gd && d.gd.n);
+    var p = { id: 'gd:' + d.id, _chr: d.id, info: { name: d.title }, notes: fresh ? { v: 1, n: {}, l: {} } : d.gd, nbMax: 4800000, chrRefs: true };
+    normNotes(p); if (!p.notes) p.notes = { v: 1, n: {}, l: {} }; p.notes.v = 1;
+    p.nbSave = function () { d.gd = p.notes; chrSave(d.id, true); };
+    if (fresh) { d.gd = p.notes; nbEM = p.id; chrSave(d.id, true); }   // a new board starts in Edit mode
+    chr.gdHost = p;
+    return p;
+  }
+  window.cmChrDossier = function (d) {
+    var sh = $('cmSheet'); if (sh && sh.querySelector('#nbCard')) sh.innerHTML = '';   // one board on the page at a time (the Characters view redraws its own)
+    return notesTab(chrGdHost(d)).replace('<h2>Dossier</h2>', '<h2>Grand Dossier</h2>');
+  };
+  window.cmChrDossierMount = function (d) { var p = chrGdHost(d); nbHostC = p; nbMount(p); };
+  window.cmChrRender = chrRender;
+  window.cmChrIsST = chrIsST;
+  window.cmChrLoad = loadChronicles;
   function fillLists() {
     function opts(arr) { return arr.map(function (x) { return '<option value="' + esc(x) + '">'; }).join(''); }
     $('dl-disc').innerHTML = opts(DISCIPLINES); $('dl-bg').innerHTML = opts(BACKGROUNDS);
