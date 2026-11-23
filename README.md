@@ -382,3 +382,12 @@ V3.1.8
 -Initiative Tracker Changes:
 	-A blood boost or Temp Mod to Dexterity or Wits during a round applies to everything at once, but only moves the character in the initiative order when the next round starts.
 	-Boosted dots above your Generation's limit (6 for 8th Generation and above, up to 10 for 4th and lower) last 3 rounds from the round they're bought, each purchase on its own clock; dots up to the limit last the whole encounter.
+
+V3.1.9
+-Skirmish Map Changes:
+	-Right-clicking a token (or pressing and holding it) now opens a token menu instead of going straight to areas of effect; pick "Areas of effect…" there. More options will join it.
+	-Everyone can see a character's equipped weapons and worn armor when hovering over its token.
+	-New "Pop out" button (not on phones): the map becomes a floating window you can drag by its title bar anywhere in the browser and resize from its corner; "Dock" puts it back. Its spot and size are remembered on each device.
+	-New "Detach" button (Chrome and Edge on a computer): the map moves into its own window that stays on top of everything, even other apps, and can go anywhere, another screen included. "Reattach" (or closing that window) puts it back; its size is remembered.
+	-A popped-out map stays on screen while you switch to Damage, Probability or the Characters view; before, it hid until you came back to the tracker.
+	-Pop out, Dock, Detach and Reattach are now icon buttons like the settings gear (hover one for its name). A popped-out or detached map leaves out the Full screen button and the instructions under the map.

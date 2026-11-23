@@ -2217,6 +2217,21 @@ body.sm-full-on .ann-banners { position: fixed; top: 0; left: 0; right: 0; }
 .tm-list li span { display: flex; flex-direction: column; min-width: 0; }
 .tm-list small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 560px) { .tm-add { grid-template-columns: 1fr 1fr; } .tm-add .tm-d { grid-column: 1 / -1; } .tm-list { grid-template-columns: 1fr; } }
+/* Skirmish Map: Picture-in-Picture (a floating, movable, resizable map; not on phones) */
+.sm-pop.sm-pip { position: fixed; z-index: 61; resize: both; overflow: hidden; min-width: 320px; min-height: 260px; max-width: calc(100vw - 8px); max-height: calc(100vh - 8px); border-radius: 10px; box-shadow: 0 14px 44px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+.sm-pop.sm-pip .sm-head { cursor: move; touch-action: none; }
+.sm-pop.sm-pip .sm-head button { cursor: pointer; }
+.sm-pop.sm-pip .sm-stage { min-height: 0; }
+.sm-pipb[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+@media (pointer: coarse) and (max-width: 819px), (max-width: 639px) { .sm-pipb { display: none; } }
+/* Skirmish Map: detached into its own window (Document Picture-in-Picture) */
+body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); }
+.sm-pop.sm-detached { position: fixed; inset: 0; display: flex; flex-direction: column; width: auto; height: auto; max-height: none; min-height: 0; margin: 0; border: 0; border-radius: 0; box-shadow: none; box-sizing: border-box; }
+.sm-pop.sm-detached .sm-pipb, .sm-pop.sm-detached .sm-fullb { display: none; }
+.sm-detb[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+@media (pointer: coarse) and (max-width: 819px), (max-width: 639px) { .sm-detb { display: none; } }
+/* Popped out or detached: no Full screen button and no instructions under the map. */
+.sm-pop.sm-pip .sm-fullb, .sm-pop.sm-pip .sm-help, .sm-pop.sm-detached .sm-help { display: none; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -16004,7 +16019,7 @@ V1.5
     var s = smState(), m = s && s.remote && s.remote.m; if (!m || !Array.isArray(m.t)) return [];
     return m.t.map(function (t) {
       var k = String(t.k), lp = smUi.local[k];
-      return { k: k, name: t.n, pub: t.n, pl: t.ty === 'p', x: lp ? lp[0] : +t.x, y: lp ? lp[1] : +t.y, pic: t.p ? smPics[t.p] || '' : '', ini: t.i, h: t.h, w: t.w, s: t.s, hu: +t.hu === 2 ? 2 : +t.hu === 1 ? 1 : 0, own: s.mine.indexOf(+t.k) >= 0 };
+      return { k: k, name: t.n, pub: t.n, pl: t.ty === 'p', x: lp ? lp[0] : +t.x, y: lp ? lp[1] : +t.y, pic: t.p ? smPics[t.p] || '' : '', ini: t.i, h: t.h, w: t.w, s: t.s, g: t.g && typeof t.g === 'object' ? { w: (Array.isArray(t.g.w) ? t.g.w : []).slice(0, 6).map(function (x) { return String(x).slice(0, 40); }), a: String(t.g.a || '').slice(0, 60) } : null, hu: +t.hu === 2 ? 2 : +t.hu === 1 ? 1 : 0, own: s.mine.indexOf(+t.k) >= 0 };
     });
   }
   function smTokens() { return smMode() === 'join' ? smJoinTokens() : smHostTokens(); }
@@ -16104,6 +16119,7 @@ V1.5
     var t = toks.map(function (x) {
       var o = { k: x.k, n: x.pub, i: x.rev ? initials(x.name) : x.pub, ty: x.pl ? 'p' : 'n', x: smNum(x.x), y: smNum(x.y) };
       if (x.hu) o.hu = x.hu;   // watchers already see a wound word; this only draws it
+      var gr = x.c ? smGear(x.c) : null; if (gr) o.g = gr;   // equipped weapons and armor: everyone may see them
       if (x.rev && x.pic && x.c && x.c.img) { o.p = 'i:' + x.c.img; pics[o.p] = x.pic; }
       if (x.c && x.c.health) {
         if (x.pl) { o.h = { b: x.c.health.b, l: x.c.health.l, a: x.c.health.a, m: hMax(x.c), w: smWound(x.c) }; var sp = smSpeeds(x.c); if (sp) o.s = [sp.walk, sp.jog, sp.run, sp.capped ? 1 : 0, sp.rage ? 1 : 0]; }
@@ -16228,20 +16244,29 @@ V1.5
   var smDrawT = 0;
   function smDrawSoon() { if (smDrawT) return; smDrawT = requestAnimationFrame(function () { smDrawT = 0; smDraw(); }); }
   window.cmMapDraw = smDrawSoon;
-  function smSvgEl() { return $('smSvg'); }
+  /* Detached: the map can live in its own always-on-top window (Document Picture-in-Picture; Chrome and Edge on desktop). */
+  var smPW = null;
+  function smQ(id) {
+    var e = document.getElementById(id); if (e) return e;
+    var dw = smUi && smUi.detW; if (dw) return id === 'smWrap' ? dw : dw.querySelector('#' + id);   // the detached map, even while its window is closing
+    return null;
+  }
+  function smDoc() { return smPW && !smPW.closed ? smPW.document : document; }
+  function smSvgEl() { return smQ('smSvg'); }
   /* The map is an overlay like the Actors list: over the Main (or Simple) Roller when Wide Aspect puts it beside the
      tracker and the window is wide enough, otherwise over the tracker itself. */
   function smWideHost() {
     var wr = document.querySelector('.wrap');
     if (!wr || !wr.classList.contains('wide') || !(window.matchMedia && window.matchMedia('(min-width: 1280px)').matches)) return null;
-    var mr = $('mainRoller'), sr = $('simpleRoller');
+    var mr = smQ('mainRoller'), sr = smQ('simpleRoller');
     return mr && !mr.hidden ? mr : sr && !sr.hidden ? sr : null;
   }
-  function smPlace() { var w = $('smWrap'), host = smWideHost() || $('initPanel'); if (w && host && w.parentNode !== host) host.appendChild(w); }
+  /* A popped-out map sits on the page itself, so it stays up while other tabs or the Characters view are showing. */
+  function smPlace() { if (smPW) return; var w = smQ('smWrap'), host = smUi.pip ? document.body : smWideHost() || smQ('initPanel'); if (w && host && w.parentNode !== host) host.appendChild(w); }
   /* Its button sits beside "Actors list". */
   function smButton() {
-    var b = $('smBtn'); if (b) return b;
-    var ab = $('actorsBtn'), foot = ab && ab.parentNode; if (!foot) return null;
+    var b = smQ('smBtn'); if (b) return b;
+    var ab = smQ('actorsBtn'), foot = ab && ab.parentNode; if (!foot) return null;
     b = document.createElement('button'); b.type = 'button'; b.id = 'smBtn'; b.className = 'btn-sec sm-open-btn';
     b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', 'smWrap');
     b.title = 'A rough map of the encounter, shared with the room'; b.textContent = 'Skirmish Map';
@@ -16251,8 +16276,91 @@ V1.5
     return b;
   }
   /* Full screen: the map fills the window (below any announcement banner), like a full-screen Dossier board. */
+  /* Picture-in-Picture: the map floats over the page; drag it by its title bar, resize it from its corner. Not on phones. */
+  var SM_PIP_KEY = 'vtm-sm-pip';
+  function smPipOk() { return !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) < 820) && window.innerWidth >= 640; }
+  function smPipBox() {
+    var d = {}; try { d = JSON.parse(localStorage.getItem(SM_PIP_KEY) || '{}') || {}; } catch (e) {}
+    var W = window.innerWidth, H = window.innerHeight, w = Math.max(320, Math.min(+d.w || 560, W - 16)), h = Math.max(260, Math.min(+d.h || 420, H - 16));
+    var x = isFinite(+d.x) ? +d.x : W - w - 24, y = isFinite(+d.y) ? +d.y : H - h - 24;
+    return { x: Math.max(8, Math.min(x, W - w - 8)), y: Math.max(8, Math.min(y, H - h - 8)), w: w, h: h };
+  }
+  function smPipSave() { var w = smQ('smWrap'); if (!w || !smUi.pip) return; var r = w.getBoundingClientRect(); try { localStorage.setItem(SM_PIP_KEY, JSON.stringify({ x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) })); } catch (e) {} }
+  function smPip(on) {
+    var w = smQ('smWrap'); if (!w) return;
+    if (on && !smPipOk()) return;
+    if (on && smUi.full) smFull(false);
+    smUi.pip = !!on; w.classList.toggle('sm-pip', smUi.pip); smPlace();
+    if (smUi.pip) { var bx = smPipBox(); w.style.left = bx.x + 'px'; w.style.top = bx.y + 'px'; w.style.width = bx.w + 'px'; w.style.height = bx.h + 'px'; }
+    else { w.style.left = w.style.top = w.style.width = w.style.height = ''; }
+    var b = w.querySelector('[data-sm="pip"]'); if (b) { b.setAttribute('aria-pressed', String(smUi.pip)); smIcoBtn(b, smUi.pip ? 'dock' : 'pop'); }
+    smUi.fitted = false; smDrawSoon();
+  }
+  /* Pop out, Dock, Detach and Reattach are icon buttons like the settings gear; the name is in the tooltip. */
+  var SM_ICO = {
+    pop: ['Pop out', 'A floating map you can move and resize', '<rect x="3" y="4" width="18" height="16" rx="2"></rect><rect x="12" y="11" width="7" height="6" rx="1" fill="currentColor"></rect>'],
+    dock: ['Dock', 'Put the map back in its place', '<rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M17 8l-6 6"></path><path d="M11 9v5h5"></path>'],
+    det: ['Detach', 'Its own window, on top of everything: move it anywhere, even to another screen', '<path d="M14 3h7v7"></path><path d="M21 3l-9 9"></path><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"></path>'],
+    reat: ['Reattach', 'Bring the map back into the page', '<path d="M21 3l-9 9"></path><path d="M12 6v6h6"></path><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"></path>']
+  };
+  function smIcoBtn(b, k) {
+    if (!b) return; var d = SM_ICO[k];
+    b.setAttribute('aria-label', d[0]); b.title = d[0] + ': ' + d[1];
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d[2] + '</svg>';
+  }
+  function smPipWatch(w) {
+    if (w._pipOn) return; w._pipOn = true;
+    var drag = null;
+    w.addEventListener('pointerdown', function (e) {
+      if (!smUi.pip || e.button !== 0 || !e.target.closest('.sm-head') || e.target.closest('button, input, select, a')) return;
+      var r = w.getBoundingClientRect(); drag = { dx: e.clientX - r.left, dy: e.clientY - r.top, id: e.pointerId };
+      try { w.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault();
+    });
+    w.addEventListener('pointermove', function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var W = window.innerWidth, H = window.innerHeight, r = w.getBoundingClientRect();
+      w.style.left = Math.max(0, Math.min(e.clientX - drag.dx, W - r.width)) + 'px'; w.style.top = Math.max(0, Math.min(e.clientY - drag.dy, H - 40)) + 'px';
+    });
+    var end = function (e) { if (drag && (!e || e.pointerId === drag.id)) { drag = null; smPipSave(); } };
+    w.addEventListener('pointerup', end); w.addEventListener('pointercancel', end);
+    if (window.ResizeObserver) { var rt = 0; new ResizeObserver(function () { if (!smUi.pip) return; clearTimeout(rt); rt = setTimeout(function () { smPipSave(); smDrawSoon(); }, 120); }).observe(w); }
+    window.addEventListener('resize', function () { if (smUi.pip) { if (!smPipOk()) { smPip(false); return; } var bx = smPipBox(); w.style.left = bx.x + 'px'; w.style.top = bx.y + 'px'; } });
+  }
+  var SM_DET_KEY = 'vtm-sm-detach';
+  function smDetach(on) {
+    var w = smQ('smWrap'); if (!w) return;
+    if (!on) { var pw0 = smPW; smUndetach(); if (pw0 && !pw0.closed) pw0.close(); return; }   // back in the page first, then the window goes
+    if (smPW || !window.documentPictureInPicture || !smPipOk()) return;
+    if (smUi.full) smFull(false); if (smUi.pip) smPip(false);
+    var sz = {}; try { sz = JSON.parse(localStorage.getItem(SM_DET_KEY) || '{}') || {}; } catch (e) {}
+    window.documentPictureInPicture.requestWindow({ width: Math.max(360, +sz.w || 720), height: Math.max(300, +sz.h || 540) }).then(function (pw) {
+      smPW = pw; var pd = pw.document;
+      /* The page's look comes along: its styles, theme classes and settings on <html> and <body>. */
+      Array.prototype.forEach.call(document.querySelectorAll('style, link[rel="stylesheet"]'), function (n) { pd.head.appendChild(n.cloneNode(true)); });
+      Array.prototype.forEach.call(document.documentElement.attributes, function (a) { try { pd.documentElement.setAttribute(a.name, a.value); } catch (x) {} });
+      pd.body.className = document.body.className + ' sm-det-body'; pd.title = 'Skirmish Map';
+      w.classList.add('sm-detached'); smUi.detW = w; pd.body.appendChild(w);
+      pd.addEventListener('pointerdown', smDocDown, true); pd.addEventListener('keydown', smDocKey);
+      var rt = 0; pw.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { try { localStorage.setItem(SM_DET_KEY, JSON.stringify({ w: pw.innerWidth, h: pw.innerHeight })); } catch (x) {} smDrawSoon(); }, 150); });
+      pw.addEventListener('pagehide', smUndetach);
+      var b = w.querySelector('[data-sm="detach"]'); if (b) { b.setAttribute('aria-pressed', 'true'); smIcoBtn(b, 'reat'); }
+      smUi.fitted = false; smDrawSoon();
+    }).catch(function () { toast('The map couldn\'t open in its own window here.'); });
+  }
+  function smUndetach() {
+    if (!smPW) return;
+    var w = smUi.detW || smQ('smWrap'); smPW = null; smUi.detW = null;   // the window may already count as closed: use the element itself
+    if (w) {
+      document.adoptNode(w);
+      w.classList.remove('sm-detached');
+      var host0 = smWideHost() || smQ('initPanel'); if (host0) host0.appendChild(w);
+      var b = w.querySelector('[data-sm="detach"]'); if (b) { b.setAttribute('aria-pressed', 'false'); smIcoBtn(b, 'det'); }
+    }
+    smUi.fitted = false; smDrawSoon();
+  }
   function smFull(on) {
-    var w = $('smWrap'); if (!w) return;
+    var w = smQ('smWrap'); if (!w) return;
+    if (on && smUi.pip) smPip(false);
     smUi.full = !!on; w.classList.toggle('sm-full', smUi.full); document.body.classList.toggle('sm-full-on', smUi.full);
     var b = w.querySelector('[data-sm="full"]'); if (b) { b.setAttribute('aria-pressed', String(smUi.full)); b.textContent = smUi.full ? 'Exit full screen' : 'Full screen'; b.focus(); }
     smUi.fitted = false; smDrawSoon();
@@ -16268,33 +16376,38 @@ V1.5
     smDraw();
   };
   function smOpen(on, refocus) {
+    if (!on && smPW) smDetach(false);
     var w = smPanel(); if (!w) return;
     if (!on && smUi.full) smFull(false);
     smUi.open = on; smUi.set = false; smUi.fitted = false; smUi.pend = null; smUi.act = null; smUi.hover = ''; smUi.hl = null; smMenuClose();
     if (on) {
-      if ($('actorsPop') && !$('actorsPop').hidden && $('actorsClose')) $('actorsClose').click();
+      if (smQ('actorsPop') && !smQ('actorsPop').hidden && smQ('actorsClose')) smQ('actorsClose').click();
       smPlace();
-      var rp = $('rollsPop'); if (rp && !rp.hidden && rp.parentNode === w.parentNode) rp.hidden = true;
+      var rp = smQ('rollsPop'); if (rp && !rp.hidden && rp.parentNode === w.parentNode) rp.hidden = true;
     }
     w.hidden = !on;
-    var b = $('smBtn'); if (b) b.setAttribute('aria-expanded', String(on));
+    var b = smQ('smBtn'); if (b) b.setAttribute('aria-expanded', String(on));
     if (on) { smDraw(); var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); }
     else if (refocus && b) b.focus();
   }
   function smPanel() {
-    var ip = $('initPanel'); if (!ip) return null;
+    var ip = smQ('initPanel'); if (!ip) return null;
     smButton();
-    var w = $('smWrap');
+    var w = smQ('smWrap');
     if (!w) {
       w = document.createElement('section'); w.id = 'smWrap'; w.className = 'actors-pop sm-pop'; w.hidden = true;
       w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', 'Skirmish Map');
       w.innerHTML = '<div class="ap-head sm-head"><strong class="sm-title">Skirmish Map</strong><span class="sm-tools">' +
         '<button type="button" class="btn-sec sm-z" data-sm="zout" aria-label="Zoom out" title="Zoom out">−</button><button type="button" class="btn-sec sm-z" data-sm="zin" aria-label="Zoom in" title="Zoom in">+</button><button type="button" class="btn-sec sm-fit" data-sm="fit" title="Show every token">Fit</button>' +
         '<button type="button" class="btn-sec sm-fit sm-fullb" data-sm="full" aria-pressed="false" title="Fill the window with the map">Full screen</button>' +
+        '<button type="button" class="btn-sec sm-z sm-pipb" data-sm="pip" aria-pressed="false"></button>' +
+        (window.documentPictureInPicture ? '<button type="button" class="btn-sec sm-z sm-detb" data-sm="detach" aria-pressed="false"></button>' : '') +
         '<button type="button" class="btn-sec sm-z sm-cog" data-sm="set" aria-expanded="false" aria-controls="smSet" aria-label="Map settings" title="Map settings"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>' +
         '<button type="button" class="btn-sec ap-x" data-sm="close" aria-label="Close the Skirmish Map">&times;</button></span></div>' +
         '<div class="sm-set" id="smSet" role="group" aria-label="Map settings" hidden></div><div class="sm-body" id="smBody"></div>';
       ip.appendChild(w);
+      smIcoBtn(w.querySelector('[data-sm="pip"]'), 'pop'); smIcoBtn(w.querySelector('[data-sm="detach"]'), 'det');
+      smPipWatch(w);
       w.addEventListener('click', smClick);
       w.addEventListener('change', smChange);
       w.addEventListener('input', smInput);
@@ -16306,11 +16419,17 @@ V1.5
       w.addEventListener('contextmenu', smCtx);
       w.addEventListener('submit', smAoeSubmit);
       w.addEventListener('wheel', smWheel, { passive: false });
-      document.addEventListener('pointerdown', function (e) {
-        if (smUi.set && !e.target.closest('#smSet, [data-sm="set"]')) { smUi.set = false; smSetDraw(); }
-        if (smUi.aoe && !e.target.closest('#smAoe')) smAoeClose();
-      }, true);
-      document.addEventListener('keydown', function (e) {
+      document.addEventListener('pointerdown', smDocDown, true);
+      document.addEventListener('keydown', smDocKey);
+    }
+    return w;
+  }
+  function smDocDown(e) {
+    if (smUi.set && !e.target.closest('#smSet, [data-sm="set"]')) { smUi.set = false; smSetDraw(); }
+    if (smUi.aoe && !e.target.closest('#smAoe')) smAoeClose();
+  }
+  function smDocKey(e) {
+        var w = smQ('smWrap'), d = smDoc(); if (!w) return;
         if (e.key !== 'Escape' || !smUi.open) return;
         if (smUi.act && smUi.act.k && smUi.act.moved) { smDragCancel(); return; }   // mid-drag: the token goes back
         if (smUi.pend || smOwnMeasure()) { smUi.pend = null; smSend({ op: 'meas', clear: true }); smDrawSoon(); return; }
@@ -16318,14 +16437,11 @@ V1.5
         if (smUi.menu != null) { smMenuClose(); return; }
         if (smUi.set) { smUi.set = false; smSetDraw(); w.querySelector('[data-sm="set"]').focus(); return; }
         if (smUi.full) { smFull(false); return; }   // out of full screen first
-        if (w.contains(document.activeElement) || document.activeElement === document.body) smOpen(false, true);
-      });
-    }
-    return w;
+        if (w.contains(d.activeElement) || d.activeElement === d.body || document.activeElement === document.body) smOpen(false, true);
   }
   /* The cog's settings: the host's room settings (watchers see which apply), and everyone's own grid. */
   function smSetDraw() {
-    var box = $('smSet'), cog = document.querySelector('#smWrap [data-sm="set"]'); if (!box) return;
+    var box = smQ('smSet'), cog = smDoc().querySelector('#smWrap [data-sm="set"]'); if (!box) return;
     box.hidden = !smUi.set; if (cog) cog.setAttribute('aria-expanded', String(smUi.set));
     if (!smUi.set) return;
     var s = smState(), mode = smMode(), rm = s && s.remote && s.remote.m;
@@ -16359,13 +16475,13 @@ V1.5
     if (!smUi.open) return;
     smPlace();
     smSetDraw();
-    var body = $('smBody');
+    var body = smQ('smBody');
     if (mode === 'join' && !rm) { body.innerHTML = '<p class="hint">The host\'s tracker doesn\'t share a map.</p>'; return; }
     if (!body.querySelector('svg')) {
       body.innerHTML = '<div class="sm-stage" id="smStage"><div class="sm-pat" aria-hidden="true"></div><svg class="sm-svg" id="smSvg" role="application" aria-label="Skirmish Map: drag your tokens; click a token to measure from it" tabindex="0"></svg><div class="sm-tip" id="smTip" hidden></div><div class="sm-menu" id="smMenu" hidden></div><div class="sm-aoe-pop" id="smAoe" role="dialog" aria-label="Areas of effect" hidden></div></div><p class="hint sm-help" id="smHelp"></p>';
     }
-    $('smHelp').textContent = toks.length ? 'Drag a token to move it, hover it for details. Hover a line to see that move; click it to undo. Click a token, then a spot or another token, to measure. Right-click a token (or press and hold it) for an area of effect. 1 square = 1 ' + (smUnits() === 'i' ? 'yard (3 ft)' : 'metre') + '.' : 'Add actors to the tracker and they show up here.';
-    var svg = smSvgEl(), stage = $('smStage');
+    smQ('smHelp').textContent = toks.length ? 'Drag a token to move it, hover it for details. Hover a line to see that move; click it to undo. Click a token, then a spot or another token, to measure. Right-click a token (or press and hold it) for its menu (areas of effect). 1 square = 1 ' + (smUnits() === 'i' ? 'yard (3 ft)' : 'metre') + '.' : 'Add actors to the tracker and they show up here.';
+    var svg = smSvgEl(), stage = smQ('smStage');
     stage.className = 'sm-stage' + (smView.style !== 'auto' ? ' sty-' + smView.style : '') + (smView.pat ? '' : ' no-pat');
     stage.style.setProperty('--sm-po', String(smView.pop / 100));
     if (!toks.length) { svg.innerHTML = ''; return; }
@@ -16548,13 +16664,23 @@ V1.5
       var tk = {}; smTokens().forEach(function (t) { tk[t.k] = t; });
       ha = smAreas().filter(function (a) { var t = tk[a.k]; return t && smDist(p, [t.x, t.y]) <= SM_R + a.r; }).sort(function (a, b) { return a.r - b.r; }).map(function (a) { return a.i; });
     }
-    var st = $('smStage').getBoundingClientRect(); smUi.hp = [e.clientX - st.left, e.clientY - st.top];
+    var st = smQ('smStage').getBoundingClientRect(); smUi.hp = [e.clientX - st.left, e.clientY - st.top];
     var haCh = ha.join('|') !== smUi.ha.join('|'); smUi.ha = ha;
     if (best !== smUi.hover || hl !== smUi.hl || haCh) { smUi.hover = best; smUi.hl = hl; smTip(); smDrawSoon(); }
     else if (ha.length) smTip();   // the card follows the pointer
   }
+  /* What a character visibly carries: equipped weapons and worn armor. */
+  function smGear(c) {
+    var w = (c.weapons || []).filter(function (x) { return x.equipped; }).map(function (x) { return String(x.name || 'Weapon').slice(0, 40); }).slice(0, 6);
+    var a = wornArmor(c), at = a ? String(a.name || 'Armor').slice(0, 40) + ' (' + (+a.rating || 0) + ')' : '';
+    return w.length || at ? { w: w, a: at } : null;
+  }
+  function smGearHTML(g) {
+    if (!g) return '';
+    return (g.w && g.w.length ? '<span>Weapons: ' + g.w.map(esc).join(', ') + '</span>' : '') + (g.a ? '<span>Armor: ' + esc(g.a) + '</span>' : '');
+  }
   function smTip() {
-    var tip = $('smTip'), svg = smSvgEl(); if (!tip || !svg) return;
+    var tip = smQ('smTip'), svg = smSvgEl(); if (!tip || !svg) return;
     var k = smUi.hover, t = k && smTokens().filter(function (x) { return x.k === k; })[0];
     if (!t && smUi.ha.length && !(smUi.act && smUi.act.moved) && smUi.hp) { smAoeTip(tip); return; }
     if (!t || (smUi.act && smUi.act.moved)) { tip.hidden = true; return; }
@@ -16567,16 +16693,18 @@ V1.5
         h += '<span>Health: ' + esc(smWound(c)) + ' · ' + hTotal(c) + ' / ' + hMax(c) + (hTotal(c) ? ' (' + [c.health.b ? c.health.b + ' bashing' : '', c.health.l ? c.health.l + ' lethal' : '', c.health.a ? c.health.a + ' aggravated' : ''].filter(Boolean).join(', ') + ')' : '') + '</span>' +
           '<span>Blood: ' + c.blood.cur + ' / ' + g.blood + '</span><span>Willpower: ' + c.willpower.cur + ' / ' + c.willpower.perm + '</span>';
         var sp = smSpeeds(c); if (sp) h += '<span>' + smSpeedLine(sp.walk, sp.jog, sp.run, sp.wound, false, sp.rage) + '</span>';
+        h += smGearHTML(smGear(c));
       }
     } else if (t.pl) {
       h = '<b>' + esc(t.name) + '</b>';
       if (t.h) h += '<span>Health: ' + esc(t.h.w) + ' · ' + (t.h.b + t.h.l + t.h.a) + ' / ' + t.h.m + '</span>';
       if (t.s) h += '<span>' + smSpeedLine(t.s[0], t.s[1], t.s[2], t.s[4] ? '' : t.h ? t.h.w : '', !!t.s[3], !!t.s[4]) + '</span>';
+      h += smGearHTML(t.g);
     } else {
-      h = '<b>' + esc(t.name) + '</b>' + (t.w ? '<span>' + esc(t.w) + '</span>' : '');
+      h = '<b>' + esc(t.name) + '</b>' + (t.w ? '<span>' + esc(t.w) + '</span>' : '') + smGearHTML(t.g);
     }
     tip.innerHTML = h; tip.hidden = false;
-    var stage = $('smStage'), p = smToScreen(t.x, t.y + SM_R);
+    var stage = smQ('smStage'), p = smToScreen(t.x, t.y + SM_R);
     tip.style.left = Math.max(4, Math.min(p[0] - tip.offsetWidth / 2, stage.clientWidth - tip.offsetWidth - 4)) + 'px';
     tip.style.top = Math.min(p[1] + 8, stage.clientHeight - tip.offsetHeight - 4) + 'px';
   }
@@ -16590,7 +16718,7 @@ V1.5
         '<small>' + esc(smFmt(a.r) + ' around ' + (t ? (host ? t.name : t.pub) : 'a token') + (a.bn ? ' · placed by ' + a.bn : '')) + (a.h ? ' · hidden' + (host && a.who === 'host' ? ' (only you)' : ' (only ' + (a.bn || 'they') + ' and the host)') : '') + '</small></span></span>';
     }).join('');
     tip.hidden = false;
-    var stage = $('smStage'), p = smUi.hp;
+    var stage = smQ('smStage'), p = smUi.hp;
     tip.style.left = Math.max(4, Math.min(p[0] + 14, stage.clientWidth - tip.offsetWidth - 4)) + 'px';
     tip.style.top = Math.max(4, Math.min(p[1] + 16, stage.clientHeight - tip.offsetHeight - 4)) + 'px';
   }
@@ -16609,7 +16737,7 @@ V1.5
     if (!smCanMove(t) && !smAreas().some(function (q) { return q.k === k && q.mine; })) return;
     smUi.holdAt = Date.now(); smUi.pend = null; smMenuClose();
     try { smSvgEl().releasePointerCapture && smSvgEl().releasePointerCapture(a.pid); } catch (x) {}
-    smAoeOpen(k, null, at);
+    smTokMenu(k, at);
   }
   function smCtx(e) {
     var svg = smSvgEl(); if (!svg || !svg.contains(e.target) || !smUi.vb) return;
@@ -16619,7 +16747,20 @@ V1.5
     e.preventDefault();
     if (smUi.act && smUi.act.hold) clearTimeout(smUi.act.hold);
     smUi.act = null; smUi.pend = null; smMenuClose(); smUi.ctxAt = Date.now();
-    smAoeOpen(t.k, null, e);
+    smTokMenu(t.k, e);
+  }
+  /* A token's menu (right-click, or press and hold): Areas of effect, and more to come. */
+  function smTokMenu(k, e) {
+    var t = smTokens().filter(function (x) { return x.k === k; })[0]; if (!t) return;
+    var m = smQ('smMenu'), st = smQ('smStage'); if (!m || !st) return;
+    var r = st.getBoundingClientRect();
+    smUi.menu = 'tok:' + k; smUi.tokAt = { clientX: e.clientX, clientY: e.clientY };
+    m.innerHTML = '<span class="sm-menu-t">' + esc(smMode() === 'host' ? t.name : t.pub) + '</span>' +
+      '<button type="button" class="btn-sec" data-sm="tokAoe" data-k="' + esc(k) + '" role="menuitem">Areas of effect…</button>';
+    m.setAttribute('role', 'menu'); m.hidden = false;
+    m.style.left = Math.max(4, Math.min(e.clientX - r.left, st.clientWidth - m.offsetWidth - 4)) + 'px';
+    m.style.top = Math.max(4, Math.min(e.clientY - r.top + 6, st.clientHeight - m.offsetHeight - 4)) + 'px';
+    var f = m.querySelector('[data-sm="tokAoe"]'); if (f) f.focus({ preventScroll: true });
   }
   function smUnitIn(yd) { return smUnits() === 'i' ? Math.round(yd * 3 * 10) / 10 : Math.round(yd * 10) / 10; }
   function smAoeOpen(k, editI, e) {
@@ -16628,8 +16769,8 @@ V1.5
     var mineHere = smAreas().filter(function (a) { return a.k === k && a.mine; });
     var ed = editI ? mineHere.filter(function (a) { return a.i === editI; })[0] : null;
     smUi.aoe = { k: k, i: ed ? ed.i : '', at: smUi.aoe && smUi.aoe.at && !e ? smUi.aoe.at : null };
-    if (e) { var st = $('smStage').getBoundingClientRect(); smUi.aoe.at = [e.clientX - st.left, e.clientY - st.top]; }
-    var imp = smUnits() === 'i', box = $('smAoe');
+    if (e) { var st = smQ('smStage').getBoundingClientRect(); smUi.aoe.at = [e.clientX - st.left, e.clientY - st.top]; }
+    var imp = smUnits() === 'i', box = smQ('smAoe');
     var c0 = ed ? ed.c : 'blood', canAdd = smCanMove(t);
     box.innerHTML = '<form class="sm-aoe-form" novalidate><div class="sm-aoe-h"><b>Areas of effect</b><span class="muted">' + esc(nm) + '</span><button type="button" class="btn-sec ap-x" data-sm="aoeNo" aria-label="Close">&times;</button></div>' +
       (mineHere.length ? '<ul class="sm-aoe-list" aria-label="Areas you placed on ' + esc(nm) + '">' + mineHere.map(function (a) {
@@ -16648,20 +16789,20 @@ V1.5
       '<p class="sm-aoe-err" id="smAoeErr" role="alert" hidden></p>' +
       '<div class="sm-aoe-acts">' + (ed && canAdd ? '<button type="button" class="btn-sec" data-sm="aoeNew">New area instead</button>' : ed ? '<button type="button" class="btn-sec" data-sm="aoeNo">Cancel</button>' : '<button type="button" class="btn-sec" data-sm="aoeNo">Cancel</button>') + '<button type="submit" class="btn-sec primary">' + (ed ? 'Save' : 'Add area') + '</button></div></fieldset></form>');
     box.hidden = false;
-    var stage = $('smStage'), at = smUi.aoe.at || smToScreen(t.x, t.y);
+    var stage = smQ('smStage'), at = smUi.aoe.at || smToScreen(t.x, t.y);
     box.style.left = Math.max(6, Math.min(at[0] + 8, stage.clientWidth - box.offsetWidth - 6)) + 'px';
     box.style.top = Math.max(6, Math.min(at[1] + 8, stage.clientHeight - box.offsetHeight - 6)) + 'px';
-    var f = $('smAoeR'); if (f) { f.focus(); f.select(); } else { var c1 = box.querySelector('[data-sm="aoeEdit"], [data-sm="aoeNo"]'); if (c1) c1.focus(); }
+    var f = smQ('smAoeR'); if (f) { f.focus(); f.select(); } else { var c1 = box.querySelector('[data-sm="aoeEdit"], [data-sm="aoeNo"]'); if (c1) c1.focus(); }
   }
-  function smAoeClose() { var b = $('smAoe'); if (b) { b.hidden = true; b.innerHTML = ''; } smUi.aoe = null; }
+  function smAoeClose() { var b = smQ('smAoe'); if (b) { b.hidden = true; b.innerHTML = ''; } smUi.aoe = null; }
   function smAoeSubmit(e) {
     if (!e.target.closest || !e.target.closest('.sm-aoe-form') || !smUi.aoe) return;
     e.preventDefault();
-    var imp = smUnits() === 'i', v = parseFloat(String($('smAoeR').value).replace(',', '.')), err = $('smAoeErr');
+    var imp = smUnits() === 'i', v = parseFloat(String(smQ('smAoeR').value).replace(',', '.')), err = smQ('smAoeErr');
     var yd = imp ? v / 3 : v;
-    if (!isFinite(v) || yd <= 0 || yd > SM_AOE_RMAX) { err.textContent = 'Give a radius from ' + (imp ? '1 to ' + SM_AOE_RMAX * 3 + ' ft' : '0.5 to ' + SM_AOE_RMAX + ' m') + '.'; err.hidden = false; $('smAoeR').focus(); return; }
-    var c = (document.querySelector('#smAoe input[name="smAoeC"]:checked') || {}).value, hid = (document.querySelector('#smAoe input[name="smAoeV"]:checked') || {}).value === 'hid';
-    var k = smUi.aoe.k, a = { k: +k, r: Math.round(yd * 100) / 100, d: $('smAoeD').value, c: c, h: hid };
+    if (!isFinite(v) || yd <= 0 || yd > SM_AOE_RMAX) { err.textContent = 'Give a radius from ' + (imp ? '1 to ' + SM_AOE_RMAX * 3 + ' ft' : '0.5 to ' + SM_AOE_RMAX + ' m') + '.'; err.hidden = false; smQ('smAoeR').focus(); return; }
+    var c = (smDoc().querySelector('#smAoe input[name="smAoeC"]:checked') || {}).value, hid = (smDoc().querySelector('#smAoe input[name="smAoeV"]:checked') || {}).value === 'hid';
+    var k = smUi.aoe.k, a = { k: +k, r: Math.round(yd * 100) / 100, d: smQ('smAoeD').value, c: c, h: hid };
     if (smUi.aoe.i) a.i = smUi.aoe.i;
     var cnt = smAreas().filter(function (q) { return q.mine && (smMode() === 'host' ? q.who === 'host' : true); }).length;
     if (!a.i && cnt >= SM_AOE_PER) { err.textContent = 'You can place up to ' + SM_AOE_PER + ' areas. Remove one first.'; err.hidden = false; return; }
@@ -16678,7 +16819,7 @@ V1.5
     if (wound === 'Wounded') return 'Speed: walk ' + smFmt(walk);
     return 'Speed: walk ' + smFmt(walk) + ' · jog ' + smFmt(jog) + ' · run ' + smFmt(run) + (slowed ? ' (slowed by wounds)' : '');
   }
-  function smToScreen(x, y) { var vb = smUi.vb, st = $('smStage'), W = st.clientWidth, H = st.clientHeight, s = Math.min(W / vb.w, H / vb.h); return [(x - vb.x) * s + (W - vb.w * s) / 2, (y - vb.y) * s + (H - vb.h * s) / 2]; }
+  function smToScreen(x, y) { var vb = smUi.vb, st = smQ('smStage'), W = st.clientWidth, H = st.clientHeight, s = Math.min(W / vb.w, H / vb.h); return [(x - vb.x) * s + (W - vb.w * s) / 2, (y - vb.y) * s + (H - vb.h * s) / 2]; }
   function smToWorld(e) {
     var svg = smSvgEl(), r = svg.getBoundingClientRect(), vb = smUi.vb, s = Math.min(r.width / vb.w, r.height / vb.h);
     return [vb.x + (e.clientX - r.left - (r.width - vb.w * s) / 2) / s, vb.y + (e.clientY - r.top - (r.height - vb.h * s) / 2) / s];
@@ -16796,7 +16937,7 @@ V1.5
     smSend({ op: 'meas', f: f, t: to }); smDrawSoon();
   }
   function smMenuOpen(e, lineId, t) {
-    var m = $('smMenu'), st = $('smStage'), r = st.getBoundingClientRect();
+    var m = smQ('smMenu'), st = smQ('smStage'), r = st.getBoundingClientRect();
     smUi.menu = lineId;
     m.innerHTML = '<span class="sm-menu-t">' + esc(smMode() === 'host' ? t.name : t.pub) + '\'s move</span><button type="button" class="btn-sec" data-sm="undo">Undo this move</button><button type="button" class="btn-sec ghost" data-sm="menuNo">Cancel</button>';
     m.hidden = false;
@@ -16804,18 +16945,21 @@ V1.5
     m.style.top = Math.max(4, Math.min(e.clientY - r.top + 6, st.clientHeight - m.offsetHeight - 4)) + 'px';
     m.querySelector('[data-sm="undo"]').focus();
   }
-  function smMenuClose() { var m = $('smMenu'); if (m) m.hidden = true; smUi.menu = null; }
+  function smMenuClose() { var m = smQ('smMenu'); if (m) m.hidden = true; smUi.menu = null; }
   function smClick(e) {
     var b = e.target.closest('[data-sm]'); if (!b) return;
     var a = b.getAttribute('data-sm');
     if (a === 'close') { smOpen(false, true); return; }
     if (a === 'full') { smFull(!smUi.full); return; }
-    if (a === 'set') { smUi.set = !smUi.set; smSetDraw(); var f = smUi.set && $('smSet').querySelector('input'); if (f) f.focus(); return; }
+    if (a === 'set') { smUi.set = !smUi.set; smSetDraw(); var f = smUi.set && smQ('smSet').querySelector('input'); if (f) f.focus(); return; }
     if (a === 'fit') { smUi.fitted = false; smDraw(); return; }
     if (a === 'zin' || a === 'zout') { var vb = smUi.vb; if (!vb) return; var f = a === 'zin' ? 0.8 : 1.25, cx = vb.x + vb.w / 2, cy = vb.y + vb.h / 2; smUi.vb = { x: cx - vb.w * f / 2, y: cy - vb.h * f / 2, w: vb.w * f, h: vb.h * f }; smDraw(); return; }
     if (a === 'undo' && smUi.menu != null) { smSend({ op: 'undo', line: smUi.menu }); smMenuClose(); smDrawSoon(); return; }
     if (a === 'menuNo') { smMenuClose(); return; }
     if (a === 'aoeNo') { smAoeClose(); var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); return; }
+    if (a === 'pip') { smPip(!smUi.pip); return; }
+    if (a === 'detach') { smDetach(!smPW); return; }
+    if (a === 'tokAoe') { var at0 = smUi.tokAt; smMenuClose(); smAoeOpen(b.getAttribute('data-k'), null, at0); return; }
     if (a === 'aoeEdit' && smUi.aoe) { smAoeOpen(smUi.aoe.k, b.getAttribute('data-i')); return; }
     if (a === 'aoeNew' && smUi.aoe) { smAoeOpen(smUi.aoe.k, null); return; }
     if (a === 'aoeDel' && smUi.aoe) {
@@ -16829,18 +16973,18 @@ V1.5
     if (e.target.id === 'smAny') { sm.any = e.target.checked; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smGridOn') { smView.grid = e.target.checked; smViewSave(); smDraw(); }
     if (e.target.id === 'smPatOn') { smView.pat = e.target.checked; smViewSave(); smDraw(); }
-    if (e.target.name === 'smStyle') { smView.style = e.target.value; smViewSave(); smDraw(); var r = $('smSet').querySelector('input[name="smStyle"]:checked'); if (r) r.focus(); }
+    if (e.target.name === 'smStyle') { smView.style = e.target.value; smViewSave(); smDraw(); var r = smQ('smSet').querySelector('input[name="smStyle"]:checked'); if (r) r.focus(); }
   }
   function smInput(e) {
     if (e.target.id === 'smPatOp') {
       smView.pop = Math.max(5, Math.min(100, Math.round(+e.target.value) || 100)); smViewSave();
-      var po = $('smPatOut'); if (po) po.textContent = smView.pop + '%';
-      var stg = $('smStage'); if (stg) stg.style.setProperty('--sm-po', String(smView.pop / 100));
+      var po = smQ('smPatOut'); if (po) po.textContent = smView.pop + '%';
+      var stg = smQ('smStage'); if (stg) stg.style.setProperty('--sm-po', String(smView.pop / 100));
       return;
     }
     if (e.target.id !== 'smGridOp') return;
     smView.op = Math.max(5, Math.min(100, Math.round(+e.target.value) || 60)); smViewSave();
-    var o = $('smGridOut'); if (o) o.textContent = smView.op + '%';
+    var o = smQ('smGridOut'); if (o) o.textContent = smView.op + '%';
     var svg = smSvgEl(); if (svg) svg.style.setProperty('--sm-go', String(smView.op / 100));
   }
   function smWheel(e) {
