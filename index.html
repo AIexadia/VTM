@@ -17079,9 +17079,11 @@ V1.5
     /* Speed rings, only for whoever is moving the token, during an encounter: how far it can still go this round, and
        how far before it passes half its running speed (and can no longer move and still attack). */
     if (act && act.bud) {
-      var c0 = act.from, bd = act.bud, halfLeft = Math.max(0, bd.half - bd.moved);
-      if (bd.left > 0.05) {
-        h += '<circle class="sm-ring" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + bd.left + '"/>'; smLabel(c0[0], c0[1] - bd.left - 0.25, 'Run ' + smFmt(bd.left) + ' left', 'sm-lbl-ring', 3);
+      /* With bends, the rings are centred on the last one, smaller by the way it took to get there. */
+      var bv = act.via && act.via.length ? act.via : null, used = bv ? smPLen([act.from].concat(bv)) : 0;
+      var c0 = bv ? bv[bv.length - 1] : act.from, bd = act.bud, runLeft = Math.max(0, bd.left - used), halfLeft = Math.max(0, bd.half - bd.moved - used);
+      if (runLeft > 0.05) {
+        h += '<circle class="sm-ring" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + runLeft + '"/>'; smLabel(c0[0], c0[1] - runLeft - 0.25, 'Run ' + smFmt(runLeft) + ' left', 'sm-lbl-ring', 3);
         if (halfLeft > 0.05) { h += '<circle class="sm-ring half" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + halfLeft + '"/>'; smLabel(c0[0], c0[1] - halfLeft - 0.25, 'Half ' + smFmt(halfLeft), 'sm-lbl-ring', 3); }
         if (bd.moved + (act.plen != null ? act.plen : smDist(c0, [byK[act.k].x, byK[act.k].y])) > bd.half + 0.01) smLabel(byK[act.k].x, byK[act.k].y - SM_R - 0.3, 'Over Half', 'sm-lbl-over', 1);
       }
@@ -17521,6 +17523,9 @@ V1.5
     q = smWallMove(a.to || a.from, q);   // walls stop it (it slides along them)
     /* The way it went, pulled tight around walls: that's the distance moved (and no more than its speed allows). */
     if (!a.trail) a.trail = [a.from.slice()];
+    /* Back near the last bend: it's taken away (the way it went is forgotten from there), so the token can go back. */
+    var lb = a.via && a.via.length ? a.via[a.via.length - 1] : null;
+    if (lb && smDist(q, lb) < SM_R + 0.15) a.trail = [a.from.slice()].concat(a.via.slice(0, -1).map(function (v) { return v.slice(); }));
     var P = [a.from].concat(smPathPull(a.trail.concat([q])), [q]);
     if (a.bud && smPLen(P) > a.bud.left + 0.01) { P = smPCut(P, a.bud.left); q = P[P.length - 1]; }
     if (smDist(a.trail[a.trail.length - 1], q) >= 0.15) a.trail.push(q.slice());

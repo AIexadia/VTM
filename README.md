@@ -490,3 +490,8 @@ V3.6.1
 -Skirmish Map Changes:
 	-A move's line follows the way the token actually went, pulled tight around walls that block movement: it bends at the corner nearest to where it has to (a token's width clear of it), and its length is the distance moved (and what counts against the token's speed).
 	-Fixed a token being dragged when the window lost focus (the Windows key, Alt+Tab) or the mouse button was let go outside it: the move wasn't kept, and the token's new spot became where its movement started from. The drag now ends there as a normal drop.
+
+V3.6.2
+-Skirmish Map Changes:
+	-Fixed a move's bends making it impossible to go back: dragging the token back near the last bend now takes that bend away.
+	-The speed rings while dragging follow a move's bends: they're centred on the last bend, smaller by the distance it took to get there, so they show how far the token can really still go.
