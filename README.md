@@ -503,3 +503,7 @@ V3.6.3
 V3.6.4
 -Skirmish Map Changes:
 	-Fixed a move's line cutting through a corner where two walls meet (dropping a bend it still needed, like one through a broken window): a bend now only goes when every wall at the corners either side of it still lies inside the line's turn.
+
+V3.6.5
+-Skirmish Map Changes:
+	-Fixed a move's bends not going away at some corners (like after going round a building's corner and back): a move's line is now pulled tight like a string around the walls, a token's width clear of them, so it's the shortest way that still goes round each wall on the side the token did. Rounding a corner shows as a few short bends hugging it.
