@@ -485,3 +485,8 @@ V3.6
 		-Tokens can't be dragged through walls that block movement; they slide along them instead.
 		-Players only see the tokens their own tokens can see, with a fog over the rest of the map. The host sees everything.
 		-Hidden walls only count for the host, so a hidden door drawn over a wall stays a plain wall for players until it's shown.
+
+V3.6.1
+-Skirmish Map Changes:
+	-A move's line follows the way the token actually went, pulled tight around walls that block movement: it bends at the corner nearest to where it has to (a token's width clear of it), and its length is the distance moved (and what counts against the token's speed).
+	-Fixed a token being dragged when the window lost focus (the Windows key, Alt+Tab) or the mouse button was let go outside it: the move wasn't kept, and the token's new spot became where its movement started from. The drag now ends there as a normal drop.

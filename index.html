@@ -2381,6 +2381,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 .sm-dt.sm-z.sm-dwlb { height: 26px; padding: 0 6px; font-size: 0.72rem; min-width: 0; }
 .sm-dwlb[aria-checked="true"] { border-color: var(--accent); color: var(--accent); }
 .sm-dpop[aria-label="Pen"] { min-width: 256px; }
+polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; stroke-linejoin: round; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -16538,7 +16539,7 @@ V1.5
     var hidOk = function (k) { return !k || !sm.hid[k] || see[k]; };
     var mh = { me: smNo(pid), t: toks.filter(function (t) { return see[t.k]; }).map(function (t) { var o = smPubTok(t, {}); o.hv = (sm.hid[t.k].v || []).map(smNo); return o; }) };
     if (mh.t.length) {
-      mh.l = sm.lines.filter(function (l) { return see[l.a] && l.r === (s ? s.ini.round : 1); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; });
+      mh.l = sm.lines.filter(function (l) { return see[l.a] && l.r === (s ? s.ini.round : 1); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t, v: l.v }; });
       mh.a = sm.aoe.filter(function (a) { return see[String(a.k)] && !a.h; }).map(smAoePub);
       mh.m = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w]; if (!((m.f.k && sm.hid[m.f.k]) || (m.t.k && sm.hid[m.t.k])) || !hidOk(m.f.k) || !hidOk(m.t.k)) return null; var e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
     }
@@ -16548,7 +16549,8 @@ V1.5
   /* Is an encounter on? Before one starts, moving tokens is just setting the scene: no paths, no speed limits. */
   function smEnc() { var s = smState(); return !!(s && (s.watching ? s.remote && s.remote.e : s.ini.encounter)); }
   /* How far a token has moved this round, and what its speed allows (null when this page doesn't know its speed). */
-  function smMoved(k) { var n = 0; smLines().forEach(function (l) { if (String(l.a) === String(k)) n += smDist(l.f, l.t); }); return n; }
+  function smLnPts(l) { return [l.f].concat(Array.isArray(l.v) ? l.v : [], [l.t]); }   // a move line's path (bent around walls)
+  function smMoved(k) { var n = 0; smLines().forEach(function (l) { if (String(l.a) === String(k)) n += smPLen(smLnPts(l)); }); return n; }
   function smRunOf(t) {
     if (!t) return null;
     if (smMode() === 'host') { var sp = smSpeeds(t.c); return sp ? { run: sp.run, wound: sp.wound } : null; }
@@ -16626,7 +16628,7 @@ V1.5
     var okK = {}; toks.forEach(function (x) { if (smPubOk(x)) okK[x.k] = 1; });
     var hk = function (k) { return !!(k && !okK[String(k)]); };
     var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w]; if (hk(m.f.k) || hk(m.t.k)) return null; var e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
-    return { u: sm.units, uf: sm.uf === false ? 0 : 1, uy: sm.uy === false ? 0 : 1, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
+    return { u: sm.units, uf: sm.uf === false ? 0 : 1, uy: sm.uy === false ? 0 : 1, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t, v: l.v }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
   };
   /* One token as watchers get it. */
   function smPubTok(x, pics) {
@@ -16679,17 +16681,20 @@ V1.5
       x = Math.max(-500, Math.min(500, x)); y = Math.max(-500, Math.min(500, y));
       var k = String(a.id);
       if (sm.drag && sm.drag.k === k && sm.drag.who !== who && now - sm.drag.t < 4000) return;   // someone else has it
-      if (o.op === 'drag') { sm.pos[k] = [x, y]; sm.drag = { k: k, by: by, who: who, t: now, from: sm.drag && sm.drag.k === k && sm.drag.from ? sm.drag.from : (Array.isArray(o.from) ? [+o.from[0], +o.from[1]] : sm.pos[k]) }; smPushSoon(); smDrawSoon(); return; }
+      if (o.op === 'drag') { sm.pos[k] = [x, y]; sm.drag = { k: k, by: by, who: who, t: now, v: smViaOk(o.via), from: sm.drag && sm.drag.k === k && sm.drag.from ? sm.drag.from : (Array.isArray(o.from) ? [+o.from[0], +o.from[1]] : sm.pos[k]) }; smPushSoon(); smDrawSoon(); return; }
       var from = Array.isArray(o.from) && isFinite(+o.from[0]) && isFinite(+o.from[1]) ? [+o.from[0], +o.from[1]] : (sm.drag && sm.drag.from) || sm.pos[k] || [x, y];
       var toks0 = smHostTokens(), me0 = toks0.filter(function (t) { return t.k === k; })[0], to0 = [x, y];
-      var org = null, lim = null;
-      if (smEnc() && me0) {   // no further than this round's speed allows
+      var org = null, lim = null, via = smViaOk(o.via), P = [from].concat(via, [to0]), rel = 'from';
+      if (smEnc() && me0) {   // no further than this round's speed allows (along the path it took, around walls)
         var bd = smBudget(me0);
         if (bd) {
           var rd0 = smRound(), mine0 = sm.lines.filter(function (l) { return l.a === k && l.r === rd0; }), last0 = mine0[mine0.length - 1];
-          if (last0 && smDist(from, to0) <= 1 && smDist(last0.t, from) < 0.01) { org = last0.f; lim = Math.max(0, bd.run - (bd.moved - smDist(last0.f, last0.t))); }
-          else { org = from; lim = bd.left; }
-          to0 = smClampTo(org, to0, lim);
+          if (last0 && smDist(from, to0) <= 1 && smDist(last0.t, from) < 0.01) {
+            org = last0.f; lim = Math.max(0, bd.run - (bd.moved - smPLen(smLnPts(last0))));
+            P = [org].concat(smPathPull(smLnPts(last0).concat(via, [to0])), [to0]); rel = 'last';
+          } else { org = from; lim = bd.left; }
+          if (smPLen(P) > lim + 0.01) P = smPCut(P, lim);
+          to0 = P[P.length - 1];
         }
       }
       /* Dropped on another token (a hidden one, which dragging passes over) it's nudged clear, but never further than
@@ -16697,7 +16702,7 @@ V1.5
       var pre0 = to0; to0 = smFreeWithin(k, to0, toks0, org, lim);
       if (smWallCross(pre0, to0)) to0 = pre0;   // never nudged through a wall
       sm.pos[k] = to0; sm.drag = null;
-      smRecord(k, from, to0);
+      smRecord(k, from, to0, P.slice(1, -1), rel);
     } else if (o.op === 'undo') {
       var li = sm.lines.filter(function (l) { return l.id === +o.line; })[0]; if (!li) return;
       a = smActor(li.a); if (!a || !smMayMove(a, who)) return;
@@ -16736,14 +16741,16 @@ V1.5
     smSave(); smPushSoon(); smDrawSoon();
   }
   /* A move this round: a new line, or (dropped within a yard/metre of where the token was) the last line redrawn. */
-  function smRecord(k, from, to) {
+  function smRecord(k, from, to, via, rel) {
+    via = via || [];
     if (!smEnc()) return;   // setting the scene before the encounter: no paths
     var rd = smRound(), mine = sm.lines.filter(function (l) { return l.a === k && l.r === rd; }), last = mine[mine.length - 1];
     if (!mine.length && smDist(from, to) < 1 && !smNewEngage(k, from, to)) { sm.pos[k] = from.slice(); return; }   // a nudge, not a move
-    if (last && smDist(from, to) <= 1 && smDist(last.t, from) < 0.01) {
-      last.t = to.slice();
-      if (smDist(last.f, last.t) < 0.05) sm.lines = sm.lines.filter(function (l) { return l !== last; });
-    } else if (smDist(from, to) >= 0.05) sm.lines.push({ id: sm.seq++, a: k, f: from.slice(), t: to.slice(), r: rd });
+    if (last && smDist(from, to) <= 1 && smDist(last.t, from) < 0.01) {   // the last move, carried on
+      var v0 = rel === 'last' ? via : smPathPull(smLnPts(last).concat(via, [to]));
+      last.t = to.slice(); if (v0.length) last.v = v0; else delete last.v;
+      if (smPLen(smLnPts(last)) < 0.05) sm.lines = sm.lines.filter(function (l) { return l !== last; });
+    } else if (smDist(from, to) >= 0.05 || via.length) { var nl = { id: sm.seq++, a: k, f: from.slice(), t: to.slice(), r: rd }; if (via.length && rel !== 'last') nl.v = via; sm.lines.push(nl); }
   }
   /* Does moving a token from one spot to another put it in melee with someone it wasn't in melee with? */
   function smNewEngage(k, from, to) {
@@ -16952,6 +16959,8 @@ V1.5
       w.addEventListener('pointermove', smMove);
       w.addEventListener('pointerup', smUp);
       w.addEventListener('pointercancel', smUp);
+      var win0 = w.ownerDocument && w.ownerDocument.defaultView;   // the window losing focus mid-drag (the Windows key, Alt+Tab) ends it as a drop
+      if (win0 && !win0.__smBlur) { win0.__smBlur = 1; win0.addEventListener('blur', smLostFocus); }
       w.addEventListener('pointerleave', function () { if (smUi.hover || smUi.hl != null || smUi.ha.length) { smUi.hover = ''; smUi.hl = null; smUi.ha = []; smTip(); smDrawSoon(); } }, true);
       w.addEventListener('contextmenu', smCtx);
       /* The browser's own handling of presses on the map (selecting text, dragging the picture, the middle-button scroll) is off. */
@@ -17074,7 +17083,7 @@ V1.5
       if (bd.left > 0.05) {
         h += '<circle class="sm-ring" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + bd.left + '"/>'; smLabel(c0[0], c0[1] - bd.left - 0.25, 'Run ' + smFmt(bd.left) + ' left', 'sm-lbl-ring', 3);
         if (halfLeft > 0.05) { h += '<circle class="sm-ring half" cx="' + c0[0] + '" cy="' + c0[1] + '" r="' + halfLeft + '"/>'; smLabel(c0[0], c0[1] - halfLeft - 0.25, 'Half ' + smFmt(halfLeft), 'sm-lbl-ring', 3); }
-        if (bd.moved + smDist(c0, [byK[act.k].x, byK[act.k].y]) > bd.half + 0.01) smLabel(byK[act.k].x, byK[act.k].y - SM_R - 0.3, 'Over Half', 'sm-lbl-over', 1);
+        if (bd.moved + (act.plen != null ? act.plen : smDist(c0, [byK[act.k].x, byK[act.k].y])) > bd.half + 0.01) smLabel(byK[act.k].x, byK[act.k].y - SM_R - 0.3, 'Over Half', 'sm-lbl-over', 1);
       }
     }
     if (smUi.act && smUi.act.stuck && smUi.act.moved && byK[smUi.act.k]) { var st0 = byK[smUi.act.k]; smLabel(st0.x, st0.y - SM_R - 0.3, smUi.act.bud.run <= 0 ? 'Can\'t move (' + smUi.act.bud.wound + ')' : 'No movement left this round', 'sm-lbl-leave', 1); }
@@ -17082,13 +17091,14 @@ V1.5
     var lines = smLines();
     lines.forEach(function (l) {
       if (mode === 'join' && !byK[String(l.a)]) return;   // a token out of sight
-      var mid = [(l.f[0] + l.t[0]) / 2, (l.f[1] + l.t[1]) / 2], hot = smUi.hl === l.id || (!!smUi.hover && String(l.a) === smUi.hover);
-      h += '<g class="sm-move' + (hot ? ' hot' : '') + '" data-line="' + l.id + '" data-tok="' + esc(String(l.a)) + '"><line class="sm-move-hit" x1="' + l.f[0] + '" y1="' + l.f[1] + '" x2="' + l.t[0] + '" y2="' + l.t[1] + '"/><line class="sm-move-ln" x1="' + l.f[0] + '" y1="' + l.f[1] + '" x2="' + l.t[0] + '" y2="' + l.t[1] + '"/><circle class="sm-move-dot" cx="' + l.f[0] + '" cy="' + l.f[1] + '" r="0.12"/>' + (hot ? smLabel(mid[0], mid[1] - 0.25, smFmt(smDist(l.f, l.t)), 'sm-lbl-move') : '') + '</g>';
+      var LP = smLnPts(l), mid = smPMid(LP), pts = LP.map(function (q) { return q[0] + ',' + q[1]; }).join(' '), hot = smUi.hl === l.id || (!!smUi.hover && String(l.a) === smUi.hover);
+      h += '<g class="sm-move' + (hot ? ' hot' : '') + '" data-line="' + l.id + '" data-tok="' + esc(String(l.a)) + '"><polyline class="sm-move-hit" points="' + pts + '"/><polyline class="sm-move-ln" points="' + pts + '"/><circle class="sm-move-dot" cx="' + l.f[0] + '" cy="' + l.f[1] + '" r="0.12"/>' + (hot ? smLabel(mid[0], mid[1] - 0.25, smFmt(smPLen(LP)), 'sm-lbl-move') : '') + '</g>';
     });
     /* The move being made now. */
     if (dragK && byK[dragK]) {
       var dt = byK[dragK], from = act ? act.from : (mode === 'host' && sm.drag ? sm.drag.from : null);
-      if (from) h += '<line class="sm-drag-ln" x1="' + from[0] + '" y1="' + from[1] + '" x2="' + dt.x + '" y2="' + dt.y + '"/>' + smLabel((from[0] + dt.x) / 2, (from[1] + dt.y) / 2 - 0.25, smFmt(smDist(from, [dt.x, dt.y])), 'sm-lbl-drag', 9);
+      var DP = from ? [from].concat((act ? act.via : sm.drag && sm.drag.v) || [], [[dt.x, dt.y]]) : null, dm = DP && smPMid(DP);
+      if (from) h += '<polyline class="sm-drag-ln" points="' + DP.map(function (q) { return q[0] + ',' + q[1]; }).join(' ') + '"/>' + smLabel(dm[0], dm[1] - 0.25, smFmt(smPLen(DP)), 'sm-lbl-drag', 9);
     }
     /* Measurements (everyone's), and the one being made here. */
     var ms = mode === 'join' ? (rm.ms || []).concat(smMine.h && Array.isArray(smMine.h.m) ? smMine.h.m : []) : Object.keys(sm.meas).map(function (k) { var m = sm.meas[k], e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0], t: e[1] } : null; }).filter(Boolean);
@@ -17209,7 +17219,7 @@ V1.5
     smTokens().forEach(function (t) { var d = smDist(p, [t.x, t.y]); if (d < bd) { bd = d; best = t.k; } });
     if (!best) {   // a movement line, within a few pixels
       var r = svg.getBoundingClientRect(), tol = 7 / Math.min(r.width / smUi.vb.w, r.height / smUi.vb.h), hd = tol;
-      smLines().forEach(function (l) { var d = smSegDist(p, l.f, l.t); if (d < hd) { hd = d; hl = l.id; } });
+      smLines().forEach(function (l) { var LP = smLnPts(l); for (var i = 1; i < LP.length; i++) { var d = smSegDist(p, LP[i - 1], LP[i]); if (d < hd) { hd = d; hl = l.id; } } });
     }
     /* Areas the pointer is in (only when it isn't over a token or a line, which come first): smallest first. */
     var ha = [];
@@ -17443,7 +17453,18 @@ V1.5
     try { smSvgEl().setPointerCapture(e.pointerId); } catch (x) {}
   }
   var smLiveT = 0;
+  /* A drag that lost its pointer (the window lost focus, or the button was let go outside it): it ends where it is, as
+     a drop, so the move is kept and counted (rather than the token's new spot becoming where it started from). */
+  function smLostFocus() {
+    var fake = { clientX: 0, clientY: 0, pointerId: smUi.act && smUi.act.pid, button: 0 };
+    if (smDw.act) smDrawUp(fake);
+    var a = smUi.act; if (!a) return;
+    if (a.k && a.moved) { fake.clientX = a.sx; fake.clientY = a.sy; smUp(fake); return; }
+    if (a.hold) clearTimeout(a.hold);
+    smUi.act = null; smDrawSoon();
+  }
   function smMove(e) {
+    if (smUi.act && smUi.act.k && smUi.act.moved && e.pointerType === 'mouse' && e.buttons === 0) { smLostFocus(); return; }   // let go while the window wasn't listening
     if (smDrawMove(e)) return;
     if (!smUi.act) smHoverAt(e);
     if (smUi.pend && !smUi.act && smUi.vb) { smUi.pend.to = smToWorld(e); var tk = smTokAt(e); smUi.pend.tk = tk && tk.k !== smUi.pend.f.k ? tk.k : ''; smDrawSoon(); }
@@ -17498,10 +17519,16 @@ V1.5
     q = smFree(a.k, q, toks);
     if (a.bud && smDist(a.from, q) > a.bud.left + 0.01) q = smFree(a.k, smClampTo(a.from, q, a.bud.left), toks);
     q = smWallMove(a.to || a.from, q);   // walls stop it (it slides along them)
+    /* The way it went, pulled tight around walls: that's the distance moved (and no more than its speed allows). */
+    if (!a.trail) a.trail = [a.from.slice()];
+    var P = [a.from].concat(smPathPull(a.trail.concat([q])), [q]);
+    if (a.bud && smPLen(P) > a.bud.left + 0.01) { P = smPCut(P, a.bud.left); q = P[P.length - 1]; }
+    if (smDist(a.trail[a.trail.length - 1], q) >= 0.15) a.trail.push(q.slice());
+    a.via = P.slice(1, -1); a.plen = smPLen(P);
     var x = q[0], y = q[1];
     a.to = [x, y];
-    if (smMode() === 'host') { sm.pos[a.k] = [x, y]; sm.drag = { k: a.k, by: myName() || 'Host', who: 'host', t: Date.now(), from: a.from }; smPushSoon(); }
-    else { smUi.local[a.k] = [x, y]; var now = Date.now(); if (now - smLiveT > 90) { smLiveT = now; smSend({ op: 'drag', id: +a.k, x: smNum(x), y: smNum(y), from: a.from }); } }
+    if (smMode() === 'host') { sm.pos[a.k] = [x, y]; sm.drag = { k: a.k, by: myName() || 'Host', who: 'host', t: Date.now(), from: a.from, v: a.via }; smPushSoon(); }
+    else { smUi.local[a.k] = [x, y]; var now = Date.now(); if (now - smLiveT > 90) { smLiveT = now; smSend({ op: 'drag', id: +a.k, x: smNum(x), y: smNum(y), from: a.from, via: a.via }); } }
     smDrawSoon();
   }
   function smUp(e) {
@@ -17519,8 +17546,8 @@ V1.5
     if (a.moved && a.stuck) { smDrawSoon(); return; }   // it couldn't move: nothing to drop
     if (a.moved) {
       var to = a.to || a.from;
-      if (smMode() === 'host') { sm.drag = null; smHostDo('host', myName() || 'Host', { op: 'drop', id: +a.k, x: to[0], y: to[1], from: a.from }); }
-      else { smSend({ op: 'drop', id: +a.k, x: smNum(to[0]), y: smNum(to[1]), from: a.from }); var k = a.k; setTimeout(function () { delete smUi.local[k]; smDrawSoon(); }, 1500); }
+      if (smMode() === 'host') { sm.drag = null; smHostDo('host', myName() || 'Host', { op: 'drop', id: +a.k, x: to[0], y: to[1], from: a.from, via: a.via }); }
+      else { smSend({ op: 'drop', id: +a.k, x: smNum(to[0]), y: smNum(to[1]), from: a.from, via: a.via }); var k = a.k; setTimeout(function () { delete smUi.local[k]; smDrawSoon(); }, 1500); }
       smDrawSoon();
       return;
     }
@@ -17937,6 +17964,39 @@ V1.5
     var along = (p1[0] - q[0]) * dx + (p1[1] - q[1]) * dy, sl = [q[0] + dx * along, q[1] + dy * along];
     return upTo(q, sl);
   }
+  /* ---- a move's path around walls ----
+     The way a token went (the points it passed while dragged) pulled tight like a string: straight wherever nothing
+     blocks it, bending only at the corners of walls that block movement (the end of a wall nearest to where the bend is
+     needed, a token's radius clear of it). Its length is the distance moved. */
+  function smPLen(P) { var n = 0; for (var i = 1; i < P.length; i++) n += smDist(P[i - 1], P[i]); return n; }
+  function smPMid(P) { var L = smPLen(P) / 2; for (var i = 1; i < P.length; i++) { var d = smDist(P[i - 1], P[i]); if (L <= d && d > 0) return smWAt({ a: P[i - 1], b: P[i] }, L / d); L -= d; } return P[P.length - 1]; }
+  /* The first `lim` of a path (a move no longer than what's left of a token's speed). */
+  function smPCut(P, lim) { var out = [P[0]], left = lim; for (var i = 1; i < P.length; i++) { var d = smDist(P[i - 1], P[i]); if (d >= left) { if (left > 1e-6) out.push(smWAt({ a: P[i - 1], b: P[i] }, left / d)); else if (out.length < 2) out.push(P[i - 1].slice()); return out; } out.push(P[i]); left -= d; } return out; }
+  function smPathPull(T) {
+    if (!T || T.length < 3) return [];
+    var W = smWalls().filter(smWBlockM); if (!W.length) return [];
+    function clear(a, b) { var d = smDist(a, b); if (d < 1e-6) return true; var e = 1e-4 / d, a2 = smWAt({ a: a, b: b }, e), b2 = smWAt({ a: a, b: b }, 1 - e); for (var j = 0; j < W.length; j++) if (smSegHit(a2, b2, W[j].a, W[j].b) >= 0) return false; return true; }
+    var ends = []; W.forEach(function (w) { [w.a, w.b].forEach(function (q) { if (!ends.some(function (x) { return smDist(x, q) < 0.02; })) ends.push(q); }); });
+    var out = [], a = T[0], i = 1, guard = 0;
+    while (i < T.length && guard++ < 300) {
+      if (clear(a, T[i])) { i++; continue; }
+      var t = T[i], best = null, bd = Infinity;
+      ends.forEach(function (v) { if (smDist(v, a) < 0.01) return; var c = smDist(a, v) + smDist(v, t); if (c < bd && clear(a, v) && clear(v, t)) { bd = c; best = v; } });
+      var nv = best || T[i - 1];
+      if (smDist(nv, a) < 1e-3) { i++; continue; }
+      out.push({ p: nv, c: !!best }); a = nv;
+    }
+    /* Then each bend at a wall's corner steps a token's radius out from it (the wall lies inside the bend). */
+    var P = [T[0]].concat(out.map(function (o) { return o.p; }), [T[T.length - 1]]);
+    out = out.map(function (o, j) {
+      var v = o.p, pa = P[j], pb = P[j + 2]; if (!o.c) return [smDrN(v[0]), smDrN(v[1])];
+      var ux = pa[0] - v[0], uy = pa[1] - v[1], ul = Math.hypot(ux, uy) || 1, vx = pb[0] - v[0], vy = pb[1] - v[1], vl = Math.hypot(vx, vy) || 1, bx = ux / ul + vx / vl, by = uy / ul + vy / vl, bl = Math.hypot(bx, by);
+      if (bl > 1e-3) { var off = [v[0] - bx / bl * SM_R, v[1] - by / bl * SM_R]; if (clear(pa, off) && clear(off, pb)) { P[j + 1] = off; v = off; } }
+      return [smDrN(v[0]), smDrN(v[1])];
+    });
+    return out.slice(0, 60);
+  }
+  function smViaOk(v) { return (Array.isArray(v) ? v : []).slice(0, 60).map(function (q) { return Array.isArray(q) && isFinite(+q[0]) && isFinite(+q[1]) ? [smDrN(Math.max(-600, Math.min(600, +q[0]))), smDrN(Math.max(-600, Math.min(600, +q[1])))] : null; }).filter(Boolean); }
   /* Does a straight move cross a wall that blocks movement? (The host's check on a nudge after a drop.) */
   function smWallCross(p, q) { return smWalls().some(function (w) { return smWBlockM(w) && smSegHit(p, q, w.a, w.b) >= 0; }); }
   /* A measurement across walls: where it passes a half wall (cover) and a wall that blocks sight. */
