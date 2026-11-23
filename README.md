@@ -409,3 +409,18 @@ V3.2.1
 	-Dossier: strings can now weave between notes and containers in their way, leaving a note from whichever side suits and snaking around what's in the way. A gentle bend is still used whenever that's enough; the weaving path is only for when it isn't.
 	-Dossier: something dropped between other things now gets room of its own: each thing it lands on makes way on its own side, and whatever sits close to that thing moves with it, keeping its place, while everything else stays put. Before, everything nearby moved off together as one block.
 	-Fixed a Dossier element taken out of the selection with Shift-click staying highlighted until something else was Shift-clicked.
+
+V3.3
+-Skirmish Map Changes:
+	-New "Hide" in a token's menu (right-click it, or press and hold). The host can hide any token; someone who joined can hide their own. A hidden token, along with its moves, measurements to and from it, and the areas of effect following it, is only shown to the host and the token's owner. "Unhide" shows it to everyone again.
+	-"Visible to…" (under Hide) picks who else in the room can see a hidden token; nobody else by default.
+	-Those who can see a hidden token see it faded, with a dashed ring and a small crossed-out eye; its hover card says who can see it.
+	-New "Add hidden" switch in the host's Actors list: actors added while it's on (from the list, the tracker's Add button or a preset) start hidden on the Skirmish Map, so they can join an encounter already under way without anyone else seeing them.
+	-A dragged token passes over hidden tokens (which still stop it at visible ones); dropped on a hidden token, it's nudged to the nearest free spot, but never further than the movement it has left.
+-Character Manager Changes:
+	-Dossier: with Edit off, the board can be dragged from anywhere, notes, containers and strings included (a click without dragging still selects what's under it).
+	-Fixed Dossier strings sometimes hooking or looping back as they reached a note: they now come straight in to the nearest point of its edge, and can slip through narrower gaps between notes instead of going the long way around.
+-Initiative Tracker Changes:
+	-People who joined only see player characters until an encounter starts; everyone else (in the tracker and on the Skirmish Map) appears once it does.
+	-Actors hidden on the Skirmish Map also stay out of the tracker for those who can't see them, until someone who joined has seen them; from then on they stay in the tracker, even if hidden again.
+	-"Enemy [n]" numbers are handed out in the order enemies are first seen by those who joined, so a hidden enemy leaves no gap in the numbering.

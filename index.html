@@ -2234,6 +2234,19 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 .sm-pop.sm-pip .sm-fullb, .sm-pop.sm-pip .sm-help, .sm-pop.sm-detached .sm-help { display: none; }
 /* Opera's detached window can't be clicked along its top edge, so the header starts below that strip. */
 .sm-pop.sm-detached.sm-det-opr { padding-top: 40px; }
+/* Skirmish Map: hidden tokens (only some people see them) look faded, with a dashed ring and a small mark. */
+.sm-tok.hid { opacity: 0.72; }
+.sm-tok.hid .sm-tok-ring { stroke-dasharray: 0.12 0.08; }
+.sm-hid-mk circle { fill: #1d1820; stroke: #d9a441; stroke-width: 0.03; }
+.sm-hid-mk path { fill: none; stroke: #f0e6d0; stroke-width: 0.035; stroke-linecap: round; stroke-linejoin: round; }
+.sm-tip-hid { color: #d9a441; font-style: italic; }
+.sm-vis { display: flex; flex-direction: column; gap: 4px; padding: 4px 0 2px 10px; border-left: 2px solid var(--line-strong); margin-left: 6px; }
+.sm-vis-p { margin: 0; }
+.sm-vis-n { font-size: 0.8rem; max-width: 220px; }
+.sm-vis-b .muted { font-size: 0.8rem; margin-left: 4px; }
+/* Actors list (host): "Add hidden" sits on its own line under the search and buttons. */
+.lib-tools { flex-wrap: wrap; }
+.lib-tools .lib-hidsw { order: 10; flex: 1 1 100%; grid-column: 1 / -1; margin: 2px 0 0; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -3028,7 +3041,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
           var die = isFinite(+a.die) ? clamp(Math.round(+a.die), -199, 999) : (rolled ? Math.round(+a.init) - mod - applied - (isFinite(+a.ix) ? +a.ix : 0) : 0);
           seen[+a.id] = true;
           seq = Math.max(seq, +a.id + 1);
-          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied + (isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0) : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0, ch: typeof a.ch === 'string' ? a.ch.slice(0, 40) : '', cd: isFinite(+a.cd) ? clamp(Math.round(+a.cd), 0, 10) : 0, mn: typeof a.mn === 'string' ? a.mn.slice(0, 80) : '', wnd: isFinite(+a.wnd) ? clamp(Math.round(+a.wnd), -10, 0) : 0, wndA: isFinite(+a.wndA) ? clamp(Math.round(+a.wndA), -10, 0) : 0, cu: isFinite(+a.cu) ? clamp(Math.round(+a.cu), 0, 10) : 0, ix: isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0, ow: typeof a.ow === 'string' && /^[a-f0-9]{16,64}$/.test(a.ow) ? a.ow : '', rc: typeof a.rc === 'string' ? a.rc.slice(0, 40) : '', of: typeof a.of === 'string' ? a.of.slice(0, 64) : '', inc: !!a.inc, incOut: !!a.incOut, modN: a.modN == null || !isFinite(+a.modN) ? null : clamp(Math.round(+a.modN), -99, 99) });
+          st.ini.actors.push({ id: +a.id, name: String(a.name || 'Actor').replace(/\s+/g, ' ').trim().slice(0, 24) || 'Actor', mod: mod, bonus: bonus, applied: applied, tie: isFinite(+a.tie) ? clamp(Math.round(+a.tie), 0, 999) : 0, die: rolled ? die : 0, init: rolled ? die + mod + applied + (isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0) : null, persistent: a.persistent === true, type: a.type === 'player' || a.type === 'enemy' ? a.type : '', reveal: a.type !== 'player' && a.reveal === true, en: isFinite(+a.en) ? clamp(Math.round(+a.en), 0, 999) : 0, base: typeof a.base === 'string' ? a.base.replace(/\s+/g, ' ').trim().slice(0, 24) : '', cel: a.cel === true, ca: a.cel === true && isFinite(+a.ca) ? clamp(Math.round(+a.ca), 0, 9) : 0, ch: typeof a.ch === 'string' ? a.ch.slice(0, 40) : '', cd: isFinite(+a.cd) ? clamp(Math.round(+a.cd), 0, 10) : 0, mn: typeof a.mn === 'string' ? a.mn.slice(0, 80) : '', wnd: isFinite(+a.wnd) ? clamp(Math.round(+a.wnd), -10, 0) : 0, wndA: isFinite(+a.wndA) ? clamp(Math.round(+a.wndA), -10, 0) : 0, cu: isFinite(+a.cu) ? clamp(Math.round(+a.cu), 0, 10) : 0, ix: isFinite(+a.ix) ? clamp(Math.round(+a.ix), -20, 0) : 0, ow: typeof a.ow === 'string' && /^[a-f0-9]{16,64}$/.test(a.ow) ? a.ow : '', rc: typeof a.rc === 'string' ? a.rc.slice(0, 40) : '', of: typeof a.of === 'string' ? a.of.slice(0, 64) : '', inc: !!a.inc, incOut: !!a.incOut, modN: a.modN == null || !isFinite(+a.modN) ? null : clamp(Math.round(+a.modN), -99, 99), seen: a.seen === true, pn: isFinite(+a.pn) ? clamp(Math.round(+a.pn), 0, 999) : 0 });
         });
         st.ini.seq = seq;
         var usedEn = {};
@@ -4981,7 +4994,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
   }
   /* Players are always revealed; anyone else is revealed only when the host says so. */
   function isRev(a) { return a.type === 'player' || !!a.reveal; }
-  function pubName(a) { return isRev(a) ? a.name : 'Enemy [' + a.en + ']'; }
+  function pubName(a) { return isRev(a) ? a.name : 'Enemy [' + (a.pn || '?') + ']'; }
   function fmtMod(n) { return (n < 0 ? MINUS : '+') + Math.abs(n); }
   /* The total is the roll plus the modifier plus the bonus or penalty. */
   /* CHARACTERS-MODULE:BEGIN ini-extra */
@@ -5078,7 +5091,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
   var ROLLER_LOCAL = ['ini', 'pool', 'diff', 'mod', 'dMod', 'dmgPool', 'dmgDiff', 'dmgMod', 'dmgDMod', 'want', 'action', 'spec', 'dmgSpec', 'botch', 'dmgBotch', 'botchPrev', 'dmgBotchPrev', 'diffInput', 'dmgDiffInput', 'module', 'presetsOpen', 'dmgPresetsOpen', 'dmgPlanOpen', 'presetsH', 'dmgPresetsH', 'actorSort', 'actorDesc', 'actorPresets', 'sound'];   // CHARACTERS-MODULE: this device and this moment (current roll, open panels, sound), not synced to the account
   window.vtmSyncUrl = SYNC_URL;   // CHARACTERS-MODULE: the account API lives on the same server
   /* CHARACTERS-MODULE:BEGIN join-state */
-  var mineRows = {}, privSent = {};
+  var mineRows = {}, privSent = {}, xRows = [], lastRowsAll = [];   // xRows: hidden actors this joiner may see
   function mineCids() { return Object.keys(mineRows).map(function (k) { return mineRows[k].cid; }).filter(Boolean); }
   /* This browser's private id for rooms: only the hosts of rooms it joins ever see it. */
   function legacyPids() { try { var o = JSON.parse(localStorage.getItem('vtm-sync-pid-old') || '[]'); return Array.isArray(o) ? o.filter(function (x) { return /^[a-f0-9]{32}$/.test(x); }).slice(-4) : []; } catch (e) { return []; } }
@@ -5124,10 +5137,12 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
       (by[a.ow] = by[a.ow] || []).push({ k: a.id, cid: a.rc || '', mod: a.mod, mn: a.mn || '', wnd: a.wnd || 0, ix: a.ix || 0, cd: a.cd || 0, bl: a.bl == null ? null : a.bl, ca: a.ca || 0, cu: a.cu || 0, cel: !!a.cel, ap: a.applied || 0 });
     });
     Object.keys(privSent).forEach(function (pid) { if (!by[pid]) by[pid] = []; });
-    if (window.cmMapPrivPids) window.cmMapPrivPids().forEach(function (pid) { if (!by[pid]) by[pid] = []; });   // Skirmish Map areas they placed
+    if (window.cmMapPrivPids) window.cmMapPrivPids().forEach(function (pid) { if (!by[pid]) by[pid] = []; });
+    (peerPids || []).forEach(function (pid) { if (!by[pid]) by[pid] = []; });   // everyone in the room (what they may see changes)   // Skirmish Map areas they placed
     Object.keys(by).forEach(function (pid) {
       var msg = { rows: by[pid] }, ma = window.cmMapPrivFor ? window.cmMapPrivFor(pid) : null;
-      if (ma) { msg.ma = ma.ma; msg.mi = ma.mi; }   // their own hidden Areas of Effect, and which areas they may change
+      if (ma) { msg.ma = ma.ma; msg.mi = ma.mi; msg.mh = ma.mh; }
+      var xr = lastRowsAll.filter(function (r) { var a = actorOf(r.k); return a && !pubSeen(a) && canSee(a, pid); }); if (xr.length) msg.xr = xr;   // hidden actors they may see   // their own hidden Areas of Effect, which areas they may change, and hidden tokens they may see
       var text = JSON.stringify(msg);
       if (privSent[pid] === text) return;
       privSent[pid] = text;
@@ -5195,18 +5210,37 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
     var ord = initOrder();
     var cur = ini.turn ? actorOf(ini.turn) : null;
     var curAt = cur ? ord.rolled.indexOf(cur) : -1;
+    updSeen();   // CHARACTERS-MODULE
+    var pubIds = {}; ini.actors.forEach(function (a) { if (pubSeen(a)) pubIds[a.id] = 1; });
     return {
       r: ini.round,
       l: ini.live, e: ini.encounter ? (ini.eid || 1) : 0,   // CHARACTERS-MODULE
       lr: lastPub(), rh: pubHist(),
       m: window.cmMapPublic ? window.cmMapPublic() : null,   // CHARACTERS-MODULE: the Skirmish Map
-      c: curAt >= 0 ? pubName(cur) : '',
+      c: curAt >= 0 && pubIds[cur.id] ? pubName(cur) : '',
       z: ini.celerity,
-      rows: ord.all.map(function (a) {
-        return { k: a.id, h: a.ch && window.cmWound ? ((window.cmWound(a.ch) || {}).w || '') : '', n: pubName(a), i: a.init, b: a.bonus, w: a.bonus !== a.applied, p: a.persistent, q: a.cel ? a.ca : null, s: rowState(a, ord, cur, curAt) };
-      })
+      rows: (lastRowsAll = ord.all.map(function (a) {
+        return { o: ord.all.indexOf(a), k: a.id, h: a.ch && window.cmWound ? ((window.cmWound(a.ch) || {}).w || '') : '', n: pubName(a), i: a.init, b: a.bonus, w: a.bonus !== a.applied, p: a.persistent, q: a.cel ? a.ca : null, s: rowState(a, ord, cur, curAt) };
+      })).filter(function (r) { return pubIds[r.k]; })
     };
   }
+/* CHARACTERS-MODULE:BEGIN joiner-sight */
+  /* An actor joiners may see right now: player characters always, anyone else once an encounter has started; one hidden on
+     the Skirmish Map only by its owner and the people it's made visible to (pid: one joiner, or '' for anyone at all). */
+  function sightGate(a) { return a.type === 'player' || !!ini.encounter; }
+  function seenNow(a) { if (!sightGate(a)) return false; var h = window.cmMapHidOf ? window.cmMapHidOf(a.id) : null; return !h || !!a.ow || h.v.length > 0; }
+  function canSee(a, pid) { if (!sightGate(a)) return false; var h = window.cmMapHidOf ? window.cmMapHidOf(a.id) : null; return !h || a.ow === pid || h.v.indexOf(pid) >= 0; }
+  function pubSeen(a) { return sightGate(a) && !!a.seen; }
+  function updSeen() {
+    var mx = 0, ch = false;
+    ini.actors.forEach(function (a) { mx = Math.max(mx, a.pn || 0); });
+    ini.actors.slice().sort(function (x, y) { return x.en - y.en || x.id - y.id; }).forEach(function (a) {
+      if (!a.seen && seenNow(a)) { a.seen = true; ch = true; }
+      if (a.seen && a.type !== 'player' && !isRev(a) && !a.pn) { a.pn = ++mx; ch = true; }
+    });
+    if (ch) save();
+  }
+  /* CHARACTERS-MODULE:END joiner-sight */
   function pushState() {
     if (hostWs && hostWs.readyState === 1) hostWs.send(JSON.stringify({ t: 'state', s: publicState() }));
     pushPrivates();   // CHARACTERS-MODULE
@@ -5237,6 +5271,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
       } else if (m.t === 'peers') {
         peerN = +m.n || 0; peerPids = Array.isArray(m.p) ? m.p.filter(function (x) { return /^[a-f0-9]{16,64}$/.test(String(x)); }) : null; peerG = Math.max(0, +m.g || 0); peerWho = m.w && typeof m.w === 'object' ? m.w : {};   // CHARACTERS-MODULE: names on hover
         peersText();
+        if (hostInfo) pushState();   // the Skirmish Map lists who's in the room (for Hide)
       } else if (m.t === 'error') {
         finished = true;
         endHosting(m.reason === 'gone' ? 'The room had already closed.' : roomRefusal(m.reason) || 'Could not host a room (' + m.reason + ').');
@@ -5308,9 +5343,9 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
         if (hiWs !== ws) { hiWs = ws; joinAct({ k: 'hi', u: myUname() }); }
         renderRemote();
       } else if (m.t === 'priv' && ws === watchWs) {   // CHARACTERS-MODULE: this joiner's own actors
-        mineRows = {};
+        mineRows = {}; xRows = m.s && Array.isArray(m.s.xr) ? m.s.xr.slice(0, 60) : [];
         (m.s && Array.isArray(m.s.rows) ? m.s.rows : []).slice(0, 60).forEach(function (x) { if (x && isFinite(+x.k)) mineRows[+x.k] = x; });
-        if (window.cmMapMine) window.cmMapMine(m.s && m.s.ma, m.s && m.s.mi);   // the Skirmish Map: their hidden areas
+        if (window.cmMapMine) window.cmMapMine(m.s && m.s.ma, m.s && m.s.mi, m.s && m.s.mh);   // the Skirmish Map: their hidden areas
         renderRemote();
         if (!$('actorsPop').hidden) renderActors();   // Add to encounter turns off for characters already in
       } else if (m.t === 'closed' && ws === watchWs) {
@@ -5564,6 +5599,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
     var body = $('initBodyRows');
     body.textContent = '';
     var rows = Array.isArray(remote.rows) ? remote.rows.slice(0, 60) : [];
+    if (xRows.length) rows = rows.concat(xRows.filter(function (x) { return !rows.some(function (r) { return r.k === x.k; }); })).sort(function (a, b) { return (a.o || 0) - (b.o || 0); });   // CHARACTERS-MODULE: hidden actors this joiner may see
     if (!rows.length) {
       var tr0 = document.createElement('tr');
       var td0 = document.createElement('td');
@@ -5830,6 +5866,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
     if (ini.actors.length >= 60) { setTurnMsg('That is the most actors the tracker holds.'); return; }
     var a = { id: ini.seq++, name: 'Actor ' + (ini.actors.length + 1), mod: 0, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false, type: '', reveal: false, en: nextEn(), base: '', cel: false, ca: 0 };
     ini.actors.push(a);
+    if (window.cmAddHidden && window.cmMapHide) window.cmMapHide(a.id);   // CHARACTERS-MODULE: in hidden
     initChanged();
     var row = $('initBodyRows').querySelector('tr[data-id="' + a.id + '"]');
     if (row) { if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest' }); startInitEdit(row.querySelector('[data-f="name"]'), a, 'name'); }
@@ -5866,6 +5903,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
     if (!ini.actors.length) return;
     stopRollConfirm();
     renumberEnemies();
+    ini.actors.forEach(function (a) { if (a.type !== 'player') { a.seen = false; a.pn = 0; } });   // CHARACTERS-MODULE: joiners see them afresh
     ini.encounter = true;   // nothing is rolled yet: that happens when the round starts
     ini.eid = Date.now();   // CHARACTERS-MODULE: identifies the encounter for per-turn tracking
     ini.rolls = [];   // a new encounter starts a fresh roll history (for everyone in the room)
@@ -5976,6 +6014,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
       base = p.name;
     }
     ini.actors.push({ id: ini.seq++, name: name, base: base, mod: p.mod, bonus: 0, applied: 0, tie: 0, die: 0, init: null, persistent: false, type: p.type || '', reveal: !p.type && !!p.rev, en: nextEn(), cel: p.cel, ca: 0 });
+    if (window.cmAddHidden && !p.ow && window.cmMapHide) window.cmMapHide(ini.actors[ini.actors.length - 1].id);   // CHARACTERS-MODULE: in hidden
     initChanged();
     $('actorsMsg').textContent = 'Added ' + name;
   }
@@ -6881,6 +6920,7 @@ V1.5
     mapAct: function (a) { joinAct(a); },
     mapPics: function (p) { if (hostWs && hostWs.readyState === 1) { try { hostWs.send(JSON.stringify({ t: 'pics', p: p })); return true; } catch (e) {} } return false; },
     peerName: function (pid) { var w = peerWho[pid] || {}; return String(w.n || peerNames[pid] || '').trim() || 'Someone'; },
+    peers: function () { return (peerPids || []).slice(); },
     pubName: function (a) { return pubName(a); },
     isRev: function (a) { return isRev(a); },
     watchCode: function () { return watchWs ? ($('syncWatchCode').textContent || '') : ''; },
@@ -13321,6 +13361,7 @@ V1.5
       '<header class="lib-head"><h2 id="cmLibTitle">Characters</h2>' +
       '<div class="lib-tools"><input type="search" id="libQ" placeholder="Search name, clan, concept…" aria-label="Search characters">' +
       '<label class="vh" for="libSort">Sort</label><select id="libSort"><option value="name">Name</option><option value="recent">Recently opened</option><option value="clan">Clan</option></select>' +
+      '<label class="switch lib-hidsw" for="libAddHid" hidden title="Actors added while this is on start hidden on the Skirmish Map: only you see them (Hide in a token\'s menu)"><input type="checkbox" role="switch" id="libAddHid"><span class="track" aria-hidden="true"></span><span class="txt"><strong>Add hidden</strong><small>Only you see them on the map</small></span></label>' +
       '<button type="button" class="btn" data-lib="newFolder">New folder</button><button type="button" class="btn primary" data-lib="newChar">New character</button></div>' +
       '<button type="button" class="icon-btn lib-x" data-lib="close" aria-label="Close"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></header>' +
       '<div class="lib-body" id="libBody"></div></div>';
@@ -13418,6 +13459,8 @@ V1.5
     d.classList.add('pick'); d.hidden = false; pop.classList.add('lib-mode');
     d.querySelector('.cm-lib').setAttribute('aria-modal', 'false');
     $('cmLibTitle').textContent = 'Actors list';
+    var hs = d.querySelector('.lib-hidsw'), hi = $('libAddHid');
+    if (hs) { hs.hidden = mode !== 'host'; hi.checked = !!window.cmAddHidden; if (!hi._w) { hi._w = 1; hi.addEventListener('change', function () { window.cmAddHidden = hi.checked; }); } }
     renderLib();
   };
   function unpickLib() {
@@ -13429,6 +13472,7 @@ V1.5
     d.classList.remove('pick'); d.hidden = true; if (d.parentNode && d.parentNode.classList) d.parentNode.classList.remove('lib-mode');
     d.querySelector('.cm-lib').setAttribute('aria-modal', 'true');
     $('cmLibTitle').textContent = 'Characters';
+    var hs0 = d.querySelector('.lib-hidsw'); if (hs0) hs0.hidden = true;
     document.body.appendChild(d);
   }
   window.cmActorsUnpick = unpickLib;
@@ -14365,7 +14409,10 @@ V1.5
     var d = 'M' + f1(W[0][0]) + ' ' + f1(W[0][1]), pts = [W[0]];
     for (var i = 0; i < W.length - 1; i++) {
       var p0 = W[Math.max(0, i - 1)], p1 = W[i], p2 = W[i + 1], p3 = W[Math.min(W.length - 1, i + 2)];
-      var c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      /* Handles no longer than a third of this stretch: a short stretch next to a long one can't loop or hook. */
+      var L12 = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
+      var hd = function (a, b, from) { var dx = (b[0] - a[0]) / 6, dy = (b[1] - a[1]) / 6, l = Math.hypot(dx, dy), m = Math.min(1, L12 / 3 / (l || 1)); return [dx * m, dy * m]; };
+      var h1 = hd(p0, p2), h2 = hd(p1, p3), c1 = [p1[0] + h1[0], p1[1] + h1[1]], c2 = [p2[0] - h2[0], p2[1] - h2[1]];
       d += ' C' + f1(c1[0]) + ' ' + f1(c1[1]) + ' ' + f1(c2[0]) + ' ' + f1(c2[1]) + ' ' + f1(p2[0]) + ' ' + f1(p2[1]);
       for (var k = 1; k <= 8; k++) {
         var t = k / 8, u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, e = t * t * t;
@@ -14396,6 +14443,8 @@ V1.5
   }
   /* The weaving path: a shortest way on a coarse grid around the (padded) obstacles, turning as little as it can,
      staying off other strings where it can, then pulled taut and smoothed. */
+  /* Where a weaving string meets a note: the point of its edge nearest the string's last bend, so it comes straight in. */
+  function nbNear(B, pt) { return nbEnd(B, Math.max(B.x, Math.min(B.x + B.w, pt[0])), Math.max(B.y, Math.min(B.y + B.h, pt[1]))); }
   function nbGridWay(A, B, obs, placed) {
     var ca = [A.x + A.w / 2, A.y + A.h / 2], cb = [B.x + B.w / 2, B.y + B.h / 2], M = 340;
     var x0 = Math.min(A.x, B.x) - M, y0 = Math.min(A.y, B.y) - M, x1 = Math.max(A.x + A.w, B.x + B.w) + M, y1 = Math.max(A.y + A.h, B.y + B.h) + M;
@@ -14410,7 +14459,7 @@ V1.5
       for (var gy = ha; gy <= hb; gy++) for (var gx = ga; gx <= gb; gx++) {
         var px = x0 + (gx + 0.5) * cs, py = y0 + (gy + 0.5) * cs, i0 = gy * W + gx;
         if (inR(px, py, A, 0) || inR(px, py, B, 0)) continue;
-        if (inR(px, py, r, 8)) blk[i0] = 1; else if (pen[i0] < 6) pen[i0] = 6;
+        if (inR(px, py, r, 2)) blk[i0] = 1; else if (pen[i0] < 6) pen[i0] = 6;
       }
     });
     placed.forEach(function (s2) { s2.pts.forEach(function (t) { var gx = Math.floor((t[0] - x0) / cs), gy = Math.floor((t[1] - y0) / cs); if (gx >= 0 && gy >= 0 && gx < W && gy < H) pen[gy * W + gx] += 10; }); });
@@ -14441,15 +14490,20 @@ V1.5
     var raw = [];
     for (var s2 = end; s2 >= 0; s2 = from[s2]) { var c2 = (s2 / 8) | 0; raw.unshift([x0 + (c2 % W + 0.5) * cs, y0 + (((c2 / W) | 0) + 0.5) * cs]); }
     raw[0] = ca; raw[raw.length - 1] = cb;
+    /* Only the part between the two notes counts: steps still inside either note go. */
+    while (raw.length > 2 && inR(raw[1][0], raw[1][1], A, 0)) raw.splice(1, 1);
+    while (raw.length > 2 && inR(raw[raw.length - 2][0], raw[raw.length - 2][1], B, 0)) raw.splice(raw.length - 2, 1);
     /* Pull it taut: skip ahead to the farthest point still in plain sight (keeping a little clear of things). */
     function clear(a, b, m) {
-      m = m == null ? 14 : m;
+      m = m == null ? 8 : m;
       var L = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(2, Math.ceil(L / (cs / 2)));
       for (var i = 1; i < n; i++) { var x = a[0] + (b[0] - a[0]) * i / n, y = a[1] + (b[1] - a[1]) * i / n; if (inR(x, y, A, 0) || inR(x, y, B, 0)) continue; for (var k = 0; k < near.length; k++) if (inR(x, y, near[k], m)) return false; }
       return true;
     }
     var wp = [raw[0]], at = 0;
-    while (at < raw.length - 1) { var j = raw.length - 1; while (j > at + 1 && !clear(raw[at], raw[j])) j--; wp.push(raw[j]); at = j; }
+    /* The first and last hops only need to reach the note's edge, so they may pass closer to its neighbours. */
+    var hop = function (i, j) { return clear(raw[i], raw[j], i === 0 || j === raw.length - 1 ? 3 : 8); };
+    while (at < raw.length - 1) { var j = raw.length - 1; while (j > at + 1 && !hop(at, j)) j--; wp.push(raw[j]); at = j; }
     /* No tight kinks: waypoints close together become one, and any that can go while keeping clear of things does. */
     for (var pass = 0; pass < 3; pass++) {
       for (var i = 1; i < wp.length - 2; i++) {
@@ -14457,10 +14511,10 @@ V1.5
         var mid = [(wp[i][0] + wp[i + 1][0]) / 2, (wp[i][1] + wp[i + 1][1]) / 2];
         if (clear(wp[i - 1], mid, 4) && clear(mid, wp[i + 2], 4)) { wp.splice(i, 2, mid); i--; }
       }
-      for (var i2 = 1; i2 < wp.length - 1; i2++) if (clear(wp[i2 - 1], wp[i2 + 1], 6)) { wp.splice(i2, 1); i2--; }
+      for (var i2 = 1; i2 < wp.length - 1; i2++) if (clear(wp[i2 - 1], wp[i2 + 1], i2 === 1 || i2 === wp.length - 2 ? 3 : 6)) { wp.splice(i2, 1); i2--; }
     }
     if (wp.length < 3) return null;   // a straight run: the plain string does that
-    wp[0] = nbEnd(A, wp[1][0], wp[1][1]); wp[wp.length - 1] = nbEnd(B, wp[wp.length - 2][0], wp[wp.length - 2][1]);
+    wp[0] = nbNear(A, wp[1]); wp[wp.length - 1] = nbNear(B, wp[wp.length - 2]);
     return wp;
   }
   var nbPlanEnd = 0, nbLinkSig = '';   // weaving paths stop being tried past this time (a very busy board keeps the rest gentle)
@@ -14474,7 +14528,13 @@ V1.5
     });
     if (best.hits && (!nbPlanEnd || performance.now() < nbPlanEnd)) {
       var wp = nbGridWay(A, B, obs, placed);
-      if (wp) { var R = nbScore(nbWPath(wp), obs, placed); R.s = R.hits * 100 + R.xs * 6 + 12; if (R.hits < best.hits || (R.hits === best.hits && R.s < best.s)) best = R; }
+      if (wp) {
+        /* How far it runs backwards (away from where it's going): hooks and loops cost a lot. */
+        var R = nbScore(nbWPath(wp), obs, placed), P = R.pts, ux = q[0] - p[0], uy = q[1] - p[1], ul = Math.hypot(ux, uy) || 1, back = 0;
+        for (var i = 1; i < P.length; i++) back += Math.max(0, -((P[i][0] - P[i - 1][0]) * ux + (P[i][1] - P[i - 1][1]) * uy) / ul);
+        R.s = R.hits * 100 + R.xs * 6 + 12 + back / 8;
+        if (R.hits < best.hits || (R.hits === best.hits && R.s < best.s)) best = R;
+      }
     }
     return best;
   }
@@ -14504,7 +14564,7 @@ V1.5
         nbBend[lid] = { o: S.o || 0, wp: S.wp || null, ca: ca, cb: cb };
       } else if (kept && kept.wp && Math.hypot(kept.ca[0] - ca[0], kept.ca[1] - ca[1]) < 30 && Math.hypot(kept.cb[0] - cb[0], kept.cb[1] - cb[1]) < 30) {
         /* While dragging or typing, a weaving string keeps its way (its ends follow) until things move too far. */
-        var w2 = kept.wp.slice(); w2[0] = nbEnd(A, w2[1][0], w2[1][1]); w2[w2.length - 1] = nbEnd(B, w2[w2.length - 2][0], w2[w2.length - 2][1]); S = nbWPath(w2);
+        var w2 = kept.wp.slice(); w2[0] = nbNear(A, w2[1]); w2[w2.length - 1] = nbNear(B, w2[w2.length - 2]); S = nbWPath(w2);
       } else S = nbQPath(p, q, kept && !kept.wp ? kept.o : 0);
       p = S.p; q = S.q;
       var sel = nbSel && nbSel.k === 'l' && nbSel.id === lid, d = S.d, via = a !== l.a || b !== l.b;
@@ -15146,7 +15206,11 @@ V1.5
     /* An open container is picked up by its title only: anywhere else inside it pans the board (or selects with Shift). */
     var boxBody = ne && ne.classList.contains('nb-box') && !ne.classList.contains('nb-fold') && !ne.classList.contains('editing') && !t.closest('.nb-head') && !t.classList.contains('nb-port') && !t.classList.contains('nb-size');
     var p = nbPt(e);
-    if (!ro && t.classList.contains('nb-port') && ne) {
+    if (ro) {
+      /* Nothing can change: a press anywhere drags the board (a click without moving still picks what's under it). */
+      var v1 = nbV(c), lk = (t.closest && t.closest('.nb-lbl')) || (t.classList.contains('nb-hit') ? t : null);
+      nbDrag = { m: 'pan', sx: e.clientX, sy: e.clientY, vx: v1.x, vy: v1.y, moved: false, pk: ne && !boxBody ? ne.getAttribute('data-nid') : '', pl: lk ? lk.getAttribute('data-lid') : '' };
+    } else if (!ro && t.classList.contains('nb-port') && ne) {
       nbDrag = { m: 'link', id: ne.getAttribute('data-nid'), sx: e.clientX, sy: e.clientY };
     } else if (!ro && t.classList.contains('nb-rot') && ne) {
       var idr = ne.getAttribute('data-nid'), br = nbBox(idr);
@@ -15258,7 +15322,12 @@ V1.5
     try { board.releasePointerCapture(e.pointerId); } catch (er) {}
     if (!d || !c) return;
     var nb = nbOf(c);
-    if (d.m === 'pan') { if (!d.moved && (nbSel || Object.keys(nbPick).length)) { nbSelect(null); board.focus(); } return; }
+    if (d.m === 'pan') {
+      if (!d.moved && d.pk && nb.n[d.pk]) { nbSelect({ k: 'n', id: d.pk }); var pe = nbEl(d.pk); if (pe) pe.focus({ preventScroll: true }); return; }
+      if (!d.moved && d.pl && nb.l[d.pl]) { nbSelect({ k: 'l', id: d.pl }); return; }
+      if (!d.moved && (nbSel || Object.keys(nbPick).length)) { nbSelect(null); board.focus(); }
+      return;
+    }
     if (d.m === 'band') {
       d.band.remove();
       var vv = nbV(c), x0 = (Math.min(d.bx, d.ex == null ? d.bx : d.ex) - vv.x) / vv.z, y0 = (Math.min(d.by, d.ey == null ? d.by : d.ey) - vv.y) / vv.z;
@@ -16127,9 +16196,9 @@ V1.5
     var d = null; try { d = JSON.parse(localStorage.getItem(SM_KEY) || 'null'); } catch (e) {}
     d = d && typeof d === 'object' ? d : {};
     return { pos: d.pos && typeof d.pos === 'object' ? d.pos : {}, lines: Array.isArray(d.lines) ? d.lines : [], meas: d.meas && typeof d.meas === 'object' ? d.meas : {},
-      units: d.units === 'i' ? 'i' : 'm', any: !!d.any, seq: +d.seq || 1, drag: null, aoe: Array.isArray(d.aoe) ? d.aoe.filter(smAoeOk).slice(0, SM_AOE_MAX) : [] };
+      units: d.units === 'i' ? 'i' : 'm', any: !!d.any, seq: +d.seq || 1, drag: null, hid: d.hid && typeof d.hid === 'object' && !Array.isArray(d.hid) ? d.hid : {}, aoe: Array.isArray(d.aoe) ? d.aoe.filter(smAoeOk).slice(0, SM_AOE_MAX) : [] };
   })();
-  function smSave() { try { localStorage.setItem(SM_KEY, JSON.stringify({ pos: sm.pos, lines: sm.lines, meas: sm.meas, units: sm.units, any: sm.any, seq: sm.seq, aoe: sm.aoe })); } catch (e) {} }
+  function smSave() { try { localStorage.setItem(SM_KEY, JSON.stringify({ pos: sm.pos, lines: sm.lines, meas: sm.meas, units: sm.units, any: sm.any, seq: sm.seq, aoe: sm.aoe, hid: sm.hid })); } catch (e) {} }
   var smUi = { open: false, set: false, vb: null, fitted: false, act: null, pend: null, menu: null, local: {}, hover: '', hl: null, ha: [], hp: null, aoe: null };
   /* Each person's own view: grid lines on or off, and how strong they are. */
   /* Background styles: each person's own pick; "auto" follows light/dark mode (grimy tabletop / aged parchment). */
@@ -16213,28 +16282,45 @@ V1.5
         while (Object.keys(sm.pos).some(function (q) { return smDist(sm.pos[q], [n * 1.5, y]) < 0.9; })) n++;
         sm.pos[k] = [n * 1.5, y]; smSave();
       }
-      out.push({ k: k, a: a, c: c, name: a.name, pub: rev ? a.name : 'E' + a.en, rev: rev, pl: a.type === 'player', x: sm.pos[k][0], y: sm.pos[k][1], pic: smPicFor(c), hu: smHurt(c), own: true });
+      out.push({ k: k, a: a, c: c, name: a.name, pub: rev ? a.name : 'E' + (a.pn || '?'), rev: rev, pl: a.type === 'player', x: sm.pos[k][0], y: sm.pos[k][1], pic: smPicFor(c), hu: smHurt(c), own: true, hid: !!sm.hid[k], ow: a.ow || '' });
     });
     return out;
   }
   /* Watcher: tokens as the host sent them. */
   function smJoinTokens() {
     var s = smState(), m = s && s.remote && s.remote.m; if (!m || !Array.isArray(m.t)) return [];
-    return m.t.map(function (t) {
+    var seen = {}, hidT = (smMine.h && Array.isArray(smMine.h.t) ? smMine.h.t : []).map(function (t) { return Object.assign({}, t, { hid: 1 }); });
+    return m.t.concat(hidT).filter(function (t) { var k0 = String(t && t.k); if (!t || seen[k0]) return false; seen[k0] = 1; return true; }).map(function (t) {
       var k = String(t.k), lp = smUi.local[k];
-      return { k: k, name: t.n, pub: t.n, pl: t.ty === 'p', x: lp ? lp[0] : +t.x, y: lp ? lp[1] : +t.y, pic: t.p ? smPics[t.p] || '' : '', ini: t.i, h: t.h, w: t.w, s: t.s, g: t.g && typeof t.g === 'object' ? { w: (Array.isArray(t.g.w) ? t.g.w : []).slice(0, 6).map(function (x) { return String(x).slice(0, 40); }), a: String(t.g.a || '').slice(0, 60) } : null, hu: +t.hu === 2 ? 2 : +t.hu === 1 ? 1 : 0, own: s.mine.indexOf(+t.k) >= 0 };
+      return { k: k, name: t.n, pub: t.n, pl: t.ty === 'p', x: lp ? lp[0] : +t.x, y: lp ? lp[1] : +t.y, pic: t.p ? smPics[t.p] || '' : '', ini: t.i, h: t.h, w: t.w, s: t.s, g: t.g && typeof t.g === 'object' ? { w: (Array.isArray(t.g.w) ? t.g.w : []).slice(0, 6).map(function (x) { return String(x).slice(0, 40); }), a: String(t.g.a || '').slice(0, 60) } : null, hu: +t.hu === 2 ? 2 : +t.hu === 1 ? 1 : 0, own: s.mine.indexOf(+t.k) >= 0, hid: !!t.hid, hv: Array.isArray(t.hv) ? t.hv.map(Number) : [] };
     });
   }
   function smTokens() { return smMode() === 'join' ? smJoinTokens() : smHostTokens(); }
+  /* ---- Hide: a hidden token (and its moves, measurements and areas) reaches only the host, its owner and the people
+     it's made visible to; they see a small mark on it. People in the room are numbered for this (never by their ids). ---- */
+  var smPeerNo = {}, smPeerSeq = 1;
+  function smNo(pid) { return smPeerNo[pid] || (smPeerNo[pid] = smPeerSeq++); }
+  function smPidOf(no) { for (var p in smPeerNo) if (smPeerNo[p] === +no) return p; return ''; }
+  function smSeesHid(pid, k) { var h = sm.hid[k], a = smActor(k); return !!(h && a && (a.type === 'player' || smEnc()) && (a.ow === pid || (h.v || []).indexOf(pid) >= 0)); }
+  /* Watchers see a token when it isn't hidden; anyone but a player character only once an encounter has started. */
+  function smPubOk(t) { return !!t && !t.hid && (t.pl || smEnc()); }
+  window.cmMapHide = function (id) { var k = String(id); if (!sm.hid[k]) { sm.hid[k] = { v: [] }; smSave(); smDrawSoon(); } };
+  window.cmMapHidOf = function (id) { var h = sm.hid[String(id)]; return h ? { v: (h.v || []).slice() } : null; };
+  /* Everyone in the room, numbered: [number, name]. */
+  function smPeople() {
+    var s = smState(); if (!s) return [];
+    if (s.watching) { var rm = s.remote && s.remote.m; return rm && Array.isArray(rm.pp) ? rm.pp.filter(function (x) { return Array.isArray(x) && isFinite(+x[0]); }).map(function (x) { return [+x[0], String(x[1] || 'Someone').slice(0, 24)]; }) : []; }
+    var r = R(); return (r && r.peers ? r.peers() : []).map(function (pid) { return [smNo(pid), r.peerName(pid)]; });
+  }
   /* What an area looks like on the wire (and to watchers). */
   function smAoePub(a) { return { i: a.i, k: String(a.k), r: smNum(+a.r), d: a.d || '', c: a.c, bn: a.bn || '', h: a.h ? 1 : 0 }; }
   function smAoeClean(a) {
     if (!a || typeof a !== 'object' || !/^a\d{1,9}$/.test(String(a.i)) || !isFinite(+a.r)) return null;
     return { i: String(a.i), k: String(a.k), r: Math.max(0.1, Math.min(SM_AOE_RMAX, +a.r)), d: smAoeText(a.d), c: smAoeCol(a.c)[0], bn: smAoeText(a.bn).slice(0, 40), h: !!a.h };
   }
-  var smMine = { a: [], ids: {} };   // a watcher's own hidden areas, and the ids of every area they placed (they may change those)
-  window.cmMapMine = function (ma, mi) {
-    smMine = { a: (Array.isArray(ma) ? ma : []).slice(0, SM_AOE_PER).map(smAoeClean).filter(Boolean), ids: {} };
+  var smMine = { a: [], ids: {}, h: null };   // a watcher's own hidden areas, and the ids of every area they placed (they may change those)
+  window.cmMapMine = function (ma, mi, mh) {
+    smMine = { a: (Array.isArray(ma) ? ma : []).slice(0, SM_AOE_PER).map(smAoeClean).filter(Boolean), ids: {}, h: mh && typeof mh === 'object' ? mh : null };
     (Array.isArray(mi) ? mi : []).slice(0, SM_AOE_PER).forEach(function (i) { if (/^a\d{1,9}$/.test(String(i))) smMine.ids[String(i)] = 1; });
     smDrawSoon();
   };
@@ -16243,16 +16329,31 @@ V1.5
     var s = smState(); if (!s) return [];
     if (!s.watching) return sm.aoe.map(function (a) { var o = smAoePub(a); o.mine = true; o.who = a.by; return o; });
     var rm = s.remote && s.remote.m, seen = {}, out = [];
-    ((rm && Array.isArray(rm.a) ? rm.a : []).concat(smMine.a)).forEach(function (x) {
+    ((rm && Array.isArray(rm.a) ? rm.a : []).concat(smMine.a, smMine.h && Array.isArray(smMine.h.a) ? smMine.h.a : [])).forEach(function (x) {
       var a = smAoeClean(x); if (!a || seen[a.i]) return; seen[a.i] = 1; a.mine = !!smMine.ids[a.i]; out.push(a);
     });
     return out;
   }
   /* Host: the private part for one watcher (their hidden areas, and which areas are theirs). */
-  window.cmMapPrivPids = function () { var o = {}; sm.aoe.forEach(function (a) { if (a.by && a.by !== 'host') o[a.by] = 1; }); return Object.keys(o); };
+  window.cmMapPrivPids = function () {
+    var o = {}; sm.aoe.forEach(function (a) { if (a.by && a.by !== 'host') o[a.by] = 1; });
+    Object.keys(sm.hid).forEach(function (k) { (sm.hid[k].v || []).forEach(function (p) { o[p] = 1; }); });
+    return Object.keys(o);
+  };
   window.cmMapPrivFor = function (pid) {
-    var mine = sm.aoe.filter(function (a) { return a.by === pid; }); if (!mine.length) return null;
-    return { ma: mine.filter(function (a) { return a.h; }).map(smAoePub), mi: mine.map(function (a) { return a.i; }) };
+    var mine = sm.aoe.filter(function (a) { return a.by === pid; }), out = { ma: mine.filter(function (a) { return a.h; }).map(smAoePub), mi: mine.map(function (a) { return a.i; }) };
+    /* The hidden tokens this person may see, with their moves, measurements and areas; and their own number. */
+    var s = smState(), toks = smHostTokens(), see = {};
+    toks.forEach(function (t) { if (t.hid && smSeesHid(pid, t.k)) see[t.k] = 1; });
+    var hidOk = function (k) { return !k || !sm.hid[k] || see[k]; };
+    var mh = { me: smNo(pid), t: toks.filter(function (t) { return see[t.k]; }).map(function (t) { var o = smPubTok(t, {}); o.hv = (sm.hid[t.k].v || []).map(smNo); return o; }) };
+    if (mh.t.length) {
+      mh.l = sm.lines.filter(function (l) { return see[l.a] && l.r === (s ? s.ini.round : 1); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; });
+      mh.a = sm.aoe.filter(function (a) { return see[String(a.k)] && !a.h; }).map(smAoePub);
+      mh.m = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w]; if (!((m.f.k && sm.hid[m.f.k]) || (m.t.k && sm.hid[m.t.k])) || !hidOk(m.f.k) || !hidOk(m.t.k)) return null; var e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
+    }
+    out.mh = mh;
+    return out;
   };
   /* Is an encounter on? Before one starts, moving tokens is just setting the scene: no paths, no speed limits. */
   function smEnc() { var s = smState(); return !!(s && (s.watching ? s.remote && s.remote.e : s.ini.encounter)); }
@@ -16284,6 +16385,15 @@ V1.5
     }
     return q;
   }
+  /* The nearest free spot to p (none of the tokens under it), within what its speed allows from org; failing that, it
+     stops short along its path (or stays where it was). */
+  function smFreeWithin(k, p, toks, org, lim) {
+    var min = 2 * SM_R, ok = function (pt) { return (!org || lim == null || smDist(org, pt) <= lim + 0.01) && toks.every(function (o) { return String(o.k) === String(k) || smDist(pt, [o.x, o.y]) >= min - 1e-6; }); };
+    var q = smFree(k, p, toks); if (ok(q)) return q;
+    for (var r = 0.1; r <= 3.01; r += 0.1) for (var i = 0; i < 24; i++) { var an = i / 24 * 2 * Math.PI, pt = [p[0] + Math.cos(an) * r, p[1] + Math.sin(an) * r]; if (ok(pt)) return pt; }
+    if (org) { var d = smDist(org, p), steps = Math.max(1, Math.ceil(d / 0.1)); for (var j = steps; j >= 0; j--) { var pt2 = [org[0] + (p[0] - org[0]) * j / steps, org[1] + (p[1] - org[1]) * j / steps]; if (ok(pt2)) return pt2; } return org.slice(); }
+    return q;
+  }
   /* A move no longer than what's left of the token's speed this round. */
   function smClampTo(from, p, max) {
     var d = smDist(from, p); if (max == null || d <= max) return p;
@@ -16310,6 +16420,7 @@ V1.5
     if (sm.lines.length !== n) ch = true;
     Object.keys(sm.meas).forEach(function (w) { var m = sm.meas[w]; if ((m.f.k && !ids[m.f.k]) || (m.t.k && !ids[m.t.k])) { delete sm.meas[w]; ch = true; } });
     if (sm.drag && !ids[sm.drag.k]) { sm.drag = null; ch = true; }
+    Object.keys(sm.hid).forEach(function (k) { if (!ids[k]) { delete sm.hid[k]; ch = true; } });
     var na = sm.aoe.length; sm.aoe = sm.aoe.filter(function (a) { return ids[String(a.k)]; }); if (sm.aoe.length !== na) ch = true;
     if (ch) smSave();
   }
@@ -16319,7 +16430,16 @@ V1.5
     var s = smState(); if (!s || s.watching) return null;
     smPrune();
     var toks = smHostTokens(), pics = {};
-    var t = toks.map(function (x) {
+    toks.forEach(function (x) { smPubTok(x, pics); });   // pictures of hidden tokens too (they don't say where anything is)
+    var t = toks.filter(smPubOk).map(function (x) { return smPubTok(x, pics); });
+    smSendPics(pics);
+    var okK = {}; toks.forEach(function (x) { if (smPubOk(x)) okK[x.k] = 1; });
+    var hk = function (k) { return !!(k && !okK[String(k)]); };
+    var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w]; if (hk(m.f.k) || hk(m.t.k)) return null; var e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
+    return { u: sm.units, any: sm.any, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
+  };
+  /* One token as watchers get it. */
+  function smPubTok(x, pics) {
       var o = { k: x.k, n: x.pub, i: x.rev ? initials(x.name) : x.pub, ty: x.pl ? 'p' : 'n', x: smNum(x.x), y: smNum(x.y) };
       if (x.hu) o.hu = x.hu;   // watchers already see a wound word; this only draws it
       var gr = x.c ? smGear(x.c) : null; if (gr) o.g = gr;   // equipped weapons and armor: everyone may see them
@@ -16329,11 +16449,7 @@ V1.5
         else o.w = smWound(x.c);
       }
       return o;
-    });
-    smSendPics(pics);
-    var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w], e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
-    return { u: sm.units, any: sm.any, t: t, a: sm.aoe.filter(function (a) { return !a.h; }).map(smAoePub), l: sm.lines.map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; }), ms: meas, d: sm.drag ? { k: sm.drag.k, by: sm.drag.by } : null };
-  };
+  }
   /* Token pictures go to the room once each (they're too big to repeat with every update). */
   function smSendPics(pics) {
     var r = R(), batch = {}, size = 0;
@@ -16352,7 +16468,7 @@ V1.5
     smDrawSoon();
     var s = smState(); if (!s || s.watching || !s.hosting) return;
     var p = window.cmMapPublic(); if (!p) return;
-    var sig = JSON.stringify(p.t);
+    var sig = JSON.stringify(p.t) + JSON.stringify(smHostTokens().filter(function (x) { return x.hid; }).map(function (x) { return smPubTok(x, {}); }));
     if (sig !== smSig) { smSig = sig; smPushSoon(); }
   }
   window.cmMapPics = function (p) {
@@ -16376,15 +16492,19 @@ V1.5
       if (o.op === 'drag') { sm.pos[k] = [x, y]; sm.drag = { k: k, by: by, who: who, t: now, from: sm.drag && sm.drag.k === k && sm.drag.from ? sm.drag.from : (Array.isArray(o.from) ? [+o.from[0], +o.from[1]] : sm.pos[k]) }; smPushSoon(); smDrawSoon(); return; }
       var from = Array.isArray(o.from) && isFinite(+o.from[0]) && isFinite(+o.from[1]) ? [+o.from[0], +o.from[1]] : (sm.drag && sm.drag.from) || sm.pos[k] || [x, y];
       var toks0 = smHostTokens(), me0 = toks0.filter(function (t) { return t.k === k; })[0], to0 = [x, y];
+      var org = null, lim = null;
       if (smEnc() && me0) {   // no further than this round's speed allows
         var bd = smBudget(me0);
         if (bd) {
           var rd0 = smRound(), mine0 = sm.lines.filter(function (l) { return l.a === k && l.r === rd0; }), last0 = mine0[mine0.length - 1];
-          if (last0 && smDist(from, to0) <= 1 && smDist(last0.t, from) < 0.01) to0 = smClampTo(last0.f, to0, Math.max(0, bd.run - (bd.moved - smDist(last0.f, last0.t))));
-          else to0 = smClampTo(from, to0, bd.left);
+          if (last0 && smDist(from, to0) <= 1 && smDist(last0.t, from) < 0.01) { org = last0.f; lim = Math.max(0, bd.run - (bd.moved - smDist(last0.f, last0.t))); }
+          else { org = from; lim = bd.left; }
+          to0 = smClampTo(org, to0, lim);
         }
       }
-      to0 = smFree(k, to0, toks0);
+      /* Dropped on another token (a hidden one, which dragging passes over) it's nudged clear, but never further than
+         its speed allows: failing that, it stops short. */
+      to0 = smFreeWithin(k, to0, toks0, org, lim);
       sm.pos[k] = to0; sm.drag = null;
       smRecord(k, from, to0);
     } else if (o.op === 'undo') {
@@ -16409,6 +16529,11 @@ V1.5
         if (sm.aoe.length >= SM_AOE_MAX || sm.aoe.filter(function (q) { return q.by === who; }).length >= SM_AOE_PER) return;
         sm.aoe.push(Object.assign({ i: 'a' + (sm.seq++), k: String(t0.id), by: who, bn: String(by || '').slice(0, 40) }, fields));
       }
+    } else if (o.op === 'hide') {   // hide or show a token, and who else sees it (its owner and the host always do)
+      a = smActor(o.id); if (!a || !(who === 'host' || a.ow === who)) return;
+      var hk0 = String(a.id);
+      if (!o.on) { if (!sm.hid[hk0]) return; delete sm.hid[hk0]; }
+      else sm.hid[hk0] = { v: (Array.isArray(o.v) ? o.v : []).slice(0, 40).map(smPidOf).filter(function (p) { return p && p !== a.ow; }) };
     } else if (o.op === 'aoedel') {
       var n0 = sm.aoe.length;
       sm.aoe = sm.aoe.filter(function (q) { return !(q.i === String(o.i) && (q.by === who || who === 'host')); });
@@ -16698,7 +16823,7 @@ V1.5
     if (!body.querySelector('svg')) {
       body.innerHTML = '<div class="sm-stage" id="smStage"><div class="sm-pat" aria-hidden="true"></div><svg class="sm-svg" id="smSvg" role="application" aria-label="Skirmish Map: drag your tokens; click a token to measure from it" tabindex="0"></svg><div class="sm-tip" id="smTip" hidden></div><div class="sm-menu" id="smMenu" hidden></div><div class="sm-aoe-pop" id="smAoe" role="dialog" aria-label="Areas of effect" hidden></div></div><p class="hint sm-help" id="smHelp"></p>';
     }
-    smQ('smHelp').textContent = toks.length ? 'Drag a token to move it, hover it for details. Hover a line to see that move; click it to undo. Click a token, then a spot or another token, to measure. Right-click a token (or press and hold it) for its menu (areas of effect). 1 square = 1 ' + (smUnits() === 'i' ? 'yard (3 ft)' : 'metre') + '.' : 'Add actors to the tracker and they show up here.';
+    smQ('smHelp').textContent = toks.length ? 'Drag a token to move it, hover it for details. Hover a line to see that move; click it to undo. Click a token, then a spot or another token, to measure. Right-click a token (or press and hold it) for its menu (areas of effect, hide). 1 square = 1 ' + (smUnits() === 'i' ? 'yard (3 ft)' : 'metre') + '.' : 'Add actors to the tracker and they show up here.';
     var svg = smSvgEl(), stage = smQ('smStage');
     stage.className = 'sm-stage' + (smView.style !== 'auto' ? ' sty-' + smView.style : '') + (smView.pat ? '' : ' no-pat');
     stage.style.setProperty('--sm-po', String(smView.pop / 100));
@@ -16765,7 +16890,7 @@ V1.5
       if (from) h += '<line class="sm-drag-ln" x1="' + from[0] + '" y1="' + from[1] + '" x2="' + dt.x + '" y2="' + dt.y + '"/>' + smLabel((from[0] + dt.x) / 2, (from[1] + dt.y) / 2 - 0.25, smFmt(smDist(from, [dt.x, dt.y])), 'sm-lbl-drag', 9);
     }
     /* Measurements (everyone's), and the one being made here. */
-    var ms = mode === 'join' ? rm.ms || [] : Object.keys(sm.meas).map(function (k) { var m = sm.meas[k], e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0], t: e[1] } : null; }).filter(Boolean);
+    var ms = mode === 'join' ? (rm.ms || []).concat(smMine.h && Array.isArray(smMine.h.m) ? smMine.h.m : []) : Object.keys(sm.meas).map(function (k) { var m = sm.meas[k], e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0], t: e[1] } : null; }).filter(Boolean);
     if (smUi.pend && (smUi.pend.to || smUi.pend.tk)) { var pe = smMeasEnds(smUi.pend.f, smUi.pend.tk ? { k: smUi.pend.tk } : { x: smUi.pend.to[0], y: smUi.pend.to[1] }, toks); if (pe) ms = ms.concat([{ n: '', f: pe[0], t: pe[1], live: true }]); }
     ms.forEach(function (m) {
       var d = smDist(m.f, m.t);
@@ -16774,11 +16899,12 @@ V1.5
     });
     /* Tokens on top. */
     toks.slice().sort(function (a, b) { return (a.k === dragK) - (b.k === dragK); }).forEach(function (t) {
-      var cls = 'sm-tok' + (t.pl ? ' pl' : ' np') + (eng[t.k] ? ' eng' : '') + (t.k === dragK ? ' moving' : '') + (smCanMove(t) ? ' can' : '') + (t.hu === 2 ? ' down' : '') + (smUi.hover === t.k ? ' hov' : '');
+      var cls = 'sm-tok' + (t.pl ? ' pl' : ' np') + (eng[t.k] ? ' eng' : '') + (t.k === dragK ? ' moving' : '') + (smCanMove(t) ? ' can' : '') + (t.hu === 2 ? ' down' : '') + (t.hid ? ' hid' : '') + (smUi.hover === t.k ? ' hov' : '');
       var lab = mode === 'host' ? t.name : t.pub, ini = mode === 'host' ? (t.rev ? initials(t.name) : t.pub) : t.ini;
       h += '<g class="' + cls + '" data-tok="' + esc(t.k) + '" transform="translate(' + t.x + ' ' + t.y + ')" tabindex="0" role="img" aria-label="' + esc(lab) + '">' +
         '<circle class="sm-tok-ring" r="' + (SM_R + 0.07) + '"/><circle class="sm-tok-bg" r="' + SM_R + '"/>' +
         (t.pic ? '<image href="' + t.pic + '" x="' + -SM_R + '" y="' + -SM_R + '" width="' + 2 * SM_R + '" height="' + 2 * SM_R + '" clip-path="url(#smClip)" preserveAspectRatio="xMidYMid slice"/>' : '<text class="sm-tok-ini" y="0.02">' + esc(ini) + '</text>') + smHurtSvg(t) +
+        (t.hid ? '<g class="sm-hid-mk" transform="translate(' + (SM_R * 0.72) + ' ' + (-SM_R * 0.72) + ')"><title>Hidden</title><circle r="0.17"/><path d="M-0.1 0C-0.05 -0.07 0.05 -0.07 0.1 0C0.05 0.07 -0.05 0.07 -0.1 0ZM-0.09 0.09L0.09 -0.09"/></g>' : '') +
         '</g>';
       if (t.k === dragK && dragBy) smLabel(t.x, t.y - SM_R - 0.3, dragBy + ' is moving', 'sm-lbl-by', 2);
     });
@@ -16819,7 +16945,7 @@ V1.5
   }
   function smLines() {
     var s = smState(), rm = s && s.remote && s.remote.m;
-    return smMode() === 'join' ? (rm && rm.l) || [] : sm.lines.filter(function (l) { return l.r === smRound(); });
+    return smMode() === 'join' ? ((rm && rm.l) || []).concat(smMine.h && Array.isArray(smMine.h.l) ? smMine.h.l : []) : sm.lines.filter(function (l) { return l.r === smRound(); });
   }
   /* Crossed blades where two tokens are locked in melee. */
   function smClash(x, y) {
@@ -16921,6 +17047,7 @@ V1.5
     } else {
       h = '<b>' + esc(t.name) + '</b>' + (t.w ? '<span>' + esc(t.w) + '</span>' : '') + smGearHTML(t.g);
     }
+    if (t.hid) h += '<span class="sm-tip-hid">' + esc(smHidWho(t)) + '</span>';
     tip.innerHTML = h; tip.hidden = false;
     var stage = smQ('smStage'), p = smToScreen(t.x, t.y + SM_R);
     tip.style.left = Math.max(4, Math.min(p[0] - tip.offsetWidth / 2, stage.clientWidth - tip.offsetWidth - 4)) + 'px';
@@ -16974,11 +17101,43 @@ V1.5
     var r = st.getBoundingClientRect();
     smUi.menu = 'tok:' + k; smUi.tokAt = { clientX: e.clientX, clientY: e.clientY };
     m.innerHTML = '<span class="sm-menu-t">' + esc(smMode() === 'host' ? t.name : t.pub) + '</span>' +
-      '<button type="button" class="btn-sec" data-sm="tokAoe" data-k="' + esc(k) + '" role="menuitem">Areas of effect…</button>';
+      '<button type="button" class="btn-sec" data-sm="tokAoe" data-k="' + esc(k) + '" role="menuitem">Areas of effect…</button>' + smHideItems(t);
     m.setAttribute('role', 'menu'); m.hidden = false;
     m.style.left = Math.max(4, Math.min(e.clientX - r.left, st.clientWidth - m.offsetWidth - 4)) + 'px';
     m.style.top = Math.max(4, Math.min(e.clientY - r.top + 6, st.clientHeight - m.offsetHeight - 4)) + 'px';
     var f = m.querySelector('[data-sm="tokAoe"]'); if (f) f.focus({ preventScroll: true });
+  }
+  /* Hide, in a token's menu: the host for any token, a watcher for their own. */
+  function smMayHide(t) { return smMode() === 'host' || !!t.own; }
+  /* Who may see a hidden token besides the host and its owner: [number, name, checked]. */
+  function smVisList(t) {
+    var host = smMode() === 'host', skip = host ? (t.ow ? smNo(t.ow) : 0) : (smMine.h ? +smMine.h.me : 0);
+    var on = host ? ((sm.hid[t.k] || {}).v || []).map(smNo) : (t.hv || []), out = [], seen = {};
+    smPeople().forEach(function (p) { if (p[0] === skip || seen[p[0]]) return; seen[p[0]] = 1; out.push([p[0], p[1], on.indexOf(p[0]) >= 0]); });
+    on.forEach(function (n) { if (!seen[n] && n !== skip) { seen[n] = 1; out.push([n, 'Someone who left', true]); } });
+    return out;
+  }
+  function smHideItems(t) {
+    if (!smMayHide(t)) return '';
+    var h = '<button type="button" class="btn-sec" data-sm="tokHide" data-k="' + esc(t.k) + '" role="menuitem">' + (t.hid ? 'Unhide' : 'Hide') + '</button>';
+    if (!t.hid) return h;
+    var L = smVisList(t), host = smMode() === 'host';
+    h += '<button type="button" class="btn-sec sm-vis-b" data-sm="tokVis" data-k="' + esc(t.k) + '" role="menuitem" aria-expanded="false">Visible to… <span class="muted">' + (L.filter(function (x) { return x[2]; }).length || 'nobody else') + '</span></button>' +
+      '<div class="sm-vis" hidden>' + (L.length ? L.map(function (x) {
+        return '<label class="switch sm-sw sm-vis-p" for="smVis' + x[0] + '"><input type="checkbox" role="switch" id="smVis' + x[0] + '" data-k="' + esc(t.k) + '" data-no="' + x[0] + '"' + (x[2] ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>' + esc(x[1]) + '</strong></span></label>';
+      }).join('') : '<span class="muted">Nobody else is in the room.</span>') +
+      '<span class="muted sm-vis-n">' + (host ? (t.ow ? 'You and its owner always see it.' : 'You always see it.') : 'You and the host always see it.') + '</span></div>';
+    return h;
+  }
+  /* Who sees a hidden token, in words (for its hover card). */
+  function smHidWho(t) {
+    if (smMode() === 'host') {
+      var r = R(), names = [t.ow ? (r && r.peerName ? r.peerName(t.ow) : 'its owner') : ''].concat(((sm.hid[t.k] || {}).v || []).map(function (p) { return r && r.peerName ? r.peerName(p) : 'Someone'; })).filter(Boolean);
+      return 'Hidden: only you' + (names.length ? ' and ' + names.join(', ') : '') + ' see it';
+    }
+    var pp = {}; smPeople().forEach(function (p) { pp[p[0]] = p[1]; });
+    var others = (t.hv || []).map(function (n) { return pp[n]; }).filter(Boolean);
+    return 'Hidden: only ' + (t.own ? 'you, the host' : 'the host, its owner, you') + (others.length && t.own ? ' and ' + others.join(', ') : '') + ' see it';
   }
   function smUnitIn(yd) { return smUnits() === 'i' ? Math.round(yd * 3 * 10) / 10 : Math.round(yd * 10) / 10; }
   function smAoeOpen(k, editI, e) {
@@ -17110,10 +17269,12 @@ V1.5
     smDragTo(a, a.ev);
     smEdgeT = requestAnimationFrame(smEdgeTick);
   }
-  /* Where a dragged token goes: under the pointer, but no further than its speed left, and never on top of another. */
+  /* Where a dragged token goes: under the pointer, but no further than its speed left, and never on top of another (hidden ones aside). */
   function smDragTo(a, e) {
     var p = smToWorld(e), q = [p[0] - a.off[0], p[1] - a.off[1]], toks = smTokens();
     if (a.bud) q = smClampTo(a.from, q, a.bud.left);
+    /* Hidden tokens don't stop it while it's dragged (only when it's dropped is it nudged clear of them). */
+    toks = toks.filter(function (t) { return !t.hid; });
     q = smFree(a.k, q, toks);
     if (a.bud && smDist(a.from, q) > a.bud.left + 0.01) q = smFree(a.k, smClampTo(a.from, q, a.bud.left), toks);
     var x = q[0], y = q[1];
@@ -17177,6 +17338,12 @@ V1.5
     if (a === 'aoeNo') { smAoeClose(); var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); return; }
     if (a === 'pip') { smPip(!smUi.pip); return; }
     if (a === 'detach') { smDetach(!smPW); return; }
+    if (a === 'tokHide') {
+      var th = smTokens().filter(function (x) { return x.k === b.getAttribute('data-k'); })[0]; smMenuClose();
+      if (th && smMayHide(th)) { smSend({ op: 'hide', id: +th.k, on: !th.hid, v: [] }); toast(th.hid ? 'Everyone can see it again.' : smMode() === 'host' ? (th.ow ? 'Hidden: only you and its owner see it.' : 'Hidden: only you see it.') : 'Hidden: only you and the host see it.'); }
+      return;
+    }
+    if (a === 'tokVis') { var vl = b.nextElementSibling; if (vl) { vl.hidden = !vl.hidden; b.setAttribute('aria-expanded', String(!vl.hidden)); var f0 = !vl.hidden && vl.querySelector('input'); if (f0) f0.focus(); } return; }
     if (a === 'tokAoe') { var at0 = smUi.tokAt; smMenuClose(); smAoeOpen(b.getAttribute('data-k'), null, at0); return; }
     if (a === 'aoeEdit' && smUi.aoe) { smAoeOpen(smUi.aoe.k, b.getAttribute('data-i')); return; }
     if (a === 'aoeNew' && smUi.aoe) { smAoeOpen(smUi.aoe.k, null); return; }
@@ -17187,6 +17354,13 @@ V1.5
     }
   }
   function smChange(e) {
+    if (/^smVis\d+$/.test(e.target.id)) {   // who else sees a hidden token
+      var box = e.target.closest('.sm-vis'), tv = smTokens().filter(function (x) { return x.k === e.target.getAttribute('data-k'); })[0]; if (!box || !tv || !smMayHide(tv)) return;
+      var v = Array.prototype.filter.call(box.querySelectorAll('input'), function (x) { return x.checked; }).map(function (x) { return +x.getAttribute('data-no'); });
+      var cnt = box.previousElementSibling && box.previousElementSibling.querySelector('.muted'); if (cnt) cnt.textContent = v.length || 'nobody else';
+      smSend({ op: 'hide', id: +tv.k, on: true, v: v });
+      return;
+    }
     if (e.target.id === 'smUnits') { sm.units = e.target.checked ? 'i' : 'm'; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smAny') { sm.any = e.target.checked; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smGridOn') { smView.grid = e.target.checked; smViewSave(); smDraw(); }
