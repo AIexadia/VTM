@@ -9527,7 +9527,7 @@ V1.5
         }).join('') + '</div></div>');
     }
     if (isReadOnly(c)) main.insertAdjacentHTML('afterbegin', roBanner(c));
-    if (t === 'notes') nbMount(c); else document.body.classList.remove('nb-full-on');
+    if (t === 'notes') nbMount(c); else { document.body.classList.remove('nb-full-on'); nbLeave(); }
     /* Keep the current step pill visible when the step bar scrolls sideways on phones. */
     var pill = main.querySelector('.step.cur'), bar = pill && pill.parentNode;
     if (pill) bar.scrollLeft = pill.offsetLeft - bar.offsetLeft - (bar.clientWidth - pill.offsetWidth) / 2;
@@ -9803,7 +9803,7 @@ V1.5
     /* Notes tab: the board only exists (and starts syncing) once it's made. */
     nbCreate: function () {
       var c = cur(); if (!c || isReadOnly(c) || (c.notes && c.notes.v)) return;
-      c.notes = { v: 1, n: {}, l: {} }; commit();
+      c.notes = { v: 1, n: {}, l: {} }; nbEM = c.id; commit();   // a new board starts in Edit mode
       var bd = $('nbBoard'); if (bd) bd.focus();
     },
     tabEdit: function () { var t = activeTab(); tabEdit[t] = !tabEdit[t]; inline = null; if (t === 'journal') journalToEnd = true; render(); },
@@ -10448,7 +10448,7 @@ V1.5
     try { localStorage.setItem('vtm-show-prog', e.target.checked ? '1' : '0'); } catch (x) {}
     render(); var s = $('progSw'); if (s) s.focus();
   });
-  function setView(v) { store.view = v; save(); applyView(); sheetWatch(); if (v === 'chars') render(); window.scrollTo({ top: 0 }); }
+  function setView(v) { if (v !== 'chars') nbLeave(); store.view = v; save(); applyView(); sheetWatch(); if (v === 'chars') render(); window.scrollTo({ top: 0 }); }
   function applyView() {
     var on = store.view === 'chars', main = document.querySelector('main.wrap');
     if (main) main.classList.toggle('cm-on', on);
@@ -14038,7 +14038,12 @@ V1.5
      the view (pan and zoom) is only for this device and session. */
   var nbView = {}, nbSel = null, nbEdit = null, nbEditF = '', nbCid = '', nbDrag = null, nbNewSel = false, nbLastTap = { id: '', t: 0 }, nbEditT = 0;
   function nbOf(c) { return c.notes && c.notes.n ? c.notes : { v: 1, n: {}, l: {} }; }
-  function nbRO(c) { return isReadOnly(c); }
+  /* Edit mode: the board can only be changed while it's on. It starts on for a board just made, and goes back to off
+     whenever you leave the Dossier (another tab, another character or the Roller). */
+  var nbEM = '';
+  function nbLocked(c) { return !isReadOnly(c) && nbEM !== c.id; }
+  function nbLeave() { if (!nbEM) return; nbEM = ''; nbMenuClose(true); nbAttachEnd(); nbEdit = null; nbLabelClose(true); }
+  function nbRO(c) { return isReadOnly(c) || nbEM !== c.id; }
   function nbV(c) { return nbView[c.id] || (nbView[c.id] = { x: 40, y: 40, z: 1, fit: true }); }
   function nbKids(nb, id) { return Object.keys(nb.n).filter(function (k) { return nb.n[k].p === id; }); }
   function nbDesc(nb, id) { var out = [], q = [id]; while (q.length) { var k = q.shift(); nbKids(nb, k).forEach(function (x) { out.push(x); q.push(x); }); } return out; }
@@ -14132,11 +14137,11 @@ V1.5
   }
 
   function notesTab(c) {
-    var ro = nbRO(c), v = nbV(c);
+    var ro = nbRO(c), lk = nbLocked(c), v = nbV(c);
     /* A board only exists (and syncs) once the player makes one. */
     if (!(c.notes && c.notes.v)) {
       return '<section class="card nb-card nb-new"><h2>Dossier</h2>' +
-        (ro ? '<p class="muted">' + esc(c.info.name || 'This character') + ' has no Note Board.</p>' :
+        (isReadOnly(c) ? '<p class="muted">' + esc(c.info.name || 'This character') + ' has no Note Board.</p>' :
           '<p class="muted">A Note Board is a corkboard for this character: pin up notes, tie them together with red string, group them and write on the board itself.</p>' +
           '<p><button type="button" class="btn primary" data-act="nbCreate">Create Note Board</button></p>') + '</section>';
     }
@@ -14147,22 +14152,26 @@ V1.5
     zoom = '<span class="nb-cap" id="nbCap" aria-live="polite"></span>' + zoom;
     var find = '<span class="nb-findw"><input type="search" id="nbFind" class="nb-find" placeholder="Search the board" aria-label="Search the board (Enter shows what\'s found)" value="' + esc(nbQ) + '"><span class="nb-findn" id="nbFindN" aria-live="polite"></span></span>';
     var undo = ro ? '' : '<span class="nb-undo" role="group" aria-label="History"><button type="button" class="btn small" data-nb="undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button><button type="button" class="btn small" data-nb="redo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button></span>';
-    return '<section class="card nb-card" id="nbCard"><div class="card-head"><h2>Dossier</h2><span class="nb-tools2">' + find + undo + zoom + '</span></div>' +
+    var esw = isReadOnly(c) ? '' : '<label class="switch nb-esw" for="nbEditSw" title="Turn on to add, move, change or delete things on the board"><input type="checkbox" role="switch" id="nbEditSw"' + (lk ? '' : ' checked') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>Edit</strong></span></label>';
+    return '<section class="card nb-card' + (lk ? ' nb-locked' : '') + '" id="nbCard"><div class="card-head"><h2>Dossier</h2><span class="nb-tools2">' + esw + find + undo + zoom + '</span></div>' +
       '<div class="nb-board" id="nbBoard" tabindex="0" aria-describedby="nbHelp" aria-label="Notes board for ' + esc(c.info.name || 'this character') + '">' +
-      '<div class="nb-stage" id="nbStage"></div><p class="nb-empty" id="nbEmpty" hidden>' + (ro ? 'This board is empty.' : 'Right-click the board (or press and hold) to add a note, a container or some text.') + '</p></div>' +
-      '<p class="hint" id="nbHelp">' + (ro ? 'Drag the board to look around; Ctrl + scroll or the buttons above to zoom.' :
+      '<div class="nb-stage" id="nbStage"></div><p class="nb-empty" id="nbEmpty" hidden>' + (lk ? 'This board is empty. Turn on Edit to add things.' : ro ? 'This board is empty.' : 'Right-click the board (or press and hold) to add a note, a container or some text.') + '</p></div>' +
+      '<p class="hint" id="nbHelp">' + (lk ? 'Edit is off: drag the board to look around, Ctrl + scroll to zoom, Ctrl+click something to fit it on screen. Turn on Edit (above) to change the board.' : ro ? 'Drag the board to look around; Ctrl + scroll or the buttons above to zoom.' :
         'Right-click (or press and hold) the empty board to add a note, a container or text, and anything on it to change its shape, colour and so on. Double-click anything to edit its text. ' +
         'Drag notes to move them, and into a container to put them inside. Drag the tack on a note\'s edge onto another note to tie them with string. ' +
         'Shift-click or Shift-drag a box to select several things; Ctrl+Z undoes. Drag the empty board or scroll to look around; Ctrl + scroll to zoom.') + '</p></section>';
   }
 
   function nbMount(c) {
+    if (nbEM && nbEM !== c.id) nbLeave();
     nbCid = c.id;
     var board = $('nbBoard'); if (!board) return;
     nbMenuClose(true);
     if (nbSel && !(nbSel.k === 'n' ? nbOf(c).n[nbSel.id] : nbOf(c).l[nbSel.id])) nbSel = null;
     Object.keys(nbPick).forEach(function (k) { if (!nbOf(c).n[k]) delete nbPick[k]; });
     nbHistSync(c);
+    var esw = $('nbEditSw');
+    if (esw) esw.addEventListener('change', function () { if (esw.checked) nbEM = c.id; else nbLeave(); nbSelect(null); render(); var e2 = $('nbEditSw'); if (e2) e2.focus(); });
     var fi = $('nbFind');
     fi.addEventListener('input', function () { nbQ = fi.value.trim().toLowerCase(); nbDraw(); });   // redraws: the matching words are marked
     fi.addEventListener('keydown', function (e) {
@@ -14241,7 +14250,7 @@ V1.5
     var sc = (o.sc || 100) / 100, ww = o.b ? o.w : Math.round(o.w * sc);
     var st = 'left:' + o.x + 'px;top:' + o.y + 'px;width:' + ww + 'px;--w:' + ww + 'px;' + (sc !== 1 ? '--sc:' + sc + ';' : '') + (o.b ? '' : '--r:' + nbTilt(id) + 'deg;') + (o.b && !o.f ? 'height:' + o.h + 'px;' : '') + 'z-index:' + (ed ? 100000 : o.b ? 1 + nbDepth(nb, id) : 1000 + (o.z || 0)) + ';' + (o.st && o.f && !o.b ? '--stl:' + nbStampLen(o) + ';' : '');
     var inside = o.b ? nbDesc(nb, id).filter(function (k) { return !nb.n[k].tx; }).length : 0;
-    var fold = '<button type="button" class="nb-fb" data-nb="fold" data-id="' + id + '" aria-expanded="' + !o.f + '" aria-label="' + (o.f ? 'Expand ' : 'Collapse ') + esc(nbTitle(o)) + '"' + (ro ? ' disabled' : '') + '>' +
+    var fold = '<button type="button" class="nb-fb" data-nb="fold" data-id="' + id + '" aria-expanded="' + !o.f + '" aria-label="' + (o.f ? 'Expand ' : 'Collapse ') + esc(nbTitle(o)) + '"' + (ro && (!nbC() || isReadOnly(nbC())) ? ' disabled' : '') + '>' +
       '<svg viewBox="0 0 14 14" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l4 4 4-4"></path></svg></button>';
     var untitled = !o.b && !o.t.trim();   // a note can have no title: then it shows only its details
     var title = ed ? '<input class="nb-ti" maxlength="' + NB_TMAX + '" value="' + esc(o.t) + '" aria-label="Title" placeholder="Title (optional)">' :
@@ -14338,26 +14347,64 @@ V1.5
     return [cx + dx * s, cy + dy * s];
   }
   /* Red string, sagging a little under its own weight. */
-  function nbString(p, q) {
-    var mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2, len = Math.hypot(q[0] - p[0], q[1] - p[1]), sag = Math.min(46, len * 0.09);
-    return 'M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' Q' + mx.toFixed(1) + ' ' + (my + sag).toFixed(1) + ' ' + q[0].toFixed(1) + ' ' + q[1].toFixed(1);
+  /* Its bend point: o bends it sideways (to go around things), 0 is the plain sag. */
+  function nbCtl(p, q, o) {
+    var dx = q[0] - p[0], dy = q[1] - p[1], len = Math.hypot(dx, dy) || 1, sag = Math.min(46, len * 0.09);
+    return [(p[0] + q[0]) / 2 - dy / len * o, (p[1] + q[1]) / 2 + sag + dx / len * o];
   }
-  function nbLinks() {
+  function nbString(p, q, C) {
+    return 'M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' Q' + C[0].toFixed(1) + ' ' + C[1].toFixed(1) + ' ' + q[0].toFixed(1) + ' ' + q[1].toFixed(1);
+  }
+  function nbQAt(p, C, q, t) { var u = 1 - t; return [u * u * p[0] + 2 * u * t * C[0] + t * t * q[0], u * u * p[1] + 2 * u * t * C[1] + t * t * q[1]]; }
+  /* Strings go around notes, containers and each other when a modest bend does it; otherwise they hang as before.
+     Worked out when nothing is being dragged (while dragging, each string keeps its bend). */
+  var nbBend = {};
+  function nbSegX(a, b, c, d) {
+    function cr(p, q, r) { return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]); }
+    return cr(a, b, c) * cr(a, b, d) < 0 && cr(c, d, a) * cr(c, d, b) < 0;
+  }
+  function nbBendFor(p, q, obs, placed) {
+    var len = Math.hypot(q[0] - p[0], q[1] - p[1]), best = null, N = 14;
+    [0, 40, -40, 80, -80, 130, -130, 190, -190, 260, -260].forEach(function (o) {
+      if (Math.abs(o) > Math.max(40, len * 0.9)) return;
+      var C = nbCtl(p, q, o), pts = [], x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (var i = 0; i <= N; i++) { var pt = nbQAt(p, C, q, i / N); pts.push(pt); x0 = Math.min(x0, pt[0]); y0 = Math.min(y0, pt[1]); x1 = Math.max(x1, pt[0]); y1 = Math.max(y1, pt[1]); }
+      var hits = 0, xs = 0;
+      obs.forEach(function (r) {
+        if (r.x > x1 || r.x + r.w < x0 || r.y > y1 || r.y + r.h < y0) return;
+        for (var i = 1; i < N; i++) { var t = pts[i]; if (t[0] > r.x && t[0] < r.x + r.w && t[1] > r.y && t[1] < r.y + r.h) { hits++; break; } }
+      });
+      placed.forEach(function (s2) {
+        if (s2.b[0] > x1 || s2.b[2] < x0 || s2.b[1] > y1 || s2.b[3] < y0) return;
+        for (var i = 1; i < N - 1; i++) for (var j = 1; j < s2.pts.length - 2; j++) if (nbSegX(pts[i], pts[i + 1], s2.pts[j], s2.pts[j + 1])) xs++;
+      });
+      var score = hits * 100 + xs * 6 + Math.abs(o) / 40;
+      if (!best || score < best.s) best = { s: score, o: o, pts: pts, b: [x0, y0, x1, y1] };
+    });
+    return best;
+  }
+  function nbLinks(quick) {
     var c = nbC(), svg = $('nbLinks'); if (!c || !svg) return;
-    var nb = nbOf(c), seen = {}, h = '', hits = '', boxes = {};
+    var nb = nbOf(c), seen = {}, h = '', hits = '', boxes = {}, lbls = [], placed = [], fast = !!(quick || nbDrag);
     function rep(id) { return nbHider(nb, id) || id; }
     function bx(id) { return boxes[id] || (boxes[id] = nbBox(id)); }
+    function ups(id) { var out = [id], p0 = nb.n[id] && nb.n[id].p, g = 0; while (p0 && nb.n[p0] && g++ < 50) { out.push(p0); p0 = nb.n[p0].p; } return out; }
+    var solidIds = fast ? [] : Object.keys(nb.n).filter(function (k) { return !nb.n[k].tx && !nbHider(nb, k); });
     Object.keys(nb.l).forEach(function (lid) {
       var l = nb.l[lid], a = rep(l.a), b = rep(l.b); if (a === b) return;
       var key = a < b ? a + '|' + b : b + '|' + a; if (seen[key]) return; seen[key] = 1;
       var A = bx(a), B = bx(b); if (!A || !B) return;
       var p = nbEnd(A, B.x + B.w / 2, B.y + B.h / 2), q = nbEnd(B, A.x + A.w / 2, A.y + A.h / 2);
-      var sel = nbSel && nbSel.k === 'l' && nbSel.id === lid, d = nbString(p, q), via = a !== l.a || b !== l.b;
-      var col = nbStrCol(l.c), mid = nbMid(p, q);
-      /* The label runs along the string, never upside down, on its north side (east when the string is near upright). */
-      var ang = Math.atan2(q[1] - p[1], q[0] - p[0]) * 180 / Math.PI; if (ang > 90) ang -= 180; if (ang <= -90) ang += 180;
-      var ar = ang * Math.PI / 180, ux = Math.sin(ar), uy = -Math.cos(ar), side = (-uy + ux) >= (uy - ux) ? -1 : 1, off = 12;
-      nbLblAt[lid] = [mid[0] - side * ux * off, mid[1] - side * uy * off];
+      if (!fast) {
+        var skip = ups(a).concat(ups(b)), obs = [];
+        solidIds.forEach(function (k) { if (skip.indexOf(k) >= 0) return; var r = bx(k); if (r) obs.push({ x: r.x - 6, y: r.y - 6, w: r.w + 12, h: r.h + 12 }); });
+        var bf = nbBendFor(p, q, obs, placed); nbBend[lid] = bf.o; placed.push(bf);
+      }
+      var C = nbCtl(p, q, nbBend[lid] || 0);
+      var sel = nbSel && nbSel.k === 'l' && nbSel.id === lid, d = nbString(p, q, C), via = a !== l.a || b !== l.b;
+      var col = nbStrCol(l.c), lp = nbLblPos(p, C, q, 0.5), mid = lp.m, ang = lp.ang, side = lp.side, off = 12;
+      nbLblAt[lid] = lp.at;
+      if (l.t) lbls.push({ lid: lid, p: p, C: C, q: q });
       var lhit = nbQ && l.t && l.t.toLowerCase().indexOf(nbQ) >= 0, dim = nbMatch && !lhit && !(nbMatch[a] || nbMatch[b]);
       h += '<g class="nb-str' + (dim ? ' dim' : '') + '"><path class="nb-sh" d="' + d + '"></path><path class="nb-ln' + (sel ? ' sel' : '') + (via ? ' via' : '') + '" style="stroke:' + col + '" d="' + d + '"></path>';
       hits += '<path class="nb-hit" data-lid="' + lid + '" d="' + d + '"></path>';
@@ -14375,14 +14422,33 @@ V1.5
     svg.querySelectorAll('.nb-lbl').forEach(function (g) {
       var tx = g.querySelector('text'), r = g.querySelector('rect'), bb; try { bb = tx.getBBox(); } catch (e) { return; }
       r.setAttribute('x', (bb.x - 6).toFixed(1)); r.setAttribute('y', (bb.y - 3).toFixed(1)); r.setAttribute('width', (bb.width + 12).toFixed(1)); r.setAttribute('height', (bb.height + 6).toFixed(1));
+      g._w = bb.width + 12; g._h = bb.height + 6;
+    });
+    /* Labels don't cover each other: one that would slides along its own string until it's clear. */
+    var taken = [];
+    lbls.forEach(function (L) {
+      var g = svg.querySelector('.nb-lbl[data-lid="' + L.lid + '"]'); if (!g || !g._w) return;
+      var pick = null;
+      [0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.2, 0.8].some(function (t) {
+        var lp = nbLblPos(L.p, L.C, L.q, t), ar = lp.ang * Math.PI / 180, cw = Math.abs(Math.cos(ar)), sw = Math.abs(Math.sin(ar));
+        var W = g._w * cw + g._h * sw, H = g._w * sw + g._h * cw, bx2 = { x: lp.at[0] - W / 2 - 2, y: lp.at[1] - H / 2 - 2, w: W + 4, h: H + 4 };
+        var free = !taken.some(function (r) { return r.x < bx2.x + bx2.w && bx2.x < r.x + r.w && r.y < bx2.y + bx2.h && bx2.y < r.y + r.h; });
+        if (!pick || free) pick = { lp: lp, b: bx2 };
+        return free;
+      });
+      taken.push(pick.b); nbLblAt[L.lid] = pick.lp.at;
+      if (pick.lp.t !== 0.5) g.setAttribute('transform', 'translate(' + pick.lp.m[0].toFixed(1) + ' ' + pick.lp.m[1].toFixed(1) + ') rotate(' + pick.lp.ang.toFixed(1) + ') translate(0 ' + (pick.lp.side * 12) + ')');
     });
     nbFade();
   }
   /* The middle of a string (where its label sits). */
   var nbLblAt = {};
-  function nbMid(p, q) {
-    var len = Math.hypot(q[0] - p[0], q[1] - p[1]), sag = Math.min(46, len * 0.09);
-    return [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2 + sag / 2];
+  /* A label at t along the string: it runs along it, never upside down, on its north side (east when the string is near upright). */
+  function nbLblPos(p, C, q, t) {
+    var m = nbQAt(p, C, q, t), u = 1 - t, tx = 2 * u * (C[0] - p[0]) + 2 * t * (q[0] - C[0]), ty = 2 * u * (C[1] - p[1]) + 2 * t * (q[1] - C[1]);
+    var ang = Math.atan2(ty, tx) * 180 / Math.PI; if (ang > 90) ang -= 180; if (ang <= -90) ang += 180;
+    var ar = ang * Math.PI / 180, ux = Math.sin(ar), uy = -Math.cos(ar), side = (-uy + ux) >= (uy - ux) ? -1 : 1;
+    return { t: t, m: m, ang: ang, side: side, at: [m[0] - side * ux * 12, m[1] - side * uy * 12] };
   }
   /* Writing a string's label, in a small box right where it goes. */
   function nbLabelEdit(lid) {
@@ -14491,7 +14557,7 @@ V1.5
      yieldIds: the new things move to a free spot instead of pushing (a note just added). */
   var NB_GAP = 12, NB_PAD = 16, NB_HEAD = 40;
   function nbSettle(ids, olds, yieldIds) {
-    var c = nbC(); if (!c || nbRO(c)) return false;
+    var c = nbC(); if (!c || isReadOnly(c)) return false;
     var nb = nbOf(c), st = $('nbStage'), S = {}, before = JSON.stringify(nb.n);
     function size(k) {
       var o = nb.n[k]; if (o.b && !o.f) return { w: o.w, h: o.h || 100 };
@@ -14535,17 +14601,36 @@ V1.5
       var sib = Object.keys(nb.n).filter(function (k) { return (nb.n[k].p || '') === L && solid(k); });
       var F = sib.filter(function (k) { return fixed.indexOf(k) >= 0; });
       var M = sib.filter(function (k) { return F.indexOf(k) < 0 && (!movers || movers.indexOf(k) >= 0); });
+      /* The four ways out from over r0 (shortest first), and the first of them that leaves every one of ks clear. */
+      function opts4(r0, r) { var o = [[r0.x + r0.w + NB_GAP - r.x, 0], [r0.x - NB_GAP - r.x - r.w, 0], [0, r0.y + r0.h + NB_GAP - r.y], [0, r0.y - NB_GAP - r.y - r.h]]; o.sort(function (a, b) { return Math.abs(a[0]) + Math.abs(a[1]) - Math.abs(b[0]) - Math.abs(b[1]); }); return o; }
+      function push(r0, r, ks) {
+        return opts4(r0, r).filter(function (v) {
+          return ks.every(function (k) { var q0 = rect(k), q = { x: q0.x + v[0], y: q0.y + v[1], w: q0.w, h: q0.h }; return !F.some(function (f) { return over(rect(f), q); }) && !obst.some(function (o) { return over(o, q); }); });
+        })[0] || null;
+      }
+      /* Movers within a gap and a half of each other, as one group (up to 12). */
+      function group(m) {
+        var out = [m], q = [m], e = NB_GAP * 1.5;
+        while (q.length && out.length < 13) { var r = rect(q.shift()), rg = { x: r.x - e, y: r.y - e, w: r.w + 2 * e, h: r.h + 2 * e }; M.forEach(function (k) { if (out.indexOf(k) < 0 && over(rg, rect(k))) { out.push(k); q.push(k); } }); }
+        return out.length > 12 ? [m] : out;
+      }
       var g = 0, hit = true;
       while (hit && g++ < sib.length * 4 + 10) {
         hit = false;
         for (var i = 0; i < M.length && !hit; i++) {
           var m = M[i], rm = rect(m);
           var f = F.filter(function (k) { return over(rect(k), rm); })[0]; if (!f) continue;
-          var rf = rect(f), opts = [[rf.x + rf.w + NB_GAP - rm.x, 0], [rf.x - NB_GAP - rm.x - rm.w, 0], [0, rf.y + rf.h + NB_GAP - rm.y], [0, rf.y - NB_GAP - rm.y - rm.h]];
-          opts.sort(function (a, b) { return Math.abs(a[0]) + Math.abs(a[1]) - Math.abs(b[0]) - Math.abs(b[1]); });
-          var pick = opts.filter(function (v) { var r = { x: rm.x + v[0], y: rm.y + v[1], w: rm.w, h: rm.h }; return !F.some(function (k) { return over(rect(k), r); }) && !obst.some(function (q) { return over(q, r); }); })[0] || opts.filter(function (v) { return v[1] > 0; })[0] || opts[0];
-          nbMove(nb, m, pick[0], pick[1]);
-          F.push(m); M.splice(i, 1); hit = true;
+          var rf = rect(f), pick = push(rf, rm, [m]), pick1 = pick || opts4(rf, rm)[0];
+          /* Things sitting close together move together, keeping their places relative to each other, when they can. */
+          var grp = group(m), gp = null;
+          if (grp.length > 1) {
+            var U = grp.map(rect).reduce(function (u, r) { var x0 = Math.min(u.x, r.x), y0 = Math.min(u.y, r.y); return { x: x0, y: y0, w: Math.max(u.x + u.w, r.x + r.w) - x0, h: Math.max(u.y + u.h, r.y + r.h) - y0 }; });
+            gp = push(rf, U, grp);
+            if (gp && pick && Math.abs(gp[0]) + Math.abs(gp[1]) > Math.abs(pick[0]) + Math.abs(pick[1]) + 400) gp = null;   // too far: just this one moves
+          }
+          var mv = gp ? grp : [m], v0 = gp || pick || opts4(rf, rm).filter(function (v) { return v[1] > 0; })[0] || pick1;
+          mv.forEach(function (k) { nbMove(nb, k, v0[0], v0[1]); F.push(k); M.splice(M.indexOf(k), 1); });
+          hit = true;
         }
         /* What's moved can still sit on something not yet looked at: keep going until nothing overlaps. */
         if (!hit && !movers) for (var a = 0; a < sib.length && !hit; a++) for (var b2 = 0; b2 < sib.length && !hit; b2++) {
@@ -14870,7 +14955,9 @@ V1.5
     nbMenuOpen(cx, cy, nbItemsFor(id, pt), nbTitle(nbOf(c).n[id]));
   }
   function nbContext(e) {
-    var c = nbC(); if (!c || nbRO(c) || nbDrag) return;
+    var c = nbC(); if (!c || nbDrag) return;
+    if (nbLocked(c) && !(e.target.closest && e.target.closest('input, textarea'))) { e.preventDefault(); toast('Turn on Edit to change the board.'); return; }
+    if (nbRO(c)) return;
     if (e.target.closest && e.target.closest('input, textarea')) return;   // the browser's own menu while typing
     e.preventDefault();
     if (nbEdit) nbFinishEdit(false);
@@ -14891,9 +14978,9 @@ V1.5
       b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'Exit full screen' : 'Full screen';
       return;
     }
+    if (a === 'fold' && nb.n[id] && !isReadOnly(c)) { e.stopPropagation(); nb.n[id].f = !nb.n[id].f; if (nbEdit === id) nbEdit = null; nbSettleNow([id]); var fe = $('nbStage').querySelector('.nb-node[data-nid="' + id + '"] .nb-fb'); if (fe) fe.focus(); return; }
     if (ro) return;
     if (a === 'undo' || a === 'redo') return nbUndo(a === 'redo');
-    if (a === 'fold' && nb.n[id]) { e.stopPropagation(); nb.n[id].f = !nb.n[id].f; if (nbEdit === id) nbEdit = null; nbSettleNow([id]); var fe = $('nbStage').querySelector('.nb-node[data-nid="' + id + '"] .nb-fb'); if (fe) fe.focus(); return; }
   }
   function nbInput(e) {
     var c = nbC(); if (!c || !nbEdit) return;
@@ -14905,7 +14992,7 @@ V1.5
     if (o[key].length > old.length && nbFull(c)) { o[key] = old; e.target.value = old; toast('This board is full. Shorten or remove some notes to add more.'); return; }
     if (isT) e.target.closest('.nb-node').setAttribute('aria-label', nbTitle(o));
     if (!isT || isX) { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }
-    nbChanged(); nbLinks();
+    nbChanged(); nbLinks(true);   // bends are worked out again when the typing's done
   }
   function nbFocusOut(e) {
     if (!nbEdit) return;

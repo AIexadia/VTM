@@ -396,3 +396,10 @@ V3.1.10
 -Skirmish Map Changes:
 	-Fixed the detached map's buttons only reacting along their bottom edge in Opera.
 	-Opening the Actors list no longer closes the map. A docked map steps aside while the list is open and comes back, as you left it, when the list closes (or press Skirmish Map); a popped-out or detached map stays put.
+
+V3.2
+-Character Manager Changes:
+	-Dossier: new Edit switch at the top of the board. A new board starts with it on; whenever you leave the Dossier (another tab, another character or the Roller) it goes back to off. With Edit off nothing on the board can be added, moved, resized, changed or deleted, and right-clicking does nothing, so it's safe to browse; dragging the board, zooming, search, collapsing and expanding containers and Ctrl+click to fit still work.
+	-Dossier: when something is dropped on a group of things sitting close together, the group moves out of the way together, keeping its layout, instead of being scattered (unless that would mean a much longer move).
+	-Dossier: string labels no longer cover each other; one that would slides along its own string until it's clear.
+	-Dossier: strings bend around notes, containers and other strings in their way when a modest curve does it.
