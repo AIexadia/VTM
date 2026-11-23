@@ -499,3 +499,7 @@ V3.6.2
 V3.6.3
 -Skirmish Map Changes:
 	-A move's bends now go away as soon as they're no longer needed (when the way straight past a bend crosses no wall), not only when the token is dragged back near them.
+
+V3.6.4
+-Skirmish Map Changes:
+	-Fixed a move's line cutting through a corner where two walls meet (dropping a bend it still needed, like one through a broken window): a bend now only goes when every wall at the corners either side of it still lies inside the line's turn.
