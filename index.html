@@ -2342,6 +2342,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 /* Drawing: the pointer follows the tool (the map's own grab hand only with the hand tool) */
 [data-dtool="f"] .sm-svg, [data-dtool="f"] .sm-svg *, [data-dtool="l"] .sm-svg, [data-dtool="l"] .sm-svg *, [data-dtool="r"] .sm-svg, [data-dtool="r"] .sm-svg *,
 [data-dtool="e"] .sm-svg, [data-dtool="e"] .sm-svg *, [data-dtool="p"] .sm-svg, [data-dtool="p"] .sm-svg * { cursor: crosshair; }
+[data-dtool="t"] .sm-svg, [data-dtool="t"] .sm-svg * { cursor: text; }
 [data-dtool="x"] .sm-svg, [data-dtool="x"] .sm-svg * { cursor: cell; }
 [data-dtool="sel"] .sm-svg, [data-dtool="sel"] .sm-svg * { cursor: default; }
 [data-dtool="sel"] .sm-shapes.live .sm-shp { cursor: move; }
@@ -2351,6 +2352,35 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 .sm-sw-row { display: flex; gap: 14px; flex-wrap: wrap; padding-left: 20px; }
 .sm-sw-row .sm-sw { flex: 0 0 auto; }
 .sm-snap-pt { fill: none; stroke: #d9a441; stroke-width: 0.04; pointer-events: none; }
+.sm-menu .sm-mlook { display: flex; gap: 4px; align-items: center; justify-content: center; padding: 2px 0; }
+.sm-menu .sm-mlook .sm-dcol { width: 20px; height: 20px; }
+.sm-shapes.live .sm-shp-hit.fh { pointer-events: all; }
+.sm-shp-tx { text-anchor: middle; dominant-baseline: central; paint-order: stroke; stroke-linejoin: round; font-family: inherit; font-weight: 600; pointer-events: none; -webkit-user-select: none; user-select: none; }
+.sm-shp-tx.ghost { opacity: 0.55; }
+.sm-shp.sel .sm-shp-tx { filter: drop-shadow(0 0 0.06px #d9a441) drop-shadow(0 0 0.1px #d9a441); }
+.sm-shp.hid { opacity: 0.45; }
+.sm-path-pt.shut { fill: #3c8d4a; }
+.sm-dtxt { position: absolute; z-index: 6; transform: translate(-50%, -50%); min-width: 8em; padding: 2px 6px; border: 1px solid var(--accent); border-radius: 6px; background: rgba(29, 24, 32, 0.85); font-weight: 600; text-align: center; font-family: inherit; }
+.sm-menu kbd { font-size: 0.72rem; color: var(--muted); margin-left: 6px; }
+.sm-menu .switch { margin: 2px 0; }
+.sm-wall { fill: none; stroke-width: 0.07; stroke-linecap: butt; pointer-events: none; }
+.sm-wall.w1 { stroke: rgba(233, 220, 192, 0.55); }
+.sm-wall.w2 { stroke: #d9a441; stroke-dasharray: 0.16 0.1; }
+.sm-wall.w3 { stroke: #8fd0ff; stroke-width: 0.1; stroke-dasharray: 0.3 0.06; }
+.sm-wall.w3.o { stroke-dasharray: 0.05 0.16; opacity: 0.7; }
+.sm-wall.w4 { stroke: #b07a3e; stroke-width: 0.16; }
+.sm-wall.w4.o { stroke-dasharray: 0.12 0.14; opacity: 0.6; }
+.sm-meas.cover { stroke: #ec8a2f; }
+.sm-meas.nolos { stroke: #e2384a; stroke-dasharray: 0.05 0.12; }
+.sm-meas-end.cover { fill: #ec8a2f; }
+.sm-meas-end.nolos { fill: #e2384a; }
+.sm-fog { fill: rgba(8, 5, 10, 0.72); pointer-events: none; }
+.sm-dwl { flex-wrap: wrap; align-items: center; }
+.sm-dwl { gap: 3px; }
+.sm-dwl-t { flex-basis: 100%; font-size: 0.78rem; color: var(--muted); }
+.sm-dt.sm-z.sm-dwlb { height: 26px; padding: 0 6px; font-size: 0.72rem; min-width: 0; }
+.sm-dwlb[aria-checked="true"] { border-color: var(--accent); color: var(--accent); }
+.sm-dpop[aria-label="Pen"] { min-width: 256px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -16455,7 +16485,7 @@ V1.5
       return { k: k, name: t.n, pub: t.n, pl: t.ty === 'p', x: lp ? lp[0] : +t.x, y: lp ? lp[1] : +t.y, pic: t.p ? smPics[t.p] || '' : '', ini: t.i, h: t.h, w: t.w, s: t.s, g: t.g && typeof t.g === 'object' ? { w: (Array.isArray(t.g.w) ? t.g.w : []).slice(0, 6).map(function (x) { return String(x).slice(0, 40); }), a: String(t.g.a || '').slice(0, 60) } : null, hu: +t.hu === 2 ? 2 : +t.hu === 1 ? 1 : 0, own: s.mine.indexOf(+t.k) >= 0, hid: !!t.hid, hv: Array.isArray(t.hv) ? t.hv.map(Number) : [] };
     });
   }
-  function smTokens() { return smMode() === 'join' ? smJoinTokens() : smHostTokens(); }
+  function smTokens() { return smMode() === 'join' ? smFogToks(smJoinTokens()) : smHostTokens(); }   // players: only what their tokens can see
   /* ---- Hide: a hidden token (and its moves, measurements and areas) reaches only the host, its owner and the people
      it's made visible to; they see a small mark on it. People in the room are numbered for this (never by their ids). ---- */
   var smPeerNo = {}, smPeerSeq = 1;
@@ -16664,7 +16694,8 @@ V1.5
       }
       /* Dropped on another token (a hidden one, which dragging passes over) it's nudged clear, but never further than
          its speed allows: failing that, it stops short. */
-      to0 = smFreeWithin(k, to0, toks0, org, lim);
+      var pre0 = to0; to0 = smFreeWithin(k, to0, toks0, org, lim);
+      if (smWallCross(pre0, to0)) to0 = pre0;   // never nudged through a wall
       sm.pos[k] = to0; sm.drag = null;
       smRecord(k, from, to0);
     } else if (o.op === 'undo') {
@@ -16689,6 +16720,7 @@ V1.5
         if (sm.aoe.length >= SM_AOE_MAX || sm.aoe.filter(function (q) { return q.by === who; }).length >= SM_AOE_PER) return;
         sm.aoe.push(Object.assign({ i: 'a' + (sm.seq++), k: String(t0.id), by: who, bn: String(by || '').slice(0, 40) }, fields));
       }
+    } else if (o.op === 'wall') { smWallHost(o.i, !!o.o, who); return;   // a door opened or closed, a window broken or mended
     } else if (o.op === 'draw') { smDrHost(Array.isArray(o.ops) ? o.ops.slice(0, 500) : [], who); return;   // drawing (smDrHost sends it on)
     } else if (o.op === 'hide') {   // hide or show a token, and who else sees it (its owner and the host always do)
       a = smActor(o.id); if (!a || !(who === 'host' || a.ow === who)) return;
@@ -17049,6 +17081,7 @@ V1.5
     /* This round's moves: faded lines (click one to undo it and what came after). */
     var lines = smLines();
     lines.forEach(function (l) {
+      if (mode === 'join' && !byK[String(l.a)]) return;   // a token out of sight
       var mid = [(l.f[0] + l.t[0]) / 2, (l.f[1] + l.t[1]) / 2], hot = smUi.hl === l.id || (!!smUi.hover && String(l.a) === smUi.hover);
       h += '<g class="sm-move' + (hot ? ' hot' : '') + '" data-line="' + l.id + '" data-tok="' + esc(String(l.a)) + '"><line class="sm-move-hit" x1="' + l.f[0] + '" y1="' + l.f[1] + '" x2="' + l.t[0] + '" y2="' + l.t[1] + '"/><line class="sm-move-ln" x1="' + l.f[0] + '" y1="' + l.f[1] + '" x2="' + l.t[0] + '" y2="' + l.t[1] + '"/><circle class="sm-move-dot" cx="' + l.f[0] + '" cy="' + l.f[1] + '" r="0.12"/>' + (hot ? smLabel(mid[0], mid[1] - 0.25, smFmt(smDist(l.f, l.t)), 'sm-lbl-move') : '') + '</g>';
     });
@@ -17061,10 +17094,18 @@ V1.5
     var ms = mode === 'join' ? (rm.ms || []).concat(smMine.h && Array.isArray(smMine.h.m) ? smMine.h.m : []) : Object.keys(sm.meas).map(function (k) { var m = sm.meas[k], e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0], t: e[1] } : null; }).filter(Boolean);
     if (smUi.pend && (smUi.pend.to || smUi.pend.tk)) { var pe = smMeasEnds(smUi.pend.f, smUi.pend.tk ? { k: smUi.pend.tk } : { x: smUi.pend.to[0], y: smUi.pend.to[1] }, toks); if (pe) ms = ms.concat([{ n: '', f: pe[0], t: pe[1], live: true }]); }
     ms.forEach(function (m) {
-      var d = smDist(m.f, m.t);
-      h += '<line class="sm-meas' + (m.live ? ' live' : '') + '" x1="' + m.f[0] + '" y1="' + m.f[1] + '" x2="' + m.t[0] + '" y2="' + m.t[1] + '"/><circle class="sm-meas-end" cx="' + m.t[0] + '" cy="' + m.t[1] + '" r="0.1"/>' +
-        smLabel((m.f[0] + m.t[0]) / 2, (m.f[1] + m.t[1]) / 2 + 0.45, smFmt(d) + (m.n ? ' · ' + m.n : ''), 'sm-lbl-meas');
+      var d = smDist(m.f, m.t), wx = smWMeas(m.f, m.t), cuts = [[0, '']];
+      /* Past a half wall the line turns to cover; past a wall that blocks sight, to no line of sight. */
+      if (wx.h >= 0 && (wx.s < 0 || wx.h < wx.s)) cuts.push([wx.h, ' cover']);
+      if (wx.s >= 0) cuts.push([wx.s, ' nolos']);
+      cuts.forEach(function (c, i) {
+        var t0 = c[0], t1 = i + 1 < cuts.length ? cuts[i + 1][0] : 1, a0 = [m.f[0] + (m.t[0] - m.f[0]) * t0, m.f[1] + (m.t[1] - m.f[1]) * t0], a1 = [m.f[0] + (m.t[0] - m.f[0]) * t1, m.f[1] + (m.t[1] - m.f[1]) * t1];
+        h += '<line class="sm-meas' + c[1] + (m.live ? ' live' : '') + '" x1="' + a0[0] + '" y1="' + a0[1] + '" x2="' + a1[0] + '" y2="' + a1[1] + '"/>';
+      });
+      h += '<circle class="sm-meas-end' + cuts[cuts.length - 1][1] + '" cx="' + m.t[0] + '" cy="' + m.t[1] + '" r="0.1"/>' +
+        smLabel((m.f[0] + m.t[0]) / 2, (m.f[1] + m.t[1]) / 2 + 0.45, smFmt(d) + (wx.s >= 0 ? ' · no line of sight' : wx.h >= 0 ? ' · cover' : '') + (m.n ? ' · ' + m.n : ''), 'sm-lbl-meas');
     });
+    h += smFogSVG(toks);   // a player: the fog over what their tokens can't see
     /* Tokens on top. */
     toks.slice().sort(function (a, b) { return (a.k === dragK) - (b.k === dragK); }).forEach(function (t) {
       var cls = 'sm-tok' + (t.pl ? ' pl' : ' np') + (eng[t.k] ? ' eng' : '') + (t.k === dragK ? ' moving' : '') + (smCanMove(t) ? ' can' : '') + (t.hu === 2 ? ' down' : '') + (t.hid ? ' hid' : '') + (smUi.hover === t.k ? ' hov' : '');
@@ -17255,6 +17296,7 @@ V1.5
   function smCtx(e) {
     var svg = smSvgEl(); if (!svg || !svg.contains(e.target) || !smUi.vb) return;
     if (smDrawCtx(e)) return;   // drawing: its own menu (or cancelling a preset being placed)
+    if (!smTokAt(e) && smWallCtx(e)) return;   // a door or window: open it, break it
     if (Date.now() - (smUi.holdAt || 0) < 1000) { e.preventDefault(); return; }   // the same press and hold already opened it (Android sends both)
     var t = smTokAt(e); if (!t) return;
     if (!smCanMove(t) && !smAreas().some(function (a) { return a.k === t.k && a.mine; })) return;   // not theirs, and nothing of theirs on it
@@ -17455,6 +17497,7 @@ V1.5
     toks = toks.filter(function (t) { return !t.hid; });
     q = smFree(a.k, q, toks);
     if (a.bud && smDist(a.from, q) > a.bud.left + 0.01) q = smFree(a.k, smClampTo(a.from, q, a.bud.left), toks);
+    q = smWallMove(a.to || a.from, q);   // walls stop it (it slides along them)
     var x = q[0], y = q[1];
     a.to = [x, y];
     if (smMode() === 'host') { sm.pos[a.k] = [x, y]; sm.drag = { k: a.k, by: myName() || 'Host', who: 'host', t: Date.now(), from: a.from }; smPushSoon(); }
@@ -17579,18 +17622,24 @@ V1.5
      or a box) to move, resize, copy, delete, or keep as a preset. Presets and whole drawings (maps) are saved to the
      account. The host draws; a host switch lets watchers draw too. The drawing is the host's (sm.dr): every change goes
      to the room as a list of changes (shapes added, changed or taken away), and the room keeps it for latecomers.
-     Shapes: { i, t: 'f' free-hand | 'l' line | 'r' rectangle | 'e' ellipse | 'p' path, p: [[x, y], ...], c: colour, w: thickness }.
+     Shapes: { i, t: 'f' free-hand | 'l' line | 'r' rectangle | 'e' ellipse | 'p' path | 't' text, p: [[x, y], ...], c: colour, w: thickness
+     (a text's size), d: line style (1 dashed, 2 dotted), f: filled, z: a closed path, x: a text's words, h: hidden (the host's only) }.
+     wl: a wall (1 solid, 2 half, 3 window, 4 door), wo: a door open or a window broken.
+     Hidden shapes never leave the host's page: the room gets them taken away instead, and back when they're shown.
      Rectangles and ellipses keep two opposite corners. Units: map squares (yards / metres). */
   var SMD_COLS = [['#1d1820', 'Black'], ['#efe8d8', 'White'], ['#b3263a', 'Red'], ['#2f6fb5', 'Blue'], ['#3c8d4a', 'Green'], ['#d9a441', 'Gold']];
   var SMD_W = [[0.05, 'Thin'], [0.12, 'Medium'], [0.25, 'Thick']];
-  var SMD_TOOLS = [['pan', 'Move the map and tokens (drawing off)'], ['sel', 'Select: click or drag a box; drag to move; the corner handle resizes'], ['f', 'Free-hand'], ['l', 'Line (Shift: steps of 45°; Ctrl: snap to shapes)'], ['r', 'Rectangle (Shift: square; Ctrl: snap to shapes)'], ['e', 'Circle (Shift: perfect circle; Ctrl: snap to shapes)'], ['p', 'Path: click each point, double-click (or Enter) to finish (Shift: steps of 45°; Ctrl: snap to shapes)'], ['x', 'Erase: click a shape (or drag over several)']];
+  var SMD_TOOLS = [['pan', 'Move the map and tokens (drawing off)'], ['sel', 'Select: click or drag a box; drag to move; the corner handle resizes'], ['f', 'Free-hand'], ['l', 'Line (Shift: steps of 45°; Ctrl: snap to shapes; Alt: snap to the grid)'], ['r', 'Rectangle (Shift: square; Ctrl: snap to shapes; Alt: snap to the grid)'], ['e', 'Circle (Shift: perfect circle; Ctrl: snap to shapes; Alt: snap to the grid)'], ['p', 'Path: click each point; double-click (or Enter) to finish, or click the first point to close it (Shift: steps of 45°; Ctrl: snap to shapes; Alt: snap to the grid)'], ['t', 'Text: click to write; click a text to change it (Alt: on the grid)'], ['x', 'Erase: click a shape (or drag over several)']];
+  var SMD_FS = [0.6, 0.9, 1.4];
+  var SMD_WL = ['None', 'Solid', 'Half', 'Window', 'Door'];   // walls: what each blocks is in smWBlockS / smWBlockM   // text sizes (small, medium, large), in squares
+  var SMD_DS = [['Solid', 'M2 8h16'], ['Dashed', 'M2 8h4M8 8h4M14 8h4'], ['Dotted', 'M2 8h.01M6 8h.01M10 8h.01M14 8h.01M18 8h.01']];
   var SMD_MAXN = 1500, SMD_MAXB = 1500000;
   var smDw = (function () {
     var d = null; try { d = JSON.parse(localStorage.getItem('vtm-smap-draw') || 'null'); } catch (e) {}
     d = d && typeof d === 'object' ? d : {};
-    return { hist: [], fut: [], ghost: null, on: false, tool: 'f', col: isFinite(+d.col) ? Math.max(0, Math.min(5, +d.col)) : 0, w: isFinite(+d.w) ? Math.max(0, Math.min(2, +d.w)) : 1, sizes: d.sizes !== false, sel: {}, act: null, path: null, clip: null, dlg: '', seq: 0 };
+    return { hist: [], fut: [], ghost: null, on: false, tool: 'f', col: isFinite(+d.col) ? Math.max(0, Math.min(5, +d.col)) : 0, w: isFinite(+d.w) ? Math.max(0, Math.min(2, +d.w)) : 1, sizes: d.sizes !== false, ds: isFinite(+d.ds) ? Math.max(0, Math.min(2, +d.ds)) : 0, fill: !!d.fill, wl: isFinite(+d.wl) ? Math.max(0, Math.min(4, +d.wl)) : 0, wver: 0, hid: false, sel: {}, act: null, path: null, clip: null, dlg: '', seq: 0 };
   })();
-  function smDwSave() { try { localStorage.setItem('vtm-smap-draw', JSON.stringify({ col: smDw.col, w: smDw.w, sizes: smDw.sizes })); } catch (e) {} }
+  function smDwSave() { try { localStorage.setItem('vtm-smap-draw', JSON.stringify({ col: smDw.col, w: smDw.w, sizes: smDw.sizes, ds: smDw.ds, fill: smDw.fill, wl: smDw.wl })); } catch (e) {} }
   if (!Array.isArray(sm.dr)) sm.dr = [];
   var smDrIn = [];   // a watcher's copy of the host's drawing
   function smShapes() { return smMode() === 'join' ? smDrIn : sm.dr; }
@@ -17598,14 +17647,23 @@ V1.5
   function smMayDraw() { var s = smState(), mode = smMode(); if (mode === 'host') return true; var rm = s && s.remote && s.remote.m; return !!(rm && rm.dj); }
   function smDrN(v) { return Math.round(v * 100) / 100; }
   function smDrClean(s) {
-    if (!s || typeof s !== 'object' || !/^[\w-]{1,24}$/.test(String(s.i)) || 'flrep'.indexOf(s.t) < 0 || s.t.length !== 1 || !Array.isArray(s.p)) return null;
+    if (!s || typeof s !== 'object' || !/^[\w-]{1,24}$/.test(String(s.i)) || 'flrept'.indexOf(s.t) < 0 || s.t.length !== 1 || !Array.isArray(s.p)) return null;
     var p = s.p.slice(0, 3000).map(function (q) { return Array.isArray(q) && isFinite(+q[0]) && isFinite(+q[1]) ? [smDrN(Math.max(-600, Math.min(600, +q[0]))), smDrN(Math.max(-600, Math.min(600, +q[1])))] : null; }).filter(Boolean);
-    if (p.length < 2) return null;
+    if (p.length < (s.t === 't' ? 1 : 2)) return null;
     if ('lre'.indexOf(s.t) >= 0) p = p.slice(0, 2);
-    return { i: String(s.i), t: s.t, p: p, c: Math.max(0, Math.min(5, Math.round(+s.c) || 0)), w: Math.max(0, Math.min(2, Math.round(+s.w) || 0)) };
+    if (s.t === 't') p = p.slice(0, 1);
+    var o = { i: String(s.i), t: s.t, p: p, c: Math.max(0, Math.min(5, Math.round(+s.c) || 0)), w: Math.max(0, Math.min(2, Math.round(+s.w) || 0)) };
+    if (s.t === 't') { var x = String(s.x == null ? '' : s.x).replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 120); if (!x) return null; o.x = x; }
+    else { var d = Math.round(+s.d) || 0; if (d === 1 || d === 2) o.d = d; }
+    if (s.t === 'p' && s.z && p.length >= 3) o.z = 1;
+    if (s.f && (s.t === 'r' || s.t === 'e' || o.z)) o.f = 1;
+    if (s.h) o.h = 1;
+    var wl = Math.round(+s.wl) || 0; if (s.t !== 't' && wl >= 1 && wl <= 4) { o.wl = wl; if (s.wo && wl >= 3) o.wo = 1; }
+    return o;
   }
   /* Applies changes to a drawing (a list kept in order): {i, s} adds or replaces a shape, {i, d: 1} removes it. */
   function smDrApply(list, ops, clear) {
+    smDw.wver++;   // the walls are worked out again
     if (clear) list.length = 0;
     (ops || []).forEach(function (o) {
       if (!o || typeof o !== 'object') return;
@@ -17650,19 +17708,21 @@ V1.5
       if (!o || !/^[\w-]{1,24}$/.test(String(o.i))) return;
       if (o.d) { ok.push({ i: String(o.i), d: 1 }); return; }
       var s = smDrClean(o.s); if (!s) return;
+      if (who !== 'host') { var was = sm.dr.filter(function (x) { return x.i === s.i; })[0]; if (was && was.h) return; delete s.h; }   // a watcher can't touch or make hidden shapes
       var exists = sm.dr.some(function (x) { return x.i === s.i; });
       if (!exists && (sm.dr.length >= SMD_MAXN || JSON.stringify(sm.dr).length + JSON.stringify(s).length > SMD_MAXB)) { if (who === 'host') toast('The drawing is full. Erase something first.'); return; }
       ok.push({ i: s.i, s: s });
     });
     if (!ok.length) return;
     smDrApply(sm.dr, ok); smSave();
-    var r = R(); if (r && r.mapDraw) smDrChunks(ok).forEach(function (part) { r.mapDraw({ ops: part }); });
+    var r = R(); if (r && r.mapDraw) smDrChunks(ok.map(smDrPub)).forEach(function (part) { r.mapDraw({ ops: part }); });
     smDrawSoon();
   }
+  function smDrPub(o) { return o.s && o.s.h ? { i: o.i, d: 1 } : o; }   // the room only sees a hidden shape go away
   /* The whole drawing to the room (when hosting starts, or after loading a map). */
   function smDrSendAll() {
     var r = R(); if (!r || !r.mapDraw) return;
-    var parts = smDrChunks(sm.dr.map(function (s) { return { i: s.i, s: s }; }));
+    var parts = smDrChunks(sm.dr.filter(function (s) { return !s.h; }).map(function (s) { return { i: s.i, s: s }; }));
     if (!parts.length) { r.mapDraw({ ops: [], clear: 1 }); return; }
     parts.forEach(function (part, n) { r.mapDraw({ ops: part, clear: n ? 0 : 1 }); });
   }
@@ -17670,7 +17730,8 @@ V1.5
   function smDrId() { return 'd' + Date.now().toString(36) + (smDw.seq++).toString(36) + Math.random().toString(36).slice(2, 5); }
 
   /* ---- geometry ---- */
-  function smDrBox(s) { var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; s.p.forEach(function (q) { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); }); return { x0: x0, y0: y0, x1: x1, y1: y1 }; }
+  function smDrTB(s) { var fs = SMD_FS[s.w] || 0.9, w = Math.max(1, s.x.length) * fs * 0.56, q = s.p[0]; return { x0: q[0] - w / 2, y0: q[1] - fs * 0.6, x1: q[0] + w / 2, y1: q[1] + fs * 0.6 }; }
+  function smDrBox(s) { if (s.t === 't') return smDrTB(s); var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; s.p.forEach(function (q) { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); }); return { x0: x0, y0: y0, x1: x1, y1: y1 }; }
   function smDrPathD(s) {
     var p = s.p;
     if (s.t === 'r') { var x0 = Math.min(p[0][0], p[1][0]), y0 = Math.min(p[0][1], p[1][1]), x1 = Math.max(p[0][0], p[1][0]), y1 = Math.max(p[0][1], p[1][1]); return 'M' + x0 + ' ' + y0 + 'H' + x1 + 'V' + y1 + 'H' + x0 + 'Z'; }
@@ -17678,8 +17739,17 @@ V1.5
       var cx = (p[0][0] + p[1][0]) / 2, cy = (p[0][1] + p[1][1]) / 2, rx = Math.abs(p[1][0] - p[0][0]) / 2 || 0.01, ry = Math.abs(p[1][1] - p[0][1]) / 2 || 0.01;
       return 'M' + (cx - rx) + ' ' + cy + 'A' + rx + ' ' + ry + ' 0 1 0 ' + (cx + rx) + ' ' + cy + 'A' + rx + ' ' + ry + ' 0 1 0 ' + (cx - rx) + ' ' + cy + 'Z';
     }
-    return 'M' + p.map(function (q) { return q[0] + ' ' + q[1]; }).join('L');
+    return 'M' + p.map(function (q) { return q[0] + ' ' + q[1]; }).join('L') + (s.z ? 'Z' : '');
   }
+  /* One shape's look (also used for the shape being drawn and a preset being placed). */
+  function smDrEl(s, cls) {
+    var col = SMD_COLS[s.c][0], w = SMD_W[s.w][0];
+    if (s.t === 't') { var fs = SMD_FS[s.w]; return '<text class="sm-shp-tx ' + (cls || '') + '" x="' + s.p[0][0] + '" y="' + s.p[0][1] + '" font-size="' + fs + '" fill="' + col + '" stroke="' + (s.c === 0 ? '#efe8d8' : '#1d1820') + '" stroke-width="' + smDrN(fs * 0.14) + '">' + esc(s.x) + '</text>'; }
+    var st = s.d === 1 ? 'stroke-dasharray:' + smDrN(w * 4 + 0.15) + ' ' + smDrN(w * 3 + 0.12) + ';' : s.d === 2 ? 'stroke-dasharray:0.001 ' + smDrN(w * 2.5 + 0.1) + ';' : '';
+    if (s.f) st += 'fill:' + col + ';fill-opacity:0.3;';
+    return '<path class="sm-shp-ln ' + (cls || '') + '" d="' + smDrPathD(s) + '" stroke="' + col + '" stroke-width="' + w + '"' + (st ? ' style="' + st + '"' : '') + '/>';
+  }
+  function smDrPen(s) { var o = Object.assign({ c: smDw.col, w: smDw.w }, s); if (smDw.ds && s.t !== 't') o.d = smDw.ds; if (smDw.fill && (s.t === 'r' || s.t === 'e' || s.z)) o.f = 1; if (smDw.hid && smMode() === 'host') o.h = 1; if (smDw.wl && s.t !== 't') o.wl = smDw.wl; return o; }
   function smDrLen(p) { var n = 0; for (var i = 1; i < p.length; i++) n += smDist(p[i - 1], p[i]); return n; }
   /* Free-hand lines are simplified as they're finished (fewer points, same look). */
   function smDrSimplify(p, eps) {
@@ -17710,18 +17780,22 @@ V1.5
     L.forEach(function (s0) {
       var s = s0;
       if (a && (a.m === 'move' || a.m === 'size') && smDw.sel[s.i]) s = a.m === 'move' ? smDrMoved(s, a.dx || 0, a.dy || 0) : smDrScaled(s, a.ox, a.oy, a.fx || 1, a.fy || 1);
-      var d = smDrPathD(s), w = SMD_W[s.w][0];
-      h += '<g class="sm-shp' + (smDw.sel[s.i] && smDw.on ? ' sel' : '') + '" data-di="' + s.i + '"><path class="sm-shp-hit" d="' + d + '" stroke-width="' + Math.max(w + 0.3, 0.4) + '"/><path class="sm-shp-ln" d="' + d + '" stroke="' + SMD_COLS[s.c][0] + '" stroke-width="' + w + '"/></g>';
+      var w = SMD_W[s.w][0], tb = s.t === 't' ? smDrTB(s) : null;
+      h += '<g class="sm-shp' + (smDw.sel[s.i] && smDw.on ? ' sel' : '') + (s.h ? ' hid' : '') + '" data-di="' + s.i + '">' +
+        (tb ? '<rect class="sm-shp-hit fh" x="' + tb.x0 + '" y="' + tb.y0 + '" width="' + (tb.x1 - tb.x0) + '" height="' + (tb.y1 - tb.y0) + '"/>' : '<path class="sm-shp-hit' + (s.f ? ' fh' : '') + '" d="' + smDrPathD(s) + '" stroke-width="' + Math.max(w + 0.3, 0.4) + '"/>') +
+        smDrEl(s) + (s.h ? '<title>Hidden from players</title>' : '') + '</g>';
     });
+    smWalls().forEach(function (w) { h += '<line class="sm-wall w' + w.wl + (w.wo ? ' o' : '') + '" x1="' + w.a[0] + '" y1="' + w.a[1] + '" x2="' + w.b[0] + '" y2="' + w.b[1] + '"/>'; });
     if (a && a.m === 'draw' && a.s) {
       var p = a.s.p, prev = a.s;
-      h += '<path class="sm-shp-ln live" d="' + smDrPathD(prev) + '" stroke="' + SMD_COLS[smDw.col][0] + '" stroke-width="' + SMD_W[smDw.w][0] + '"/>';
+      h += smDrEl(smDrPen(prev), 'live');
       if (smDw.sizes && a.s.t !== 'f') smDrSizeLbl(a.s);
     }
     if (smDw.path && smDw.path.p.length) {
       var pp = smDw.path.p.concat(smDw.path.hov ? [smDw.path.hov] : []), ps = { t: 'p', p: pp };
-      h += '<path class="sm-shp-ln live" d="' + smDrPathD(ps) + '" stroke="' + SMD_COLS[smDw.col][0] + '" stroke-width="' + SMD_W[smDw.w][0] + '"/>';
-      pp.forEach(function (q) { h += '<circle class="sm-path-pt" cx="' + q[0] + '" cy="' + q[1] + '" r="0.08"/>'; });
+      h += smDrEl(smDrPen({ t: 'p', p: pp }), 'live');
+      var shut = smDw.path.hov && smDw.path.p.length >= 3 && smDist(smDw.path.hov, smDw.path.p[0]) <= smDrPxW(10);
+      pp.forEach(function (q, i) { h += '<circle class="sm-path-pt' + (!i && shut ? ' shut' : '') + '" cx="' + q[0] + '" cy="' + q[1] + '" r="' + (!i && shut ? 0.2 : 0.08) + '"/>'; });
       if (smDw.sizes) smDrSizeLbl(ps);
     }
     if (a && a.m === 'band' && a.to) {
@@ -17729,7 +17803,7 @@ V1.5
       h += '<rect class="sm-band" x="' + bx + '" y="' + by + '" width="' + Math.abs(a.to[0] - a.from[0]) + '" height="' + Math.abs(a.to[1] - a.from[1]) + '"/>';
     }
     if (smDw.snapAt && smDw.on) h += '<circle class="sm-snap-pt" cx="' + smDw.snapAt[0] + '" cy="' + smDw.snapAt[1] + '" r="' + smDrPxW(5) + '"/>';
-    if (smDw.ghost) smDw.ghost.sh.forEach(function (s0) { var s = smDrMoved(s0, smDw.ghost.at[0], smDw.ghost.at[1]); h += '<path class="sm-shp-ln ghost" d="' + smDrPathD(s) + '" stroke="' + SMD_COLS[s.c][0] + '" stroke-width="' + SMD_W[s.w][0] + '"/>'; });
+    if (smDw.ghost) smDw.ghost.sh.forEach(function (s0) { h += smDrEl(smDrMoved(s0, smDw.ghost.at[0], smDw.ghost.at[1]), 'ghost'); });
     var sb = smDw.on && smDw.tool === 'sel' ? smDrSelBox() : null;
     if (sb) {
       var ab = a && a.m === 'move' ? { x0: sb.x0 + (a.dx || 0), y0: sb.y0 + (a.dy || 0), x1: sb.x1 + (a.dx || 0), y1: sb.y1 + (a.dy || 0) } : a && a.m === 'size' ? { x0: sb.x0, y0: sb.y0, x1: a.ox + (sb.x1 - a.ox) * (a.fx || 1), y1: a.oy + (sb.y1 - a.oy) * (a.fy || 1) } : sb;
@@ -17749,6 +17823,157 @@ V1.5
     if (t) smLabel((b.x0 + b.x1) / 2, b.y1 + 0.55, t, 'sm-lbl-meas', 4);
   }
 
+  /* ---- walls ----
+     Any shape but a text can be a wall. Its outline is cut into straight pieces; a wall drawn later takes over the
+     parts of earlier walls it lies along (within SMW_R, at much the same angle), so a door drawn over part of a solid
+     wall makes just that part a door. Solid walls and closed doors block sight and movement; closed windows block
+     movement only; half walls block neither, but a measurement across one shows it (cover). Players see only what their
+     own tokens can (a fog over the rest); the host sees everything. Hidden walls count only on the host's page, so a
+     hidden door over a wall stays a wall for the players until it's shown. */
+  var SMW_R = 0.15, SMW_COS = Math.cos(25 * Math.PI / 180), smWc = { k: '', L: [] };
+  function smWBlockS(w) { return w.wl === 1 || (w.wl === 4 && !w.wo); }
+  function smWBlockM(w) { return w.wl === 1 || ((w.wl === 3 || w.wl === 4) && !w.wo); }
+  /* The part [t0, t1] of segment e (a to b) within r of segment n, or null. */
+  function smWOver(e, n, r) {
+    var nx = n.b[0] - n.a[0], ny = n.b[1] - n.a[1], nl = Math.hypot(nx, ny), ex = e.b[0] - e.a[0], ey = e.b[1] - e.a[1], el = Math.hypot(ex, ey);
+    if (nl < 1e-6 || el < 1e-6 || Math.abs((ex * nx + ey * ny) / (el * nl)) < SMW_COS) return null;
+    var dx = nx / nl, dy = ny / nl, ua = (e.a[0] - n.a[0]) * dx + (e.a[1] - n.a[1]) * dy, va = -(e.a[0] - n.a[0]) * dy + (e.a[1] - n.a[1]) * dx, du = ex * dx + ey * dy, dv = -ex * dy + ey * dx;
+    var lo = 0, hi = 1;
+    function slab(p0, d, a, b) { if (Math.abs(d) < 1e-12) { if (p0 < a || p0 > b) hi = -1; return; } var t0 = (a - p0) / d, t1 = (b - p0) / d; if (t0 > t1) { var x = t0; t0 = t1; t1 = x; } lo = Math.max(lo, t0); hi = Math.min(hi, t1); }
+    slab(ua, du, 0, nl); slab(va, dv, -r, r);
+    var t0 = lo <= hi ? lo : Infinity, t1 = lo <= hi ? hi : -Infinity;
+    [n.a, n.b].forEach(function (c) {   // the rounded ends
+      var fx = e.a[0] - c[0], fy = e.a[1] - c[1], A = ex * ex + ey * ey, B = 2 * (fx * ex + fy * ey), C = fx * fx + fy * fy - r * r, D = B * B - 4 * A * C;
+      if (D < 0) return; var sq = Math.sqrt(D), a0 = Math.max(0, (-B - sq) / (2 * A)), a1 = Math.min(1, (-B + sq) / (2 * A));
+      if (a0 <= a1) { t0 = Math.min(t0, a0); t1 = Math.max(t1, a1); }
+    });
+    return t0 <= t1 ? [t0, t1] : null;
+  }
+  function smWAt(e, t) { return [e.a[0] + (e.b[0] - e.a[0]) * t, e.a[1] + (e.b[1] - e.a[1]) * t]; }
+  /* The walls, as straight pieces with their kind (worked out again only when the drawing changes). */
+  function smWalls() {
+    var L = smShapes(), key = smMode() + ':' + L.length + ':' + smDw.wver;
+    if (smWc.k === key) return smWc.L;
+    var out = [];
+    L.forEach(function (s) {
+      if (!s.wl || s.t === 't') return;
+      var o = smDrOutline(s), add = [];
+      for (var i = 1; i < o.length; i++) if (smDist(o[i - 1], o[i]) > 1e-4) add.push({ a: o[i - 1], b: o[i], wl: s.wl, wo: s.wo ? 1 : 0, i: s.i });
+      add.forEach(function (n) {
+        var next = [];
+        out.forEach(function (e) {
+          var ov = smWOver(e, n, SMW_R); if (!ov) { next.push(e); return; }
+          /* What's left of the earlier wall meets the new one's nearest end exactly, so no gap lets sight through. */
+          var el = smDist(e.a, e.b), end = function (q) { return smDist(q, n.a) <= smDist(q, n.b) ? n.a : n.b; };
+          if (ov[0] * el > 0.02) next.push(Object.assign({}, e, { b: end(smWAt(e, ov[0])) }));
+          if ((1 - ov[1]) * el > 0.02) next.push(Object.assign({}, e, { a: end(smWAt(e, ov[1])) }));
+        });
+        out = next;
+      });
+      out = out.concat(add);
+    });
+    smWc = { k: key, L: out };
+    return out;
+  }
+  /* Where p to q crosses segment a to b (0 to 1 along p to q), or -1. */
+  function smSegHit(p, q, a, b) {
+    var rx = q[0] - p[0], ry = q[1] - p[1], sx = b[0] - a[0], sy = b[1] - a[1], den = rx * sy - ry * sx; if (Math.abs(den) < 1e-12) return -1;
+    var t = ((a[0] - p[0]) * sy - (a[1] - p[1]) * sx) / den, u = ((a[0] - p[0]) * ry - (a[1] - p[1]) * rx) / den;
+    return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? t : -1;
+  }
+  function smSeesPt(p, q, W) { for (var i = 0; i < W.length; i++) if (smSegHit(p, q, W[i].a, W[i].b) >= 0) return false; return true; }
+  /* Can a token at v see any part of a token at t? */
+  function smTokSees(v, t, W) {
+    if (smSeesPt(v, t, W)) return true;
+    for (var i = 0; i < 8; i++) { var an = i * Math.PI / 4; if (smSeesPt(v, [t[0] + Math.cos(an) * SM_R * 0.9, t[1] + Math.sin(an) * SM_R * 0.9], W)) return true; }
+    return false;
+  }
+  /* A player's tokens: those their own tokens can't see are left off (the host sees all). */
+  function smFogToks(list) {
+    var mine = list.filter(function (t) { return t.own; }); if (!mine.length) return list;
+    var W = smWalls().filter(smWBlockS); if (!W.length) return list;
+    return list.filter(function (t) { return t.own || mine.some(function (v) { return smTokSees([v.x, v.y], [t.x, t.y], W); }); });
+  }
+  /* What can be seen from v: a polygon, worked out by casting rays at every wall end. */
+  var smFogC = {};
+  function smVisPoly(v, W) {
+    var key = smWc.k + '|' + smDrN(v[0]) + ',' + smDrN(v[1]); if (smFogC[key]) return smFogC[key];
+    var B = 700, box = [[v[0] - B, v[1] - B], [v[0] + B, v[1] - B], [v[0] + B, v[1] + B], [v[0] - B, v[1] + B]];
+    var segs = W.map(function (w) { return [w.a, w.b]; }).concat([[box[0], box[1]], [box[1], box[2]], [box[2], box[3]], [box[3], box[0]]]);
+    var angs = [];
+    segs.forEach(function (sg) { sg.forEach(function (q) { var an = Math.atan2(q[1] - v[1], q[0] - v[0]); angs.push(an - 1e-4, an, an + 1e-4); }); });
+    angs.sort(function (a, b) { return a - b; });
+    var pts = [], last = null;
+    angs.forEach(function (an) {
+      if (last !== null && an - last < 1e-7) return; last = an;
+      var far = [v[0] + Math.cos(an) * B * 3, v[1] + Math.sin(an) * B * 3], best = 1;
+      segs.forEach(function (sg) { var t = smSegHit(v, far, sg[0], sg[1]); if (t >= 0 && t < best) best = t; });
+      pts.push([smDrN(v[0] + (far[0] - v[0]) * best), smDrN(v[1] + (far[1] - v[1]) * best)]);
+    });
+    if (Object.keys(smFogC).length > 40) smFogC = {};
+    return (smFogC[key] = pts);
+  }
+  /* The fog over what a player's tokens can't see. */
+  function smFogSVG(toks) {
+    if (smMode() !== 'join') return '';
+    var mine = toks.filter(function (t) { return t.own; }); if (!mine.length) return '';
+    var W = smWalls().filter(smWBlockS); if (!W.length) return '';
+    var vb = smUi.vb, x = vb.x - vb.w, y = vb.y - vb.h, w = vb.w * 3, hh = vb.h * 3;
+    var d = mine.map(function (t) { var P = smVisPoly([t.x, t.y], W); return 'M' + P.map(function (q) { return q[0] + ' ' + q[1]; }).join('L') + 'Z'; }).join('');
+    return '<mask id="smFogM" maskUnits="userSpaceOnUse" x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="#fff"/><path d="' + d + '" fill="#000"/></mask>' +
+      '<rect class="sm-fog" x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" mask="url(#smFogM)"/>';
+  }
+  /* Dragging a token: it can't pass through a wall that blocks movement; it slides along it instead. */
+  function smWallMove(p0, p1) {
+    var W = smWalls().filter(smWBlockM); if (!W.length || !p0) return p1;
+    var R0 = SM_R - 0.02;
+    function ok(a, b) { return W.every(function (w) { if (smSegHit(a, b, w.a, w.b) >= 0) return false; var d = smSegDist(b, w.a, w.b); return d >= R0 || d >= smSegDist(a, w.a, w.b) - 1e-6; }); }
+    function upTo(a, b) { if (ok(a, b)) return b; var lo = 0, hi = 1; for (var i = 0; i < 10; i++) { var m = (lo + hi) / 2; if (ok(a, smWAt({ a: a, b: b }, m))) lo = m; else hi = m; } return smWAt({ a: a, b: b }, lo); }
+    if (ok(p0, p1)) return p1;
+    var q = upTo(p0, p1), best = null, bd = Infinity;
+    W.forEach(function (w) { var d = smSegDist(q, w.a, w.b); if (d < bd) { bd = d; best = w; } });
+    if (!best) return q;
+    var dx = best.b[0] - best.a[0], dy = best.b[1] - best.a[1], L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
+    var along = (p1[0] - q[0]) * dx + (p1[1] - q[1]) * dy, sl = [q[0] + dx * along, q[1] + dy * along];
+    return upTo(q, sl);
+  }
+  /* Does a straight move cross a wall that blocks movement? (The host's check on a nudge after a drop.) */
+  function smWallCross(p, q) { return smWalls().some(function (w) { return smWBlockM(w) && smSegHit(p, q, w.a, w.b) >= 0; }); }
+  /* A measurement across walls: where it passes a half wall (cover) and a wall that blocks sight. */
+  function smWMeas(f, t) {
+    var hc = 2, sc = 2;
+    smWalls().forEach(function (w) { var x = smSegHit(f, t, w.a, w.b); if (x < 0) return; if (w.wl === 2 && x < hc) hc = x; if (smWBlockS(w) && x < sc) sc = x; });
+    return { h: hc <= 1 ? hc : -1, s: sc <= 1 ? sc : -1 };
+  }
+  /* Right-click near a door or window (anyone): open or close it, break or mend it. */
+  function smWallNear(e) {
+    var p = smToWorld(e), r = smDrPxW(10), best = null, bd = r;
+    smWalls().forEach(function (w) { if (w.wl < 3) return; var d = smSegDist(p, w.a, w.b); if (d <= bd) { bd = d; best = w; } });
+    return best;
+  }
+  function smWallItem(w) { return '<button type="button" class="btn-sec" role="menuitem" data-sm="wlTog" data-i="' + esc(w.i) + '" data-o="' + (w.wo ? 0 : 1) + '">' + (w.wl === 4 ? (w.wo ? 'Close the door' : 'Open the door') : (w.wo ? 'Mend the window' : 'Break the window')) + '</button>'; }
+  function smWallCtx(e) {
+    var w = smWallNear(e); if (!w) return false;
+    var m = smQ('smMenu'), st = smQ('smStage'); if (!m || !st) return false;
+    e.preventDefault(); smMenuClose();
+    var r = st.getBoundingClientRect();
+    smUi.menu = 'wall';
+    m.innerHTML = '<span class="sm-menu-t">' + (w.wl === 4 ? (w.wo ? 'Door (open)' : 'Door') : (w.wo ? 'Window (broken)' : 'Window')) + '</span>' + smWallItem(w);
+    m.setAttribute('role', 'menu'); m.hidden = false;
+    m.style.left = Math.max(4, Math.min(e.clientX - r.left, st.clientWidth - m.offsetWidth - 4)) + 'px';
+    m.style.top = Math.max(4, Math.min(e.clientY - r.top + 6, st.clientHeight - m.offsetHeight - 4)) + 'px';
+    var f = m.querySelector('button'); if (f) f.focus({ preventScroll: true });
+    return true;
+  }
+  function smWallSet(i, o) { if (smMode() === 'host') smWallHost(i, o, 'host'); else { smSend({ op: 'wall', i: String(i), o: o ? 1 : 0 }); var s = smDrIn.filter(function (x) { return x.i === String(i); })[0]; if (s) { smDrApply(smDrIn, [{ i: s.i, s: Object.assign({}, s, { wo: o ? 1 : 0 }) }]); smDrawSoon(); } } }
+  /* The host: anyone may open or close a door, or break or mend a window (not a hidden one, unless it's the host). */
+  function smWallHost(i, o, who) {
+    var s = sm.dr.filter(function (x) { return x.i === String(i); })[0];
+    if (!s || !(s.wl === 3 || s.wl === 4) || (s.h && who !== 'host')) return;
+    var n = Object.assign({}, s); if (o) n.wo = 1; else delete n.wo;
+    smDrHost([{ i: n.i, s: n }], 'host');
+  }
+
   /* ---- snapping ---- */
   function smDrPxW(px) { var svg = smSvgEl(), vb = smUi.vb; if (!svg || !vb) return px / 40; var r = svg.getBoundingClientRect(); return px / (Math.min(r.width / vb.w, r.height / vb.h) || 40); }
   function smDrSegNear(p, a, b) { var dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L)) : 0; return [a[0] + dx * t, a[1] + dy * t]; }
@@ -17756,7 +17981,7 @@ V1.5
     var p = s.p;
     if (s.t === 'r') return [[p[0][0], p[0][1]], [p[1][0], p[0][1]], [p[1][0], p[1][1]], [p[0][0], p[1][1]], [p[0][0], p[0][1]]];
     if (s.t === 'e') { var cx = (p[0][0] + p[1][0]) / 2, cy = (p[0][1] + p[1][1]) / 2, rx = Math.abs(p[1][0] - p[0][0]) / 2, ry = Math.abs(p[1][1] - p[0][1]) / 2, o = []; for (var i = 0; i <= 72; i++) { var t = i / 72 * 2 * Math.PI; o.push([cx + rx * Math.cos(t), cy + ry * Math.sin(t)]); } return o; }
-    return p;
+    return s.z ? p.concat([p[0]]) : p;
   }
   /* The points a snap prefers: a line's (or free-hand's) ends, a path's points, a rectangle's corners, a circle's top, bottom and sides. */
   function smDrKeyPts(s) {
@@ -17771,6 +17996,7 @@ V1.5
     var R = smDrPxW(12), bk = null, dk = R, be = null, de = R, L = smShapes().slice();
     if (extra && extra.length > 1) L.push({ t: 'p', p: extra });
     L.forEach(function (s) {
+      if (s.t === 't') return;
       var b = smDrBox(s); if (q[0] < b.x0 - R || q[0] > b.x1 + R || q[1] < b.y0 - R || q[1] > b.y1 + R) return;
       smDrKeyPts(s).forEach(function (k) { var d = smDist(q, k); if (d <= dk) { dk = d; bk = k; } });
       var o = smDrOutline(s); for (var i = 1; i < o.length; i++) { var n = smDrSegNear(q, o[i - 1], o[i]), d = smDist(q, n); if (d < de) { de = d; be = n; } }
@@ -17778,9 +18004,10 @@ V1.5
     var r = bk || be; return r ? [smDrN(r[0]), smDrN(r[1])] : null;
   }
   function smDrAng(from, q) { var dx = q[0] - from[0], dy = q[1] - from[1], an = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4), L = Math.hypot(dx, dy); return [smDrN(from[0] + Math.cos(an) * L), smDrN(from[1] + Math.sin(an) * L)]; }
-  /* A point for a shape tool: snapped to a shape with Ctrl (not free-hand); otherwise, with Shift, in steps of 45° from `from`. */
+  /* A point for a shape tool: snapped to a shape with Ctrl, or to the grid with Alt (not free-hand); otherwise, with Shift, in steps of 45° from `from`. */
   function smDrPt(e, from, extra) {
     var p = smToWorld(e), q = [smDrN(p[0]), smDrN(p[1])], sn = (e.ctrlKey || e.metaKey) && smDw.tool !== 'f' ? smDrSnap(q, extra) : null;
+    if (!sn && e.altKey && smDw.tool !== 'f') sn = [Math.round(q[0]), Math.round(q[1])];   // Alt: the nearest grid corner
     smDw.snapAt = sn;
     if (sn) return { q: sn, snap: true };
     if (e.shiftKey && from) q = smDrAng(from, q);
@@ -17792,7 +18019,7 @@ V1.5
   function smDrawDown(e) {
     if (!smDw.on || !smMayDraw()) return false;
     if (e.button !== 0 || !smSvgEl() || !smSvgEl().contains(e.target)) return false;   // only presses on the map itself
-    if (smDw.ghost) { e.preventDefault(); smDrGhostPut(smToWorld(e), e.shiftKey); return true; }
+    if (smDw.ghost) { e.preventDefault(); smDrGhostPut(smDrGhostAt(e), e.shiftKey); return true; }
     if (smDw.tool === 'pan') return false;
     smSvgEl().focus({ preventScroll: true });   // so Delete, Ctrl+Z and the rest reach it
     var p = smToWorld(e), tool = smDw.tool, svg = smSvgEl();
@@ -17801,15 +18028,20 @@ V1.5
     if (tool === 'p') {   // a path: each click adds a point (a double-click finishes it)
       var now = Date.now(), pp0 = smDw.path && smDw.path.p, pt = smDrPt(e, pp0 && pp0.length ? pp0[pp0.length - 1] : null, pp0).q;
       if (!smDw.path) smDw.path = { p: [], t: 0 };
+      if (smDw.path.p.length >= 3 && smDist(pt, smDw.path.p[0]) <= smDrPxW(10)) { smDrPathEnd(true); return true; }   // back on the first point: a closed shape
       if (smDw.path.p.length && now - smDw.path.t < 350 && smDist(pt, smDw.path.p[smDw.path.p.length - 1]) < 0.4) { smDrPathEnd(); return true; }
       smDw.path.p.push(pt); smDw.path.t = now; smDrawSoon(); return true;
     }
+    if (tool === 't') { var th = smDrShapeAt(e), ts = th && smShapes().filter(function (x) { return x.i === th; })[0]; smDrTextEd(ts && ts.t === 't' ? ts : null, smDrPt(e, null).q); return true; }
     if (tool === 'x') { smDw.act = { m: 'erase', gone: {} }; smDrEraseAt(e); return true; }
     if (tool === 'sel') {
       var hit = e.target.closest && e.target.closest('[data-dh]') ? 'handle' : smDrShapeAt(e);
       if (hit === 'handle') { var sb = smDrSelBox(); smDw.act = { m: 'size', ox: sb.x0, oy: sb.y0, w0: Math.max(0.05, sb.x1 - sb.x0), h0: Math.max(0.05, sb.y1 - sb.y0), shift: e.shiftKey }; return true; }
       if (hit) {
         if (e.shiftKey) { if (smDw.sel[hit]) delete smDw.sel[hit]; else smDw.sel[hit] = 1; smDrUI(); smDrawSoon(); return true; }
+        var hs = smShapes().filter(function (x) { return x.i === hit; })[0], tnow = Date.now();
+        if (hs && hs.t === 't' && smDw.lastTx && smDw.lastTx.i === hit && tnow - smDw.lastTx.t < 400) { smDw.lastTx = null; smDrTextEd(hs); return true; }   // a double-click changes a text
+        smDw.lastTx = { i: hit, t: tnow };
         if (!smDw.sel[hit]) { smDw.sel = {}; smDw.sel[hit] = 1; smDrUI(); }
         smDw.act = { m: 'move', from: p, dx: 0, dy: 0 }; smDrawSoon(); return true;
       }
@@ -17823,7 +18055,7 @@ V1.5
   }
   function smDrawMove(e) {
     if (smSvgEl() && smUi.vb) smDw.hp = smToWorld(e);
-    if (smDw.ghost && smDw.on && smSvgEl()) { smDw.ghost.at = smToWorld(e); smDrawSoon(); return !smDw.act; }
+    if (smDw.ghost && smDw.on && smSvgEl()) { smDw.ghost.at = smDrGhostAt(e); smDrawSoon(); return !smDw.act; }
     var a = smDw.act;
     if (!a) {
       if (!smDw.on || !smSvgEl() || !smUi.vb) return false;
@@ -17835,8 +18067,13 @@ V1.5
     }
     var p = smToWorld(e);
     if (a.m === 'erase') { smDrEraseAt(e); return true; }
-    if (a.m === 'move') { a.dx = smDrN(p[0] - a.from[0]); a.dy = smDrN(p[1] - a.from[1]); smDrawSoon(); return true; }
+    if (a.m === 'move') {
+      a.dx = smDrN(p[0] - a.from[0]); a.dy = smDrN(p[1] - a.from[1]);
+      if (e.altKey) { var mb = smDrSelBox(); if (mb) { a.dx = smDrN(Math.round(mb.x0 + a.dx) - mb.x0); a.dy = smDrN(Math.round(mb.y0 + a.dy) - mb.y0); } }   // Alt: the selection's corner on the grid
+      smDrawSoon(); return true;
+    }
     if (a.m === 'size') {
+      if (e.altKey) p = [Math.round(p[0]), Math.round(p[1])];
       var fx = Math.max(0.05, (p[0] - a.ox) / a.w0), fy = Math.max(0.05, (p[1] - a.oy) / a.h0);
       if (e.shiftKey) fx = fy = Math.max(fx, fy);
       a.fx = fx; a.fy = fy; smDrawSoon(); return true;
@@ -17863,7 +18100,7 @@ V1.5
       if (s.t === 'f') s.p = smDrSimplify(s.p, 0.03);
       var b = smDrBox(s);
       if (b.x1 - b.x0 < 0.08 && b.y1 - b.y0 < 0.08) { smDrawSoon(); return true; }   // a click, not a shape
-      s.i = smDrId(); s.c = smDw.col; s.w = smDw.w;
+      s = smDrPen(s); s.i = smDrId();
       smDrDo([{ i: s.i, s: s }]);
       return true;
     }
@@ -17885,16 +18122,18 @@ V1.5
     smDw.act.gone[id] = 1;
     var g = smDoc().querySelector('#smSvg .sm-shp[data-di="' + id + '"]'); if (g) g.style.display = 'none';
   }
-  function smDrPathEnd() {
-    var P = smDw.path; smDw.path = null; if (!P) return;
+  function smDrPathEnd(shut) {
+    var P = smDw.path; smDw.path = null; smDw.snapAt = null; if (!P) return;
     var pts = P.p.filter(function (q, i) { return !i || smDist(q, P.p[i - 1]) > 0.02; });
-    if (pts.length >= 2) { var s = { i: smDrId(), t: 'p', p: pts, c: smDw.col, w: smDw.w }; smDrDo([{ i: s.i, s: s }]); }
+    if (pts.length >= 2) { var s = { t: 'p', p: pts }; if (shut && pts.length >= 3) s.z = 1; s = smDrPen(s); s.i = smDrId(); smDrDo([{ i: s.i, s: s }]); }
     smDrawSoon();
   }
   /* ---- keys (while the map has focus and drawing is on) ---- */
   function smDrawKey(e) {
     if (!smDw.on || !smMayDraw() || (e.target.closest && e.target.closest('input, textarea, select'))) return;
     var mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+    if (e.key === 'Alt') e.preventDefault();   // Alt snaps to the grid (and shouldn't open the browser's menu)
+    if (e.key === 'Escape' && smUi.menu === 'draw') { e.preventDefault(); e.stopPropagation(); smMenuClose(); var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); return; }   // Escape closes the menu (the selection stays)
     if (smDw.ghost && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); smDw.ghost = null; smDrawSoon(); return; }
     if (mod && (k === 'z' || k === 'y')) { e.preventDefault(); smDrUndo(k === 'y' || e.shiftKey); return; }
     if (smDw.path && (e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); smDrPathEnd(); return; }
@@ -17903,6 +18142,7 @@ V1.5
     if ((e.key === 'Delete' || e.key === 'Backspace') && Object.keys(smDw.sel).length) { e.preventDefault(); smDrDel(); return; }
     if (mod && k === 'c') { e.preventDefault(); smDrCopy(); return; }
     if (mod && k === 'v') { e.preventDefault(); smDrPaste(); return; }
+    if (mod && k === 'd') { e.preventDefault(); smDrDup(); return; }
     if (mod && k === 'a') { e.preventDefault(); smDw.sel = {}; smShapes().forEach(function (s) { smDw.sel[s.i] = 1; }); smDrUI(); smDrawSoon(); return; }
     if (e.key === 'Escape' && Object.keys(smDw.sel).length) { e.preventDefault(); e.stopPropagation(); smDw.sel = {}; smDrUI(); smDrawSoon(); }
   }
@@ -17910,7 +18150,7 @@ V1.5
   function smDrawCtx(e) {
     if (!smDw.on || !smMayDraw()) return false;
     if (smDw.ghost) { e.preventDefault(); smDw.ghost = null; smDrawSoon(); return true; }
-    if (smDw.tool !== 'sel') { e.preventDefault(); return true; }
+    if (smDw.tool !== 'sel') { if (!smWallCtx(e)) e.preventDefault(); return true; }
     e.preventDefault();
     var hit = smDrShapeAt(e); if (hit && !smDw.sel[hit]) { smDw.sel = {}; smDw.sel[hit] = 1; smDrUI(); smDrawSoon(); }
     var m = smQ('smMenu'), st = smQ('smStage'); if (!m || !st) return true;
@@ -17920,6 +18160,11 @@ V1.5
       '<button type="button" class="btn-sec" role="menuitem" data-sm="dwCopy"' + (n ? '' : ' disabled') + '>Copy</button>' +
       '<button type="button" class="btn-sec" role="menuitem" data-sm="dwPaste"' + (smDw.clip ? '' : ' disabled') + '>Paste</button>' +
       '<button type="button" class="btn-sec" role="menuitem" data-sm="dwDel"' + (n ? '' : ' disabled') + '>Delete</button>' +
+      (n ? smDrMenuLook() : '') +
+      (n ? '<span class="sm-dgrp sm-mlook" role="group" aria-label="Turn and flip">' + [['rl', 'Rotate left', '<path d="M4 8V3M4 8h5"/><path d="M5 8a8 8 0 1 1-1 6"/>'], ['rr', 'Rotate right', '<path d="M20 8V3M20 8h-5"/><path d="M19 8a8 8 0 1 0 1 6"/>'], ['fh', 'Flip left to right', '<path d="M12 3v18M9 6L3 18h6zM15 6l6 12h-6z"/>'], ['fv', 'Flip top to bottom', '<path d="M3 12h18M6 9L18 3v6zM6 15l12 6v-6z"/>']].map(function (x) { return '<button type="button" class="btn-sec sm-z sm-dt" data-sm="dwXf" data-v="' + x[0] + '" aria-label="' + x[1] + '" title="' + x[1] + '"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + x[2] + '</svg></button>'; }).join('') + '</span>' +
+        '<button type="button" class="btn-sec" role="menuitem" data-sm="dwDup">Duplicate <kbd>Ctrl+D</kbd></button>' : '') +
+      (n === 1 && (smDrSelected()[0].wl === 3 || smDrSelected()[0].wl === 4) ? smWallItem(smDrSelected()[0]) : '') +
+      (n === 1 && smDrSelected()[0].t === 't' ? '<button type="button" class="btn-sec" role="menuitem" data-sm="dwTxt">Change text…</button>' : '') +
       '<button type="button" class="btn-sec" role="menuitem" data-sm="dwPresets" aria-haspopup="dialog">Presets…</button>';
     m.setAttribute('role', 'menu'); m.hidden = false;
     m.style.left = Math.max(4, Math.min(e.clientX - r.left, st.clientWidth - m.offsetWidth - 4)) + 'px';
@@ -17927,6 +18172,20 @@ V1.5
     var f = m.querySelector('button:not([disabled])'); if (f) f.focus({ preventScroll: true });
     return true;
   }
+  /* Colour and thickness of the selected shapes, in the right-click menu (a choice is marked when all of them share it). */
+  function smDrMenuLook() {
+    var L = smDrSelected(), lines = L.filter(function (x) { return x.t !== 't'; }), fills = L.filter(function (x) { return x.t === 'r' || x.t === 'e' || x.z; }),
+      ds = lines.length && lines.every(function (x) { return (x.d || 0) === (lines[0].d || 0); }) ? lines[0].d || 0 : -1, c = L.length && L.every(function (s) { return s.c === L[0].c; }) ? L[0].c : -1, w = L.length && L.every(function (s) { return s.w === L[0].w; }) ? L[0].w : -1;
+    return '<span class="sm-dgrp sm-mlook" role="radiogroup" aria-label="Colour">' + SMD_COLS.map(function (x, i) { return '<button type="button" class="sm-dcol" role="radio" data-sm="dwMCol" data-v="' + i + '" aria-checked="' + (c === i) + '" aria-label="' + x[1] + '" title="' + x[1] + '" style="--c:' + x[0] + '"></button>'; }).join('') + '</span>' +
+      '<span class="sm-dgrp sm-mlook" role="radiogroup" aria-label="Thickness (text: size)">' + SMD_W.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt sm-dw" role="radio" data-sm="dwMW" data-v="' + i + '" aria-checked="' + (w === i) + '" aria-label="' + x[1] + '" title="' + x[1] + ' (text: ' + ['small', 'medium', 'large'][i] + ')"><span style="height:' + (2 + i * 2.5) + 'px"></span></button>'; }).join('') + '</span>' +
+      (lines.length ? '<span class="sm-dgrp sm-mlook" role="radiogroup" aria-label="Line style">' + smDrDsBtns('dwMD', ds) + '</span>' : '') +
+      (lines.length ? '<span class="sm-dgrp sm-mlook sm-dwl" role="radiogroup" aria-label="Wall">' + smDrWlBtns('dwMWl', lines.every(function (x) { return (x.wl || 0) === (lines[0].wl || 0); }) ? lines[0].wl || 0 : -1) + '</span>' : '') +
+      (fills.length ? smDrSw('smDrMFill', fills.every(function (x) { return x.f; }), 'Fill', 'Rectangles, circles and closed paths') : '') +
+      (smMode() === 'host' ? smDrSw('smDrMHid', L.every(function (x) { return x.h; }), 'Hidden', 'Only you see it') : '');
+  }
+  function smDrDsBtns(act, cur) { return SMD_DS.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt" role="radio" data-sm="' + act + '" data-v="' + i + '" aria-checked="' + (cur === i) + '" aria-label="' + x[0] + '" title="' + x[0] + '"><svg viewBox="0 0 20 16" width="20" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="' + x[1] + '"/></svg></button>'; }).join(''); }
+  function smDrWlBtns(act, cur) { return '<span class="sm-dwl-t">Wall</span>' + SMD_WL.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt sm-dwlb" role="radio" data-sm="' + act + '" data-v="' + i + '" aria-checked="' + (cur === i) + '" title="' + ['Not a wall', 'Blocks sight and movement', 'Cover: measurements across it show it', 'Blocks movement, not sight (right-click it to break it)', 'Blocks sight and movement until opened (right-click it)'][i] + '">' + x + '</button>'; }).join(''); }
+  function smDrSw(id, on, t, sub) { return '<label class="switch sm-sw sm-dsz" for="' + id + '"><input type="checkbox" role="switch" id="' + id + '"' + (on ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>' + t + '</strong><small>' + sub + '</small></span></label>'; }
   function smDrSelected() { return smShapes().filter(function (s) { return smDw.sel[s.i]; }); }
   function smDrDel() { var ids = Object.keys(smDw.sel); smDw.sel = {}; smDrDo(ids.map(function (i) { return { i: i, d: 1 }; })); smDrUI(); }
   function smDrCopy() { var L = smDrSelected(); if (!L.length) return; smDw.clip = JSON.parse(JSON.stringify(L)); smDrUI(); toast(L.length === 1 ? 'Shape copied.' : L.length + ' shapes copied.'); }
@@ -17938,9 +18197,57 @@ V1.5
     var b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
     shapes.forEach(function (s) { var q = smDrBox(s); b.x0 = Math.min(b.x0, q.x0); b.y0 = Math.min(b.y0, q.y0); b.x1 = Math.max(b.x1, q.x1); b.y1 = Math.max(b.y1, q.y1); });
     var cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2, vb = smUi.vb;
-    smDw.ghost = { sh: shapes.map(function (s) { return smDrMoved(s, -cx, -cy); }), at: smDw.hp && vb && smDw.hp[0] >= vb.x && smDw.hp[0] <= vb.x + vb.w && smDw.hp[1] >= vb.y && smDw.hp[1] <= vb.y + vb.h ? smDw.hp.slice() : vb ? [vb.x + vb.w / 2, vb.y + vb.h / 2] : [0, 0] };
+    smDw.ghost = { sh: shapes.map(function (s) { return smDrMoved(s, -cx, -cy); }), bx: [(b.x0 - b.x1) / 2, (b.y0 - b.y1) / 2], at: smDw.hp && vb && smDw.hp[0] >= vb.x && smDw.hp[0] <= vb.x + vb.w && smDw.hp[1] >= vb.y && smDw.hp[1] <= vb.y + vb.h ? smDw.hp.slice() : vb ? [vb.x + vb.w / 2, vb.y + vb.h / 2] : [0, 0] };
     var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true });
     smDrUI(); smDrawSoon();
+  }
+  /* Where a preset goes: centred on the pointer, or (Alt) with its corner on the grid. */
+  function smDrGhostAt(e) {
+    var p = smToWorld(e), g = smDw.ghost;
+    if (e.altKey && g && g.bx) p = [Math.round(p[0] + g.bx[0]) - g.bx[0], Math.round(p[1] + g.bx[1]) - g.bx[1]];
+    return [smDrN(p[0]), smDrN(p[1])];
+  }
+  function smDrDup() { var L = smDrSelected(); if (!L.length) return; smDw.clip = JSON.parse(JSON.stringify(L)); smDrPaste(); }   // Ctrl+D: copy, then paste
+  /* Rotates (a quarter turn) or flips the selection around its middle. */
+  function smDrXf(kind) {
+    var b = smDrSelBox(); if (!b) return;
+    var cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2;
+    var f = { rr: function (q) { return [cx - (q[1] - cy), cy + (q[0] - cx)]; }, rl: function (q) { return [cx + (q[1] - cy), cy - (q[0] - cx)]; }, fh: function (q) { return [2 * cx - q[0], q[1]]; }, fv: function (q) { return [q[0], 2 * cy - q[1]]; } }[kind];
+    if (!f) return;
+    smDrDo(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { p: s.p.map(function (q) { var n = f(q); return [smDrN(n[0]), smDrN(n[1])]; }) }) }; }));
+    smDrawSoon();
+  }
+  /* Sets something on every selected shape (fill only on the shapes that can be filled; nothing on hidden ones for watchers). */
+  function smDrSetSel(key, v) {
+    var L = smDrSelected().filter(function (x) { return key === 'f' ? (x.t === 'r' || x.t === 'e' || x.z) : key === 'd' || key === 'wl' ? x.t !== 't' : true; });
+    if (!L.length) return;
+    smDrDo(L.map(function (x) { var n = Object.assign({}, x); if (v) n[key] = v; else delete n[key]; if (key === 'wl' && !(v >= 3)) delete n.wo; return { i: x.i, s: n }; }));
+    smDrawSoon();
+  }
+  /* Writing or changing a text: a box on the map where it goes. Enter (or clicking away) keeps it; Escape leaves it as it was. */
+  function smDrTextEd(ts, at) {
+    var st = smQ('smStage'); if (!st || !smUi.vb) return;
+    var old = st.querySelector('.sm-dtxt'); if (old) old.blur();
+    var pos = ts ? ts.p[0] : at, sc = smToScreen(pos[0], pos[1]), px = (SMD_FS[ts ? ts.w : smDw.w]) / smDrPxW(1);
+    var inp = smDoc().createElement('input');
+    inp.type = 'text'; inp.className = 'sm-dtxt'; inp.maxLength = 120; inp.value = ts ? ts.x : ''; inp.setAttribute('aria-label', ts ? 'Change the text' : 'Text');
+    inp.style.left = sc[0] + 'px'; inp.style.top = sc[1] + 'px'; inp.style.fontSize = Math.max(12, Math.min(48, px)) + 'px';
+    inp.style.borderColor = SMD_COLS[ts ? ts.c : smDw.col][0];
+    var done = false;
+    function fin(keep) {
+      if (done) return; done = true;
+      var v = inp.value.replace(/\s+/g, ' ').trim(); inp.remove();
+      if (keep) {
+        if (ts && !v) smDrDo([{ i: ts.i, d: 1 }]);
+        else if (ts && v !== ts.x) smDrDo([{ i: ts.i, s: Object.assign({}, ts, { x: v }) }]);
+        else if (!ts && v) { var n = smDrPen({ t: 't', p: [[smDrN(pos[0]), smDrN(pos[1])]], x: v }); n.i = smDrId(); smDrDo([{ i: n.i, s: n }]); }
+      }
+      var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); smDrawSoon();
+    }
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); fin(true); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); fin(false); } else e.stopPropagation(); });
+    inp.addEventListener('blur', function () { fin(true); });
+    st.appendChild(inp);
+    setTimeout(function () { inp.focus(); inp.select(); }, 0);
   }
   function smDrGhostPut(at, keep) {
     var g = smDw.ghost; if (!g) return;
@@ -17955,6 +18262,7 @@ V1.5
     pan: '<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5V4a1.5 1.5 0 0 1 3 0v7.5M14 11.5V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3 14.5a1.6 1.6 0 0 1 2.6-1.8L8 15"/>',
     sel: '<path d="M5 3l14 7-6 2-2 6z"/>',
     f: '<path d="M3 17c3-6 5-8 7-5s3 2 5-2 4-3 6 0"/>',
+    t: '<path d="M5 7V4h14v3M12 4v16M9 20h6"/>',
     l: '<path d="M4 20L20 4"/>',
     r: '<rect x="4" y="6" width="16" height="12" rx="1"/>',
     e: '<circle cx="12" cy="12" r="8"/>',
@@ -17978,18 +18286,31 @@ V1.5
     bar.innerHTML = '<span class="sm-dgrp" role="radiogroup" aria-label="Tool">' + SMD_TOOLS.map(function (t) { return '<button type="button" class="btn-sec sm-z sm-dt" role="radio" data-sm="dwTool" data-v="' + t[0] + '" aria-checked="' + (smDw.tool === t[0]) + '" aria-label="' + t[1] + '" title="' + t[1] + '">' + smDrIco(t[0]) + '</button>'; }).join('') + '</span>' +
       '<span class="sm-dgrp"><button type="button" class="btn-sec sm-z sm-dt" data-sm="dwUndo" aria-label="Undo (Ctrl+Z)" title="Undo (Ctrl+Z)"' + (smDw.hist.length ? '' : ' disabled') + '><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>' +
       '<button type="button" class="btn-sec sm-z sm-dt" data-sm="dwRedo" aria-label="Redo (Ctrl+Y)" title="Redo (Ctrl+Y)"' + (smDw.fut.length ? '' : ' disabled') + '><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></button></span>' +
-      '<span class="sm-dpw"><button type="button" class="btn-sec sm-z sm-dt sm-dpen" data-sm="dwPop" data-v="style" aria-haspopup="true" aria-expanded="' + (pop === 'style') + '" aria-label="Pen: ' + SMD_COLS[smDw.col][1] + ', ' + SMD_W[smDw.w][1] + '" title="Colour, thickness and sizes"><span class="sm-dpen-c" style="--c:' + SMD_COLS[smDw.col][0] + ';height:' + (3 + smDw.w * 2.5) + 'px"></span></button>' +
+      '<span class="sm-dpw"><button type="button" class="btn-sec sm-z sm-dt sm-dpen" data-sm="dwPop" data-v="style" aria-haspopup="true" aria-expanded="' + (pop === 'style') + '" aria-label="Pen: ' + SMD_COLS[smDw.col][1] + ', ' + SMD_W[smDw.w][1] + '" title="Colour, thickness, line style, fill and sizes"><span class="sm-dpen-c" style="--c:' + SMD_COLS[smDw.col][0] + ';height:' + (3 + smDw.w * 2.5) + 'px"></span></button>' +
       (pop === 'style' ? '<div class="sm-dpop" role="group" aria-label="Pen">' +
         '<span class="sm-dgrp" role="radiogroup" aria-label="Colour">' + SMD_COLS.map(function (c, i) { return '<button type="button" class="sm-dcol" role="radio" data-sm="dwCol" data-v="' + i + '" aria-checked="' + (smDw.col === i) + '" aria-label="' + c[1] + '" title="' + c[1] + '" style="--c:' + c[0] + '"></button>'; }).join('') + '</span>' +
         '<span class="sm-dgrp" role="radiogroup" aria-label="Thickness">' + SMD_W.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt sm-dw" role="radio" data-sm="dwW" data-v="' + i + '" aria-checked="' + (smDw.w === i) + '" aria-label="' + x[1] + '" title="' + x[1] + '"><span style="height:' + (2 + i * 2.5) + 'px"></span></button>'; }).join('') + '</span>' +
+        '<span class="sm-dgrp" role="radiogroup" aria-label="Line style">' + smDrDsBtns('dwD', smDw.ds) + '</span>' +
+        '<span class="sm-dgrp sm-dwl" role="radiogroup" aria-label="Wall">' + smDrWlBtns('dwWl', smDw.wl) + '</span>' +
+        smDrSw('smDrFill', smDw.fill, 'Fill', 'Rectangles, circles and closed paths') +
+        (host ? smDrSw('smDrHid', smDw.hid, 'Draw hidden', 'New shapes only you see') : '') +
         '<label class="switch sm-sw sm-dsz" for="smDrSizes"><input type="checkbox" role="switch" id="smDrSizes"' + (smDw.sizes ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>Sizes</strong><small>While drawing and resizing</small></span></label></div>' : '') + '</span>' +
       '<span class="sm-dpw"><button type="button" class="btn-sec sm-z sm-dt" data-sm="dwPop" data-v="more" aria-haspopup="menu" aria-expanded="' + (pop === 'more') + '" aria-label="More" title="Copy, paste, delete, presets and maps">⋯</button>' +
       (pop === 'more' ? '<div class="sm-dpop sm-dmore" role="menu">' +
-        (smDw.tool === 'sel' ? '<button type="button" class="btn-sec" role="menuitem" data-sm="dwCopy"' + (nsel ? '' : ' disabled') + '>Copy</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwPaste"' + (smDw.clip ? '' : ' disabled') + '>Paste</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwDel"' + (nsel ? '' : ' disabled') + '>Delete</button>' : '<span class="sm-dlg-note muted">Copy, paste and delete: with the Select tool.</span>') +
+        (smDw.tool === 'sel' ? '<button type="button" class="btn-sec" role="menuitem" data-sm="dwCopy"' + (nsel ? '' : ' disabled') + '>Copy</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwPaste"' + (smDw.clip ? '' : ' disabled') + '>Paste</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwDup"' + (nsel ? '' : ' disabled') + '>Duplicate</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwDel"' + (nsel ? '' : ' disabled') + '>Delete</button>' : '<span class="sm-dlg-note muted">Copy, paste and delete: with the Select tool.</span>') +
         '<button type="button" class="btn-sec" role="menuitem" data-sm="dwPresets" aria-haspopup="dialog">Presets…</button>' + (host ? '<button type="button" class="btn-sec" role="menuitem" data-sm="dwMaps" aria-haspopup="dialog">Maps…</button>' : '') + '</div>' : '') + '</span>';
     if (hadFocus && !bar.contains(smDoc().activeElement)) { var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); }   // focus stays in the map (for Delete and the rest)
   }
   function smDrawClick(b, a) {
+    if ((a === 'dwMCol' || a === 'dwMW' || a === 'dwMD' || a === 'dwMWl' || a === 'dwXf') && smUi.menu === 'draw') {   // the menu stays open, so several can be changed
+      if (a === 'dwXf') { smDrXf(b.getAttribute('data-v')); b.focus({ preventScroll: true }); return true; }
+      var v = +b.getAttribute('data-v');
+      if (a === 'dwMD') smDrSetSel('d', v);
+      else if (a === 'dwMWl') smDrSetSel('wl', v);
+      else { var key = a === 'dwMCol' ? 'c' : 'w', L = smDrSelected(); if (L.length) smDrDo(L.map(function (s) { var o = {}; o[key] = v; return { i: s.i, s: Object.assign({}, s, o) }; })); }
+      [].forEach.call(b.parentNode.querySelectorAll('[data-sm="' + a + '"]'), function (q) { q.setAttribute('aria-checked', String(q === b)); });
+      b.focus({ preventScroll: true }); smDrawSoon(); return true;
+    }
     if (/^dw/.test(a) && smUi.menu === 'draw') { smMenuClose(); var sv0 = smSvgEl(); if (sv0 && a !== 'dwPresets') sv0.focus({ preventScroll: true }); }
     if (a === 'dwUndo' || a === 'dwRedo') { smDrUndo(a === 'dwRedo'); return true; }
     if (a === 'draw') {
@@ -18003,6 +18324,11 @@ V1.5
     if (a === 'dwCol') { smDw.col = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwCol"][data-v="' + smDw.col + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrDo(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { c: smDw.col }) }; })); smDrUI(); return true; }
     if (a === 'dwW') { smDw.w = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwW"][data-v="' + smDw.w + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrDo(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { w: smDw.w }) }; })); smDrUI(); return true; }
     if (a === 'dwCopy') { smDrCopy(); return true; }
+    if (a === 'dwDup') { smDrDup(); return true; }
+    if (a === 'wlTog') { smMenuClose(); smWallSet(b.getAttribute('data-i'), b.getAttribute('data-o') === '1'); var sv1 = smSvgEl(); if (sv1) sv1.focus({ preventScroll: true }); return true; }
+    if (a === 'dwWl') { smDw.wl = +b.getAttribute('data-v'); smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('wl', smDw.wl); smDrUI(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwWl"][data-v="' + smDw.wl + '"]'); if (q) q.focus(); }, 0); return true; }
+    if (a === 'dwTxt') { var t1 = smDrSelected()[0]; if (t1 && t1.t === 't') smDrTextEd(t1); return true; }
+    if (a === 'dwD') { smDw.ds = +b.getAttribute('data-v'); smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('d', smDw.ds); smDrUI(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwD"][data-v="' + smDw.ds + '"]'); if (q) q.focus(); }, 0); return true; }
     if (a === 'dwPaste') { smDrPaste(); return true; }
     if (a === 'dwDel') { smDrDel(); return true; }
     if (a === 'dwPresets' || a === 'dwMaps') { smDrDlg(a === 'dwPresets' ? 'p' : 'm'); return true; }
@@ -18064,12 +18390,20 @@ V1.5
     });
     w.addEventListener('keyup', function (e) {
       if (e.key === 'Shift' && smDw.ghost && smDw.ghost.multi) { smDw.ghost = null; smDrawSoon(); }
-      if ((e.key === 'Control' || e.key === 'Meta') && smDw.snapAt) { smDw.snapAt = null; smDrawSoon(); }
+      if ((e.key === 'Control' || e.key === 'Meta' || e.key === 'Alt') && smDw.snapAt) { smDw.snapAt = null; smDrawSoon(); }
+      if (e.key === 'Alt' && smDw.on) e.preventDefault();
     });
     w.addEventListener('blur', function () { if (smDw.ghost && smDw.ghost.multi) { smDw.ghost = null; smDrawSoon(); } if (smDw.snapAt) { smDw.snapAt = null; smDrawSoon(); } });
     /* A pop-up closes when you press anywhere outside it. */
     w.addEventListener('pointerdown', function (e) { if (smDw.pop && !(e.target.closest && e.target.closest('.sm-dpw'))) { smDw.pop = ''; smDrUI(); } }, true);
-    w.addEventListener('change', function (e) { if (e.target.id === 'smDrSizes') { smDw.sizes = e.target.checked; smDwSave(); smDrawSoon(); } });
+    w.addEventListener('change', function (e) {
+      var id = e.target.id;
+      if (id === 'smDrSizes') { smDw.sizes = e.target.checked; smDwSave(); smDrawSoon(); }
+      if (id === 'smDrFill') { smDw.fill = e.target.checked; smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('f', smDw.fill ? 1 : 0); }
+      if (id === 'smDrHid') smDw.hid = e.target.checked;
+      if (id === 'smDrMFill') smDrSetSel('f', e.target.checked ? 1 : 0);
+      if (id === 'smDrMHid' && smMode() === 'host') smDrSetSel('h', e.target.checked ? 1 : 0);
+    });
   }
   /* ================= CHRONICLES =================
      Storytellers (and Admins) run chronicles from their own main tab: cards with a title and a description, then for each

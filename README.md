@@ -462,9 +462,26 @@ V3.5.1
 	-Imperial units: Feet and Yards switches (side by side, under it). With both on, sizes show as before (feet, with yards beside them); with one, only that unit.
 	-Fixed Delete not removing selected shapes until you'd right-clicked the map first.
 
-V3.5.2
+V3.6
 -Skirmish Map Changes:
 	-Shift-click keeps a preset on the pointer after putting it down, so you can place several; letting go of Shift stops.
 	-Paste now works like a preset: the copy follows the pointer until you click to put it down (Shift-click for several).
 	-Path tool: Shift keeps each new segment to steps of 45°, like the Line tool.
 	-Ctrl snaps lines, rectangles, circles and path points to other shapes near the pointer: ends of lines and paths and the corners of rectangles first, then anywhere along a shape. It works for a shape's starting point and while you draw it; a small ring shows where it will snap.
+	-Select tool: the right-click menu has colour and thickness choices for the selected shapes (it stays open, so you can change both; the pen keeps its own).
+	-Alt snaps to the grid: line, rectangle, circle, path and text points land on the nearest grid corner, and moving shapes or placing a preset puts their corner on one.
+	-Fills: rectangles, circles and closed paths can be filled with a see-through version of their colour (the Fill switch in the pen, or for selected shapes in the right-click menu).
+	-Line styles: solid, dashed or dotted, in the pen and in the right-click menu.
+	-Hidden shapes: the host can hide shapes from players (the Hidden switch in the right-click menu), or turn on "Draw hidden" in the pen for new ones. Hidden shapes show faded for the host, and players never get them until they're shown.
+	-Text tool: click to write a label on the map (Enter keeps it, Escape cancels); the thickness picks its size. Click a text with the Text tool, double-click it with Select, or use "Change text…" to change it.
+	-Select tool: the right-click menu can rotate the selection a quarter turn either way, or flip it left to right or top to bottom.
+	-Ctrl+D duplicates the selection (the same as Copy then Paste); also in the right-click menu and More.
+	-Path tool: clicking the first point again closes the path into a shape (the point turns green when you're on it).
+	-Fixed Escape in the right-click menu clearing the selection instead of closing the menu.
+	-Walls: any shape but a text can be a wall (the Wall choice in the pen, or for selected shapes in the right-click menu): Solid, Half, Window or Door, each with its own look.
+		-Solid walls block sight and movement. Doors do too, until opened. Windows block movement but not sight, until broken. Half walls block neither, but a measurement across one turns orange past it and says "cover"; across a wall that blocks sight it turns red and says "no line of sight".
+		-Anyone can right-click a door to open or close it, or a window to break or mend it.
+		-A wall drawn on top of part of another takes over just that part: a door drawn over a stretch of a solid wall makes only that stretch a door.
+		-Tokens can't be dragged through walls that block movement; they slide along them instead.
+		-Players only see the tokens their own tokens can see, with a fog over the rest of the map. The host sees everything.
+		-Hidden walls only count for the host, so a hidden door drawn over a wall stays a plain wall for players until it's shown.
