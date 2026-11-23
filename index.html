@@ -2298,6 +2298,47 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 .nb-node.nb-ref .nb-av { width: 30px; height: 30px; flex: none; font-size: 0.75rem; margin-right: 2px; }
 .nb-node.nb-ref .nb-open { margin-top: 6px; }
 .chr-pkh { margin: 8px 0 2px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+/* ---- Skirmish Map drawing (V3.5) ---- */
+.sm-shapes .sm-shp { pointer-events: none; }
+.sm-shapes.live .sm-shp { pointer-events: auto; }
+.sm-shp-hit { fill: none; stroke: transparent; pointer-events: stroke; }
+.sm-shapes:not(.live) .sm-shp-hit { pointer-events: none; }
+.sm-shp-ln { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.sm-shp-ln.live { opacity: 0.85; stroke-dasharray: none; pointer-events: none; }
+.sm-shp.sel .sm-shp-ln { filter: drop-shadow(0 0 0.06px #d9a441) drop-shadow(0 0 0.1px #d9a441); }
+.sm-path-pt { fill: #d9a441; stroke: #1d1820; stroke-width: 0.02; pointer-events: none; }
+.sm-band { fill: rgba(217,164,65,0.12); stroke: #d9a441; stroke-width: 0.04; stroke-dasharray: 0.15 0.1; pointer-events: none; }
+.sm-selbox { fill: none; stroke: #d9a441; stroke-width: 0.04; stroke-dasharray: 0.2 0.12; pointer-events: none; }
+.sm-selh { fill: #d9a441; stroke: #1d1820; stroke-width: 0.03; cursor: nwse-resize; }
+.sm-svg.drawing { cursor: crosshair; }
+.sm-svg.drawing .sm-tok { pointer-events: none; }
+.sm-dtools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 0 2px; }
+.sm-dgrp { display: inline-flex; gap: 4px; align-items: center; }
+.sm-dgrp [aria-checked="true"].btn-sec { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.sm-dcol { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line-strong); background: var(--c); cursor: pointer; padding: 0; }
+.sm-dcol[aria-checked="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sm-dw span { display: block; width: 18px; background: currentColor; border-radius: 3px; }
+.sm-dsz { margin: 0; }
+.sm-drawb[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.sm-dlg { top: 10px; right: 10px; left: auto; width: min(340px, calc(100% - 20px)); max-height: calc(100% - 20px); overflow: auto; }
+.sm-dlg-note { margin: 4px 0; font-size: 0.85rem; }
+.sm-dlg-list { display: flex; flex-direction: column; gap: 6px; margin: 6px 0; }
+.sm-dlg-row { display: flex; align-items: center; gap: 6px; }
+.sm-dlg-row > span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sm-dlg-row b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sm-dlg-row small { color: var(--muted); }
+.sm-dlg-save { display: flex; gap: 6px; margin-top: 6px; }
+.sm-dlg-save input { flex: 1; min-width: 0; height: 34px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg); color: var(--fg); font: inherit; }
+.sm-dtools { flex-wrap: nowrap; overflow: visible; gap: 6px; }
+.sm-dtools .sm-dgrp { gap: 2px; }
+.sm-dt.sm-z { min-width: 30px; height: 30px; padding: 0 5px; }
+.sm-dt svg { width: 16px; height: 16px; }
+.sm-dpw { position: relative; display: inline-flex; }
+.sm-dpen-c { display: block; width: 16px; border-radius: 3px; background: var(--c); box-shadow: 0 0 0 1px rgba(0,0,0,0.35); }
+.sm-dpop { position: absolute; top: calc(100% + 6px); right: 0; z-index: 8; display: flex; flex-direction: column; gap: 10px; padding: 10px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); box-shadow: 0 10px 28px rgba(0,0,0,0.35); min-width: 200px; }
+.sm-dmore { gap: 6px; min-width: 160px; }
+.sm-dmore .btn-sec { justify-content: flex-start; text-align: left; }
+@media (max-width: 520px) { .sm-dt.sm-z { min-width: 26px; height: 28px; padding: 0 3px; } .sm-dt svg { width: 14px; height: 14px; } }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -5385,6 +5426,8 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
         syncView();
         syncKeepAlive();
         renderRemote();
+      } else if (m.t === 'draw' && ws === watchWs) {
+        if (window.cmMapDrawIn) window.cmMapDrawIn(m);   // CHARACTERS-MODULE: the Skirmish Map's drawing
       } else if (m.t === 'pics' && ws === watchWs) {
         if (window.cmMapPics) window.cmMapPics(m.p);   // CHARACTERS-MODULE: token pictures
       } else if (m.t === 'people' && ws === watchWs) {
@@ -6973,6 +7016,7 @@ V1.5
     mapPics: function (p) { if (hostWs && hostWs.readyState === 1) { try { hostWs.send(JSON.stringify({ t: 'pics', p: p })); return true; } catch (e) {} } return false; },
     peerName: function (pid) { var w = peerWho[pid] || {}; return String(w.n || peerNames[pid] || '').trim() || 'Someone'; },
     peers: function () { return (peerPids || []).slice(); },
+    mapDraw: function (d) { if (hostWs && hostWs.readyState === 1) { try { hostWs.send(JSON.stringify({ t: 'draw', ops: d.ops || [], clear: d.clear ? 1 : 0 })); return true; } catch (e) {} } return false; },
     pubName: function (a) { return pubName(a); },
     isRev: function (a) { return isRev(a); },
     watchCode: function () { return watchWs ? ($('syncWatchCode').textContent || '') : ''; },
@@ -11806,6 +11850,7 @@ V1.5
     });
     out['blob:cm'] = cmBlob();
     var rb = rollerBlob(); if (rb) out['blob:roller'] = JSON.stringify(rb);
+    if (store.smd) out['blob:smd'] = JSON.stringify(store.smd);   // Skirmish Map presets and maps
     return out;
   }
   /* Notes when each item changed here. Right after signing in, unknown items get an unknown age (-1), so the
@@ -11870,6 +11915,7 @@ V1.5
         acct.known[k] = { m: it.m, h: hashStr(charSyncJSON(c)) }; delete acct.dirty[k]; changed = true;
       } else if (it.id === 'cm') cmIt = it;
       else if (it.id === 'roller') rollIt = it;
+      else if (it.id === 'smd') { var sd = null; try { sd = JSON.parse(it.data || 'null'); } catch (e) {} if (sd && typeof sd === 'object') { store.smd = sd; changed = true; } acct.known['blob:smd'] = { m: it.m, h: hashStr(it.data || '') }; delete acct.dirty['blob:smd']; }
     });
     if (cmIt) {
       var b = null; try { b = JSON.parse(cmIt.data); } catch (e) {}
@@ -16292,9 +16338,9 @@ V1.5
     var d = null; try { d = JSON.parse(localStorage.getItem(SM_KEY) || 'null'); } catch (e) {}
     d = d && typeof d === 'object' ? d : {};
     return { pos: d.pos && typeof d.pos === 'object' ? d.pos : {}, lines: Array.isArray(d.lines) ? d.lines : [], meas: d.meas && typeof d.meas === 'object' ? d.meas : {},
-      units: d.units === 'i' ? 'i' : 'm', any: !!d.any, seq: +d.seq || 1, drag: null, hid: d.hid && typeof d.hid === 'object' && !Array.isArray(d.hid) ? d.hid : {}, aoe: Array.isArray(d.aoe) ? d.aoe.filter(smAoeOk).slice(0, SM_AOE_MAX) : [] };
+      units: d.units === 'i' ? 'i' : 'm', any: !!d.any, dj: !!d.dj, dr: Array.isArray(d.dr) ? d.dr.slice(0, 1500) : [], seq: +d.seq || 1, drag: null, hid: d.hid && typeof d.hid === 'object' && !Array.isArray(d.hid) ? d.hid : {}, aoe: Array.isArray(d.aoe) ? d.aoe.filter(smAoeOk).slice(0, SM_AOE_MAX) : [] };
   })();
-  function smSave() { try { localStorage.setItem(SM_KEY, JSON.stringify({ pos: sm.pos, lines: sm.lines, meas: sm.meas, units: sm.units, any: sm.any, seq: sm.seq, aoe: sm.aoe, hid: sm.hid })); } catch (e) {} }
+  function smSave() { try { localStorage.setItem(SM_KEY, JSON.stringify({ pos: sm.pos, lines: sm.lines, meas: sm.meas, units: sm.units, any: sm.any, seq: sm.seq, aoe: sm.aoe, hid: sm.hid, dj: sm.dj, dr: sm.dr })); } catch (e) {} }
   var smUi = { open: false, set: false, vb: null, fitted: false, act: null, pend: null, menu: null, local: {}, hover: '', hl: null, ha: [], hp: null, aoe: null };
   /* Each person's own view: grid lines on or off, and how strong they are. */
   /* Background styles: each person's own pick; "auto" follows light/dark mode (grimy tabletop / aged parchment). */
@@ -16532,7 +16578,7 @@ V1.5
     var okK = {}; toks.forEach(function (x) { if (smPubOk(x)) okK[x.k] = 1; });
     var hk = function (k) { return !!(k && !okK[String(k)]); };
     var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w]; if (hk(m.f.k) || hk(m.t.k)) return null; var e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
-    return { u: sm.units, any: sm.any, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
+    return { u: sm.units, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
   };
   /* One token as watchers get it. */
   function smPubTok(x, pics) {
@@ -16556,7 +16602,7 @@ V1.5
     });
     if (size) r.mapPics(batch);
   }
-  window.cmMapHosted = function () { smSent = {}; smSig = ''; };
+  window.cmMapHosted = function () { smSent = {}; smSig = ''; setTimeout(function () { if (window.cmMapDrawAll) window.cmMapDrawAll(); }, 50); };   // the room gets the drawing again
   /* After a sheet changes (here, or a watcher's coming in): redraw, and while hosting send the room the map again if
      what watchers see of it (health, wounds, speeds) changed. */
   var smSig = '';
@@ -16625,6 +16671,7 @@ V1.5
         if (sm.aoe.length >= SM_AOE_MAX || sm.aoe.filter(function (q) { return q.by === who; }).length >= SM_AOE_PER) return;
         sm.aoe.push(Object.assign({ i: 'a' + (sm.seq++), k: String(t0.id), by: who, bn: String(by || '').slice(0, 40) }, fields));
       }
+    } else if (o.op === 'draw') { smDrHost(Array.isArray(o.ops) ? o.ops.slice(0, 500) : [], who); return;   // drawing (smDrHost sends it on)
     } else if (o.op === 'hide') {   // hide or show a token, and who else sees it (its owner and the host always do)
       a = smActor(o.id); if (!a || !(who === 'host' || a.ow === who)) return;
       var hk0 = String(a.id);
@@ -16841,12 +16888,13 @@ V1.5
         '<button type="button" class="btn-sec sm-fit sm-fullb" data-sm="full" aria-pressed="false" title="Fill the window with the map">Full screen</button>' +
         '<button type="button" class="btn-sec sm-z sm-pipb" data-sm="pip" aria-pressed="false"></button>' +
         (window.documentPictureInPicture ? '<button type="button" class="btn-sec sm-z sm-detb" data-sm="detach" aria-pressed="false"></button>' : '') +
+        '<button type="button" class="btn-sec sm-z sm-drawb" data-sm="draw" aria-pressed="false" aria-label="Draw" title="Draw on the map" hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg></button>' +
         '<button type="button" class="btn-sec sm-z sm-cog" data-sm="set" aria-expanded="false" aria-controls="smSet" aria-label="Map settings" title="Map settings"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>' +
         '<button type="button" class="btn-sec ap-x" data-sm="close" aria-label="Close the Skirmish Map">&times;</button></span></div>' +
-        '<div class="sm-set" id="smSet" role="group" aria-label="Map settings" hidden></div><div class="sm-body" id="smBody"></div>';
+        '<div class="sm-set" id="smSet" role="group" aria-label="Map settings" hidden></div><div class="sm-dtools" id="smDtools" role="toolbar" aria-label="Drawing" hidden></div><div class="sm-body" id="smBody"></div>';
       ip.appendChild(w);
       smIcoBtn(w.querySelector('[data-sm="pip"]'), 'pop'); smIcoBtn(w.querySelector('[data-sm="detach"]'), 'det');
-      smPipWatch(w);
+      smPipWatch(w); smDrawInit(w);
       w.addEventListener('click', smClick);
       w.addEventListener('change', smChange);
       w.addEventListener('input', smInput);
@@ -16884,7 +16932,7 @@ V1.5
     box.hidden = !smUi.set; if (cog) cog.setAttribute('aria-expanded', String(smUi.set));
     if (!smUi.set) return;
     var s = smState(), mode = smMode(), rm = s && s.remote && s.remote.m;
-    var room = mode === 'host' ? smSwitch('smUnits', sm.units === 'i', 'Imperial units', 'Feet, with yards beside them (1 yard = 1 metre).') + (s && s.hosting ? smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') : '')
+    var room = mode === 'host' ? smSwitch('smUnits', sm.units === 'i', 'Imperial units', 'Feet, with yards beside them (1 yard = 1 metre).') + (s && s.hosting ? smSwitch('smDj', !!sm.dj, 'Watchers can draw', 'They get the Draw button too') + smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') : '')
       : '<p class="sm-set-note">' + (rm && rm.u === 'i' ? 'Feet, with yards beside them' : 'Metres') + ' (the host\'s choice). ' + (rm && rm.any ? 'You can move any token.' : 'You can move your own characters.') + '</p>';
     var key = mode + '|' + room + '|' + smView.grid + '|' + smView.style + '|' + smView.pat;
     if (box.getAttribute('data-k') === key) return;
@@ -16917,7 +16965,7 @@ V1.5
     var body = smQ('smBody');
     if (mode === 'join' && !rm) { body.innerHTML = '<p class="hint">The host\'s tracker doesn\'t share a map.</p>'; return; }
     if (!body.querySelector('svg')) {
-      body.innerHTML = '<div class="sm-stage" id="smStage"><div class="sm-pat" aria-hidden="true"></div><svg class="sm-svg" id="smSvg" role="application" aria-label="Skirmish Map: drag your tokens; click a token to measure from it" tabindex="0"></svg><div class="sm-tip" id="smTip" hidden></div><div class="sm-menu" id="smMenu" hidden></div><div class="sm-aoe-pop" id="smAoe" role="dialog" aria-label="Areas of effect" hidden></div></div><p class="hint sm-help" id="smHelp"></p>';
+      body.innerHTML = '<div class="sm-stage" id="smStage"><div class="sm-pat" aria-hidden="true"></div><svg class="sm-svg" id="smSvg" role="application" aria-label="Skirmish Map: drag your tokens; click a token to measure from it" tabindex="0"></svg><div class="sm-tip" id="smTip" hidden></div><div class="sm-menu" id="smMenu" hidden></div><div class="sm-aoe-pop" id="smAoe" role="dialog" aria-label="Areas of effect" hidden></div><div class="sm-aoe-pop sm-dlg" id="smDlg" role="dialog" aria-label="Saved drawings" hidden></div></div><p class="hint sm-help" id="smHelp"></p>';
     }
     smQ('smHelp').textContent = toks.length ? 'Drag a token to move it, hover it for details. Hover a line to see that move; click it to undo. Click a token, then a spot or another token, to measure. Right-click a token (or press and hold it) for its menu (areas of effect, hide). 1 square = 1 ' + (smUnits() === 'i' ? 'yard (3 ft)' : 'metre') + '.' : 'Add actors to the tracker and they show up here.';
     var svg = smSvgEl(), stage = smQ('smStage');
@@ -16935,6 +16983,8 @@ V1.5
       '<clipPath id="smClip" clipPathUnits="objectBoundingBox"><circle cx="0.5" cy="0.5" r="0.5"/></clipPath><clipPath id="smTokClip"><circle r="' + SM_R + '"/></clipPath></defs>';
     h += '<rect class="sm-bg" x="' + (Math.floor(vb.x / 5) * 5 - 5) + '" y="' + (Math.floor(vb.y / 5) * 5 - 5) + '" width="' + (vb.w + 15) + '" height="' + (vb.h + 15) + '" fill="' + (smView.grid ? 'url(#smG5)' : 'transparent') + '"/>';
     smLbls = [];
+    var dk = smMayDraw() + '|' + smDw.on; if (dk !== smDw.uiKey) { smDw.uiKey = dk; smDrUI(); }
+    h += smShapesSVG();   // the drawing, under everything else
     var byK = {}; toks.forEach(function (t) { byK[t.k] = t; });
     /* Areas of Effect, faint, under everything else; brighter (with their size) while the pointer is in them. */
     var areas = smAreas(), hotA = {}; smUi.ha.forEach(function (i) { hotA[i] = 1; });
@@ -17299,6 +17349,7 @@ V1.5
   }
   /* ---- pointer: drag a token, click to measure, drag the empty grid to look around ---- */
   function smDown(e) {
+    if (smDrawDown(e)) return;   // drawing
     if (e.button !== 0 || !smSvgEl() || !smSvgEl().contains(e.target)) return;
     smMenuClose();
     var g = e.target.closest('.sm-tok'), ln = e.target.closest('.sm-move'), p = smToWorld(e);
@@ -17321,6 +17372,7 @@ V1.5
   }
   var smLiveT = 0;
   function smMove(e) {
+    if (smDrawMove(e)) return;
     if (!smUi.act) smHoverAt(e);
     if (smUi.pend && !smUi.act && smUi.vb) { smUi.pend.to = smToWorld(e); var tk = smTokAt(e); smUi.pend.tk = tk && tk.k !== smUi.pend.f.k ? tk.k : ''; smDrawSoon(); }
     var a = smUi.act; if (!a || a.line) return;
@@ -17380,6 +17432,7 @@ V1.5
     smDrawSoon();
   }
   function smUp(e) {
+    if (smDrawUp(e)) return;
     var a = smUi.act; smUi.act = null; if (!a) return;
     if (a.hold) clearTimeout(a.hold);
     if (a.held) return;   // the end of a press and hold: not a tap (no measuring)
@@ -17424,6 +17477,7 @@ V1.5
   function smClick(e) {
     var b = e.target.closest('[data-sm]'); if (!b) return;
     var a = b.getAttribute('data-sm');
+    if (smDrawClick(b, a)) return;
     if (a === 'close') { smOpen(false, true); return; }
     if (a === 'full') { smFull(!smUi.full); return; }
     if (a === 'set') { smUi.set = !smUi.set; smSetDraw(); var f = smUi.set && smQ('smSet').querySelector('input'); if (f) f.focus(); return; }
@@ -17459,6 +17513,7 @@ V1.5
     }
     if (e.target.id === 'smUnits') { sm.units = e.target.checked ? 'i' : 'm'; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smAny') { sm.any = e.target.checked; smSave(); smPushSoon(); smDraw(); }
+    if (e.target.id === 'smDj') { sm.dj = e.target.checked; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smGridOn') { smView.grid = e.target.checked; smViewSave(); smDraw(); }
     if (e.target.id === 'smPatOn') { smView.pat = e.target.checked; smViewSave(); smDraw(); }
     if (e.target.name === 'smStyle') { smView.style = e.target.value; smViewSave(); smDraw(); var r = smQ('smSet').querySelector('input[name="smStyle"]:checked'); if (r) r.focus(); }
@@ -17483,6 +17538,398 @@ V1.5
   }
   window.addEventListener('resize', function () { if (smUi.open) { smPlace(); smUi.fitted = false; smDrawSoon(); } });
   setTimeout(smDrawSoon, 0);
+  /* ================= SKIRMISH MAP: DRAWING =================
+     Walls, rooms, cover and so on, drawn on the map with a pen: free-hand, lines, rectangles, circles (ellipses) and
+     paths, in a few colours and thicknesses; Erase removes a shape with a click; Select picks shapes (click, Shift-click
+     or a box) to move, resize, copy, delete, or keep as a preset. Presets and whole drawings (maps) are saved to the
+     account. The host draws; a host switch lets watchers draw too. The drawing is the host's (sm.dr): every change goes
+     to the room as a list of changes (shapes added, changed or taken away), and the room keeps it for latecomers.
+     Shapes: { i, t: 'f' free-hand | 'l' line | 'r' rectangle | 'e' ellipse | 'p' path, p: [[x, y], ...], c: colour, w: thickness }.
+     Rectangles and ellipses keep two opposite corners. Units: map squares (yards / metres). */
+  var SMD_COLS = [['#1d1820', 'Black'], ['#efe8d8', 'White'], ['#b3263a', 'Red'], ['#2f6fb5', 'Blue'], ['#3c8d4a', 'Green'], ['#d9a441', 'Gold']];
+  var SMD_W = [[0.05, 'Thin'], [0.12, 'Medium'], [0.25, 'Thick']];
+  var SMD_TOOLS = [['pan', 'Move the map and tokens (drawing off)'], ['sel', 'Select: click or drag a box; drag to move; the corner handle resizes'], ['f', 'Free-hand'], ['l', 'Line (Shift: steps of 45°)'], ['r', 'Rectangle (Shift: square)'], ['e', 'Circle (Shift: perfect circle)'], ['p', 'Path: click each point, double-click (or Enter) to finish'], ['x', 'Erase: click a shape (or drag over several)']];
+  var SMD_MAXN = 1500, SMD_MAXB = 1500000;
+  var smDw = (function () {
+    var d = null; try { d = JSON.parse(localStorage.getItem('vtm-smap-draw') || 'null'); } catch (e) {}
+    d = d && typeof d === 'object' ? d : {};
+    return { on: false, tool: 'f', col: isFinite(+d.col) ? Math.max(0, Math.min(5, +d.col)) : 0, w: isFinite(+d.w) ? Math.max(0, Math.min(2, +d.w)) : 1, sizes: d.sizes !== false, sel: {}, act: null, path: null, clip: null, dlg: '', seq: 0 };
+  })();
+  function smDwSave() { try { localStorage.setItem('vtm-smap-draw', JSON.stringify({ col: smDw.col, w: smDw.w, sizes: smDw.sizes })); } catch (e) {} }
+  if (!Array.isArray(sm.dr)) sm.dr = [];
+  var smDrIn = [];   // a watcher's copy of the host's drawing
+  function smShapes() { return smMode() === 'join' ? smDrIn : sm.dr; }
+  /* May this page draw? The host always; a watcher when the host allows it. */
+  function smMayDraw() { var s = smState(), mode = smMode(); if (mode === 'host') return true; var rm = s && s.remote && s.remote.m; return !!(rm && rm.dj); }
+  function smDrN(v) { return Math.round(v * 100) / 100; }
+  function smDrClean(s) {
+    if (!s || typeof s !== 'object' || !/^[\w-]{1,24}$/.test(String(s.i)) || 'flrep'.indexOf(s.t) < 0 || s.t.length !== 1 || !Array.isArray(s.p)) return null;
+    var p = s.p.slice(0, 3000).map(function (q) { return Array.isArray(q) && isFinite(+q[0]) && isFinite(+q[1]) ? [smDrN(Math.max(-600, Math.min(600, +q[0]))), smDrN(Math.max(-600, Math.min(600, +q[1])))] : null; }).filter(Boolean);
+    if (p.length < 2) return null;
+    if ('lre'.indexOf(s.t) >= 0) p = p.slice(0, 2);
+    return { i: String(s.i), t: s.t, p: p, c: Math.max(0, Math.min(5, Math.round(+s.c) || 0)), w: Math.max(0, Math.min(2, Math.round(+s.w) || 0)) };
+  }
+  /* Applies changes to a drawing (a list kept in order): {i, s} adds or replaces a shape, {i, d: 1} removes it. */
+  function smDrApply(list, ops, clear) {
+    if (clear) list.length = 0;
+    (ops || []).forEach(function (o) {
+      if (!o || typeof o !== 'object') return;
+      var at = -1; for (var j = 0; j < list.length; j++) if (list[j].i === String(o.i)) { at = j; break; }
+      if (o.d) { if (at >= 0) list.splice(at, 1); return; }
+      var s = smDrClean(o.s); if (!s) return;
+      if (at >= 0) list[at] = s; else list.push(s);
+    });
+  }
+  /* Sends changes: the host applies them and tells the room; a watcher asks the host (and shows them straight away). */
+  function smDrSend(ops) {
+    if (!ops.length) return;
+    if (smMode() === 'join') {
+      smDrApply(smDrIn, ops);
+      smDrChunks(ops).forEach(function (part) { smSend({ op: 'draw', ops: part }); });
+    } else smDrHost(ops, 'host');
+    smDrawSoon();
+  }
+  function smDrChunks(ops) {
+    var out = [], cur = [], n = 0;
+    ops.forEach(function (o) { var l = JSON.stringify(o).length; if (cur.length && n + l > 40000) { out.push(cur); cur = []; n = 0; } cur.push(o); n += l; });
+    if (cur.length) out.push(cur);
+    return out;
+  }
+  function smDrHost(ops, who) {
+    if (who !== 'host' && !sm.dj) return;
+    var ok = [];
+    ops.forEach(function (o) {
+      if (!o || !/^[\w-]{1,24}$/.test(String(o.i))) return;
+      if (o.d) { ok.push({ i: String(o.i), d: 1 }); return; }
+      var s = smDrClean(o.s); if (!s) return;
+      var exists = sm.dr.some(function (x) { return x.i === s.i; });
+      if (!exists && (sm.dr.length >= SMD_MAXN || JSON.stringify(sm.dr).length + JSON.stringify(s).length > SMD_MAXB)) { if (who === 'host') toast('The drawing is full. Erase something first.'); return; }
+      ok.push({ i: s.i, s: s });
+    });
+    if (!ok.length) return;
+    smDrApply(sm.dr, ok); smSave();
+    var r = R(); if (r && r.mapDraw) smDrChunks(ok).forEach(function (part) { r.mapDraw({ ops: part }); });
+    smDrawSoon();
+  }
+  /* The whole drawing to the room (when hosting starts, or after loading a map). */
+  function smDrSendAll() {
+    var r = R(); if (!r || !r.mapDraw) return;
+    var parts = smDrChunks(sm.dr.map(function (s) { return { i: s.i, s: s }; }));
+    if (!parts.length) { r.mapDraw({ ops: [], clear: 1 }); return; }
+    parts.forEach(function (part, n) { r.mapDraw({ ops: part, clear: n ? 0 : 1 }); });
+  }
+  window.cmMapDrawIn = function (m) { if (!m || typeof m !== 'object') return; smDrApply(smDrIn, Array.isArray(m.ops) ? m.ops : [], !!m.clear); smDrawSoon(); };
+  function smDrId() { return 'd' + Date.now().toString(36) + (smDw.seq++).toString(36) + Math.random().toString(36).slice(2, 5); }
+
+  /* ---- geometry ---- */
+  function smDrBox(s) { var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; s.p.forEach(function (q) { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); }); return { x0: x0, y0: y0, x1: x1, y1: y1 }; }
+  function smDrPathD(s) {
+    var p = s.p;
+    if (s.t === 'r') { var x0 = Math.min(p[0][0], p[1][0]), y0 = Math.min(p[0][1], p[1][1]), x1 = Math.max(p[0][0], p[1][0]), y1 = Math.max(p[0][1], p[1][1]); return 'M' + x0 + ' ' + y0 + 'H' + x1 + 'V' + y1 + 'H' + x0 + 'Z'; }
+    if (s.t === 'e') {
+      var cx = (p[0][0] + p[1][0]) / 2, cy = (p[0][1] + p[1][1]) / 2, rx = Math.abs(p[1][0] - p[0][0]) / 2 || 0.01, ry = Math.abs(p[1][1] - p[0][1]) / 2 || 0.01;
+      return 'M' + (cx - rx) + ' ' + cy + 'A' + rx + ' ' + ry + ' 0 1 0 ' + (cx + rx) + ' ' + cy + 'A' + rx + ' ' + ry + ' 0 1 0 ' + (cx - rx) + ' ' + cy + 'Z';
+    }
+    return 'M' + p.map(function (q) { return q[0] + ' ' + q[1]; }).join('L');
+  }
+  function smDrLen(p) { var n = 0; for (var i = 1; i < p.length; i++) n += smDist(p[i - 1], p[i]); return n; }
+  /* Free-hand lines are simplified as they're finished (fewer points, same look). */
+  function smDrSimplify(p, eps) {
+    if (p.length < 3) return p;
+    var keep = [0, p.length - 1], stack = [[0, p.length - 1]];
+    while (stack.length) {
+      var seg = stack.pop(), a = p[seg[0]], b = p[seg[1]], best = -1, bi = -1;
+      for (var i = seg[0] + 1; i < seg[1]; i++) {
+        var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1e-9, d = Math.abs(dy * p[i][0] - dx * p[i][1] + b[0] * a[1] - b[1] * a[0]) / L;
+        if (d > best) { best = d; bi = i; }
+      }
+      if (best > eps) { keep.push(bi); stack.push([seg[0], bi], [bi, seg[1]]); }
+    }
+    keep.sort(function (x, y) { return x - y; });
+    return keep.map(function (i) { return p[i]; });
+  }
+  function smDrMoved(s, dx, dy) { return Object.assign({}, s, { p: s.p.map(function (q) { return [smDrN(q[0] + dx), smDrN(q[1] + dy)]; }) }); }
+  function smDrScaled(s, ox, oy, fx, fy) { return Object.assign({}, s, { p: s.p.map(function (q) { return [smDrN(ox + (q[0] - ox) * fx), smDrN(oy + (q[1] - oy) * fy)]; }) }); }
+  function smDrSelBox() {
+    var ids = Object.keys(smDw.sel), L = smShapes().filter(function (s) { return smDw.sel[s.i]; }); if (!L.length) return null;
+    var b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    L.forEach(function (s) { var q = smDrBox(s); b.x0 = Math.min(b.x0, q.x0); b.y0 = Math.min(b.y0, q.y0); b.x1 = Math.max(b.x1, q.x1); b.y1 = Math.max(b.y1, q.y1); });
+    b.n = ids.length; return b;
+  }
+  /* What the drawing looks like (and the shape being drawn, the selection, sizes while drawing). */
+  function smShapesSVG() {
+    var a = smDw.act, L = smShapes(), h = '<g class="sm-shapes' + (smDw.on && smDw.tool !== 'pan' ? ' live' : '') + '">';
+    L.forEach(function (s0) {
+      var s = s0;
+      if (a && (a.m === 'move' || a.m === 'size') && smDw.sel[s.i]) s = a.m === 'move' ? smDrMoved(s, a.dx || 0, a.dy || 0) : smDrScaled(s, a.ox, a.oy, a.fx || 1, a.fy || 1);
+      var d = smDrPathD(s), w = SMD_W[s.w][0];
+      h += '<g class="sm-shp' + (smDw.sel[s.i] && smDw.on ? ' sel' : '') + '" data-di="' + s.i + '"><path class="sm-shp-hit" d="' + d + '" stroke-width="' + Math.max(w + 0.3, 0.4) + '"/><path class="sm-shp-ln" d="' + d + '" stroke="' + SMD_COLS[s.c][0] + '" stroke-width="' + w + '"/></g>';
+    });
+    if (a && a.m === 'draw' && a.s) {
+      var p = a.s.p, prev = a.s;
+      h += '<path class="sm-shp-ln live" d="' + smDrPathD(prev) + '" stroke="' + SMD_COLS[smDw.col][0] + '" stroke-width="' + SMD_W[smDw.w][0] + '"/>';
+      if (smDw.sizes && a.s.t !== 'f') smDrSizeLbl(a.s);
+    }
+    if (smDw.path && smDw.path.p.length) {
+      var pp = smDw.path.p.concat(smDw.path.hov ? [smDw.path.hov] : []), ps = { t: 'p', p: pp };
+      h += '<path class="sm-shp-ln live" d="' + smDrPathD(ps) + '" stroke="' + SMD_COLS[smDw.col][0] + '" stroke-width="' + SMD_W[smDw.w][0] + '"/>';
+      pp.forEach(function (q) { h += '<circle class="sm-path-pt" cx="' + q[0] + '" cy="' + q[1] + '" r="0.08"/>'; });
+      if (smDw.sizes) smDrSizeLbl(ps);
+    }
+    if (a && a.m === 'band' && a.to) {
+      var bx = Math.min(a.from[0], a.to[0]), by = Math.min(a.from[1], a.to[1]);
+      h += '<rect class="sm-band" x="' + bx + '" y="' + by + '" width="' + Math.abs(a.to[0] - a.from[0]) + '" height="' + Math.abs(a.to[1] - a.from[1]) + '"/>';
+    }
+    var sb = smDw.on && smDw.tool === 'sel' ? smDrSelBox() : null;
+    if (sb) {
+      var ab = a && a.m === 'move' ? { x0: sb.x0 + (a.dx || 0), y0: sb.y0 + (a.dy || 0), x1: sb.x1 + (a.dx || 0), y1: sb.y1 + (a.dy || 0) } : a && a.m === 'size' ? { x0: sb.x0, y0: sb.y0, x1: a.ox + (sb.x1 - a.ox) * (a.fx || 1), y1: a.oy + (sb.y1 - a.oy) * (a.fy || 1) } : sb;
+      h += '<rect class="sm-selbox" x="' + (ab.x0 - 0.15) + '" y="' + (ab.y0 - 0.15) + '" width="' + (ab.x1 - ab.x0 + 0.3) + '" height="' + (ab.y1 - ab.y0 + 0.3) + '"/>' +
+        '<rect class="sm-selh" data-dh="1" x="' + (ab.x1 + 0.15 - 0.17) + '" y="' + (ab.y1 + 0.15 - 0.17) + '" width="0.34" height="0.34"><title>Drag to resize</title></rect>';
+      if (a && a.m === 'size' && smDw.sizes) smLabel((ab.x0 + ab.x1) / 2, ab.y1 + 0.6, smFmt(ab.x1 - ab.x0) + ' × ' + smFmt(ab.y1 - ab.y0), 'sm-lbl-meas', 4);
+    }
+    return h + '</g>';
+  }
+  /* Sizes while drawing: a line's length, a rectangle's sides, a circle's width (or both), a path's length. */
+  function smDrSizeLbl(s) {
+    var p = s.p, b = smDrBox(s), w = b.x1 - b.x0, hh = b.y1 - b.y0, t = '';
+    if (s.t === 'l') t = smFmt(smDist(p[0], p[1]));
+    else if (s.t === 'r') t = smFmt(w) + ' × ' + smFmt(hh);
+    else if (s.t === 'e') t = Math.abs(w - hh) < 0.01 ? smFmt(w) + ' across' : smFmt(w) + ' × ' + smFmt(hh);
+    else if (s.t === 'p') t = smFmt(smDrLen(p));
+    if (t) smLabel((b.x0 + b.x1) / 2, b.y1 + 0.55, t, 'sm-lbl-meas', 4);
+  }
+
+  /* ---- pointer ---- */
+  function smDrShapeAt(e) { var el = smDoc().elementFromPoint(e.clientX, e.clientY), g = el && el.closest && el.closest('.sm-shp'); return g ? g.getAttribute('data-di') : ''; }
+  function smDrawDown(e) {
+    if (!smDw.on || smDw.tool === 'pan' || !smMayDraw()) return false;
+    if (e.button !== 0 || !smSvgEl() || !smSvgEl().contains(e.target)) return false;   // only presses on the map itself
+    var p = smToWorld(e), tool = smDw.tool, svg = smSvgEl();
+    smMenuClose(); e.preventDefault();
+    try { svg.setPointerCapture(e.pointerId); } catch (x) {}
+    if (tool === 'p') {   // a path: each click adds a point (a double-click finishes it)
+      var now = Date.now(), pt = [smDrN(p[0]), smDrN(p[1])];
+      if (!smDw.path) smDw.path = { p: [], t: 0 };
+      if (smDw.path.p.length && now - smDw.path.t < 350 && smDist(pt, smDw.path.p[smDw.path.p.length - 1]) < 0.4) { smDrPathEnd(); return true; }
+      smDw.path.p.push(pt); smDw.path.t = now; smDrawSoon(); return true;
+    }
+    if (tool === 'x') { smDw.act = { m: 'erase', gone: {} }; smDrEraseAt(e); return true; }
+    if (tool === 'sel') {
+      var hit = e.target.closest && e.target.closest('[data-dh]') ? 'handle' : smDrShapeAt(e);
+      if (hit === 'handle') { var sb = smDrSelBox(); smDw.act = { m: 'size', ox: sb.x0, oy: sb.y0, w0: Math.max(0.05, sb.x1 - sb.x0), h0: Math.max(0.05, sb.y1 - sb.y0), shift: e.shiftKey }; return true; }
+      if (hit) {
+        if (e.shiftKey) { if (smDw.sel[hit]) delete smDw.sel[hit]; else smDw.sel[hit] = 1; smDrUI(); smDrawSoon(); return true; }
+        if (!smDw.sel[hit]) { smDw.sel = {}; smDw.sel[hit] = 1; smDrUI(); }
+        smDw.act = { m: 'move', from: p, dx: 0, dy: 0 }; smDrawSoon(); return true;
+      }
+      smDw.act = { m: 'band', from: p, to: null, add: e.shiftKey };
+      return true;
+    }
+    var q = [smDrN(p[0]), smDrN(p[1])];
+    smDw.act = { m: 'draw', s: { t: tool, p: tool === 'f' ? [q] : [q, q.slice()] }, shift: false };
+    smDrawSoon();
+    return true;
+  }
+  function smDrawMove(e) {
+    var a = smDw.act;
+    if (!a) { if (smDw.path && smDw.on && smDw.tool === 'p') { var ph = smToWorld(e); smDw.path.hov = [smDrN(ph[0]), smDrN(ph[1])]; smDrawSoon(); } return false; }
+    var p = smToWorld(e);
+    if (a.m === 'erase') { smDrEraseAt(e); return true; }
+    if (a.m === 'move') { a.dx = smDrN(p[0] - a.from[0]); a.dy = smDrN(p[1] - a.from[1]); smDrawSoon(); return true; }
+    if (a.m === 'size') {
+      var fx = Math.max(0.05, (p[0] - a.ox) / a.w0), fy = Math.max(0.05, (p[1] - a.oy) / a.h0);
+      if (e.shiftKey) fx = fy = Math.max(fx, fy);
+      a.fx = fx; a.fy = fy; smDrawSoon(); return true;
+    }
+    if (a.m === 'band') { a.to = p; smDrawSoon(); return true; }
+    if (a.m === 'draw') {
+      var s = a.s, q = [smDrN(p[0]), smDrN(p[1])];
+      if (s.t === 'f') { if (smDist(s.p[s.p.length - 1], q) >= 0.06) s.p.push(q); }
+      else {
+        if (e.shiftKey && s.t === 'l') { var dx = q[0] - s.p[0][0], dy = q[1] - s.p[0][1], an = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4), L = Math.hypot(dx, dy); q = [smDrN(s.p[0][0] + Math.cos(an) * L), smDrN(s.p[0][1] + Math.sin(an) * L)]; }
+        if (e.shiftKey && (s.t === 'r' || s.t === 'e')) { var sx = q[0] - s.p[0][0], sy = q[1] - s.p[0][1], m = Math.max(Math.abs(sx), Math.abs(sy)); q = [smDrN(s.p[0][0] + (sx < 0 ? -m : m)), smDrN(s.p[0][1] + (sy < 0 ? -m : m))]; }
+        s.p[1] = q;
+      }
+      smDrawSoon(); return true;
+    }
+    return true;
+  }
+  function smDrawUp(e) {
+    var a = smDw.act; if (!a) return false;
+    smDw.act = null;
+    try { smSvgEl().releasePointerCapture(e.pointerId); } catch (x) {}
+    if (a.m === 'draw') {
+      var s = a.s;
+      if (s.t === 'f') s.p = smDrSimplify(s.p, 0.03);
+      var b = smDrBox(s);
+      if (b.x1 - b.x0 < 0.08 && b.y1 - b.y0 < 0.08) { smDrawSoon(); return true; }   // a click, not a shape
+      s.i = smDrId(); s.c = smDw.col; s.w = smDw.w;
+      smDrSend([{ i: s.i, s: s }]);
+      return true;
+    }
+    if (a.m === 'move') { if (a.dx || a.dy) smDrSend(smShapes().filter(function (s) { return smDw.sel[s.i]; }).map(function (s) { return { i: s.i, s: smDrMoved(s, a.dx, a.dy) }; })); smDrawSoon(); return true; }
+    if (a.m === 'size') { if (a.fx || a.fy) smDrSend(smShapes().filter(function (s) { return smDw.sel[s.i]; }).map(function (s) { return { i: s.i, s: smDrScaled(s, a.ox, a.oy, a.fx || 1, a.fy || 1) }; })); smDrawSoon(); return true; }
+    if (a.m === 'band') {
+      if (!a.add) smDw.sel = {};
+      if (a.to) {
+        var x0 = Math.min(a.from[0], a.to[0]), y0 = Math.min(a.from[1], a.to[1]), x1 = Math.max(a.from[0], a.to[0]), y1 = Math.max(a.from[1], a.to[1]);
+        smShapes().forEach(function (s) { var q = smDrBox(s); if (q.x0 <= x1 && q.x1 >= x0 && q.y0 <= y1 && q.y1 >= y0) smDw.sel[s.i] = 1; });
+      }
+      smDrUI(); smDrawSoon(); return true;
+    }
+    if (a.m === 'erase') { var ids = Object.keys(a.gone); if (ids.length) smDrSend(ids.map(function (i) { return { i: i, d: 1 }; })); return true; }
+    return true;
+  }
+  function smDrEraseAt(e) {
+    var id = smDrShapeAt(e); if (!id || smDw.act.gone[id]) return;
+    smDw.act.gone[id] = 1;
+    var g = smDoc().querySelector('#smSvg .sm-shp[data-di="' + id + '"]'); if (g) g.style.display = 'none';
+  }
+  function smDrPathEnd() {
+    var P = smDw.path; smDw.path = null; if (!P) return;
+    var pts = P.p.filter(function (q, i) { return !i || smDist(q, P.p[i - 1]) > 0.02; });
+    if (pts.length >= 2) { var s = { i: smDrId(), t: 'p', p: pts, c: smDw.col, w: smDw.w }; smDrSend([{ i: s.i, s: s }]); }
+    smDrawSoon();
+  }
+  /* ---- keys (while the map has focus and drawing is on) ---- */
+  function smDrawKey(e) {
+    if (!smDw.on || !smMayDraw() || (e.target.closest && e.target.closest('input, textarea, select'))) return;
+    var mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+    if (smDw.path && (e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); smDrPathEnd(); return; }
+    if (smDw.act && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); smDw.act = null; smDrawSoon(); return; }
+    if (smDw.tool !== 'sel') return;
+    if ((e.key === 'Delete' || e.key === 'Backspace') && Object.keys(smDw.sel).length) { e.preventDefault(); smDrDel(); return; }
+    if (mod && k === 'c') { e.preventDefault(); smDrCopy(); return; }
+    if (mod && k === 'v') { e.preventDefault(); smDrPaste(); return; }
+    if (mod && k === 'a') { e.preventDefault(); smDw.sel = {}; smShapes().forEach(function (s) { smDw.sel[s.i] = 1; }); smDrUI(); smDrawSoon(); return; }
+    if (e.key === 'Escape' && Object.keys(smDw.sel).length) { e.preventDefault(); e.stopPropagation(); smDw.sel = {}; smDrUI(); smDrawSoon(); }
+  }
+  function smDrSelected() { return smShapes().filter(function (s) { return smDw.sel[s.i]; }); }
+  function smDrDel() { var ids = Object.keys(smDw.sel); smDw.sel = {}; smDrSend(ids.map(function (i) { return { i: i, d: 1 }; })); smDrUI(); }
+  function smDrCopy() { var L = smDrSelected(); if (!L.length) return; smDw.clip = JSON.parse(JSON.stringify(L)); smDrUI(); toast(L.length === 1 ? 'Shape copied.' : L.length + ' shapes copied.'); }
+  /* Pastes (or places a preset): a step down and right of the copies, or in the middle of the view. */
+  function smDrPlace(shapes, centre) {
+    if (!shapes || !shapes.length) return;
+    var b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    shapes.forEach(function (s) { var q = smDrBox(s); b.x0 = Math.min(b.x0, q.x0); b.y0 = Math.min(b.y0, q.y0); b.x1 = Math.max(b.x1, q.x1); b.y1 = Math.max(b.y1, q.y1); });
+    var vb = smUi.vb, dx = 1, dy = 1;
+    if (centre && vb) { dx = smDrN(vb.x + vb.w / 2 - (b.x0 + b.x1) / 2); dy = smDrN(vb.y + vb.h / 2 - (b.y0 + b.y1) / 2); }
+    var ops = shapes.map(function (s) { var n = smDrMoved(s, dx, dy); n.i = smDrId(); return { i: n.i, s: n }; });
+    smDw.sel = {}; ops.forEach(function (o) { smDw.sel[o.i] = 1; });
+    smDw.tool = 'sel'; smDrSend(ops); smDrUI();
+    if (!centre) smDw.clip = ops.map(function (o) { return o.s; });   // pasting again steps further
+  }
+  function smDrPaste() { smDrPlace(smDw.clip, false); }
+
+  /* ---- toolbar ---- */
+  var SMD_ICO = {
+    pan: '<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5V4a1.5 1.5 0 0 1 3 0v7.5M14 11.5V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3 14.5a1.6 1.6 0 0 1 2.6-1.8L8 15"/>',
+    sel: '<path d="M5 3l14 7-6 2-2 6z"/>',
+    f: '<path d="M3 17c3-6 5-8 7-5s3 2 5-2 4-3 6 0"/>',
+    l: '<path d="M4 20L20 4"/>',
+    r: '<rect x="4" y="6" width="16" height="12" rx="1"/>',
+    e: '<circle cx="12" cy="12" r="8"/>',
+    p: '<path d="M4 18l5-9 6 5 5-9"/><circle cx="4" cy="18" r="1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="14" r="1.5"/><circle cx="20" cy="5" r="1.5"/>',
+    x: '<path d="M8 20h12M5 15l9-9 5 5-6.5 6.5H9.5z"/>'
+  };
+  function smDrIco(k) { return '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + SMD_ICO[k] + '</svg>'; }
+  function smDrUI() {
+    var w = smQ('smWrap'); if (!w) return;
+    var can = smMayDraw(), b = w.querySelector('[data-sm="draw"]');
+    if (!can && smDw.on) { smDw.on = false; smDw.act = null; smDw.path = null; smDw.sel = {}; smDrDlgClose(); }
+    if (b) { b.hidden = !can; b.setAttribute('aria-pressed', String(smDw.on)); }
+    var bar = smQ('smDtools'); if (!bar) return;
+    bar.hidden = !smDw.on;
+    var svg = smSvgEl(); if (svg) svg.classList.toggle('drawing', smDw.on && smDw.tool !== 'pan');
+    if (!smDw.on) { bar.innerHTML = ''; return; }
+    var nsel = Object.keys(smDw.sel).length, host = smMode() === 'host', pop = smDw.pop || '';
+    /* One row: the tools, then the pen (colour, thickness, sizes) and More (copy, paste, delete, presets, maps) as small pop-ups. */
+    bar.innerHTML = '<span class="sm-dgrp" role="radiogroup" aria-label="Tool">' + SMD_TOOLS.map(function (t) { return '<button type="button" class="btn-sec sm-z sm-dt" role="radio" data-sm="dwTool" data-v="' + t[0] + '" aria-checked="' + (smDw.tool === t[0]) + '" aria-label="' + t[1] + '" title="' + t[1] + '">' + smDrIco(t[0]) + '</button>'; }).join('') + '</span>' +
+      '<span class="sm-dpw"><button type="button" class="btn-sec sm-z sm-dt sm-dpen" data-sm="dwPop" data-v="style" aria-haspopup="true" aria-expanded="' + (pop === 'style') + '" aria-label="Pen: ' + SMD_COLS[smDw.col][1] + ', ' + SMD_W[smDw.w][1] + '" title="Colour, thickness and sizes"><span class="sm-dpen-c" style="--c:' + SMD_COLS[smDw.col][0] + ';height:' + (3 + smDw.w * 2.5) + 'px"></span></button>' +
+      (pop === 'style' ? '<div class="sm-dpop" role="group" aria-label="Pen">' +
+        '<span class="sm-dgrp" role="radiogroup" aria-label="Colour">' + SMD_COLS.map(function (c, i) { return '<button type="button" class="sm-dcol" role="radio" data-sm="dwCol" data-v="' + i + '" aria-checked="' + (smDw.col === i) + '" aria-label="' + c[1] + '" title="' + c[1] + '" style="--c:' + c[0] + '"></button>'; }).join('') + '</span>' +
+        '<span class="sm-dgrp" role="radiogroup" aria-label="Thickness">' + SMD_W.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt sm-dw" role="radio" data-sm="dwW" data-v="' + i + '" aria-checked="' + (smDw.w === i) + '" aria-label="' + x[1] + '" title="' + x[1] + '"><span style="height:' + (2 + i * 2.5) + 'px"></span></button>'; }).join('') + '</span>' +
+        '<label class="switch sm-sw sm-dsz" for="smDrSizes"><input type="checkbox" role="switch" id="smDrSizes"' + (smDw.sizes ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>Sizes</strong><small>While drawing and resizing</small></span></label></div>' : '') + '</span>' +
+      '<span class="sm-dpw"><button type="button" class="btn-sec sm-z sm-dt" data-sm="dwPop" data-v="more" aria-haspopup="menu" aria-expanded="' + (pop === 'more') + '" aria-label="More" title="Copy, paste, delete, presets and maps">⋯</button>' +
+      (pop === 'more' ? '<div class="sm-dpop sm-dmore" role="menu">' +
+        (smDw.tool === 'sel' ? '<button type="button" class="btn-sec" role="menuitem" data-sm="dwCopy"' + (nsel ? '' : ' disabled') + '>Copy</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwPaste"' + (smDw.clip ? '' : ' disabled') + '>Paste</button><button type="button" class="btn-sec" role="menuitem" data-sm="dwDel"' + (nsel ? '' : ' disabled') + '>Delete</button>' : '<span class="sm-dlg-note muted">Copy, paste and delete: with the Select tool.</span>') +
+        '<button type="button" class="btn-sec" role="menuitem" data-sm="dwPresets" aria-haspopup="dialog">Presets…</button>' + (host ? '<button type="button" class="btn-sec" role="menuitem" data-sm="dwMaps" aria-haspopup="dialog">Maps…</button>' : '') + '</div>' : '') + '</span>';
+  }
+  function smDrawClick(b, a) {
+    if (a === 'draw') {
+      smDw.on = !smDw.on && smMayDraw(); smDw.act = null; smDw.path = null; if (!smDw.on) { smDw.sel = {}; smDrDlgClose(); }
+      if (smDw.on && smDw.tool === 'pan') smDw.tool = 'f';
+      smDrUI(); smDrawSoon(); return true;
+    }
+    if (a === 'dwPop') { var v0 = b.getAttribute('data-v'); smDw.pop = smDw.pop === v0 ? '' : v0; smDrUI(); var f0 = smQ('smDtools').querySelector('.sm-dpop button:not([disabled]), .sm-dpop input'); if (smDw.pop && f0) f0.focus(); else { var tb = smQ('smDtools').querySelector('[data-sm="dwPop"][data-v="' + v0 + '"]'); if (tb) tb.focus(); } return true; }
+    if (/^dw(Copy|Paste|Del|Presets|Maps)$/.test(a)) smDw.pop = '';   // a choice from More closes it
+    if (a === 'dwTool') { smDw.pop = ''; if (smDw.path) smDrPathEnd(); smDw.tool = b.getAttribute('data-v'); if (smDw.tool !== 'sel') smDw.sel = {}; smDrUI(); smDrawSoon(); var nb = smQ('smDtools').querySelector('[data-v="' + smDw.tool + '"][data-sm="dwTool"]'); if (nb) nb.focus(); return true; }
+    if (a === 'dwCol') { smDw.col = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwCol"][data-v="' + smDw.col + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSend(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { c: smDw.col }) }; })); smDrUI(); return true; }
+    if (a === 'dwW') { smDw.w = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwW"][data-v="' + smDw.w + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSend(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { w: smDw.w }) }; })); smDrUI(); return true; }
+    if (a === 'dwCopy') { smDrCopy(); return true; }
+    if (a === 'dwPaste') { smDrPaste(); return true; }
+    if (a === 'dwDel') { smDrDel(); return true; }
+    if (a === 'dwPresets' || a === 'dwMaps') { smDrDlg(a === 'dwPresets' ? 'p' : 'm'); return true; }
+    if (a === 'dwClose') { smDrDlgClose(); return true; }
+    if (a === 'dwSave') { smDrSaveNamed(); return true; }
+    if (a === 'dwPlace' || a === 'dwLoad' || a === 'dwRm') { smDrDlgAct(a, b.getAttribute('data-id'), b); return true; }
+    return false;
+  }
+
+  /* ---- presets and maps (saved to the account, so every device has them) ---- */
+  function smd() { if (!store.smd || typeof store.smd !== 'object') store.smd = { p: [], m: [] }; if (!Array.isArray(store.smd.p)) store.smd.p = []; if (!Array.isArray(store.smd.m)) store.smd.m = []; return store.smd; }
+  var SMD_SAVE_MAX = 950000;
+  function smDrDlg(kind) {
+    smDw.dlg = kind;
+    var box = smQ('smDlg'); if (!box) return;
+    var L = smd()[kind], nsel = Object.keys(smDw.sel).length, host = smMode() === 'host';
+    var what = kind === 'p' ? 'Presets' : 'Maps';
+    var canSave = kind === 'p' ? nsel > 0 : sm.dr.length > 0;
+    box.innerHTML = '<div class="sm-aoe-h"><strong>' + what + '</strong><button type="button" class="btn-sec ap-x" data-sm="dwClose" aria-label="Close">&times;</button></div>' +
+      '<p class="sm-dlg-note">' + (kind === 'p' ? 'Shapes you keep to use again: select some, then save them. Place puts a copy in the middle of the view.' : 'Whole drawings, kept to use again. Load replaces what\'s drawn now (for everyone in the room).') + '</p>' +
+      '<div class="sm-dlg-list">' + (L.length ? L.map(function (x) {
+        return '<div class="sm-dlg-row"><span><b>' + esc(x.n) + '</b><small>' + x.sh.length + (x.sh.length === 1 ? ' shape' : ' shapes') + '</small></span>' +
+          (kind === 'p' ? '<button type="button" class="btn-sec" data-sm="dwPlace" data-id="' + esc(x.id) + '">Place</button>' : '<button type="button" class="btn-sec" data-sm="dwLoad" data-id="' + esc(x.id) + '"' + (host ? '' : ' disabled') + '>Load</button>') +
+          '<button type="button" class="btn-sec sm-z" data-sm="dwRm" data-id="' + esc(x.id) + '" aria-label="Delete ' + esc(x.n) + '" title="Delete">&times;</button></div>';
+      }).join('') : '<p class="sm-dlg-note muted">None saved yet.</p>') + '</div>' +
+      '<div class="sm-dlg-save"><input id="smDrName" maxlength="40" placeholder="' + (kind === 'p' ? 'Name for the selected shapes' : 'Name for this drawing') + '"' + (canSave ? '' : ' disabled') + ' aria-label="Name"><button type="button" class="btn-sec" data-sm="dwSave"' + (canSave ? '' : ' disabled') + '>Save</button></div>' +
+      (canSave ? '' : '<p class="sm-dlg-note muted">' + (kind === 'p' ? 'Select shapes (the Select tool) to save them as a preset.' : 'Nothing drawn yet.') + '</p>');
+    box.hidden = false;
+    var f = box.querySelector('#smDrName:not([disabled])') || box.querySelector('button'); if (f) f.focus();
+    var nm = box.querySelector('#smDrName'); if (nm) nm.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); smDrSaveNamed(); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); smDrDlgClose(); } };
+  }
+  function smDrDlgClose() { smDw.dlg = ''; var box = smQ('smDlg'); if (box) { box.hidden = true; box.innerHTML = ''; } }
+  function smDrSaveNamed() {
+    var kind = smDw.dlg, nm = smQ('smDrName'); if (!kind || !nm) return;
+    var name = nm.value.trim().slice(0, 40); if (!name) { nm.focus(); return; }
+    var sh = JSON.parse(JSON.stringify(kind === 'p' ? smDrSelected() : sm.dr)); if (!sh.length) return;
+    var D = smd(), item = { id: 'k' + Date.now().toString(36), n: name, sh: sh };
+    if (JSON.stringify(D).length + JSON.stringify(item).length > SMD_SAVE_MAX) { toast('Your saved presets and maps are full. Delete some first.'); return; }
+    D[kind].push(item); save();
+    toast((kind === 'p' ? 'Preset' : 'Map') + ' “' + name + '” saved.');
+    smDrDlg(kind);
+  }
+  function smDrDlgAct(a, id, btn) {
+    var kind = smDw.dlg, D = smd(), x = D[kind].filter(function (y) { return y.id === id; })[0]; if (!x) return;
+    if (a === 'dwRm') { D[kind] = D[kind].filter(function (y) { return y.id !== id; }); save(); smDrDlg(kind); return; }
+    if (a === 'dwPlace') { smDrPlace(JSON.parse(JSON.stringify(x.sh)), true); smDrDlgClose(); return; }
+    if (a === 'dwLoad') {
+      if (smMode() !== 'host') return;
+      if (sm.dr.length && btn.getAttribute('data-sure') !== '1') { btn.setAttribute('data-sure', '1'); btn.textContent = 'Replace?'; return; }   // a second click replaces what's drawn
+      sm.dr = []; smDrApply(sm.dr, x.sh.map(function (s) { var n = JSON.parse(JSON.stringify(s)); n.i = smDrId(); return { i: n.i, s: n }; })); smSave();
+      smDw.sel = {}; smDrSendAll(); smDrDlgClose(); smDrUI(); smDrawSoon(); toast('Map “' + x.n + '” loaded.');
+    }
+  }
+  window.cmMapDrawAll = smDrSendAll;
+  function smDrawInit(w) {
+    w.addEventListener('keydown', function (e) {
+      if (smDw.pop && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); var v = smDw.pop; smDw.pop = ''; smDrUI(); var tb = smQ('smDtools').querySelector('[data-sm="dwPop"][data-v="' + v + '"]'); if (tb) tb.focus(); return; }
+      smDrawKey(e);
+    });
+    /* A pop-up closes when you press anywhere outside it. */
+    w.addEventListener('pointerdown', function (e) { if (smDw.pop && !(e.target.closest && e.target.closest('.sm-dpw'))) { smDw.pop = ''; smDrUI(); } }, true);
+    w.addEventListener('change', function (e) { if (e.target.id === 'smDrSizes') { smDw.sizes = e.target.checked; smDwSave(); smDrawSoon(); } });
+  }
   /* ================= CHRONICLES =================
      Storytellers (and Admins) run chronicles from their own main tab: cards with a title and a description, then for each
      one its Players (invited friends and the characters they put in it), Notable NPCs (sections of characters) and the

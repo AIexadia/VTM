@@ -443,3 +443,11 @@ V3.4.1
 	-"Add a character" in the Players tab and Notable NPC sections opens the character browser, with an Add button on each card; characters already in the chronicle say so instead.
 	-The Grand Dossier's "Add a character…" lists only the chronicle's own characters (players' characters, yours in it, and the Notable NPCs, by section), with a search.
 	-Fixed the Grand Dossier: turning Edit on or off could leave the board unresponsive (no dragging, the browser's own right-click menu, a switch that wouldn't turn off), and Edit could turn itself off after a while.
+
+V3.5
+-Skirmish Map Changes:
+	-New "Draw" button (a pencil) in the map's header, with a drawing toolbar: free-hand, line (Shift: steps of 45°), rectangle (Shift: square), circle (Shift: perfect circle), path (click each point; double-click or Enter finishes) and erase (click a shape, or drag over several). Six colours and three thicknesses. The hand tool goes back to moving the map and tokens.
+	-The toolbar is one row: the tools, then the pen button (colour, thickness, and the "Sizes" switch, which shows lengths and sizes while drawing and resizing) and ⋯ (Copy, Paste, Delete, Presets… and Maps…).
+	-Select tool: click a shape (Shift-click for more, or drag a box); drag to move, the corner handle to resize. Copy, Paste and Delete (also Ctrl+C, Ctrl+V, Delete; Ctrl+A selects everything). Picking a colour or thickness changes the selected shapes.
+	-Presets…: save selected shapes to use again, and place them in the middle of the view. Maps… (host): save the whole drawing, and load it back (it replaces what's drawn, after a second click). Presets and maps are saved to your account.
+	-Only the host draws, unless they turn on "Watchers can draw" in the map's settings. Everyone in the room sees the drawing, including people who join later.
