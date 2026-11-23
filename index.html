@@ -2350,6 +2350,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 .sm-stage { user-select: none; -webkit-user-select: none; }
 .sm-sw-row { display: flex; gap: 14px; flex-wrap: wrap; padding-left: 20px; }
 .sm-sw-row .sm-sw { flex: 0 0 auto; }
+.sm-snap-pt { fill: none; stroke: #d9a441; stroke-width: 0.04; pointer-events: none; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -17582,7 +17583,7 @@ V1.5
      Rectangles and ellipses keep two opposite corners. Units: map squares (yards / metres). */
   var SMD_COLS = [['#1d1820', 'Black'], ['#efe8d8', 'White'], ['#b3263a', 'Red'], ['#2f6fb5', 'Blue'], ['#3c8d4a', 'Green'], ['#d9a441', 'Gold']];
   var SMD_W = [[0.05, 'Thin'], [0.12, 'Medium'], [0.25, 'Thick']];
-  var SMD_TOOLS = [['pan', 'Move the map and tokens (drawing off)'], ['sel', 'Select: click or drag a box; drag to move; the corner handle resizes'], ['f', 'Free-hand'], ['l', 'Line (Shift: steps of 45°)'], ['r', 'Rectangle (Shift: square)'], ['e', 'Circle (Shift: perfect circle)'], ['p', 'Path: click each point, double-click (or Enter) to finish'], ['x', 'Erase: click a shape (or drag over several)']];
+  var SMD_TOOLS = [['pan', 'Move the map and tokens (drawing off)'], ['sel', 'Select: click or drag a box; drag to move; the corner handle resizes'], ['f', 'Free-hand'], ['l', 'Line (Shift: steps of 45°; Ctrl: snap to shapes)'], ['r', 'Rectangle (Shift: square; Ctrl: snap to shapes)'], ['e', 'Circle (Shift: perfect circle; Ctrl: snap to shapes)'], ['p', 'Path: click each point, double-click (or Enter) to finish (Shift: steps of 45°; Ctrl: snap to shapes)'], ['x', 'Erase: click a shape (or drag over several)']];
   var SMD_MAXN = 1500, SMD_MAXB = 1500000;
   var smDw = (function () {
     var d = null; try { d = JSON.parse(localStorage.getItem('vtm-smap-draw') || 'null'); } catch (e) {}
@@ -17727,6 +17728,7 @@ V1.5
       var bx = Math.min(a.from[0], a.to[0]), by = Math.min(a.from[1], a.to[1]);
       h += '<rect class="sm-band" x="' + bx + '" y="' + by + '" width="' + Math.abs(a.to[0] - a.from[0]) + '" height="' + Math.abs(a.to[1] - a.from[1]) + '"/>';
     }
+    if (smDw.snapAt && smDw.on) h += '<circle class="sm-snap-pt" cx="' + smDw.snapAt[0] + '" cy="' + smDw.snapAt[1] + '" r="' + smDrPxW(5) + '"/>';
     if (smDw.ghost) smDw.ghost.sh.forEach(function (s0) { var s = smDrMoved(s0, smDw.ghost.at[0], smDw.ghost.at[1]); h += '<path class="sm-shp-ln ghost" d="' + smDrPathD(s) + '" stroke="' + SMD_COLS[s.c][0] + '" stroke-width="' + SMD_W[s.w][0] + '"/>'; });
     var sb = smDw.on && smDw.tool === 'sel' ? smDrSelBox() : null;
     if (sb) {
@@ -17747,19 +17749,57 @@ V1.5
     if (t) smLabel((b.x0 + b.x1) / 2, b.y1 + 0.55, t, 'sm-lbl-meas', 4);
   }
 
+  /* ---- snapping ---- */
+  function smDrPxW(px) { var svg = smSvgEl(), vb = smUi.vb; if (!svg || !vb) return px / 40; var r = svg.getBoundingClientRect(); return px / (Math.min(r.width / vb.w, r.height / vb.h) || 40); }
+  function smDrSegNear(p, a, b) { var dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L)) : 0; return [a[0] + dx * t, a[1] + dy * t]; }
+  function smDrOutline(s) {
+    var p = s.p;
+    if (s.t === 'r') return [[p[0][0], p[0][1]], [p[1][0], p[0][1]], [p[1][0], p[1][1]], [p[0][0], p[1][1]], [p[0][0], p[0][1]]];
+    if (s.t === 'e') { var cx = (p[0][0] + p[1][0]) / 2, cy = (p[0][1] + p[1][1]) / 2, rx = Math.abs(p[1][0] - p[0][0]) / 2, ry = Math.abs(p[1][1] - p[0][1]) / 2, o = []; for (var i = 0; i <= 72; i++) { var t = i / 72 * 2 * Math.PI; o.push([cx + rx * Math.cos(t), cy + ry * Math.sin(t)]); } return o; }
+    return p;
+  }
+  /* The points a snap prefers: a line's (or free-hand's) ends, a path's points, a rectangle's corners, a circle's top, bottom and sides. */
+  function smDrKeyPts(s) {
+    var p = s.p;
+    if (s.t === 'r') return smDrOutline(s).slice(0, 4);
+    if (s.t === 'e') { var o = smDrOutline(s); return [o[0], o[18], o[36], o[54]]; }
+    if (s.t === 'f') return [p[0], p[p.length - 1]];
+    return p;
+  }
+  /* Ctrl: the nearest point of another shape within a few pixels (those key points first, then anywhere along it). */
+  function smDrSnap(q, extra) {
+    var R = smDrPxW(12), bk = null, dk = R, be = null, de = R, L = smShapes().slice();
+    if (extra && extra.length > 1) L.push({ t: 'p', p: extra });
+    L.forEach(function (s) {
+      var b = smDrBox(s); if (q[0] < b.x0 - R || q[0] > b.x1 + R || q[1] < b.y0 - R || q[1] > b.y1 + R) return;
+      smDrKeyPts(s).forEach(function (k) { var d = smDist(q, k); if (d <= dk) { dk = d; bk = k; } });
+      var o = smDrOutline(s); for (var i = 1; i < o.length; i++) { var n = smDrSegNear(q, o[i - 1], o[i]), d = smDist(q, n); if (d < de) { de = d; be = n; } }
+    });
+    var r = bk || be; return r ? [smDrN(r[0]), smDrN(r[1])] : null;
+  }
+  function smDrAng(from, q) { var dx = q[0] - from[0], dy = q[1] - from[1], an = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4), L = Math.hypot(dx, dy); return [smDrN(from[0] + Math.cos(an) * L), smDrN(from[1] + Math.sin(an) * L)]; }
+  /* A point for a shape tool: snapped to a shape with Ctrl (not free-hand); otherwise, with Shift, in steps of 45° from `from`. */
+  function smDrPt(e, from, extra) {
+    var p = smToWorld(e), q = [smDrN(p[0]), smDrN(p[1])], sn = (e.ctrlKey || e.metaKey) && smDw.tool !== 'f' ? smDrSnap(q, extra) : null;
+    smDw.snapAt = sn;
+    if (sn) return { q: sn, snap: true };
+    if (e.shiftKey && from) q = smDrAng(from, q);
+    return { q: q, snap: false };
+  }
+
   /* ---- pointer ---- */
   function smDrShapeAt(e) { var el = smDoc().elementFromPoint(e.clientX, e.clientY), g = el && el.closest && el.closest('.sm-shp'); return g ? g.getAttribute('data-di') : ''; }
   function smDrawDown(e) {
     if (!smDw.on || !smMayDraw()) return false;
     if (e.button !== 0 || !smSvgEl() || !smSvgEl().contains(e.target)) return false;   // only presses on the map itself
-    if (smDw.ghost) { e.preventDefault(); smDrGhostPut(smToWorld(e)); return true; }
+    if (smDw.ghost) { e.preventDefault(); smDrGhostPut(smToWorld(e), e.shiftKey); return true; }
     if (smDw.tool === 'pan') return false;
     smSvgEl().focus({ preventScroll: true });   // so Delete, Ctrl+Z and the rest reach it
     var p = smToWorld(e), tool = smDw.tool, svg = smSvgEl();
     smMenuClose(); e.preventDefault();
     try { svg.setPointerCapture(e.pointerId); } catch (x) {}
     if (tool === 'p') {   // a path: each click adds a point (a double-click finishes it)
-      var now = Date.now(), pt = [smDrN(p[0]), smDrN(p[1])];
+      var now = Date.now(), pp0 = smDw.path && smDw.path.p, pt = smDrPt(e, pp0 && pp0.length ? pp0[pp0.length - 1] : null, pp0).q;
       if (!smDw.path) smDw.path = { p: [], t: 0 };
       if (smDw.path.p.length && now - smDw.path.t < 350 && smDist(pt, smDw.path.p[smDw.path.p.length - 1]) < 0.4) { smDrPathEnd(); return true; }
       smDw.path.p.push(pt); smDw.path.t = now; smDrawSoon(); return true;
@@ -17776,15 +17816,23 @@ V1.5
       smDw.act = { m: 'band', from: p, to: null, add: e.shiftKey };
       return true;
     }
-    var q = [smDrN(p[0]), smDrN(p[1])];
+    var q = tool === 'f' ? [smDrN(p[0]), smDrN(p[1])] : smDrPt(e, null).q;
     smDw.act = { m: 'draw', s: { t: tool, p: tool === 'f' ? [q] : [q, q.slice()] }, shift: false };
     smDrawSoon();
     return true;
   }
   function smDrawMove(e) {
+    if (smSvgEl() && smUi.vb) smDw.hp = smToWorld(e);
     if (smDw.ghost && smDw.on && smSvgEl()) { smDw.ghost.at = smToWorld(e); smDrawSoon(); return !smDw.act; }
     var a = smDw.act;
-    if (!a) { if (smDw.path && smDw.on && smDw.tool === 'p') { var ph = smToWorld(e); smDw.path.hov = [smDrN(ph[0]), smDrN(ph[1])]; smDrawSoon(); } return false; }
+    if (!a) {
+      if (!smDw.on || !smSvgEl() || !smUi.vb) return false;
+      var had = !!smDw.snapAt;
+      if (smDw.path && smDw.tool === 'p') { var pp = smDw.path.p; smDw.path.hov = smDrPt(e, pp.length ? pp[pp.length - 1] : null, pp).q; smDrawSoon(); }
+      else if ('lre'.indexOf(smDw.tool) >= 0 || smDw.tool === 'p') { smDrPt(e, null); if (had || smDw.snapAt) smDrawSoon(); }
+      else if (had) { smDw.snapAt = null; smDrawSoon(); }
+      return false;
+    }
     var p = smToWorld(e);
     if (a.m === 'erase') { smDrEraseAt(e); return true; }
     if (a.m === 'move') { a.dx = smDrN(p[0] - a.from[0]); a.dy = smDrN(p[1] - a.from[1]); smDrawSoon(); return true; }
@@ -17798,8 +17846,8 @@ V1.5
       var s = a.s, q = [smDrN(p[0]), smDrN(p[1])];
       if (s.t === 'f') { if (smDist(s.p[s.p.length - 1], q) >= 0.06) s.p.push(q); }
       else {
-        if (e.shiftKey && s.t === 'l') { var dx = q[0] - s.p[0][0], dy = q[1] - s.p[0][1], an = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4), L = Math.hypot(dx, dy); q = [smDrN(s.p[0][0] + Math.cos(an) * L), smDrN(s.p[0][1] + Math.sin(an) * L)]; }
-        if (e.shiftKey && (s.t === 'r' || s.t === 'e')) { var sx = q[0] - s.p[0][0], sy = q[1] - s.p[0][1], m = Math.max(Math.abs(sx), Math.abs(sy)); q = [smDrN(s.p[0][0] + (sx < 0 ? -m : m)), smDrN(s.p[0][1] + (sy < 0 ? -m : m))]; }
+        var r0 = smDrPt(e, s.t === 'l' ? s.p[0] : null); q = r0.q;
+        if (!r0.snap && e.shiftKey && (s.t === 'r' || s.t === 'e')) { var sx = q[0] - s.p[0][0], sy = q[1] - s.p[0][1], m = Math.max(Math.abs(sx), Math.abs(sy)); q = [smDrN(s.p[0][0] + (sx < 0 ? -m : m)), smDrN(s.p[0][1] + (sy < 0 ? -m : m))]; }
         s.p[1] = q;
       }
       smDrawSoon(); return true;
@@ -17808,7 +17856,7 @@ V1.5
   }
   function smDrawUp(e) {
     var a = smDw.act; if (!a) return false;
-    smDw.act = null;
+    smDw.act = null; smDw.snapAt = null;
     try { smSvgEl().releasePointerCapture(e.pointerId); } catch (x) {}
     if (a.m === 'draw') {
       var s = a.s;
@@ -17882,31 +17930,21 @@ V1.5
   function smDrSelected() { return smShapes().filter(function (s) { return smDw.sel[s.i]; }); }
   function smDrDel() { var ids = Object.keys(smDw.sel); smDw.sel = {}; smDrDo(ids.map(function (i) { return { i: i, d: 1 }; })); smDrUI(); }
   function smDrCopy() { var L = smDrSelected(); if (!L.length) return; smDw.clip = JSON.parse(JSON.stringify(L)); smDrUI(); toast(L.length === 1 ? 'Shape copied.' : L.length + ' shapes copied.'); }
-  /* Pastes (or places a preset): a step down and right of the copies, or in the middle of the view. */
-  function smDrPlace(shapes, centre) {
-    if (!shapes || !shapes.length) return;
-    var b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
-    shapes.forEach(function (s) { var q = smDrBox(s); b.x0 = Math.min(b.x0, q.x0); b.y0 = Math.min(b.y0, q.y0); b.x1 = Math.max(b.x1, q.x1); b.y1 = Math.max(b.y1, q.y1); });
-    var vb = smUi.vb, dx = 1, dy = 1;
-    if (centre && vb) { dx = smDrN(vb.x + vb.w / 2 - (b.x0 + b.x1) / 2); dy = smDrN(vb.y + vb.h / 2 - (b.y0 + b.y1) / 2); }
-    var ops = shapes.map(function (s) { var n = smDrMoved(s, dx, dy); n.i = smDrId(); return { i: n.i, s: n }; });
-    smDw.sel = {}; ops.forEach(function (o) { smDw.sel[o.i] = 1; });
-    smDw.tool = 'sel'; smDrDo(ops); smDrUI();
-    if (!centre) smDw.clip = ops.map(function (o) { return o.s; });   // pasting again steps further
-  }
-  function smDrPaste() { smDrPlace(smDw.clip, false); }
-  /* A preset follows the pointer (centred on it) until a click puts it down; Escape or a right-click cancels. */
+  function smDrPaste() { if (smDw.clip && smDw.clip.length) smDrGhost(JSON.parse(JSON.stringify(smDw.clip))); }   // a copy is placed like a preset
+  /* A preset (or a copy) follows the pointer (centred on it) until a click puts it down; Escape or a right-click cancels.
+     Shift-click puts one down and keeps it on the pointer for more, until Shift is let go. */
   function smDrGhost(shapes) {
     if (!shapes.length) return;
     var b = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
     shapes.forEach(function (s) { var q = smDrBox(s); b.x0 = Math.min(b.x0, q.x0); b.y0 = Math.min(b.y0, q.y0); b.x1 = Math.max(b.x1, q.x1); b.y1 = Math.max(b.y1, q.y1); });
     var cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2, vb = smUi.vb;
-    smDw.ghost = { sh: shapes.map(function (s) { return smDrMoved(s, -cx, -cy); }), at: vb ? [vb.x + vb.w / 2, vb.y + vb.h / 2] : [0, 0] };
+    smDw.ghost = { sh: shapes.map(function (s) { return smDrMoved(s, -cx, -cy); }), at: smDw.hp && vb && smDw.hp[0] >= vb.x && smDw.hp[0] <= vb.x + vb.w && smDw.hp[1] >= vb.y && smDw.hp[1] <= vb.y + vb.h ? smDw.hp.slice() : vb ? [vb.x + vb.w / 2, vb.y + vb.h / 2] : [0, 0] };
     var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true });
     smDrUI(); smDrawSoon();
   }
-  function smDrGhostPut(at) {
-    var g = smDw.ghost; smDw.ghost = null; if (!g) return;
+  function smDrGhostPut(at, keep) {
+    var g = smDw.ghost; if (!g) return;
+    if (keep) g.multi = 1; else smDw.ghost = null;
     var ops = g.sh.map(function (s) { var n = smDrMoved(s, smDrN(at[0]), smDrN(at[1])); n.i = smDrId(); return { i: n.i, s: n }; });
     smDw.sel = {}; ops.forEach(function (o) { smDw.sel[o.i] = 1; });
     smDw.tool = 'sel'; smDrDo(ops); smDrUI(); smDrawSoon();
@@ -18024,6 +18062,11 @@ V1.5
       if (smDw.pop && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); var v = smDw.pop; smDw.pop = ''; smDrUI(); var tb = smQ('smDtools').querySelector('[data-sm="dwPop"][data-v="' + v + '"]'); if (tb) tb.focus(); return; }
       smDrawKey(e);
     });
+    w.addEventListener('keyup', function (e) {
+      if (e.key === 'Shift' && smDw.ghost && smDw.ghost.multi) { smDw.ghost = null; smDrawSoon(); }
+      if ((e.key === 'Control' || e.key === 'Meta') && smDw.snapAt) { smDw.snapAt = null; smDrawSoon(); }
+    });
+    w.addEventListener('blur', function () { if (smDw.ghost && smDw.ghost.multi) { smDw.ghost = null; smDrawSoon(); } if (smDw.snapAt) { smDw.snapAt = null; smDrawSoon(); } });
     /* A pop-up closes when you press anywhere outside it. */
     w.addEventListener('pointerdown', function (e) { if (smDw.pop && !(e.target.closest && e.target.closest('.sm-dpw'))) { smDw.pop = ''; smDrUI(); } }, true);
     w.addEventListener('change', function (e) { if (e.target.id === 'smDrSizes') { smDw.sizes = e.target.checked; smDwSave(); smDrawSoon(); } });
