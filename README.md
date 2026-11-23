@@ -436,3 +436,10 @@ V3.4
 	-Grand Dossier: a Dossier board for the whole chronicle, holding about 2.5 times as much, with character cards (portrait and name) that open the sheet (right-click the board, Add a character…).
 -Character Manager Changes:
 	-The sheet's Chronicle field: in a chronicle you've joined, "Assign…" puts the character in it. While it's in one the field shows the chronicle's title, locked (it follows renames); in several it shows "N Chronicles", listing them on hover. Taking it out unlocks the field, keeping the last title, and ends the automatic share.
+
+V3.4.1
+-Chronicles Changes:
+	-A character is either in the Players tab or a Notable NPC, not both: each list's "Add a character" leaves out the other's.
+	-"Add a character" in the Players tab and Notable NPC sections opens the character browser, with an Add button on each card; characters already in the chronicle say so instead.
+	-The Grand Dossier's "Add a character…" lists only the chronicle's own characters (players' characters, yours in it, and the Notable NPCs, by section), with a search.
+	-Fixed the Grand Dossier: turning Edit on or off could leave the board unresponsive (no dragging, the browser's own right-click menu, a switch that wouldn't turn off), and Edit could turn itself off after a while.

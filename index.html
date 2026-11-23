@@ -2297,6 +2297,7 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 .nb-node.nb-ref .nb-head { align-items: center; }
 .nb-node.nb-ref .nb-av { width: 30px; height: 30px; flex: none; font-size: 0.75rem; margin-right: 2px; }
 .nb-node.nb-ref .nb-open { margin-top: 6px; }
+.chr-pkh { margin: 8px 0 2px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -9590,6 +9591,7 @@ V1.5
   }
   function renderSheet() {
     var c = cur(), main = $('cmSheet');
+    if (store.view === 'chron') { main.innerHTML = ''; return; }   // the Chronicles tab is showing (its Grand Dossier uses the board): the sheet is drawn when you come back
     if (gated()) { main.innerHTML = gateCard('Characters'); return; }
     if (!c) {
       main.innerHTML = '<section class="card cm-empty"><h2>No characters yet</h2><p class="muted">Start a new Kindred with the guided creation, open a blank sheet to fill in freely, or import a saved character.</p><button type="button" class="btn primary" data-act="newChar">New character</button></section>';
@@ -13288,6 +13290,7 @@ V1.5
   var libOpen = false, libDir = '', libQ = '', libMenu = null, libEdit = null, libDest = '', libDrag = null;
   /* 'host' or 'join' while the browser stands in for the tracker's Actors list (the same browser, mounted in that popup). */
   var libPick = null, libPickDir = '';
+  var libChoose = null;   // picking characters for something (a chronicle): { have, done, one }
   var CLAN_HUE = { 'Assamite': 150, 'Brujah': 20, 'Followers of Set': 45, 'Gangrel': 95, 'Giovanni': 280, 'Lasombra': 250, 'Malkavian': 300, 'Nosferatu': 120, 'Ravnos': 30, 'Toreador': 330, 'Tremere': 0, 'Tzimisce': 200, 'Ventrue': 220, 'Caitiff': 260 };
   function folderOf(id) { return store.lib.place[id] || ''; }
   function folderById(id) { return store.lib.folders.filter(function (f) { return f.id === id; })[0] || null; }
@@ -13354,6 +13357,11 @@ V1.5
   }
   /* Actors list: add the sheet itself or a temporary copy to the encounter (a joiner sends it to the host). */
   function pickBtns(id) {
+    if (libChoose && !libPick) {
+      var ch0 = store.chars[id]; if (isTemp(ch0) || isRemote(ch0)) return '';
+      var got = libChoose.have.indexOf(id) >= 0;
+      return '<div class="lib-add"><button type="button" class="btn' + (got ? '' : ' primary') + '" data-lib="choose" data-id="' + id + '"' + (got ? ' disabled' : '') + '>' + (got ? esc(libChoose.gotLbl) : 'Add') + '</button></div>';
+    }
     if (!libPick) return '';
     var c = store.chars[id], nm = esc(c.info.name || 'Unnamed');
     if (isTemp(c)) return '';
@@ -13508,6 +13516,7 @@ V1.5
     if (!libOpen) return;
     if (libPick) { var cb = $('actorsClose'); if (cb) cb.click(); else unpickLib(); return; }   // the tracker closes its popup, which puts the browser back
     finishEdit(true, true); libOpen = false; closeLibMenu(); $('cmLibBack').hidden = true;
+    if (libChoose) { libChoose = null; $('cmLibTitle').textContent = 'Characters'; return; }
     var b = document.querySelector('#cmBar .cm-cur'); if (b) b.focus();
   }
   /* The tracker's Actors list is this browser: it moves into the popup (keeping its place there) and back out when the popup closes. */
@@ -13539,9 +13548,17 @@ V1.5
     document.body.appendChild(d);
   }
   window.cmActorsUnpick = unpickLib;
+  /* The character browser, picking characters to add somewhere: have (ids already there, or not allowed), title, done(id)
+     for each one added, one: close after the first. */
+  window.cmLibChoose = function (have, title, done, one, gotLbl) {
+    openLib('');
+    libChoose = { have: have.slice(), done: done, one: !!one, gotLbl: gotLbl || 'Already here' };
+    $('cmLibTitle').textContent = title || 'Add a character';
+    renderLib();
+  };
   function openChar(id) {
     if (!store.chars[id]) return;
-    var fromPick = !!libPick;
+    var fromPick = !!libPick || !!libChoose;
     store.cur = id; store.libSeen[id] = Date.now(); xpMode = false; tabEdit = {}; inline = null;
     closeLib(); commit();
     if (fromPick) setView('chars'); else window.scrollTo({ top: 0 });
@@ -13602,6 +13619,13 @@ V1.5
       if (msg) msg.textContent = err || ('Added ' + (a === 'addO' ? (ac.info.name || 'Unnamed') : 'a duplicate of ' + (ac.info.name || 'Unnamed')) + '.');
       renderLib();
       var nb = document.querySelector('.lib-card[data-cid="' + id + '"] [data-lib="' + (a === 'addO' && !err ? 'addD' : a) + '"]'); if (nb) nb.focus();
+      return;
+    }
+    if (a === 'choose' && libChoose && store.chars[id]) {
+      var lc = libChoose; lc.have.push(id); lc.done(id);
+      if (lc.one) return closeLib();
+      toast((store.chars[id].info.name || 'Unnamed') + ' added.'); renderLib();
+      var nb2 = document.querySelector('.lib-card[data-cid="' + id + '"] .lib-open'); if (nb2) nb2.focus();
       return;
     }
     if (a === 'addJ') {
@@ -14278,7 +14302,7 @@ V1.5
     Object.keys(nbPick).forEach(function (k) { if (!nbOf(c).n[k]) delete nbPick[k]; });
     nbHistSync(c);
     var esw = $('nbEditSw');
-    if (esw) esw.addEventListener('change', function () { if (esw.checked) nbEM = c.id; else nbLeave(); nbSelect(null); render(); var e2 = $('nbEditSw'); if (e2) e2.focus(); });
+    if (esw) esw.addEventListener('change', function () { if (esw.checked) nbEM = c.id; else nbLeave(); nbSelect(null); if (c.nbSave && window.cmChrRender) window.cmChrRender(); else render(); var e2 = $('nbEditSw'); if (e2) e2.focus(); });
     var fi = $('nbFind');
     fi.addEventListener('input', function () { nbQ = fi.value.trim().toLowerCase(); nbDraw(); });   // redraws: the matching words are marked
     fi.addEventListener('keydown', function (e) {
@@ -15094,7 +15118,7 @@ V1.5
     function add(kind) { return function () { nbAdd(kind, { x: pt.x - (kind === 'text' ? 10 : 20), y: pt.y - 14 }, box ? inside : ''); }; }
     var out = [{ label: 'Add note' + where, run: add('note') }, { label: 'Add container' + where, run: add('box') }, { label: 'Add text', run: add('text') }];
     /* On a chronicle's Grand Dossier: a card for one of your characters (or one shared with you) that opens its sheet. */
-    if (c && c.chrRefs) out.splice(1, 0, { label: 'Add a character' + where + '…', run: function () { chrPickChar([], function (cid) { nbAdd('note', { x: pt.x - 20, y: pt.y - 14 }, box ? inside : '', cid); }); } });
+    if (c && c.chrRefs) out.splice(1, 0, { label: 'Add a character' + where + '…', run: function () { chrGdPick(function (cid) { nbAdd('note', { x: pt.x - 20, y: pt.y - 14 }, box ? inside : '', cid); }); } });
     return out;
   }
   /* Size steps: notes and containers by 10% (50% to 200%); text by its letter size. */
@@ -17480,6 +17504,7 @@ V1.5
     if (!signedIn() || !acctReady() || chr.busy) { chrTabBtn(); return Promise.resolve(); }
     chr.busy = true;
     return api('chronicles').then(function (res) {
+      var same = JSON.stringify(res) === JSON.stringify(chr.list);
       chr.list = res;
       /* Invitations: each one notifies once (with Accept and Decline); answered ones drop their notification. */
       var mem = res.member || [], seen = acct.chrSeen || [];
@@ -17497,7 +17522,7 @@ V1.5
       var changed = JSON.stringify(map) !== JSON.stringify(chr.sids); chr.sids = map;
       chrTabBtn();
       if (chrSyncFields() || changed) window.vtmWhenFree('cm', function () { if (store.view === 'chars') render(); });
-      if (store.view === 'chron') window.vtmWhenFree('chr', chrRender);
+      if (store.view === 'chron' && !same) window.vtmWhenFree('chr', chrRender);   // only when something changed (the Grand Dossier isn't redrawn for nothing)
     }).catch(function () {}).then(function () { chr.busy = false; });
   }
   setInterval(function () { if (signedIn() && !document.hidden) loadChronicles(); }, 30000);
@@ -17684,14 +17709,23 @@ V1.5
     openModal('<h2>' + esc(title) + '</h2><p>' + text + '</p><div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn danger" id="mOk">' + esc(okLbl) + '</button></div>');
     $('mNo').onclick = closeModal; $('mNo').focus(); $('mOk').onclick = function () { $('mOk').disabled = true; done(); };
   }
-  /* A character picker: your own characters and the ones shared with you (not those already there). */
-  function chrPickChar(have, done) {
-    var ids = store.order.concat(store.synced || []).filter(function (id, i, a) { var c = store.chars[id]; return c && !isTemp(c) && !isRemote(c) && have.indexOf(id) < 0 && a.indexOf(id) === i; });
+  /* Adding characters: the character browser, with an Add button on each card (not on those already there). */
+  function chrPickChar(have, done, title, one) {
+    window.cmLibChoose(have, title || 'Add a character', done, one, 'Already in this chronicle');
+  }
+  /* The Grand Dossier's own picker: only the chronicle's characters (players', yours in it, and the Notable NPCs). */
+  function chrGdPick(done) {
+    var d = chr.det[chr.cur]; if (!d) return;
+    var groups = [['Players\' characters', d.chars.map(function (c) { return 'sh-' + c.sid; })], ['Your characters here', d.data.stc]]
+      .concat(d.data.npc.map(function (sec) { return [sec.t, sec.ch]; }));
     var draw = function (q) {
-      var L = ids.filter(function (id) { return !q || (store.chars[id].info.name || '').toLowerCase().indexOf(q) >= 0; });
-      $('chrPL').innerHTML = L.length ? L.map(function (id) { var c = store.chars[id]; return '<button type="button" class="chr-pk" data-id="' + id + '">' + avatar(c) + '<span><b>' + esc(c.info.name || 'Unnamed') + '</b><small>' + esc(cardSub(c, true)) + '</small></span></button>'; }).join('') : '<p class="muted small">No characters to add.</p>';
+      var seen = {}, h = groups.map(function (g) {
+        var L = g[1].filter(function (id) { var c = store.chars[id]; if (!c || seen[id]) return false; seen[id] = 1; return !q || (c.info.name || '').toLowerCase().indexOf(q) >= 0; });
+        return L.length ? '<h3 class="chr-pkh">' + esc(g[0]) + '</h3>' + L.map(function (id) { var c = store.chars[id]; return '<button type="button" class="chr-pk" data-id="' + esc(id) + '">' + avatar(c) + '<span><b>' + esc(c.info.name || 'Unnamed') + '</b><small>' + esc(cardSub(c, true)) + '</small></span></button>'; }).join('') : '';
+      }).join('');
+      $('chrPL').innerHTML = h || '<p class="muted small">' + (q ? 'Nothing matches.' : 'No characters in this chronicle yet: add them in the Players and Notable NPCs tabs.') + '</p>';
     };
-    openModal('<h2>Add a character</h2><input type="search" id="chrPQ" placeholder="Search by name" aria-label="Search characters"><div class="chr-plist" id="chrPL"></div><div class="acts"><button type="button" class="btn" id="mNo">Close</button></div>', 'chr-modal');
+    openModal('<h2>Add a character to the Grand Dossier</h2><input type="search" id="chrPQ" placeholder="Search by name" aria-label="Search the chronicle\'s characters"><div class="chr-plist" id="chrPL"></div><div class="acts"><button type="button" class="btn" id="mNo">Cancel</button></div>', 'chr-modal');
     draw(''); $('mNo').onclick = closeModal; $('chrPQ').focus();
     $('chrPQ').oninput = function () { draw($('chrPQ').value.trim().toLowerCase()); };
     $('chrPL').onclick = function (e) { var b = e.target.closest('[data-id]'); if (b) { closeModal(); done(b.getAttribute('data-id')); } };
@@ -17774,7 +17808,9 @@ V1.5
     }
     if (a === 'addC') {
       var to = el.getAttribute('data-to'), sec = to === 'npc' ? el.closest('[data-sec]').getAttribute('data-sec') : '', S = d.data.npc.filter(function (s) { return s.id === sec; })[0];
-      return chrPickChar(to === 'stc' ? d.data.stc : S.ch, function (id) { if (to === 'stc') d.data.stc.push(id); else S.ch.push(id); chrSave(d.id); chrRender(); });
+      /* A character is either in the Players list (a player's, or one of yours there) or a Notable NPC, not both. */
+      var inPl = d.chars.map(function (c) { return 'sh-' + c.sid; }).concat(d.data.stc), inNpc = [].concat.apply([], d.data.npc.map(function (s) { return s.ch; }));
+      return chrPickChar(to === 'stc' ? inPl.concat(inNpc) : inPl.concat(S.ch), function (id) { if (to === 'stc') d.data.stc.push(id); else S.ch.push(id); chrSave(d.id); chrRender(); }, to === 'stc' ? 'Add to “Your characters here”' : 'Add to ' + S.t);
     }
     if (a === 'newSec') return chrModalNamed('New section', '', null, 'Create', function (t) { closeModal(); d.data.npc.push({ id: 'n' + Date.now().toString(36), t: t, ch: [] }); chrSave(d.id); chrRender(); });
     var secEl = el.closest('[data-sec]'), si = secEl ? d.data.npc.map(function (s) { return s.id; }).indexOf(secEl.getAttribute('data-sec')) : -1; if (si < 0) return;
