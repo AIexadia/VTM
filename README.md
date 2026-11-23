@@ -403,3 +403,9 @@ V3.2
 	-Dossier: when something is dropped on a group of things sitting close together, the group moves out of the way together, keeping its layout, instead of being scattered (unless that would mean a much longer move).
 	-Dossier: string labels no longer cover each other; one that would slides along its own string until it's clear.
 	-Dossier: strings bend around notes, containers and other strings in their way when a modest curve does it.
+
+V3.2.1
+-Character Manager Changes:
+	-Dossier: strings can now weave between notes and containers in their way, leaving a note from whichever side suits and snaking around what's in the way. A gentle bend is still used whenever that's enough; the weaving path is only for when it isn't.
+	-Dossier: something dropped between other things now gets room of its own: each thing it lands on makes way on its own side, and whatever sits close to that thing moves with it, keeping its place, while everything else stays put. Before, everything nearby moved off together as one block.
+	-Fixed a Dossier element taken out of the selection with Shift-click staying highlighted until something else was Shift-clicked.
