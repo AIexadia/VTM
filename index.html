@@ -2232,6 +2232,8 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 @media (pointer: coarse) and (max-width: 819px), (max-width: 639px) { .sm-detb { display: none; } }
 /* Popped out or detached: no Full screen button and no instructions under the map. */
 .sm-pop.sm-pip .sm-fullb, .sm-pop.sm-pip .sm-help, .sm-pop.sm-detached .sm-help { display: none; }
+/* Opera's detached window can't be clicked along its top edge, so the header starts below that strip. */
+.sm-pop.sm-detached.sm-det-opr { padding-top: 40px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -16271,9 +16273,23 @@ V1.5
     b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', 'smWrap');
     b.title = 'A rough map of the encounter, shared with the room'; b.textContent = 'Skirmish Map';
     foot.appendChild(b);
-    b.addEventListener('click', function () { smOpen(!smUi.open, true); });
-    ab.addEventListener('click', function () { if (smUi.open) smOpen(false); });   // the Actors list takes the same spot
+    b.addEventListener('click', function () { smOpen(smUi.cover || !smUi.open, true); });   // a map waiting behind the Actors list comes back
+    /* The Actors list takes the same spot as a docked map: the map steps aside while the list is open, then comes back.
+       A popped-out or detached map stays where it is. */
+    ab.addEventListener('click', function () { if (smUi.open && !smUi.pip && !smPW) smCover(true); });
     return b;
+  }
+  function smCover(on) {
+    var w = smQ('smWrap'), ap = smQ('actorsPop'); if (!w) return;
+    if (smUi.coverObs) { smUi.coverObs.disconnect(); smUi.coverObs = null; }
+    smUi.cover = !!on;
+    if (on && ap && window.MutationObserver) {
+      w.hidden = true;
+      smUi.coverObs = new MutationObserver(function () { if (ap.hidden) { smCover(false); if (smUi.open) { w.hidden = false; smDrawSoon(); } } });
+      smUi.coverObs.observe(ap, { attributes: true, attributeFilter: ['hidden'] });
+      return;
+    }
+    if (on) smOpen(false);   // no way to tell when the list closes: fall back to closing the map
   }
   /* Full screen: the map fills the window (below any announcement banner), like a full-screen Dossier board. */
   /* Picture-in-Picture: the map floats over the page; drag it by its title bar, resize it from its corner. Not on phones. */
@@ -16339,7 +16355,7 @@ V1.5
       Array.prototype.forEach.call(document.querySelectorAll('style, link[rel="stylesheet"]'), function (n) { pd.head.appendChild(n.cloneNode(true)); });
       Array.prototype.forEach.call(document.documentElement.attributes, function (a) { try { pd.documentElement.setAttribute(a.name, a.value); } catch (x) {} });
       pd.body.className = document.body.className + ' sm-det-body'; pd.title = 'Skirmish Map';
-      w.classList.add('sm-detached'); smUi.detW = w; pd.body.appendChild(w);
+      w.classList.add('sm-detached'); w.classList.toggle('sm-det-opr', /\bOPR\//.test(navigator.userAgent)); smUi.detW = w; pd.body.appendChild(w);
       pd.addEventListener('pointerdown', smDocDown, true); pd.addEventListener('keydown', smDocKey);
       var rt = 0; pw.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { try { localStorage.setItem(SM_DET_KEY, JSON.stringify({ w: pw.innerWidth, h: pw.innerHeight })); } catch (x) {} smDrawSoon(); }, 150); });
       pw.addEventListener('pagehide', smUndetach);
@@ -16352,7 +16368,7 @@ V1.5
     var w = smUi.detW || smQ('smWrap'); smPW = null; smUi.detW = null;   // the window may already count as closed: use the element itself
     if (w) {
       document.adoptNode(w);
-      w.classList.remove('sm-detached');
+      w.classList.remove('sm-detached', 'sm-det-opr');
       var host0 = smWideHost() || smQ('initPanel'); if (host0) host0.appendChild(w);
       var b = w.querySelector('[data-sm="detach"]'); if (b) { b.setAttribute('aria-pressed', 'false'); smIcoBtn(b, 'det'); }
     }
@@ -16379,6 +16395,7 @@ V1.5
     if (!on && smPW) smDetach(false);
     var w = smPanel(); if (!w) return;
     if (!on && smUi.full) smFull(false);
+    if (smUi.cover) smCover(false);
     smUi.open = on; smUi.set = false; smUi.fitted = false; smUi.pend = null; smUi.act = null; smUi.hover = ''; smUi.hl = null; smMenuClose();
     if (on) {
       if (smQ('actorsPop') && !smQ('actorsPop').hidden && smQ('actorsClose')) smQ('actorsClose').click();

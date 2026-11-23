@@ -388,6 +388,11 @@ V3.1.9
 	-Right-clicking a token (or pressing and holding it) now opens a token menu instead of going straight to areas of effect; pick "Areas of effect…" there. More options will join it.
 	-Everyone can see a character's equipped weapons and worn armor when hovering over its token.
 	-New "Pop out" button (not on phones): the map becomes a floating window you can drag by its title bar anywhere in the browser and resize from its corner; "Dock" puts it back. Its spot and size are remembered on each device.
-	-New "Detach" button (Chrome and Edge on a computer): the map moves into its own window that stays on top of everything, even other apps, and can go anywhere, another screen included. "Reattach" (or closing that window) puts it back; its size is remembered.
+	-New "Detach" button (Supported browsers on a computer): the map moves into its own window that stays on top of everything, even other apps, and can go anywhere, another screen included. "Reattach" (or closing that window) puts it back; its size is remembered.
 	-A popped-out map stays on screen while you switch to Damage, Probability or the Characters view; before, it hid until you came back to the tracker.
 	-Pop out, Dock, Detach and Reattach are now icon buttons like the settings gear (hover one for its name). A popped-out or detached map leaves out the Full screen button and the instructions under the map.
+
+V3.1.10
+-Skirmish Map Changes:
+	-Fixed the detached map's buttons only reacting along their bottom edge in Opera.
+	-Opening the Actors list no longer closes the map. A docked map steps aside while the list is open and comes back, as you left it, when the list closes (or press Skirmish Map); a popped-out or detached map stays put.
