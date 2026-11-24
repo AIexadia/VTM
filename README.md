@@ -567,3 +567,11 @@ V3.8
 	-Duplicating a character keeps its Dossier's images; deleting a character or a chronicle lets go of them.
 	-Images need you to be signed in. Rulebook pages don't belong here: images are synced.
 	-Fixed undo and redo on a Grand Dossier not being saved to the chronicle.
+
+V3.8.1
+-Dossier Changes:
+	-Cropping images: adding an image (from the menu, pasting or dropping it, or changing a note's image) now opens a crop window. Drag the corners or edges to crop it to any shape, drag inside to move the crop or outside it to draw a new one (arrow keys move it, Shift + arrow keys resize it), or use the whole image.
+	-Image position: right-click a note with an image, then Image position, to put the image above the text (as before), to its left or to its right. Beside the text, the note widens to make room.
+	-Fixed some messages saying "picture" instead of "image", and "a image".
+-General Changes:
+	-Fixed windows closing when a drag that started inside them (selecting text, cropping) ended outside them.

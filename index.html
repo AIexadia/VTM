@@ -2416,6 +2416,25 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
 .nb-img.miss img { visibility: hidden; }
 .nb-imiss { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px; font-size: 12px; opacity: 0.75; }
 .nb-untitled .nb-img { margin-top: 2px; }
+/* V3.8.1: an image beside a note's text, and the crop overlay (any shape). */
+.nb-irow { display: flex; gap: 10px; align-items: flex-start; margin-top: 6px; }
+.nb-irow.ip-r { flex-direction: row-reverse; }
+.nb-irow > .nb-img { flex: 0 0 45%; width: 45%; margin: 0; }
+.nb-icol { flex: 1 1 auto; min-width: 0; }
+.nb-icol > .nb-d:first-child { margin-top: 0; }
+.cm-modal.dcrop-modal { width: min(680px, calc(100vw - 32px)); max-width: none; }
+.dcrop-wrap { display: grid; place-items: center; margin: 6px 0 4px; padding: 10px 0; }
+.dcrop { position: relative; touch-action: none; user-select: none; cursor: crosshair; border-radius: 4px; box-shadow: 0 0 0 1px var(--line-strong); background: repeating-conic-gradient(var(--surface-2) 0 25%, var(--surface) 0 50%) 0 0 / 20px 20px; }
+.dcrop-clip { position: absolute; inset: 0; overflow: hidden; border-radius: 4px; pointer-events: none; }
+.dcrop-clip > img { display: block; width: 100%; height: 100%; }
+.dcrop-shade { position: absolute; box-shadow: 0 0 0 9999px rgba(10, 6, 10, 0.55); }
+.dcrop-box { position: absolute; box-sizing: border-box; border: 1px solid rgba(255, 255, 255, 0.9); cursor: move; outline: none; }
+.dcrop-box:focus-visible { border-color: var(--focus); }
+.dcrop-h { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; background: #fff; border: 1px solid rgba(0, 0, 0, 0.5); border-radius: 2px; }
+.dcrop-h.h-nw { left: 0; top: 0; cursor: nwse-resize; } .dcrop-h.h-n { left: 50%; top: 0; cursor: ns-resize; } .dcrop-h.h-ne { left: 100%; top: 0; cursor: nesw-resize; }
+.dcrop-h.h-e { left: 100%; top: 50%; cursor: ew-resize; } .dcrop-h.h-se { left: 100%; top: 100%; cursor: nwse-resize; } .dcrop-h.h-s { left: 50%; top: 100%; cursor: ns-resize; }
+.dcrop-h.h-sw { left: 0; top: 100%; cursor: nesw-resize; } .dcrop-h.h-w { left: 0; top: 50%; cursor: ew-resize; }
+.dcrop-size { text-align: center; margin: 4px 0 8px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -8056,7 +8075,7 @@ V1.5
       if (b) { o.b = true; o.h = num(x.h, 240, 100, 40000); }
       if (!b && typeof x.cr === 'string' && /^[\w.:-]{1,80}$/.test(x.cr)) o.cr = x.cr;   // a character it stands for (a chronicle's Grand Dossier)
       if (!b && x.st && NB_STAMPS.some(function (k) { return k[0] === x.st; })) o.st = x.st;
-      if (!b && typeof x.im === 'string' && /^[a-f0-9]{32}$/.test(x.im)) { o.im = x.im; var ia0 = +x.ia; o.ia = isFinite(ia0) && ia0 >= 0.1 && ia0 <= 10 ? Math.round(ia0 * 10000) / 10000 : 0.75; }   // an image on the note (V3.8): its id, and its height / width
+      if (!b && typeof x.im === 'string' && /^[a-f0-9]{32}$/.test(x.im)) { o.im = x.im; var ia0 = +x.ia; o.ia = isFinite(ia0) && ia0 >= 0.1 && ia0 <= 10 ? Math.round(ia0 * 10000) / 10000 : 0.75; if (x.ip === 'l' || x.ip === 'r') o.ip = x.ip; }   // ip: the image left or right of the text (V3.8.1)   // an image on the note (V3.8): its id, and its height / width
       var sc0 = num(x.sc, 100, 50, 200); if (sc0 !== 100) o.sc = sc0;   // size, in percent
       out[id] = o;
     });
@@ -10514,7 +10533,10 @@ V1.5
   }
   function openModal(html, cls) { hideTip(); $('cmModal').className = 'cm-modal' + (cls ? ' ' + cls : ''); $('cmModal').innerHTML = html; $('cmModalBack').hidden = false; var f = $('cmModal').querySelector('input,textarea,button.primary,button'); if (f) f.focus(); }
   function closeModal() { $('cmModalBack').hidden = true; $('cmModal').innerHTML = ''; }
-  $('cmModalBack').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+  /* Clicking outside the window closes it, but not when a drag that started inside it (selecting text, cropping) ends outside. */
+  var modalDownOut = false;
+  $('cmModalBack').addEventListener('pointerdown', function (e) { modalDownOut = e.target === this; });
+  $('cmModalBack').addEventListener('click', function (e) { if (e.target === this && modalDownOut) closeModal(); modalDownOut = false; });
   function confirmBox(msg, ok, fn, danger) {
     openModal('<p style="white-space:pre-line">' + esc(msg) + '</p><div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn ' + (danger ? 'danger solid' : 'primary') + '" id="mOk">' + esc(ok) + '</button></div>');
     $('mNo').onclick = closeModal;
@@ -14599,7 +14621,7 @@ V1.5
     var count = o.b && o.f && inside ? '<span class="nb-cnt">' + inside + ' inside</span>' : '';
     var body = o.f ? '' : ed ? '<textarea class="nb-di" maxlength="' + NB_DMAX + '" aria-label="Details" placeholder="Details">' + esc(o.d) + '</textarea>' :
       (o.d.trim() ? '<div class="nb-d">' + nbHl(o.d) + '</div>' : (o.b || o.im ? '' : '<div class="nb-d nb-ph">No details yet</div>'));
-    if (o.im && !o.b && !o.f) body = dimgHTML(o) + body;   // an image on the note, above its details
+    if (o.im && !o.b && !o.f) body = o.ip ? '<div class="nb-irow ip-' + o.ip + '">' + dimgHTML(o) + '<div class="nb-icol">' + body + '</div></div>' : dimgHTML(o) + body;   // an image on the note: above its details, or beside them
     if (untitled && !ed) cls += ' nb-untitled';
     return '<div class="' + cls + '" data-nid="' + id + '" style="' + st + '" tabindex="0" role="group" aria-roledescription="' + (o.b ? 'container' : 'note') + '" aria-label="' + esc(nbTitle(o)) + (o.f ? ', collapsed' : '') + '">' +
       (o.b ? '' : '<span class="nb-pin" aria-hidden="true"></span>') +
@@ -15405,7 +15427,10 @@ V1.5
     var items = [];
     if (o.b && !o.f) items = nbItemsAdd(pt, id).concat([null]);
     var stamps = [{ label: 'None', on: !o.st, run: nbSet(id, function (x) { delete x.st; }) }].concat(NB_STAMPS.map(function (k) { return { label: k[1], on: o.st === k[0], sw: k[2], run: nbSet(id, function (x) { x.st = k[0]; }) }; }));
-    var img = o.b ? [] : [{ label: o.im ? 'Change image…' : 'Add image…', run: function () { nbImageSet(id); } }].concat(o.im ? [{ label: 'Remove image', run: nbSet(id, function (x) { delete x.im; delete x.ia; }) }] : []);
+    var ipSet = function (v) { return nbSet(id, function (x) { if (v) { x.ip = v; x.w = Math.max(x.w, 380); } else delete x.ip; }); };   // beside the text: the note widens to make room
+    var img = o.b ? [] : [{ label: o.im ? 'Change image…' : 'Add image…', run: function () { nbImageSet(id); } }].concat(o.im ? [
+      { label: 'Image position', sub: [{ label: 'Above the text', on: !o.ip, run: ipSet('') }, { label: 'Left of the text', on: o.ip === 'l', run: ipSet('l') }, { label: 'Right of the text', on: o.ip === 'r', run: ipSet('r') }] },
+      { label: 'Remove image', run: nbSet(id, function (x) { delete x.im; delete x.ia; delete x.ip; }) }] : []);
     items = items.concat([{ label: 'Edit text', run: function () { nbStartEdit(id); } }], img, [
       { label: 'Shape', sub: shapes }, { label: 'Colour', sub: nbColours(id, o) }, nbSizeItem([id])].concat(o.b ? [] : [{ label: 'Stamp', sub: stamps }]).concat([
       { label: o.f ? 'Expand' : 'Collapse', run: nbSet(id, function (x) { x.f = !x.f; if (nbEdit === id) nbEdit = null; }) }]));
@@ -15824,7 +15849,7 @@ V1.5
   function dimgHTML(o) {
     var ia = Math.max(0.1, Math.min(10, +o.ia || 0.75)), u = dimgUrl[o.im];
     return '<div class="nb-img' + (dimgBad[o.im] ? ' miss' : '') + '" style="aspect-ratio:' + (1 / ia).toFixed(4) + '">' +
-      '<img data-dimg="' + esc(o.im) + '" alt="' + esc(o.t.trim() || 'Picture') + '" draggable="false"' + (u ? ' src="' + u + '"' : '') + '>' +
+      '<img data-dimg="' + esc(o.im) + '" alt="' + esc(o.t.trim() || 'Image') + '" draggable="false"' + (u ? ' src="' + u + '"' : '') + '>' +
       (dimgBad[o.im] ? '<span class="nb-imiss">Picture not found</span>' : '') + '</div>';
   }
   /* Fills in the images still loading (after the board is drawn). */
@@ -15835,40 +15860,35 @@ V1.5
       dimgGet(id).then(function (u) { im.src = u; }, function (e) {
         var box = im.parentNode; if (!box || box.classList.contains('miss')) return;
         box.classList.add('miss');
-        box.insertAdjacentHTML('beforeend', '<span class="nb-imiss">' + (e && e.message === 'missing' ? 'Picture not found' : e && e.message === 'signed-out' ? 'Sign in to see this picture' : 'Couldn\'t load the image') + '</span>');
+        box.insertAdjacentHTML('beforeend', '<span class="nb-imiss">' + (e && e.message === 'missing' ? 'Image not found' : e && e.message === 'signed-out' ? 'Sign in to see this image' : 'Couldn\'t load the image') + '</span>');
       });
     });
   }
-  /* A file → a smaller WebP (JPEG where the browser can't make WebP), and its height / width. */
-  function dimgShrink(file) {
-    var load = window.createImageBitmap ? createImageBitmap(file) : new Promise(function (res, rej) {
-      var u = URL.createObjectURL(file), im = new Image();
-      im.onload = function () { res(im); }; im.onerror = function () { URL.revokeObjectURL(u); rej(new Error('not-an-image')); }; im.src = u;
-    });
-    return load.then(function (src) {
-      var w = src.width, h = src.height; if (!w || !h) throw new Error('not-an-image');
-      var k = Math.min(1, DIMG_PX / Math.max(w, h)), W = Math.max(1, Math.round(w * k)), H = Math.max(1, Math.round(h * k));
-      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-      var g = cv.getContext('2d'); g.drawImage(src, 0, 0, W, H); if (src.close) src.close();
-      var enc = function (type, q) { return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, type, q); }); };
-      return enc('image/webp', 0.85).then(function (b) {
-        if (b && b.type === 'image/webp') return b;
-        g.globalCompositeOperation = 'destination-over'; g.fillStyle = '#e9dcc0'; g.fillRect(0, 0, W, H);   // JPEG has no see-through parts
-        return enc('image/jpeg', 0.85);
-      }).then(function step(b, q) {
-        if (!b) throw new Error('not-an-image');
-        if (b.size <= DIMG_MAX) return { blob: b, ia: H / W };
-        q = (q || 0.85) - 0.15; if (q < 0.3) throw new Error('too-big');
-        return enc(b.type, q).then(function (b2) { return step(b2, q); });
-      });
+  /* A loaded image (or the part of it that was cropped: natural pixels) → a smaller WebP (JPEG where the browser
+     can't make WebP), and its height / width. */
+  function dimgShrink(src, cr) {
+    var sw = src.naturalWidth || src.width, sh = src.naturalHeight || src.height;
+    if (!sw || !sh) return Promise.reject(new Error('not-an-image'));
+    cr = cr || { x: 0, y: 0, w: sw, h: sh };
+    var k = Math.min(1, DIMG_PX / Math.max(cr.w, cr.h)), W = Math.max(1, Math.round(cr.w * k)), H = Math.max(1, Math.round(cr.h * k));
+    var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var g = cv.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(src, cr.x, cr.y, cr.w, cr.h, 0, 0, W, H);
+    var enc = function (type, q) { return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, type, q); }); };
+    return enc('image/webp', 0.85).then(function (b) {
+      if (b && b.type === 'image/webp') return b;
+      g.globalCompositeOperation = 'destination-over'; g.fillStyle = '#e9dcc0'; g.fillRect(0, 0, W, H);   // JPEG has no see-through parts
+      return enc('image/jpeg', 0.85);
+    }).then(function step(b, q) {
+      if (!b) throw new Error('not-an-image');
+      if (b.size <= DIMG_MAX) return { blob: b, ia: H / W };
+      q = (q || 0.85) - 0.15; if (q < 0.3) throw new Error('too-big');
+      return enc(b.type, q).then(function (b2) { return step(b2, q); });
     });
   }
-  /* Shrinks and uploads a image for this Dossier. Resolves { im, ia }. */
-  function dimgUpload(c, file) {
+  /* Shrinks and uploads an image for this Dossier. Resolves { im, ia }. */
+  function dimgUpload(c, img, cr) {
     if (!dimgAuth()) return Promise.reject(new Error('signed-out'));
-    if (!file || !/^image\//.test(file.type || '')) return Promise.reject(new Error('not-an-image'));
-    if (file.size > 40e6) return Promise.reject(new Error('too-big'));
-    return dimgShrink(file).then(function (s) {
+    return dimgShrink(img, cr).then(function (s) {
       return fetch(apiBase() + '/api/dimg?scope=' + encodeURIComponent(dimgScope(c)), { method: 'POST', headers: { 'content-type': s.blob.type, authorization: 'Bearer ' + acct.token }, body: s.blob }).then(function (r) {
         return r.json().catch(function () { return {}; }).then(function (j) {
           if (!r.ok || !j.ok) { var e = new Error(j.error || 'net'); e.info = j; throw e; }
@@ -15882,22 +15902,110 @@ V1.5
   function dimgMb(n) { return (n / 1e6).toFixed(n < 10e6 ? 1 : 0) + ' MB'; }
   function dimgErr(e) {
     var m = e && e.message;
-    toast(m === 'signed-out' ? 'Sign in to add pictures.' : m === 'not-an-image' ? 'That isn\'t a image this browser can read.' :
+    toast(m === 'signed-out' ? 'Sign in to add images.' : m === 'not-an-image' ? 'That isn\'t an image this browser can read.' :
       m === 'too-big' ? 'That image is too big.' : m === 'full' && e.info && e.info.usage ? 'Your images are using all of your ' + dimgMb(e.info.usage.allowance) + '. Remove some from your Dossiers to add more.' :
       m === 'not-allowed' ? 'You can\'t add images here.' : m === 'no-storage' ? 'Images aren\'t set up on the server yet.' : 'Couldn\'t add the image. Check your connection and try again.');
   }
-  /* Asks for a picture file, then hands it on. */
+  /* Asks for an image file, then hands it on. */
   function dimgPick(then) {
     var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
     inp.addEventListener('change', function () { if (inp.files && inp.files[0]) then(inp.files[0]); });
     inp.click();
   }
-  /* Uploads, then runs done({ im, ia }) on the board it came from (if it's still the one on screen). */
+  /* The crop overlay (V3.8.1): the whole image with a crop box of any shape. Drag inside the box to move it, its corners
+     and edges to resize it, or anywhere outside it to draw a new one; arrow keys move it, Shift + arrows resize it.
+     done(cr): cr is the part to keep in the image's own pixels, or null for the whole image. */
+  function dimgCrop(img, done) {
+    var W = img.naturalWidth, H = img.naturalHeight;
+    var hs = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+    openModal('<h2>Add an image</h2><p class="muted small">Drag the corners or edges to crop it to any shape, drag inside to move the crop, or drag outside it to draw a new one. Or use the whole image.</p>' +
+      '<div class="dcrop-wrap" id="dcropWrap"><div class="dcrop" id="dcrop"><div class="dcrop-clip"><img src="' + img.src + '" alt="" draggable="false"><div class="dcrop-shade" id="dcropShade"></div></div>' +
+      '<div class="dcrop-box" id="dcropBox" tabindex="0" role="group" aria-label="Crop box. Arrow keys move it, Shift and the arrow keys resize it.">' +
+      hs.map(function (h) { return '<span class="dcrop-h h-' + h + '" data-h="' + h + '"></span>'; }).join('') + '</div></div></div>' +
+      '<p class="muted small dcrop-size" id="dcropSize" role="status"></p>' +
+      '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn" id="dcropAll">Use the whole image</button><button type="button" class="btn primary" id="mOk">Use this crop</button></div>', 'dcrop-modal');
+    var box = $('dcropBox'), area = $('dcrop'), MIN = 16;
+    /* As big as the window allows, with room for the handles at the edges. */
+    var maxW = Math.max(160, $('dcropWrap').clientWidth - 20), maxH = Math.max(160, Math.min(460, window.innerHeight - 300));
+    var k = Math.min(maxW / W, maxH / H, 1), dw = Math.max(1, Math.round(W * k)), dh = Math.max(1, Math.round(H * k));
+    area.style.width = dw + 'px'; area.style.height = dh + 'px';
+    var r = { x: 0, y: 0, w: dw, h: dh };   // display pixels
+    function show() {
+      [box, $('dcropShade')].forEach(function (el) { el.style.left = r.x + 'px'; el.style.top = r.y + 'px'; el.style.width = r.w + 'px'; el.style.height = r.h + 'px'; });
+      var nat = toNat(); $('dcropSize').textContent = nat.w + ' × ' + nat.h + ' px' + (nat.w === W && nat.h === H ? ' (the whole image)' : '');
+    }
+    function toNat() {
+      var x = Math.round(r.x / k), y = Math.round(r.y / k), w = Math.round(r.w / k), h = Math.round(r.h / k);
+      if (r.x <= 0.5 && r.y <= 0.5 && r.x + r.w >= dw - 0.5 && r.y + r.h >= dh - 0.5) return { x: 0, y: 0, w: W, h: H };
+      return { x: Math.max(0, x), y: Math.max(0, y), w: Math.max(1, Math.min(W - x, w)), h: Math.max(1, Math.min(H - y, h)) };
+    }
+    function clamp() {
+      r.w = Math.max(MIN, Math.min(dw, r.w)); r.h = Math.max(MIN, Math.min(dh, r.h));
+      r.x = Math.max(0, Math.min(dw - r.w, r.x)); r.y = Math.max(0, Math.min(dh - r.h, r.y));
+    }
+    var drag = null;
+    area.addEventListener('pointerdown', function (e) {
+      if (e.button > 0) return;
+      e.preventDefault(); area.setPointerCapture(e.pointerId);
+      var a = area.getBoundingClientRect(), px = e.clientX - a.left, py = e.clientY - a.top, h = e.target.getAttribute && e.target.getAttribute('data-h');
+      if (h) drag = { m: h, sx: px, sy: py, o: { x: r.x, y: r.y, w: r.w, h: r.h } };
+      else if (e.target === box) drag = { m: 'move', sx: px, sy: py, o: { x: r.x, y: r.y, w: r.w, h: r.h } };
+      else { px = Math.max(0, Math.min(dw, px)); py = Math.max(0, Math.min(dh, py)); drag = { m: 'new', sx: px, sy: py }; r = { x: px, y: py, w: MIN, h: MIN }; clamp(); show(); }
+      box.focus({ preventScroll: true });
+    });
+    area.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var a = area.getBoundingClientRect(), px = Math.max(0, Math.min(dw, e.clientX - a.left)), py = Math.max(0, Math.min(dh, e.clientY - a.top));
+      var dx = px - drag.sx, dy = py - drag.sy, o = drag.o;
+      if (drag.m === 'move') { r.x = o.x + dx; r.y = o.y + dy; }
+      else if (drag.m === 'new') { r = { x: Math.min(drag.sx, px), y: Math.min(drag.sy, py), w: Math.abs(px - drag.sx), h: Math.abs(py - drag.sy) }; if (r.x + MIN > dw) r.x = dw - MIN; if (r.y + MIN > dh) r.y = dh - MIN; }
+      else {
+        var m = drag.m, x0 = o.x, y0 = o.y, x1 = o.x + o.w, y1 = o.y + o.h;
+        if (m.indexOf('w') >= 0) x0 = Math.min(x1 - MIN, o.x + dx);
+        if (m.indexOf('e') >= 0) x1 = Math.max(x0 + MIN, o.x + o.w + dx);
+        if (m.indexOf('n') >= 0) y0 = Math.min(y1 - MIN, o.y + dy);
+        if (m.indexOf('s') >= 0) y1 = Math.max(y0 + MIN, o.y + o.h + dy);
+        x0 = Math.max(0, x0); y0 = Math.max(0, y0); x1 = Math.min(dw, x1); y1 = Math.min(dh, y1);
+        r = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+      }
+      clamp(); show();
+    });
+    var up = function () { drag = null; };
+    area.addEventListener('pointerup', up); area.addEventListener('pointercancel', up);
+    box.addEventListener('keydown', function (e) {
+      var st = Math.max(1, Math.round((e.altKey ? 1 : 10) * Math.min(dw, dh) / 200)), d = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] }[e.key];
+      if (!d) return;
+      e.preventDefault();
+      if (e.shiftKey) { r.w += d[0]; r.h += d[1]; } else { r.x += d[0]; r.y += d[1]; }
+      clamp(); show();
+    });
+    $('mNo').onclick = function () { closeModal(); };
+    $('dcropAll').onclick = function () { closeModal(); done(null); };
+    $('mOk').onclick = function () { var nat = toNat(); closeModal(); done(nat.w === W && nat.h === H ? null : nat); };
+    show(); box.focus({ preventScroll: true });
+  }
+  /* A file → a loaded image (the browser turns photos the right way up). */
+  function dimgLoad(file) {
+    return new Promise(function (res, rej) {
+      if (!file || !/^image\//.test(file.type || '')) return rej(new Error('not-an-image'));
+      if (file.size > 40e6) return rej(new Error('too-big'));
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function () { if (im.naturalWidth && im.naturalHeight) res(im); else rej(new Error('not-an-image')); };
+      im.onerror = function () { URL.revokeObjectURL(u); rej(new Error('not-an-image')); };
+      im.src = u;
+    });
+  }
+  /* Opens the crop overlay, uploads, then runs done({ im, ia }) on the board it came from (if it's still the one on screen). */
   function dimgAddTo(c, file, done) {
-    if (dimgBusy) return toast('Still adding the last picture…');
+    if (dimgBusy) return toast('Still adding the last image…');
     if (!dimgAuth()) return dimgErr(new Error('signed-out'));
-    dimgBusy = true; toast('Adding the picture…');
-    dimgUpload(c, file).then(function (r) { dimgBusy = false; if (nbC() === c && !nbRO(c)) done(r); else dimgRefsSoon(c); }, function (e) { dimgBusy = false; dimgErr(e); });
+    dimgLoad(file).then(function (img) {
+      dimgCrop(img, function (cr) {
+        dimgBusy = true; toast('Adding the image…');
+        dimgUpload(c, img, cr).then(function (r) { dimgBusy = false; URL.revokeObjectURL(img.src); if (nbC() === c && !nbRO(c)) done(r); else dimgRefsSoon(c); },
+          function (e) { dimgBusy = false; URL.revokeObjectURL(img.src); dimgErr(e); });
+      });
+    }, dimgErr);
   }
   /* Tells the server which images this Dossier holds now (a few seconds after it last changed). */
   function dimgRefsSoon(c) {
