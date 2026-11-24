@@ -18357,7 +18357,7 @@ V1.5
       W = smWalls().filter(smWBlockS);
       var vis = {};
       toks.forEach(function (t) { if (!t.own) vis[t.k] = { x: t.x, y: t.y, i: t.ini, n: t.pub, pl: t.pl }; });
-      toks.forEach(function (t) { posJ[t.k] = [t.x, t.y]; });
+      smJoinTokens().forEach(function (t) { posJ[t.k] = [t.x, t.y]; });   // every token's spot, also those out of sight (an undone move puts one back behind a wall)
       var linesJ = (rm && Array.isArray(rm.l) ? rm.l : []).filter(function (l) { return l && Array.isArray(l.f) && Array.isArray(l.t); });
       smFogResolve(smFog, linesJ, function (k) { return posJ[k]; }, smEnc(), 'undo');
       /* Someone else's drag (from the host's update): when it ends, that token counts as dropped. */
