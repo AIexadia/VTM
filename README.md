@@ -508,7 +508,7 @@ V3.6.5
 -Skirmish Map Changes:
 	-Fixed a move's bends not going away at some corners (like after going round a building's corner and back): a move's line is now pulled tight like a string around the walls, a token's width clear of them, so it's the shortest way that still goes round each wall on the side the token did. Rounding a corner shows as a few short bends hugging it.
 
-V3.6.6
+V3.7
 -Skirmish Map Changes:
 	-Pings: press Tab with the pointer over the map to ping that spot. Everyone sees a pulse with your name and hears the notification sound, a little faster (even with the app's sounds off; muting the browser tab silences it). Tab works as usual anywhere else, or while typing.
 	-Fog of war: players now see nothing of the map their tokens can't see (shapes, walls, areas, measurements, everything), not just the tokens. What they've seen before stays, dimmed (also after a reload).
@@ -517,3 +517,8 @@ V3.6.6
 	-Token view (host): the eye button, or Space with the pointer over the map, shows the map as one token sees it: the last token you picked up, or a player's token someone else just moved (named in the map's corner). It has the same fog, remembered parts and last known positions a player gets. Every token keeps its own memory all along, so turning Token view off (to see everything) and back on finds it as it was.
 -Friends Changes:
 	-The friends list is split into Online and Offline (online friends get a green dot). A friend counts as online while they have the app open.
+
+V3.7.1
+-Skirmish Map Changes:
+	-What a token learns while it's dragged (parts of the map seen, last known positions made or cleared) only counts once the move is dropped. Cancelling the drag, or undoing the move later, forgets it (and brings back any marker it cleared).
+	-Token view: clicking tokens to measure doesn't change whose eyes you're using; only moving one does.
