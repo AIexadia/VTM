@@ -522,3 +522,11 @@ V3.7.1
 -Skirmish Map Changes:
 	-What a token learns while it's dragged (parts of the map seen, last known positions made or cleared) only counts once the move is dropped. Cancelling the drag, or undoing the move later, forgets it (and brings back any marker it cleared).
 	-Token view: clicking tokens to measure doesn't change whose eyes you're using; only moving one does.
+
+V3.7.2
+-Skirmish Map Changes:
+	-A move only teaches a token what it sees where it's dropped: whatever it glimpsed on the way (parts of the map, tokens) is forgotten, so dragging out and back reveals nothing.
+	-Last known positions about a token being moved wait for its drop too, and undoing a move takes back what it changed for everyone watching it.
+	-Fixed last known positions staying after a move was undone.
+	-Token view (host): every token stays visible, but those the chosen token can't see are dimmed. Clicking a token sees through it (except the click that finishes a measurement).
+	-Tokens can't be engaged through a solid wall, an intact window or a closed door.

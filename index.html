@@ -2405,6 +2405,10 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
 .sm-lkp { opacity: 0.85; }
 .sm-tvbadge { position: absolute; z-index: 3; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(29, 24, 32, 0.85); color: #f2c14e; font: 600 0.75rem/1.3 var(--font-data); pointer-events: none; }
 .sm-tvb[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.sm-tok.tvout { opacity: 0.4; }
+.sm-tvo circle { fill: rgba(60, 50, 64, 0.55); stroke: #b9aec4; stroke-width: 0.04; }
+.sm-tvo text { text-anchor: middle; dominant-baseline: central; font-size: 0.34px; font-weight: 700; fill: #d8cfe0; }
+.sm-tvo { opacity: 0.55; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -16523,7 +16527,7 @@ V1.5
       return { k: k, name: t.n, pub: t.n, pl: t.ty === 'p', x: lp ? lp[0] : +t.x, y: lp ? lp[1] : +t.y, pic: t.p ? smPics[t.p] || '' : '', ini: t.i, h: t.h, w: t.w, s: t.s, g: t.g && typeof t.g === 'object' ? { w: (Array.isArray(t.g.w) ? t.g.w : []).slice(0, 6).map(function (x) { return String(x).slice(0, 40); }), a: String(t.g.a || '').slice(0, 60) } : null, hu: +t.hu === 2 ? 2 : +t.hu === 1 ? 1 : 0, own: s.mine.indexOf(+t.k) >= 0, hid: !!t.hid, hv: Array.isArray(t.hv) ? t.hv.map(Number) : [] };
     });
   }
-  function smTokens() { return smMode() === 'join' ? smFogToks(smJoinTokens()) : smTVToks(smHostTokens()); }   // players (and the host in Token view): only what the token can see
+  function smTokens() { return smMode() === 'join' ? smFogToks(smJoinTokens()) : smHostTokens(); }   // players: only what their tokens can see (the host sees every token; in Token view, those out of sight dimmed)
   /* ---- Hide: a hidden token (and its moves, measurements and areas) reaches only the host, its owner and the people
      it's made visible to; they see a small mark on it. People in the room are numbered for this (never by their ids). ---- */
   var smPeerNo = {}, smPeerSeq = 1;
@@ -17102,6 +17106,7 @@ V1.5
     var w = smPanel(); if (!w) return;
     var s = smState(); if (!s) return;
     var mode = smMode(), toks = smTokens(), rm = s.remote && s.remote.m;
+    smTVMark(toks);   // Token view: tokens the chosen one can't see are marked (drawn dimmed)
     if (mode === 'join') smPingsIn(rm); else smPingSeen = null;
     /* A portrait that became ready (a watcher's, or one just made here) goes to the room right away. */
     if (mode === 'host' && s.hosting && toks.some(function (t) { return t.rev && t.pic && t.c && t.c.img && !smSent['i:' + t.c.img]; })) smPushSoon();
@@ -17202,7 +17207,7 @@ V1.5
     });
     /* Tokens on top. */
     toks.slice().sort(function (a, b) { return (a.k === dragK) - (b.k === dragK); }).forEach(function (t) {
-      var cls = 'sm-tok' + (t.pl ? ' pl' : ' np') + (eng[t.k] ? ' eng' : '') + (t.k === dragK ? ' moving' : '') + (smCanMove(t) ? ' can' : '') + (t.hu === 2 ? ' down' : '') + (t.hid ? ' hid' : '') + (smUi.hover === t.k ? ' hov' : '');
+      var cls = 'sm-tok' + (t.pl ? ' pl' : ' np') + (eng[t.k] ? ' eng' : '') + (t.k === dragK ? ' moving' : '') + (smCanMove(t) ? ' can' : '') + (t.hu === 2 ? ' down' : '') + (t.hid ? ' hid' : '') + (t.tvo ? ' tvout' : '') + (smUi.hover === t.k ? ' hov' : '');
       var lab = mode === 'host' ? t.name : t.pub, ini = mode === 'host' ? (t.rev ? initials(t.name) : t.pub) : t.ini;
       h += '<g class="' + cls + '" data-tok="' + esc(t.k) + '" transform="translate(' + t.x + ' ' + t.y + ')" tabindex="0" role="img" aria-label="' + esc(lab) + '">' +
         '<circle class="sm-tok-ring" r="' + (SM_R + 0.07) + '"/><circle class="sm-tok-bg" r="' + SM_R + '"/>' +
@@ -17278,7 +17283,8 @@ V1.5
   function smPairs(toks) {
     var out = [];
     for (var i = 0; i < toks.length; i++) for (var j = i + 1; j < toks.length; j++) {
-      if (smDist([toks[i].x, toks[i].y], [toks[j].x, toks[j].y]) <= SM_ENGAGE + 1e-6) out.push([toks[i].k, toks[j].k].sort());
+      var pa = [toks[i].x, toks[i].y], pb = [toks[j].x, toks[j].y];
+      if (smDist(pa, pb) <= SM_ENGAGE + 1e-6 && !smWallCross(pa, pb)) out.push([toks[i].k, toks[j].k].sort());   // not through a solid wall, an intact window or a closed door
     }
     return out;
   }
@@ -17525,6 +17531,7 @@ V1.5
     if (g) {
       var k = g.getAttribute('data-tok'), t = smTokens().filter(function (x) { return x.k === k; })[0]; if (!t) return;
       smUi.act = { k: k, sx: e.clientX, sy: e.clientY, from: [t.x, t.y], off: [p[0] - t.x, p[1] - t.y], can: smCanMove(t), moved: false, startPairs: {}, pid: e.pointerId };
+      if (smMode() === 'host' && smTV.on && !smUi.pend) smTVFocus(k);   // Token view: clicking a token sees through it (not the second click of a measurement)
       smPairs(smTokens()).forEach(function (q) { if (q[0] === k || q[1] === k) smUi.act.startPairs[q.join('|')] = 1; });
       /* What's left of this round's speed, worked out now and kept until the token is let go. Before an encounter: no limit. */
       if (smEnc()) { smUi.act.bud = smBudget(t); if (smUi.act.bud && smUi.act.bud.left <= 0.05) smUi.act.stuck = true; }
@@ -18088,16 +18095,31 @@ V1.5
     var f = m.querySelector('button'); if (f) f.focus({ preventScroll: true });
     return true;
   }
-  /* Last known positions, one step: a token seen last time but not now leaves one; seeing it again takes it away; a fresh
-     look at the spot (after looking away) shows it's gone; an encounter ending clears them. */
-  function smLkpStep(M, vis, enc, sees, tg) {
-    smMemInit(M); tg = tg || '';
-    var drop = function (k) { if (tg && M.lkp[k]) { M.gone.push({ k: k, l: M.lkp[k], tg: tg }); if (M.gone.length > 300) M.gone.shift(); } delete M.lkp[k]; };   // cleared during a drag: back if the move is undone
-    if (M.en === true && !enc) { M.lkp = {}; M.gone = []; }
-    else Object.keys(M.seen).forEach(function (k) { if (!vis[k] && !M.lkp[k]) { var o = M.seen[k]; M.lkp[k] = { x: o.x, y: o.y, i: o.i, n: o.n, pl: o.pl, out: false, tg: tg }; } });
-    M.en = enc; M.seen = vis;
-    Object.keys(vis).forEach(function (k) { if (M.lkp[k]) drop(k); });
-    Object.keys(M.lkp).forEach(function (k) { var l = M.lkp[k]; if (!sees(l)) l.out = true; else if (l.out) drop(k); });
+  /* Last known positions, one step. vis: who the viewer sees now. tv: the viewer's own move ('p:' while it's dragged:
+     nothing is learned until it's dropped; 'd:'/'L..' after: what it sees where it landed belongs to that move). tgOf(k):
+     the same for a token it watches (while that one is dragged, what's known of it waits for its drop). A token seen
+     before but not now leaves a marker; seeing it again takes it away; a fresh look at the spot (after looking away)
+     shows it's gone; an encounter ending clears them. What a move changes is kept with the move, so undoing it can put
+     back the markers (and the list of who was in sight) as they were. */
+  function smLkpStep(M, vis, enc, sees, tv, tgOf) {
+    smMemInit(M); tv = tv || '';
+    if (tv.indexOf('p:') === 0) return;
+    if (M.en === true && !enc) { M.lkp = {}; M.gone = []; M.ss = {}; M.en = enc; M.seen = vis; return; }
+    M.en = enc;
+    if (tv && !M.ss[tv]) M.ss[tv] = { all: Object.assign({}, M.seen) };
+    var keys = {}, now = {};
+    Object.keys(M.seen).concat(Object.keys(vis)).forEach(function (k) { keys[k] = 1; });
+    var tagOf = function (k) { if (tv) return tv; var to = tgOf ? tgOf(k) || '' : ''; return to; };
+    var drop = function (k, tg) { if (tg && M.lkp[k]) { M.gone.push({ k: k, l: M.lkp[k], tg: tg }); if (M.gone.length > 300) M.gone.shift(); } delete M.lkp[k]; };
+    Object.keys(keys).forEach(function (k) {
+      var tg = tagOf(k);
+      if (tg.indexOf('p:') === 0) { if (M.seen[k]) now[k] = M.seen[k]; return; }   // it's being dragged: wait for its drop
+      if (tg && !tv) { var ss = M.ss[tg] || (M.ss[tg] = { part: {} }); if (ss.part && !(k in ss.part)) ss.part[k] = M.seen[k] || null; }
+      if (vis[k]) { now[k] = vis[k]; if (M.lkp[k]) drop(k, tg); }
+      else if (M.seen[k] && !M.lkp[k]) { var o = M.seen[k]; M.lkp[k] = { x: o.x, y: o.y, i: o.i, n: o.n, pl: o.pl, out: false, tg: tg }; }
+    });
+    M.seen = now;
+    Object.keys(M.lkp).forEach(function (k) { var l = M.lkp[k], tg = tagOf(k); if (tg.indexOf('p:') === 0) return; if (!sees(l)) l.out = true; else if (l.out) drop(k, tg); });
   }
   /* ---- the host's Token view ----
      The host can see the map as one token does: the last token they picked up, or a player's token someone else just
@@ -18127,7 +18149,7 @@ V1.5
     var v = list.filter(function (t) { return t.k === smTV.k; })[0]; if (!v) return null;
     var W = smWalls().filter(smWBlockS); return W.length ? { v: v, W: W } : null;
   }
-  function smTVToks(list) { var tv = smTVNow(list); return tv ? list.filter(function (t) { return t.k === tv.v.k || smTVSees(tv.v, t, tv.W); }) : list; }
+  function smTVMark(list) { var tv = smTVNow(list); list.forEach(function (t) { t.tvo = !!(tv && t.k !== tv.v.k && !smTVSees(tv.v, t, tv.W)); }); }
   /* The host keeps every token's memory up to date (a few times a second; a last look once things settle). */
   function smFogHTrack(toks) {
     var W = smWalls().filter(smWBlockS);   // with no walls, every token sees every other (last known positions still follow hiding)
@@ -18137,15 +18159,17 @@ V1.5
     toks.forEach(function (t) { have[t.k] = 1; });
     toks.forEach(function (v) {
       var M = smFogHMem(v.k);
-      if (W.length && !M.vp.some(function (q) { return q[2] === key && Math.hypot(q[0] - v.x, q[1] - v.y) < 1; })) {
-        M.vp.push([v.x, v.y, key, smFogTagFor(v.k)]); M.rem.push(smPolyS(smVisPoly([v.x, v.y], W)));
+      smFogResolve(M, sm.lines, function (k) { return sm.pos[k]; }, enc, 'undo');   // first: an undone move is forgotten before anything new is learned
+      var vt = smFogTagFor(v.k, M);
+      if (W.length && vt.indexOf('p:') !== 0 && !M.vp.some(function (q) { return q[2] === key && Math.hypot(q[0] - v.x, q[1] - v.y) < 1; })) {   // nothing is remembered while it's dragged
+        M.vp.push([v.x, v.y, key, vt]); M.rem.push(smPolyS(smVisPoly([v.x, v.y], W)));
         if (M.rem.length > 300) { M.rem.shift(); M.vp.shift(); }
         M.remD = null; changed = true;
       }
       var vis = {};
       toks.forEach(function (t) { if (t.k !== v.k && smTVSees(v, t, W)) vis[t.k] = { x: t.x, y: t.y, i: initials(t.name), n: t.name, pl: t.pl }; });
-      smLkpStep(M, vis, enc, function (l) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }, smFogTagFor(v.k));
-      smFogResolve(M, sm.lines, function (k) { return sm.pos[k]; }, enc);
+      smLkpStep(M, vis, enc, function (l) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }, vt, function (k) { return smFogTagFor(k, M); });
+      smFogResolve(M, sm.lines, function (k) { return sm.pos[k]; }, enc, 'tie');
       Object.keys(M.lkp).forEach(function (k) { if (!have[k]) delete M.lkp[k]; });   // a token taken off the map
     });
     if (changed) smFogHSave();
@@ -18164,46 +18188,57 @@ V1.5
      While a token is dragged, what it newly sees (views, last known positions made or cleared) is marked with that drag.
      Dropped, it's tied to the move's line; cancelled, or the move undone later, it's all forgotten (a marker it cleared
      comes back). Moves that can't be undone (outside an encounter) keep it for good. */
-  function smFogTagFor(k) {
+  var smFogDragK = '';   // a player's page: the token someone else is dragging (from the host's updates)
+  function smFogTagFor(k, M) {
     var a = smUi.act; if (a && a.k === k && a.moved && !a.stuck) return 'p:' + k;
     if (smMode() === 'host' && sm.drag && sm.drag.k === k) return 'p:' + k;
-    var M = smMode() === 'host' ? smFogH[k] : smFog; if (M && M.dt && M.dt[k]) return 'd:' + k;
-    if (M && M.cx && M.cx[k] > Date.now()) return 'c:' + k;   // just cancelled: it may still show where it was dragged for a moment   // dropped, not yet tied to its line: what it sees where it landed belongs to the move too
+    if (smMode() === 'join' && smFogDragK === k) return 'p:' + k;
+    M = M || (smMode() === 'host' ? smFogH[k] : smFog);
+    if (M && M.cx && M.cx[k] > Date.now()) return 'p:' + k;   // just cancelled: it may still show where it was dragged for a moment
+    if (M && M.dt && M.dt[k]) return 'd:' + k;   // dropped, not yet tied to its line: what's seen where it landed belongs to the move
     return '';
   }
-  function smMemInit(M) { M.gone = M.gone || []; M.tf = M.tf || {}; M.dt = M.dt || {}; return M; }
+  function smMemInit(M) { M.gone = M.gone || []; M.tf = M.tf || {}; M.dt = M.dt || {}; M.ss = M.ss || {}; return M; }
   function smMemRetag(M, a, b) {
     smMemInit(M);
     M.vp.forEach(function (v) { if ((v[3] || '') === a) v[3] = b; });
     Object.keys(M.lkp).forEach(function (k) { if ((M.lkp[k].tg || '') === a) M.lkp[k].tg = b; });
     M.gone = b ? M.gone.map(function (g) { if (g.tg === a) g.tg = b; return g; }) : M.gone.filter(function (g) { return g.tg !== a; });
+    if (M.ss[a]) { if (b) M.ss[b] = M.ss[a]; delete M.ss[a]; }
   }
   function smMemForget(M, tg) {
     smMemInit(M);
     for (var i = M.vp.length - 1; i >= 0; i--) if ((M.vp[i][3] || '') === tg) { M.vp.splice(i, 1); M.rem.splice(i, 1); }
     Object.keys(M.lkp).forEach(function (k) { if (M.lkp[k].tg === tg) delete M.lkp[k]; });
     M.gone = M.gone.filter(function (g) { if (g.tg !== tg) return true; if (!M.lkp[g.k]) M.lkp[g.k] = g.l; return false; });
+    var ss = M.ss[tg];   // who was in sight before the move
+    if (ss) { if (ss.all) M.seen = ss.all; else Object.keys(ss.part).forEach(function (k) { if (ss.part[k]) M.seen[k] = ss.part[k]; else delete M.seen[k]; }); delete M.ss[tg]; }
     M.remD = null;
   }
   /* A drag ended: dropped (waiting to be tied to its move line) or cancelled (forgotten). */
   function smFogMoveEnd(k, ok) {
     k = String(k);
-    var M = smMode() === 'host' ? smFogH[k] : smFog; if (!M) return;
-    smMemInit(M);
-    if (ok) { smMemRetag(M, 'p:' + k, 'd:' + k); M.dt[k] = Date.now(); } else { smMemForget(M, 'p:' + k); M.cx = M.cx || {}; M.cx[k] = Date.now() + 2000; setTimeout(smDrawSoon, 2100); }
-    if (M === smFog) smFogSave(); else smFogHSave();
+    var L = smMode() === 'host' ? Object.keys(smFogH).map(function (q) { return smFogH[q]; }) : [smFog];   // the host: every token's memory (others watched it move)
+    L.forEach(function (M) {
+      smMemInit(M);
+      if (ok) M.dt[k] = Date.now(); else { M.cx = M.cx || {}; M.cx[k] = Date.now() + 2000; }
+    });
+    if (!ok) setTimeout(smDrawSoon, 2100);
     smDrawSoon();
   }
   /* Ties dropped moves to their lines, and forgets what an undone move taught. lines: [{id, a, f, t}]; posOf(k): where k is. */
-  function smFogResolve(M, lines, posOf, enc) {
+  /* phase 'undo' (before anything new is learned): forget what undone moves taught. phase 'tie' (after what's seen
+     where a token landed has been taken in): tie dropped moves to their lines. */
+  function smFogResolve(M, lines, posOf, enc, phase) {
     smMemInit(M);
     var now = Date.now(), changed = false;
-    Object.keys(M.dt).forEach(function (k) {
+    if (phase === 'tie') Object.keys(M.dt).forEach(function (k) {
       var p = posOf(k), L = lines.filter(function (l) { return String(l.a) === k && p && smDist(l.t, p) < 0.05; }), l = L[L.length - 1];
       if (l) { var tg = 'L' + l.id; smMemRetag(M, 'd:' + k, tg); M.tf[tg] = { k: k, id: +l.id, f: [+l.f[0], +l.f[1]] }; delete M.dt[k]; changed = true; }
       else if (!enc || now - M.dt[k] > 4000) { smMemRetag(M, 'd:' + k, ''); delete M.dt[k]; changed = true; }   // no move line to tie it to: kept for good
     });
-    Object.keys(M.cx || {}).forEach(function (k) { if (M.cx[k] <= now) { smMemForget(M, 'c:' + k); delete M.cx[k]; changed = true; } });
+    if (phase === 'tie') { if (changed) { if (M === smFog) smFogSave(); else smFogHSave(); } return; }
+    Object.keys(M.cx || {}).forEach(function (k) { if (M.cx[k] <= now) delete M.cx[k]; });
     var ids = {}, gone = {};
     lines.forEach(function (l) { ids[l.id] = 1; });
     Object.keys(M.tf).forEach(function (tg) { var f = M.tf[tg]; if (!ids[f.id]) (gone[f.k] = gone[f.k] || []).push(f); });
@@ -18226,7 +18261,7 @@ V1.5
     }
     var top = ov.querySelector('.sm-fog-top'), join = smMode() === 'join', h = '';
     if (!join) { if (smFog.code !== null) smFog.code = null; }
-    var mine = [], W = [], M = null;
+    var mine = [], W = [], M = null, linesJ = null, posJ = {};
     if (smMode() === 'host') smFogHTrack(smHostTokens());
     if (join) {
       var code = (R() && R().watchCode ? R().watchCode() : '') || '-';
@@ -18236,16 +18271,24 @@ V1.5
       W = smWalls().filter(smWBlockS);
       var vis = {};
       toks.forEach(function (t) { if (!t.own) vis[t.k] = { x: t.x, y: t.y, i: t.ini, n: t.pub, pl: t.pl }; });
-      var jtg = ''; mine.forEach(function (t) { jtg = jtg || smFogTagFor(t.k); });
-      smLkpStep(smFog, vis, smEnc(), function (l) { return !mine.length || !W.length || mine.some(function (v) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }); }, jtg);
+      toks.forEach(function (t) { posJ[t.k] = [t.x, t.y]; });
+      var linesJ = (rm && Array.isArray(rm.l) ? rm.l : []).filter(function (l) { return l && Array.isArray(l.f) && Array.isArray(l.t); });
+      smFogResolve(smFog, linesJ, function (k) { return posJ[k]; }, smEnc(), 'undo');
+      /* Someone else's drag (from the host's update): when it ends, that token counts as dropped. */
+      var dk = rm && rm.d ? String(rm.d.k) : '';
+      if (smFogDragK && smFogDragK !== dk && !mine.some(function (t) { return t.k === smFogDragK; })) { smMemInit(smFog); smFog.dt[smFogDragK] = Date.now(); }
+      smFogDragK = mine.some(function (t) { return t.k === dk; }) ? '' : dk;
+      var jtg = '', jp = false; mine.forEach(function (t) { var g = smFogTagFor(t.k, smFog); if (g.indexOf('p:') === 0) jp = true; else jtg = jtg || g; });
+      smLkpStep(smFog, vis, smEnc(), function (l) { return !mine.length || !W.length || mine.some(function (v) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }); }, jp ? 'p:' : jtg, function (k) { return smFogTagFor(k, smFog); });
       M = smFog;
-      var posJ = {}; toks.forEach(function (t) { posJ[t.k] = [t.x, t.y]; });
-      smFogResolve(smFog, (rm && Array.isArray(rm.l) ? rm.l : []).filter(function (l) { return l && Array.isArray(l.f) && Array.isArray(l.t); }), function (k) { return posJ[k]; }, smEnc());
     } else if (smMode() === 'host') {   // the host in Token view: what the token they last held (or a player's token just moved) sees
       var tv = smTVNow(smHostTokens());
       if (tv) { mine = [tv.v]; W = tv.W; M = smFogHMem(tv.v.k); }
     }
-    if (M) Object.keys(M.lkp).forEach(function (k) { var l = M.lkp[k]; h += '<g class="sm-lkp" transform="translate(' + l.x + ' ' + l.y + ')"><title>Last seen here: ' + esc(l.n || 'a token') + ' (right-click to forget)</title><circle r="' + SM_R + '"/><text dy="0.02">' + esc(String(l.i || '?').slice(0, 3)) + '</text></g>'; });
+    var liveK = {}; toks.forEach(function (t) { if (!t.tvo) liveK[t.k] = 1; });
+    /* The host in Token view still sees every token: those the chosen one can't see, dimmed over the fog. */
+    if (smMode() === 'host') toks.forEach(function (t) { if (t.tvo) h += '<g class="sm-tvo" transform="translate(' + t.x + ' ' + t.y + ')"><title>' + esc(t.name) + ': out of sight</title><circle r="' + SM_R + '"/><text dy="0.02">' + esc(initials(t.name)) + '</text></g>'; });
+    if (M) Object.keys(M.lkp).forEach(function (k) { if (liveK[k]) return; var l = M.lkp[k]; h += '<g class="sm-lkp" transform="translate(' + l.x + ' ' + l.y + ')"><title>Last seen here: ' + esc(l.n || 'a token') + ' (right-click to forget)</title><circle r="' + SM_R + '"/><text dy="0.02">' + esc(String(l.i || '?').slice(0, 3)) + '</text></g>'; });
     smTVBadge();
     var fogOn = !!(M && mine.length && W.length);
     ov.classList.toggle('on', !!fogOn);
@@ -18253,8 +18296,9 @@ V1.5
       var key = smWc.k, polys = mine.map(function (t) { return smVisPoly([t.x, t.y], W); });
       /* Remembered: a new view is kept when a token stands somewhere new (a square from where it last looked), or the walls changed. */
       mine.forEach(function (t, i) {
+        var pt = smFogTagFor(t.k, M); if (pt.indexOf('p:') === 0) return;   // nothing is remembered while it's dragged (only where it's dropped)
         if (M.vp.some(function (v) { return v[2] === key && Math.hypot(v[0] - t.x, v[1] - t.y) < 1; })) return;
-        M.vp.push([t.x, t.y, key, smFogTagFor(t.k)]); M.rem.push(smPolyS(polys[i]));
+        M.vp.push([t.x, t.y, key, pt]); M.rem.push(smPolyS(polys[i]));
         if (M.rem.length > 300) { M.rem.shift(); M.vp.shift(); }
         M.remD = null; if (M === smFog) smFogSave(); else smFogHSave();
       });
@@ -18263,6 +18307,7 @@ V1.5
       var visD = smPolyD(polys);
       if (smFog.visD !== visD) { smFog.visD = visD; [].forEach.call(ov.querySelectorAll('path.vis'), function (p) { p.setAttribute('d', visD); }); }
     }
+    if (join && linesJ) smFogResolve(smFog, linesJ, function (k) { return posJ[k]; }, smEnc(), 'tie');   // after what it sees where it landed is taken in
     top.innerHTML = h + '<g class="sm-pings">' + smPingsSVG() + '</g>';
   }
   /* Dragging a token: it can't pass through a wall that blocks movement; it slides along it instead. */
