@@ -530,3 +530,11 @@ V3.7.2
 	-Fixed last known positions staying after a move was undone.
 	-Token view (host): every token stays visible, but those the chosen token can't see are dimmed. Clicking a token sees through it (except the click that finishes a measurement).
 	-Tokens can't be engaged through a solid wall, an intact window or a closed door.
+
+V3.7.3
+-Room Changes:
+	-Fixed rooms closing when the host reloaded the page: the page tried to take its room back before the account had signed in, so it was refused and gave the room up.
+	-The room now waits two minutes for a host who lost the connection or reloaded (watchers are told the host is away, instead of being dropped), and the host's page keeps trying to reconnect.
+	-Watchers who lose the connection rejoin by themselves, and a reload takes them back into the room.
+	-A heartbeat notices a connection that quietly stopped working, and reconnects right away instead of waiting for the browser to notice.
+	-Rejoin room: when the connection to a room is lost for good, a Rejoin button (for the host, if the room is still open; for a watcher, if it still exists) takes them back in.

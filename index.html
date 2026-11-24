@@ -2831,6 +2831,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
           <div class="sync-row" id="syncIdle">
             <span class="label">Sync</span>
             <button type="button" class="btn-sec" id="syncHost" title="Share this tracker live with friends you invite.">Host a room</button>
+            <button type="button" class="btn-sec" id="syncRejoin" hidden>Rejoin room</button>
             <span class="hint sync-how">Friends you invite join from their notifications or the Friends menu.</span>
           </div>
           <div class="sync-row" id="syncHosting" hidden>
@@ -5340,7 +5341,22 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
   }
   /* CHARACTERS-MODULE:END join-state */
 
-  var HOST_KEY = 'vtm-sync-host';
+  var HOST_KEY = 'vtm-sync-host', JOIN_KEY = 'vtm-sync-join', LAST_ROOM = 'vtm-lastroom', joinRetry = null;
+  /* The last room this page was in, for the Rejoin button (kept 15 minutes; gone once the room is left or closes). A
+     reload of the same tab goes back in by itself: the host takes its room back, a watcher joins again. */
+  function lastRoom(v) {
+    try {
+      if (v === undefined) { var r = JSON.parse(localStorage.getItem(LAST_ROOM) || 'null'); return r && r.code && Date.now() - (r.t || 0) < 15 * 60000 ? r : null; }
+      if (v) { v.t = Date.now(); localStorage.setItem(LAST_ROOM, JSON.stringify(v)); } else localStorage.removeItem(LAST_ROOM);
+    } catch (e) { return null; }
+  }
+  function rejoinView() {
+    var b = $('syncRejoin'); if (!b) return;
+    var r = lastRoom(); b.hidden = !r || !!hostInfo || !!watchWs || !!joinRetry;
+    if (r) { b.textContent = 'Rejoin room ' + r.code; b.title = r.role === 'host' ? 'Take your room back, if it\'s still open' : 'Join that room again'; }
+  }
+  /* Rooms need the account's sign-in, which loads a moment after the page: wait for it (up to 15 s). */
+  function whenSignedIn(fn, n) { var a = window.vtmAccount; if ((a && a.token && a.token()) || (n || 0) > 100) { fn(); return; } window.setTimeout(function () { whenSignedIn(fn, (n || 0) + 1); }, 150); }
 
   function syncMsg(text) { $('syncMsg').textContent = text || ''; }
   function syncView() {
@@ -5353,6 +5369,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     else renderInit();   // the host's "Enemy" hints come and go with the room
     if (hosting) $('syncHostCode').textContent = hostInfo.code;
     if (window.cmHostChanged) window.cmHostChanged(hosting ? hostInfo.code : '');   // CHARACTERS-MODULE: tells friends
+    rejoinView();
     if (typeof renderRollPanel === 'function') renderRollPanel();   // CHARACTERS-MODULE: Hide Roll, room rolls
   }
   function syncOpen(query) {
@@ -5362,11 +5379,17 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     try { return new WebSocket(SYNC_URL.replace(/\/+$/, '') + '/ws?' + query + (tk ? '&t=' + encodeURIComponent(tk) : '')); }
     catch (e) { syncMsg('Could not reach the sync server.'); return null; }
   }
+  /* A heartbeat: a ping every 20 s, answered by the server. A connection that stops answering is treated as lost (a
+     connection can die quietly, and a browser may take minutes to notice), so the room is rejoined right away. */
   function syncKeepAlive() {
     window.clearInterval(syncPing);
     syncPing = window.setInterval(function () {
-      [hostWs, watchWs].forEach(function (w) { if (w && w.readyState === 1) w.send('{"t":"ping"}'); });
-    }, 25000);
+      [hostWs, watchWs].forEach(function (w) {
+        if (!w) return;
+        if (w.__pingAt && !w.__alive && w.__gone) { w.__gone(); return; }
+        if (w.readyState === 1) { w.__pingAt = Date.now(); w.__alive = false; try { w.send('{"t":"ping"}'); } catch (e) {} }
+      });
+    }, 20000);
   }
   /* What joiners may see: names, totals, bonuses and whose turn it is. Modifiers and dice stay with the host. */
   function publicState() {
@@ -5417,6 +5440,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     var finished = false;
     if (!resume) syncMsg('Connecting…');
     ws.addEventListener('message', function (e) {
+      ws.__alive = true;   // anything from the server shows the connection is alive
       var m; try { m = JSON.parse(e.data); } catch (err) { return; }
       if (m.t === 'hosted') {
         hostInfo = { code: m.code, token: m.token };
@@ -5424,6 +5448,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
         if (window.cmMapHosted) window.cmMapHosted();   // the room gets the token pictures again
         hostRetry = 0;
         try { sessionStorage.setItem(HOST_KEY, JSON.stringify(hostInfo)); } catch (err) {}
+        lastRoom({ role: 'host', code: m.code, token: m.token });
         syncMsg('');
         syncView();
         syncKeepAlive();
@@ -5437,19 +5462,22 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
         if (hostInfo) pushState();   // the Skirmish Map lists who's in the room (for Hide)
       } else if (m.t === 'error') {
         finished = true;
+        if (m.reason === 'gone') lastRoom(null);
         endHosting(m.reason === 'gone' ? 'The room had already closed.' : roomRefusal(m.reason) || 'Could not host a room (' + m.reason + ').');
       }
     });
-    ws.addEventListener('close', function () {
+    ws.__gone = function () {
+      if (ws.__done) return; ws.__done = true; try { ws.close(); } catch (err) {}
       if (finished || ws !== hostWs) return;
       if (!hostInfo) { hostWs = null; syncView(); syncMsg('Could not reach the sync server.'); return; }
       // Lost the connection: try to take the room back before the server gives up on the host.
-      if (hostRetry < 4) {
+      if (hostRetry < 30) {   // the room waits two minutes for its host
         hostRetry++;
         syncMsg('Connection lost. Trying to reconnect…');
-        window.setTimeout(function () { if (hostInfo && ws === hostWs) startHosting(hostInfo); }, 3000);
-      } else endHosting('Lost the connection, so the room was closed.');
-    });
+        window.setTimeout(function () { if (hostInfo && ws === hostWs) startHosting(hostInfo); }, hostRetry < 4 ? 2000 : 4000);
+      } else endHosting('Lost the connection to the room. Rejoin it if it\'s still open.');
+    };
+    ws.addEventListener('close', function () { ws.__gone(); });
   }
   function endHosting(note) {
     var w = hostWs;
@@ -5462,6 +5490,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
   }
   $('syncHost').addEventListener('click', function () { syncMsg(''); startHosting(null); });
   $('syncClose').addEventListener('click', function () {
+    lastRoom(null);
     if (hostWs && hostWs.readyState === 1) { try { hostWs.send('{"t":"close"}'); } catch (err) {} }
     endHosting('Room closed.');
   });
@@ -5484,12 +5513,14 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     syncMsg('Connecting…');
     var failed = false, joined = false;
     ws.addEventListener('message', function (e) {
+      ws.__alive = true;   // the heartbeat: the connection is alive
       var m; try { m = JSON.parse(e.data); } catch (err) { return; }
       if (m.t === 'joined') {
         joined = true;
         watchWs = ws;
         remote = { r: 1, c: '', rows: [] }; mineRows = {};
         $('syncWatchCode').textContent = m.code;
+        joinRetry = null; lastRoom({ role: 'join', code: m.code }); try { sessionStorage.setItem(JOIN_KEY, m.code); } catch (err) {}
         $('syncWatchHost').textContent = m.host && m.host.n ? m.host.n + '\'s room' : 'The host\'s room';
         $('syncPeople').textContent = 'Watching the host\'s tracker';
         syncMsg('');
@@ -5513,17 +5544,34 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
         if (window.cmMapMine) window.cmMapMine(m.s && m.s.ma, m.s && m.s.mi, m.s && m.s.mh);   // the Skirmish Map: their hidden areas
         renderRemote();
         if (!$('actorsPop').hidden) renderActors();   // Add to encounter turns off for characters already in
+      } else if (m.t === 'hostaway' && ws === watchWs) {
+        syncMsg('The host lost their connection. Waiting for them to come back…');
+      } else if (m.t === 'hostback' && ws === watchWs) {
+        syncMsg('');
       } else if (m.t === 'closed' && ws === watchWs) {
+        lastRoom(null); try { sessionStorage.removeItem(JOIN_KEY); } catch (err) {}
         leaveWatching(m.reason === 'host-closed' ? 'The host closed the room.' : m.reason === 'removed' ? 'This account was signed out of the room.' : m.reason === 'elsewhere' ? 'This account joined a room on another device, so it left this one here.' : 'The host left, so the room closed.');
       } else if (m.t === 'error') {
         failed = true;
-        syncMsg(m.reason === 'nocode' ? 'No room has that code.' : (m.reason === 'full' ? 'That room is full.' : roomRefusal(m.reason) || 'Could not join (' + m.reason + ').'));
+        if (m.reason === 'nocode') { lastRoom(null); try { sessionStorage.removeItem(JOIN_KEY); } catch (err) {} joinRetry = null; rejoinView(); }   // the room is gone
+        else if (joinRetry) { joinRetry = null; rejoinView(); }   // refused (not just unreachable): stop trying
+        syncMsg(m.reason === 'nocode' ? 'That room has closed.' : (m.reason === 'full' ? 'That room is full.' : roomRefusal(m.reason) || 'Could not join (' + m.reason + ').'));
       }
     });
-    ws.addEventListener('close', function () {
-      if (ws === watchWs) leaveWatching('Lost the connection to the host.');
-      else if (!failed && !joined) syncMsg('Could not reach the sync server.');
-    });
+    ws.__gone = function () {
+      if (ws.__done) return; ws.__done = true; try { ws.close(); } catch (err) {}
+      if (ws === watchWs) { var jc = $('syncWatchCode').textContent; leaveWatching('Connection lost. Reconnecting…'); joinRetry = { code: jc, n: 0 }; joinAgainSoon(); }   // a dropped connection: join again by itself
+      else if (!failed && !joined) { if (joinRetry) joinAgainSoon(); else syncMsg('Could not reach the sync server.'); }
+    };
+    ws.addEventListener('close', function () { ws.__gone(); });
+  }
+  /* A watcher who lost the connection tries again for a while (the room may be waiting for its host too). */
+  function joinAgainSoon() {
+    if (!joinRetry) return;
+    if (++joinRetry.n > 25) { joinRetry = null; syncMsg('Lost the connection to the room. Rejoin it if it\'s still open.'); rejoinView(); return; }
+    syncMsg('Connection lost. Reconnecting…'); rejoinView();
+    var code = joinRetry.code;
+    window.setTimeout(function () { if (joinRetry && joinRetry.code === code && !watchWs) joinRoom(code); }, joinRetry.n < 4 ? 2000 : 5000);
   }
   /* CHARACTERS-MODULE: everyone in the room, for watchers (the host sees them on "X watching"). */
   function roomPeople(m) {
@@ -5533,7 +5581,12 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     el.textContent = 'With ' + host + (names.length ? ', ' + names.join(', ') : '');
     el.title = 'In the room: ' + host + ' (host)' + (names.length ? ', ' + names.join(', ') : '');
   }
-  $('syncLeave').addEventListener('click', function () { leaveWatching('You left the room.'); });
+  $('syncLeave').addEventListener('click', function () { lastRoom(null); joinRetry = null; try { sessionStorage.removeItem(JOIN_KEY); } catch (err) {} leaveWatching('You left the room.'); });
+  $('syncRejoin').addEventListener('click', function () {
+    var r = lastRoom(); if (!r) { rejoinView(); return; }
+    syncMsg('Connecting…');
+    if (r.role === 'host' && r.token) startHosting({ code: r.code, token: r.token }); else joinRoom(r.code);
+  });
   /* CHARACTERS-MODULE:BEGIN called-rolls */
 /* ---- Room rolls ----
      While this page is in a room (hosting it, or joined), every roll from the main roller and the damage module goes to
@@ -6606,8 +6659,11 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
   renderInit();
   syncView();
   try {
-    var back = JSON.parse(sessionStorage.getItem(HOST_KEY) || 'null');
-    if (back && back.code && back.token && SYNC_URL) startHosting(back);
+    var back = JSON.parse(sessionStorage.getItem(HOST_KEY) || 'null'), backJ = sessionStorage.getItem(JOIN_KEY);
+    /* A reload: back into the room (once the account's sign-in has loaded; too early, the server would refuse). */
+    if (back && back.code && back.token && SYNC_URL) whenSignedIn(function () { if (!hostWs) startHosting(back); });
+    else if (backJ && SYNC_URL) whenSignedIn(function () { if (!watchWs && !hostWs) { syncMsg('Rejoining room ' + backJ + '…'); joinRoom(backJ); } });
+    rejoinView();
   } catch (err) {}
 
   /* Wide Aspect: only a class on the page wrapper; the stylesheet decides whether the screen is wide enough. */
