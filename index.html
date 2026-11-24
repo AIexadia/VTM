@@ -16726,7 +16726,7 @@ V1.5
     var hk = function (k) { return !!(k && !okK[String(k)]); };
     var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w]; if (hk(m.f.k) || hk(m.t.k)) return null; var e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
     var pnow = Date.now(), fe = sm.fe || 0, pg = smPingsHost.filter(function (q) { return pnow - q.t < 3000; }).map(function (q) { return [q.i, q.x, q.y, q.n, q.p, q.t]; });
-    return { pg: pg, fe: fe, u: sm.units, uf: sm.uf === false ? 0 : 1, uy: sm.uy === false ? 0 : 1, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t, v: l.v }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
+    return { pg: pg, fe: fe, u: sm.units, uf: sm.uf === false ? 0 : 1, uy: sm.uy === false ? 0 : 1, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t, v: l.v }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by, f: sm.drag.from ? sm.drag.from.map(smNum2) : null } : null };
   };
   /* One token as watchers get it. */
   function smPubTok(x, pics) {
@@ -18275,7 +18275,7 @@ V1.5
      While a token is dragged, what it newly sees (views, last known positions made or cleared) is marked with that drag.
      Dropped, it's tied to the move's line; cancelled, or the move undone later, it's all forgotten (a marker it cleared
      comes back). Moves that can't be undone (outside an encounter) keep it for good. */
-  var smFogDragK = '';   // a player's page: the token someone else is dragging (from the host's updates)
+  var smFogDragK = '', smFogDragF = null;   // a player's page: the token someone else is dragging (from the host's updates)
   function smFogTagFor(k, M) {
     var a = smUi.act; if (a && a.k === k && a.moved && !a.stuck) return 'p:' + k;
     if (smMode() === 'host' && sm.drag && sm.drag.k === k) return 'p:' + k;
@@ -18389,9 +18389,22 @@ V1.5
       var linesJ = (rm && Array.isArray(rm.l) ? rm.l : []).filter(function (l) { return l && Array.isArray(l.f) && Array.isArray(l.t); });
       smFogResolve(smFog, linesJ, function (k) { return posJ[k]; }, smEnc(), 'undo');
       /* Someone else's drag (from the host's update): when it ends, that token counts as dropped. */
+      /* Also the player's own token when the host (or another player) moves it: only a drag made on this page is skipped,
+         that one ends through smFogMoveEnd. */
       var dk = rm && rm.d ? String(rm.d.k) : '';
-      if (smFogDragK && smFogDragK !== dk && !mine.some(function (t) { return t.k === smFogDragK; })) { smMemInit(smFog); smFog.dt[smFogDragK] = Date.now(); }
-      smFogDragK = mine.some(function (t) { return t.k === dk; }) ? '' : dk;
+      if (dk && smUi.local && smUi.local[dk]) dk = '';
+      if (smFogDragK && smFogDragK !== dk) {
+        var ek = smFogDragK, ep = posJ[ek], ef = smFogDragF;
+        var eL = linesJ.filter(function (l) { return String(l.a) === ek && ep && smDist(l.t, ep) < 0.05; }), el = eL[eL.length - 1];
+        smMemInit(smFog);
+        if (!el && ep && ef && smDist(ep, ef) < 0.05) { smFog.cx = smFog.cx || {}; smFog.cx[ek] = Date.now() + 2000; setTimeout(smDrawSoon, 2100); }   // put back: cancelled
+        else {
+          smFog.dt[ek] = Date.now();
+          if (el && mine.some(function (t) { return t.k === ek; })) { smFog.dp = smFog.dp || {}; smFog.dp[ek] = [el.f].concat(Array.isArray(el.v) ? el.v : [], [el.t]).map(function (q) { return [+q[0], +q[1]]; }).slice(0, 80); }   // learns along the path it was moved by
+        }
+      }
+      if (dk && dk !== smFogDragK) smFogDragF = rm.d.f && rm.d.f.length === 2 ? [+rm.d.f[0], +rm.d.f[1]] : posJ[dk] ? posJ[dk].slice() : null;
+      smFogDragK = dk;
       var jtg = '', jp = false; mine.forEach(function (t) { var g = smFogTagFor(t.k, smFog); if (g.indexOf('p:') === 0) jp = true; else jtg = jtg || g; });
       if (!jp) mine.forEach(function (t) {   // one of theirs just dropped: what it saw along its path
         var g = smFogTagFor(t.k, smFog); if (g.indexOf('d:') !== 0 || !smFog.dp || !smFog.dp[t.k]) return;

@@ -545,3 +545,4 @@ V3.7.4a
 	-Fixed a player keeping a new last known position for a token whose move was undone: if a token behind a wall moved into sight and the move was undone, the player kept a marker where it had briefly been, instead of the one behind the wall they knew of before.
 	-Fixed undone moves not taking back what they revealed (remembered map, last known positions) after the page had been reloaded: everything a token knows, and which move taught it, is now kept past a reload.
 	-Token view (host): the token you were seeing through is kept past a reload.
+	-Fixed a player's token keeping what it saw during a move the host made for it (remembered map, last known positions) after the host undid that move: a move the host (or anyone else) makes with a player's token is now taken back like the player's own, it learns from the path it was moved along, and a move the host picks up and cancels teaches nothing.
