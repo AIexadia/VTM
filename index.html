@@ -2382,6 +2382,29 @@ body.sm-det-body { margin: 0; overflow: hidden; background: var(--bg, #f3f0ee); 
 .sm-dwlb[aria-checked="true"] { border-color: var(--accent); color: var(--accent); }
 .sm-dpop[aria-label="Pen"] { min-width: 256px; }
 polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; stroke-linejoin: round; }
+/* Skirmish Map pings */
+.sm-pings { pointer-events: none; }
+.sm-ping { animation: smPingFade 2.4s linear forwards; }
+.sm-ping-a { animation: smPingGrow 1.2s ease-out 2 forwards; }
+.sm-ping-a circle { fill: none; stroke: #f2c14e; stroke-width: 0.09; }
+.sm-ping-dot { fill: #f2c14e; stroke: #1d1820; stroke-width: 0.05; }
+.sm-ping-n { text-anchor: middle; font-size: 0.42px; font-weight: 700; fill: #f2c14e; paint-order: stroke; stroke: #1d1820; stroke-width: 0.12px; stroke-linejoin: round; }
+@keyframes smPingGrow { from { transform: scale(0.15); opacity: 1; } to { transform: scale(1); opacity: 0; } }
+@keyframes smPingFade { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
+/* Friends: online and offline */
+.fr-av { position: relative; display: inline-flex; flex: none; }
+.fr-dot { position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; background: #4caf6a; border: 2px solid var(--surface, #1d1820); }
+.fr-off .fr-row .fr-av, .fr-off .fr-row .fr-txt { opacity: 0.6; }
+/* A player's fog of war (over the map), last known positions and pings */
+.sm-fogsvg { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; display: block; pointer-events: none; overflow: hidden; }
+.sm-fogsvg .sm-fog-full, .sm-fogsvg .sm-fog-dim { display: none; }
+.sm-fogsvg.on .sm-fog-full { display: inline; fill: #0d0a0f; }
+.sm-fogsvg.on .sm-fog-dim { display: inline; fill: rgba(13, 10, 15, 0.55); }
+.sm-lkp circle { fill: rgba(29, 24, 32, 0.25); stroke: #e8dcc0; stroke-width: 0.05; stroke-dasharray: 0.12 0.1; }
+.sm-lkp text { text-anchor: middle; dominant-baseline: central; font-size: 0.36px; font-weight: 700; fill: #e8dcc0; opacity: 0.8; }
+.sm-lkp { opacity: 0.85; }
+.sm-tvbadge { position: absolute; z-index: 3; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(29, 24, 32, 0.85); color: #f2c14e; font: 600 0.75rem/1.3 var(--font-data); pointer-events: none; }
+.sm-tvb[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -5534,12 +5557,13 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
   });
   /* Notification sound (decoded with Web Audio like the dice sound): played to a joiner when the host calls a roll from them. */
   var NOTIFY_B64 = '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VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//tURPCBERETTvgvOMgjpAnvAwcLBABRL+BhoWBpCiVsB6hsVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sURPkPMK8TyeGgEzAWQoj5NAVmAAAB/gAAACAIgCMAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAf4AAAAgAAA/wAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//sUZOGP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV', notifyBuffer = null, notifyLoading = false;
-  function playNotify() {
-    if (!st.sound || !AudioCtor) return;
+  window.cmPingSound = function () { playNotify(1.3, true); };   // the Skirmish Map's ping: the same sound, 30% faster, even with sounds off (muting the tab silences it)
+  function playNotify(rate, always) {
+    if ((!st.sound && !always) || !AudioCtor) return;
     try {
       prepSound();
       if (!audioCtx) return;
-      var go = function () { var src = audioCtx.createBufferSource(); src.buffer = notifyBuffer; src.connect(audioCtx.destination); src.start(0); };
+      var go = function () { var src = audioCtx.createBufferSource(); src.buffer = notifyBuffer; if (rate) src.playbackRate.value = rate; src.connect(audioCtx.destination); src.start(0); };
       if (notifyBuffer) return go();
       if (notifyLoading) return;
       notifyLoading = true;
@@ -7059,6 +7083,7 @@ V1.5
     mapPics: function (p) { if (hostWs && hostWs.readyState === 1) { try { hostWs.send(JSON.stringify({ t: 'pics', p: p })); return true; } catch (e) {} } return false; },
     peerName: function (pid) { var w = peerWho[pid] || {}; return String(w.n || peerNames[pid] || '').trim() || 'Someone'; },
     peers: function () { return (peerPids || []).slice(); },
+    me: function () { return myPid(); },
     mapDraw: function (d) { if (hostWs && hostWs.readyState === 1) { try { hostWs.send(JSON.stringify({ t: 'draw', ops: d.ops || [], clear: d.clear ? 1 : 0 })); return true; } catch (e) {} } return false; },
     pubName: function (a) { return pubName(a); },
     isRev: function (a) { return isRev(a); },
@@ -12838,6 +12863,10 @@ V1.5
   function postHost() { return signedIn() && acctReady() ? api('friends/hosting', { code: myHost }).catch(function () {}) : Promise.resolve(); }
   window.cmHostChanged = function (code) { code = code || ''; if (code === myHost) return; myHost = code; postHost(); };
   window.setInterval(function () { if (myHost) postHost(); }, 30000);   // keeps going in a background tab
+  /* Friends see you as online while the app is open: it says so every 60 s (in a background tab too). The list, while
+     it's open, looks again every 30 s. */
+  window.setInterval(function () { if (signedIn() && acctReady()) api('friends/here', {}).catch(function () {}); }, 60000);
+  window.setInterval(function () { var p = $('friendsPanel'); if (p && !p.hidden && !document.hidden && signedIn()) loadFriends(); }, 30000);
   function respondFriend(pid, accept) {
     return api('friends/respond', { pid: pid, accept: !!accept }).then(function (res) {
       toast(accept ? 'You and ' + (res.name || 'they') + ' are now friends.' : 'Request declined.');
@@ -12854,15 +12883,23 @@ V1.5
     var n = fr.incoming.length; b.hidden = !n; b.textContent = n > 9 ? '9+' : String(n);
     btn.setAttribute('aria-label', n ? 'Friends, ' + n + ' request' + (n > 1 ? 's' : '') : 'Friends');
     var p = $('friendsPanel'); if (!p || p.hidden) return;
-    var row = function (x, btns) { return '<li class="fr-row">' + userAv(x) + '<span class="fr-txt"><b><span class="fr-nm">' + esc(x.name) + '</span>' + tierBadge(x.tier) + '</b><small class="mono">' + esc(fmtP(x.pid)) + '</small></span>' + btns + '</li>'; };
+    var row = function (x, btns) { return '<li class="fr-row' + (x.on ? ' on' : '') + '">' + '<span class="fr-av">' + userAv(x) + (x.on ? '<span class="fr-dot" title="Online"></span>' : '') + '</span>' + '<span class="fr-txt"><b><span class="fr-nm">' + esc(x.name) + '</span>' + tierBadge(x.tier) + '</b><small class="mono">' + esc(fmtP(x.pid)) + '</small></span>' + btns + '</li>'; };
     var h = '';
     if (fr.incoming.length) h += '<h3 class="fr-h">Requests</h3><ul class="fr-list">' + fr.incoming.map(function (x) {
       return row(x, '<button type="button" class="fr-ic ok" data-fracc="' + esc(x.pid) + '" aria-label="Accept ' + esc(x.name) + '" title="Accept">✓</button><button type="button" class="fr-ic" data-frdec="' + esc(x.pid) + '" aria-label="Decline ' + esc(x.name) + '" title="Decline">✕</button>');
     }).join('') + '</ul>';
-    h += '<h3 class="fr-h">Friends</h3>' + (fr.friends.length ? '<ul class="fr-list">' + fr.friends.map(function (x) {
+    /* Friends, online first, then offline (each by name). */
+    var byName = function (a, b) { return String(a.name).localeCompare(String(b.name)); };
+    var onl = fr.friends.filter(function (x) { return x.on; }).sort(byName), off = fr.friends.filter(function (x) { return !x.on; }).sort(byName);
+    var frRow = function (x) {
       return frRemove === x.pid ? '<li class="fr-row fr-confirm"><span class="fr-txt">Remove <b>' + esc(x.name) + '</b> from your friends?</span><button type="button" class="btn small danger" data-frrmyes="' + esc(x.pid) + '">Remove</button><button type="button" class="btn small" data-frrmno>Cancel</button></li>'
         : row(x, (x.host ? '<button type="button" class="btn small primary fr-join" data-frjoin="' + esc(x.host) + '" data-frname="' + esc(x.name) + '" title="Join their room (' + esc(x.host) + ')">Join room</button>' : '') + '<button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Remove ' + esc(x.name) + '" title="Remove friend">×</button>');
-    }).join('') + '</ul>' : '<p class="fr-empty">' + (frLoaded ? 'No friends yet. Add one with their player ID.' : 'Loading…') + '</p>');
+    };
+    if (!fr.friends.length) h += '<h3 class="fr-h">Friends</h3><p class="fr-empty">' + (frLoaded ? 'No friends yet. Add one with their player ID.' : 'Loading…') + '</p>';
+    else {
+      h += '<h3 class="fr-h">Online · ' + onl.length + '</h3>' + (onl.length ? '<ul class="fr-list">' + onl.map(frRow).join('') + '</ul>' : '<p class="fr-empty">No friends online.</p>');
+      if (off.length) h += '<h3 class="fr-h">Offline · ' + off.length + '</h3><ul class="fr-list fr-off">' + off.map(frRow).join('') + '</ul>';
+    }
     if (fr.outgoing.length) h += '<h3 class="fr-h">Sent</h3><ul class="fr-list">' + fr.outgoing.map(function (x) {
       return row(x, '<span class="fr-wait">Waiting</span><button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Cancel request to ' + esc(x.name) + '" title="Cancel request">×</button>');
     }).join('') + '</ul>';
@@ -16486,7 +16523,7 @@ V1.5
       return { k: k, name: t.n, pub: t.n, pl: t.ty === 'p', x: lp ? lp[0] : +t.x, y: lp ? lp[1] : +t.y, pic: t.p ? smPics[t.p] || '' : '', ini: t.i, h: t.h, w: t.w, s: t.s, g: t.g && typeof t.g === 'object' ? { w: (Array.isArray(t.g.w) ? t.g.w : []).slice(0, 6).map(function (x) { return String(x).slice(0, 40); }), a: String(t.g.a || '').slice(0, 60) } : null, hu: +t.hu === 2 ? 2 : +t.hu === 1 ? 1 : 0, own: s.mine.indexOf(+t.k) >= 0, hid: !!t.hid, hv: Array.isArray(t.hv) ? t.hv.map(Number) : [] };
     });
   }
-  function smTokens() { return smMode() === 'join' ? smFogToks(smJoinTokens()) : smHostTokens(); }   // players: only what their tokens can see
+  function smTokens() { return smMode() === 'join' ? smFogToks(smJoinTokens()) : smTVToks(smHostTokens()); }   // players (and the host in Token view): only what the token can see
   /* ---- Hide: a hidden token (and its moves, measurements and areas) reaches only the host, its owner and the people
      it's made visible to; they see a small mark on it. People in the room are numbered for this (never by their ids). ---- */
   var smPeerNo = {}, smPeerSeq = 1;
@@ -16628,7 +16665,8 @@ V1.5
     var okK = {}; toks.forEach(function (x) { if (smPubOk(x)) okK[x.k] = 1; });
     var hk = function (k) { return !!(k && !okK[String(k)]); };
     var meas = Object.keys(sm.meas).map(function (w) { var m = sm.meas[w]; if (hk(m.f.k) || hk(m.t.k)) return null; var e = smMeasEnds(m.f, m.t, toks); return e ? { n: m.n, f: e[0].map(smNum2), t: e[1].map(smNum2) } : null; }).filter(Boolean);
-    return { u: sm.units, uf: sm.uf === false ? 0 : 1, uy: sm.uy === false ? 0 : 1, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t, v: l.v }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
+    var pnow = Date.now(), fe = sm.fe || 0, pg = smPingsHost.filter(function (q) { return pnow - q.t < 3000; }).map(function (q) { return [q.i, q.x, q.y, q.n, q.p, q.t]; });
+    return { pg: pg, fe: fe, u: sm.units, uf: sm.uf === false ? 0 : 1, uy: sm.uy === false ? 0 : 1, any: sm.any, dj: sm.dj ? 1 : 0, t: t, pp: smPeople(), a: sm.aoe.filter(function (a) { return !a.h && !hk(a.k); }).map(smAoePub), l: sm.lines.filter(function (l) { return !hk(l.a); }).map(function (l) { return { id: l.id, a: l.a, f: l.f, t: l.t, v: l.v }; }), ms: meas, d: sm.drag && !hk(sm.drag.k) ? { k: sm.drag.k, by: sm.drag.by } : null };
   };
   /* One token as watchers get it. */
   function smPubTok(x, pics) {
@@ -16675,12 +16713,21 @@ V1.5
   function smActor(k) { var s = smState(); return s ? s.ini.actors.filter(function (a) { return String(a.id) === String(k); })[0] : null; }
   function smHostDo(who, by, o) {
     var a, now = Date.now();
+    if (o.op === 'ping') {   // a ping: shown here, and to everyone with the next update (a few a second at most from each)
+      var px = +o.x, py = +o.y; if (!isFinite(px) || !isFinite(py)) return;
+      if (now - (smPingBy[who] || 0) < 300) return; smPingBy[who] = now;
+      smPingsHost = smPingsHost.filter(function (q) { return now - q.t < 3000; }).slice(-20);
+      smPingsHost.push({ i: smPingSeq++, x: smNum(Math.max(-500, Math.min(500, px))), y: smNum(Math.max(-500, Math.min(500, py))), n: String(by || 'Someone').slice(0, 24), p: String(who), t: now });
+      if (who !== 'host') smPingShow(px, py, by);
+      smPushSoon(); return;
+    }
     if (o.op === 'drag' || o.op === 'drop') {
       a = smActor(o.id); if (!a || !smMayMove(a, who)) return;
       var x = +o.x, y = +o.y; if (!isFinite(x) || !isFinite(y)) return;
       x = Math.max(-500, Math.min(500, x)); y = Math.max(-500, Math.min(500, y));
       var k = String(a.id);
       if (sm.drag && sm.drag.k === k && sm.drag.who !== who && now - sm.drag.t < 4000) return;   // someone else has it
+      if (who !== 'host' && a.type === 'player') smTVFocus(k);   // Token view: a player's token someone else moved
       if (o.op === 'drag') { sm.pos[k] = [x, y]; sm.drag = { k: k, by: by, who: who, t: now, v: smViaOk(o.via), from: sm.drag && sm.drag.k === k && sm.drag.from ? sm.drag.from : (Array.isArray(o.from) ? [+o.from[0], +o.from[1]] : sm.pos[k]) }; smPushSoon(); smDrawSoon(); return; }
       var from = Array.isArray(o.from) && isFinite(+o.from[0]) && isFinite(+o.from[1]) ? [+o.from[0], +o.from[1]] : (sm.drag && sm.drag.from) || sm.pos[k] || [x, y];
       var toks0 = smHostTokens(), me0 = toks0.filter(function (t) { return t.k === k; })[0], to0 = [x, y];
@@ -16762,6 +16809,37 @@ V1.5
     var r = R();
     smHostDo(pid, r && r.peerName ? r.peerName(pid) : 'Someone', a);
   };
+  /* ---- pings: Tab puts a ping where the pointer is on the map; everyone sees it (and hears it) for a moment ---- */
+  var SM_PING_MS = 2400, smPingsHost = [], smPingSeq = 1, smPingBy = {}, smPingsHere = [], smPingSeen = null, smPingLast = 0;
+  function smPingShow(x, y, n) {
+    smPingsHere = smPingsHere.filter(function (q) { return Date.now() - q.t < SM_PING_MS; }).concat([{ x: +x, y: +y, n: String(n || '').slice(0, 24), t: Date.now() }]).slice(-12);
+    if (window.cmPingSound) window.cmPingSound();
+    smDrawSoon(); setTimeout(smDrawSoon, SM_PING_MS + 60);
+  }
+  function smPingAt(cx, cy) {
+    if (Date.now() - smPingLast < 350) return; smPingLast = Date.now();
+    var p = smToWorld({ clientX: cx, clientY: cy }), x = smNum(p[0]), y = smNum(p[1]);
+    smPingShow(x, y, myName() || 'You');   // right away here
+    smSend({ op: 'ping', x: x, y: y });
+  }
+  /* A watcher: new pings in the host's update (not their own, already shown). Those already there on joining aren't played. */
+  function smPingsIn(rm) {
+    var pg = rm && Array.isArray(rm.pg) ? rm.pg : [], first = smPingSeen === null, me = R() && R().me ? String(R().me()) : '';
+    if (first) smPingSeen = {};
+    pg.forEach(function (q) {
+      if (!Array.isArray(q)) return; var key = q[0] + ':' + q[5]; if (smPingSeen[key]) return; smPingSeen[key] = 1;
+      if (!first && String(q[4]) !== me && isFinite(+q[1]) && isFinite(+q[2])) smPingShow(+q[1], +q[2], q[3]);
+    });
+  }
+  function smPingsSVG() {
+    var now = Date.now(), h = '';
+    smPingsHere.forEach(function (q) {
+      var age = now - q.t; if (age >= SM_PING_MS) return;
+      h += '<g class="sm-ping" transform="translate(' + q.x + ' ' + q.y + ')" style="animation-delay:-' + age + 'ms"><g class="sm-ping-a" style="animation-delay:-' + age + 'ms"><circle r="1.2"/></g><circle class="sm-ping-dot" r="0.16"/>' +
+        (q.n ? '<text class="sm-ping-n" y="-0.55">' + esc(q.n) + '</text>' : '') + '</g>';
+    });
+    return h;
+  }
   /* Sending: the host does it here; a watcher sends it to the host. */
   function smSend(o) {
     if (smMode() === 'join') { var r = R(); o.k = 'map'; r.mapAct(o); }
@@ -16945,6 +17023,7 @@ V1.5
         '<button type="button" class="btn-sec sm-fit sm-fullb" data-sm="full" aria-pressed="false" title="Fill the window with the map">Full screen</button>' +
         '<button type="button" class="btn-sec sm-z sm-pipb" data-sm="pip" aria-pressed="false"></button>' +
         (window.documentPictureInPicture ? '<button type="button" class="btn-sec sm-z sm-detb" data-sm="detach" aria-pressed="false"></button>' : '') +
+        '<button type="button" class="btn-sec sm-z sm-tvb" data-sm="tv" aria-pressed="false" aria-label="Token view" title="Token view (Space): see what a token sees: the last one you moved, or a player\'s token someone moved" hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>' +
         '<button type="button" class="btn-sec sm-z sm-drawb" data-sm="draw" aria-pressed="false" aria-label="Draw" title="Draw on the map" hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg></button>' +
         '<button type="button" class="btn-sec sm-z sm-cog" data-sm="set" aria-expanded="false" aria-controls="smSet" aria-label="Map settings" title="Map settings"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>' +
         '<button type="button" class="btn-sec ap-x" data-sm="close" aria-label="Close the Skirmish Map">&times;</button></span></div>' +
@@ -16959,8 +17038,10 @@ V1.5
       w.addEventListener('pointermove', smMove);
       w.addEventListener('pointerup', smUp);
       w.addEventListener('pointercancel', smUp);
+      w.addEventListener('pointermove', function (e) { smUi.ptr = [e.clientX, e.clientY, w.ownerDocument]; });
+      w.addEventListener('pointerleave', function () { smUi.ptr = null; });
       var win0 = w.ownerDocument && w.ownerDocument.defaultView;   // the window losing focus mid-drag (the Windows key, Alt+Tab) ends it as a drop
-      if (win0 && !win0.__smBlur) { win0.__smBlur = 1; win0.addEventListener('blur', smLostFocus); }
+      if (win0 && !win0.__smBlur) { win0.__smBlur = 1; win0.addEventListener('blur', smLostFocus); win0.addEventListener('keydown', smPingKey, true); win0.addEventListener('keydown', smTVKey, true); }
       w.addEventListener('pointerleave', function () { if (smUi.hover || smUi.hl != null || smUi.ha.length) { smUi.hover = ''; smUi.hl = null; smUi.ha = []; smTip(); smDrawSoon(); } }, true);
       w.addEventListener('contextmenu', smCtx);
       /* The browser's own handling of presses on the map (selecting text, dragging the picture, the middle-button scroll) is off. */
@@ -16995,7 +17076,7 @@ V1.5
     if (!smUi.set) return;
     var s = smState(), mode = smMode(), rm = s && s.remote && s.remote.m;
     var room = mode === 'host' ? smSwitch('smUnits', sm.units === 'i', 'Imperial units', 'Feet, with yards beside them (1 yard = 1 metre).') +
-      (sm.units === 'i' ? '<div class="sm-sw-row">' + smSwitch('smUF', sm.uf !== false, 'Feet') + smSwitch('smUY', sm.uy !== false, 'Yards') + '</div>' : '') + (s && s.hosting ? smSwitch('smDj', !!sm.dj, 'Watchers can draw', 'They get the Draw button too') + smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') : '')
+      (sm.units === 'i' ? '<div class="sm-sw-row">' + smSwitch('smUF', sm.uf !== false, 'Feet') + smSwitch('smUY', sm.uy !== false, 'Yards') + '</div>' : '') + (s && s.hosting ? smSwitch('smDj', !!sm.dj, 'Watchers can draw', 'They get the Draw button too') + smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') + '<button type="button" class="btn small" data-sm="fogReset" title="Players forget the parts of the map they\'ve seen (and where they last saw tokens)">Players forget the map</button>' : '')
       : '<p class="sm-set-note">' + (rm && rm.u === 'i' ? 'Feet, with yards beside them' : 'Metres') + ' (the host\'s choice). ' + (rm && rm.any ? 'You can move any token.' : 'You can move your own characters.') + '</p>';
     var key = mode + '|' + room + '|' + smView.grid + '|' + smView.style + '|' + smView.pat;
     if (box.getAttribute('data-k') === key) return;
@@ -17020,6 +17101,7 @@ V1.5
     var w = smPanel(); if (!w) return;
     var s = smState(); if (!s) return;
     var mode = smMode(), toks = smTokens(), rm = s.remote && s.remote.m;
+    if (mode === 'join') smPingsIn(rm); else smPingSeen = null;
     /* A portrait that became ready (a watcher's, or one just made here) goes to the room right away. */
     if (mode === 'host' && s.hosting && toks.some(function (t) { return t.rev && t.pic && t.c && t.c.img && !smSent['i:' + t.c.img]; })) smPushSoon();
     if (!smUi.open) return;
@@ -17028,7 +17110,7 @@ V1.5
     var body = smQ('smBody');
     if (mode === 'join' && !rm) { body.innerHTML = '<p class="hint">The host\'s tracker doesn\'t share a map.</p>'; return; }
     if (!body.querySelector('svg')) {
-      body.innerHTML = '<div class="sm-stage" id="smStage"><div class="sm-pat" aria-hidden="true"></div><svg class="sm-svg" id="smSvg" role="application" aria-label="Skirmish Map: drag your tokens; click a token to measure from it" tabindex="0"></svg><div class="sm-tip" id="smTip" hidden></div><div class="sm-menu" id="smMenu" hidden></div><div class="sm-aoe-pop" id="smAoe" role="dialog" aria-label="Areas of effect" hidden></div><div class="sm-aoe-pop sm-dlg" id="smDlg" role="dialog" aria-label="Saved drawings" hidden></div></div><p class="hint sm-help" id="smHelp"></p>';
+      body.innerHTML = '<div class="sm-stage" id="smStage"><div class="sm-pat" aria-hidden="true"></div><svg class="sm-svg" id="smSvg" role="application" aria-label="Skirmish Map: drag your tokens; click a token to measure from it" tabindex="0"></svg><svg class="sm-fogsvg" id="smFogSvg" aria-hidden="true"></svg><div class="sm-tip" id="smTip" hidden></div><div class="sm-menu" id="smMenu" hidden></div><div class="sm-aoe-pop" id="smAoe" role="dialog" aria-label="Areas of effect" hidden></div><div class="sm-aoe-pop sm-dlg" id="smDlg" role="dialog" aria-label="Saved drawings" hidden></div></div><p class="hint sm-help" id="smHelp"></p>';
     }
     smQ('smHelp').textContent = toks.length ? 'Drag a token to move it, hover it for details. Hover a line to see that move; click it to undo. Click a token, then a spot or another token, to measure. Right-click a token (or press and hold it) for its menu (areas of effect, hide). 1 square = 1 ' + (smUnits() === 'i' ? 'yard (3 ft)' : 'metre') + '.' : 'Add actors to the tracker and they show up here.';
     var svg = smSvgEl(), stage = smQ('smStage');
@@ -17092,7 +17174,7 @@ V1.5
     /* This round's moves: faded lines (click one to undo it and what came after). */
     var lines = smLines();
     lines.forEach(function (l) {
-      if (mode === 'join' && !byK[String(l.a)]) return;   // a token out of sight
+      if (!byK[String(l.a)]) return;   // a token out of sight (a player's, or the host's in Token view)
       var LP = smLnPts(l), mid = smPMid(LP), pts = LP.map(function (q) { return q[0] + ',' + q[1]; }).join(' '), hot = smUi.hl === l.id || (!!smUi.hover && String(l.a) === smUi.hover);
       h += '<g class="sm-move' + (hot ? ' hot' : '') + '" data-line="' + l.id + '" data-tok="' + esc(String(l.a)) + '"><polyline class="sm-move-hit" points="' + pts + '"/><polyline class="sm-move-ln" points="' + pts + '"/><circle class="sm-move-dot" cx="' + l.f[0] + '" cy="' + l.f[1] + '" r="0.12"/>' + (hot ? smLabel(mid[0], mid[1] - 0.25, smFmt(smPLen(LP)), 'sm-lbl-move') : '') + '</g>';
     });
@@ -17117,7 +17199,6 @@ V1.5
       h += '<circle class="sm-meas-end' + cuts[cuts.length - 1][1] + '" cx="' + m.t[0] + '" cy="' + m.t[1] + '" r="0.1"/>' +
         smLabel((m.f[0] + m.t[0]) / 2, (m.f[1] + m.t[1]) / 2 + 0.45, smFmt(d) + (wx.s >= 0 ? ' · no line of sight' : wx.h >= 0 ? ' · cover' : '') + (m.n ? ' · ' + m.n : ''), 'sm-lbl-meas');
     });
-    h += smFogSVG(toks);   // a player: the fog over what their tokens can't see
     /* Tokens on top. */
     toks.slice().sort(function (a, b) { return (a.k === dragK) - (b.k === dragK); }).forEach(function (t) {
       var cls = 'sm-tok' + (t.pl ? ' pl' : ' np') + (eng[t.k] ? ' eng' : '') + (t.k === dragK ? ' moving' : '') + (smCanMove(t) ? ' can' : '') + (t.hu === 2 ? ' down' : '') + (t.hid ? ' hid' : '') + (smUi.hover === t.k ? ' hov' : '');
@@ -17132,6 +17213,7 @@ V1.5
     h += '<g class="sm-clashes">' + clash + '</g>';
     h += '<g class="sm-lbls">' + smLabelsOut(dragK && byK[dragK] ? [[byK[dragK].x, byK[dragK].y]] : [], toks) + '</g>';   // on top, none overlapping
     svg.innerHTML = h;
+    smFogPaint(svg, toks, rm);   // over it all: a player's fog, last known positions and pings
     smTip();
   }
   /* Labels are collected while drawing and placed last, on top, so that none covers another or the token being moved:
@@ -17308,6 +17390,7 @@ V1.5
   function smCtx(e) {
     var svg = smSvgEl(); if (!svg || !svg.contains(e.target) || !smUi.vb) return;
     if (smDrawCtx(e)) return;   // drawing: its own menu (or cancelling a preset being placed)
+    if (!smTokAt(e) && smLkpCtx(e)) return;   // a last known position: forget it
     if (!smTokAt(e) && smWallCtx(e)) return;   // a door or window: open it, break it
     if (Date.now() - (smUi.holdAt || 0) < 1000) { e.preventDefault(); return; }   // the same press and hold already opened it (Android sends both)
     var t = smTokAt(e); if (!t) return;
@@ -17441,6 +17524,7 @@ V1.5
     if (g) {
       var k = g.getAttribute('data-tok'), t = smTokens().filter(function (x) { return x.k === k; })[0]; if (!t) return;
       smUi.act = { k: k, sx: e.clientX, sy: e.clientY, from: [t.x, t.y], off: [p[0] - t.x, p[1] - t.y], can: smCanMove(t), moved: false, startPairs: {}, pid: e.pointerId };
+      if (smMode() === 'host' && smUi.act.can) smTVFocus(k);   // Token view: the token the host picked up
       smPairs(smTokens()).forEach(function (q) { if (q[0] === k || q[1] === k) smUi.act.startPairs[q.join('|')] = 1; });
       /* What's left of this round's speed, worked out now and kept until the token is let go. Before an encounter: no limit. */
       if (smEnc()) { smUi.act.bud = smBudget(t); if (smUi.act.bud && smUi.act.bud.left <= 0.05) smUi.act.stuck = true; }
@@ -17457,6 +17541,24 @@ V1.5
   var smLiveT = 0;
   /* A drag that lost its pointer (the window lost focus, or the button was let go outside it): it ends where it is, as
      a drop, so the move is kept and counted (rather than the token's new spot becoming where it started from). */
+  /* Tab with the pointer over the map: a ping there (not while typing; Tab works as usual anywhere else). */
+  /* Space with the pointer over the map (the host): Token view on or off. */
+  function smTVKey(e) {
+    if (e.key !== ' ' || e.ctrlKey || e.altKey || e.metaKey || e.repeat || !smUi.ptr || smMode() !== 'host') return;
+    var svg = smSvgEl(), st = smQ('smStage'), t = e.target; if (!svg || !st || svg.ownerDocument !== smUi.ptr[2] || !svg.getClientRects().length) return;
+    var tag = t && t.tagName; if (t && (t.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT')) return;   // not while typing
+    var r = svg.getBoundingClientRect(), x = smUi.ptr[0], y = smUi.ptr[1]; if (x < r.left || x > r.right || y < r.top || y > r.bottom) return;
+    e.preventDefault(); e.stopPropagation(); smTVToggle();
+  }
+  function smPingKey(e) {
+    if (e.key !== 'Tab' || e.ctrlKey || e.altKey || e.metaKey || !smUi.ptr) return;
+    var t = e.target, tag = t && t.tagName; if (t && (t.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT')) return;
+    var svg = smSvgEl(); if (!svg || svg.ownerDocument !== smUi.ptr[2] || !svg.getClientRects().length) return;
+    var r = svg.getBoundingClientRect(), x = smUi.ptr[0], y = smUi.ptr[1]; if (x < r.left || x > r.right || y < r.top || y > r.bottom) return;
+    var cover = svg.ownerDocument.elementFromPoint(x, y); if (cover && !svg.contains(cover)) return;   // something over the map (a menu, the Actors list)
+    e.preventDefault(); e.stopPropagation();
+    smPingAt(x, y);
+  }
   function smLostFocus() {
     var fake = { clientX: 0, clientY: 0, pointerId: smUi.act && smUi.act.pid, button: 0 };
     if (smDw.act) smDrawUp(fake);
@@ -17942,15 +18044,164 @@ V1.5
     if (Object.keys(smFogC).length > 40) smFogC = {};
     return (smFogC[key] = pts);
   }
-  /* The fog over what a player's tokens can't see. */
-  function smFogSVG(toks) {
-    if (smMode() !== 'join') return '';
-    var mine = toks.filter(function (t) { return t.own; }); if (!mine.length) return '';
-    var W = smWalls().filter(smWBlockS); if (!W.length) return '';
-    var vb = smUi.vb, x = vb.x - vb.w, y = vb.y - vb.h, w = vb.w * 3, hh = vb.h * 3;
-    var d = mine.map(function (t) { var P = smVisPoly([t.x, t.y], W); return 'M' + P.map(function (q) { return q[0] + ' ' + q[1]; }).join('L') + 'Z'; }).join('');
-    return '<mask id="smFogM" maskUnits="userSpaceOnUse" x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" fill="#fff"/><path d="' + d + '" fill="#000"/></mask>' +
-      '<rect class="sm-fog" x="' + x + '" y="' + y + '" width="' + w + '" height="' + hh + '" mask="url(#smFogM)"/>';
+  /* ---- a player's fog of war ----
+     Only what their own tokens can see right now is shown as it is. What they've seen before (kept per room, also after
+     a reload) stays, dimmed; the rest is dark. Tokens out of sight are left off; where one was last seen (it went out of
+     sight, or was hidden in front of them) shows as a faint marker, until they see the token again, look at that spot
+     afresh after looking away, or forget it (right-click). The host can make every player forget the map. The fog sits
+     in its own layer over the map, so the remembered parts aren't redrawn every frame. */
+  var smFog = { code: null, rem: [], vp: [], ep: null, lkp: {}, seen: {}, en: null, remD: null, visD: null, saveT: 0 };
+  var SMF_STORE = 'vtm-smfog';
+  function smFogLoad(code) {
+    smFog.code = code; smFog.rem = []; smFog.vp = []; smFog.ep = null; smFog.lkp = {}; smFog.seen = {}; smFog.en = null; smFog.remD = null;
+    try { var d = (JSON.parse(localStorage.getItem(SMF_STORE) || '{}') || {})[code]; if (d) { smFog.rem = Array.isArray(d.r) ? d.r : []; smFog.vp = Array.isArray(d.v) ? d.v : []; smFog.ep = d.e; } } catch (e) {}
+  }
+  function smFogSave() {
+    if (smFog.saveT) return;
+    smFog.saveT = setTimeout(function () {
+      smFog.saveT = 0;
+      try {
+        var all = JSON.parse(localStorage.getItem(SMF_STORE) || '{}') || {};
+        all[smFog.code] = { r: smFog.rem.slice(-60), v: smFog.vp.slice(-60), e: smFog.ep, t: Date.now() };   // the latest 60 views are kept past a reload
+        Object.keys(all).sort(function (a, b) { return (all[b].t || 0) - (all[a].t || 0); }).slice(4).forEach(function (k) { delete all[k]; });   // and only the last 4 rooms
+        localStorage.setItem(SMF_STORE, JSON.stringify(all));
+      } catch (e) {}
+    }, 1500);
+  }
+  function smPolyS(P) { var out = []; P.forEach(function (q) { var p = [Math.round(q[0] * 100) / 100, Math.round(q[1] * 100) / 100], l = out[out.length - 1]; if (!l || Math.abs(l[0] - p[0]) + Math.abs(l[1] - p[1]) > 0.03) out.push(p); }); return out; }
+  function smPolyD(L) { return L.map(function (P) { return P.length > 2 ? 'M' + P.map(function (q) { return q[0] + ' ' + q[1]; }).join('L') + 'Z' : ''; }).join(''); }
+  function smLkpAt(e) { var tvm = smMode() === 'host' ? smTVNow(smHostTokens()) : null, L = tvm ? smFogHMem(tvm.v.k).lkp : smFog.lkp, p = smToWorld(e), best = null, bd = SM_R; Object.keys(L).forEach(function (k) { var l = L[k], d = smDist(p, [l.x, l.y]); if (d <= bd) { bd = d; best = k; } }); return best; }
+  function smLkpCtx(e) {
+    var tvm = smMode() === 'host' ? smTVNow(smHostTokens()) : null;
+    if (smMode() !== 'join' && !tvm) return false;
+    var k = smLkpAt(e); if (!k) return false;
+    var m = smQ('smMenu'), st = smQ('smStage'); if (!m || !st) return false;
+    e.preventDefault(); smMenuClose();
+    var r = st.getBoundingClientRect(), l = (tvm ? smFogHMem(tvm.v.k) : smFog).lkp[k];
+    smUi.menu = 'lkp';
+    m.innerHTML = '<span class="sm-menu-t">Last seen: ' + esc(l.n || 'a token') + '</span><button type="button" class="btn-sec" role="menuitem" data-sm="lkpForget" data-k="' + esc(k) + '">Forget</button>';
+    m.setAttribute('role', 'menu'); m.hidden = false;
+    m.style.left = Math.max(4, Math.min(e.clientX - r.left, st.clientWidth - m.offsetWidth - 4)) + 'px';
+    m.style.top = Math.max(4, Math.min(e.clientY - r.top + 6, st.clientHeight - m.offsetHeight - 4)) + 'px';
+    var f = m.querySelector('button'); if (f) f.focus({ preventScroll: true });
+    return true;
+  }
+  /* Last known positions, one step: a token seen last time but not now leaves one; seeing it again takes it away; a fresh
+     look at the spot (after looking away) shows it's gone; an encounter ending clears them. */
+  function smLkpStep(M, vis, enc, sees) {
+    if (M.en === true && !enc) M.lkp = {};
+    else Object.keys(M.seen).forEach(function (k) { if (!vis[k]) { var o = M.seen[k]; M.lkp[k] = { x: o.x, y: o.y, i: o.i, n: o.n, pl: o.pl, out: false }; } });
+    M.en = enc; M.seen = vis;
+    Object.keys(vis).forEach(function (k) { delete M.lkp[k]; });
+    Object.keys(M.lkp).forEach(function (k) { var l = M.lkp[k]; if (!sees(l)) l.out = true; else if (l.out) delete M.lkp[k]; });
+  }
+  /* ---- the host's Token view ----
+     The host can see the map as one token does: the last token they picked up, or a player's token someone else just
+     moved. Every token keeps its own memory all the time (the views it had, where it last saw others), so turning
+     Token view off and on again (the eye button, or Space over the map) finds it as it was. Off, the host sees all. */
+  var smTV = { on: false, k: '' }, smFogH = {}, SMF_HSTORE = 'vtm-smfogh', smFogHT = 0, smFogHSaveT = 0, smFogHLate = 0;
+  try { smTV.on = localStorage.getItem('vtm-smtv') === '1'; var d0 = JSON.parse(localStorage.getItem(SMF_HSTORE) || '{}') || {}; Object.keys(d0).forEach(function (k) { smFogH[k] = { rem: Array.isArray(d0[k].r) ? d0[k].r : [], vp: Array.isArray(d0[k].v) ? d0[k].v : [], lkp: {}, seen: {}, en: null, remD: null }; }); } catch (e) {}
+  function smFogHMem(k) { k = String(k); return smFogH[k] || (smFogH[k] = { rem: [], vp: [], lkp: {}, seen: {}, en: null, remD: null }); }
+  function smFogHSave() {
+    if (smFogHSaveT) return;
+    smFogHSaveT = setTimeout(function () {
+      smFogHSaveT = 0;
+      try { var all = {}; Object.keys(smFogH).forEach(function (k) { var m = smFogH[k]; if (m.rem.length) all[k] = { r: m.rem.slice(-20), v: m.vp.slice(-20) }; }); localStorage.setItem(SMF_HSTORE, JSON.stringify(all)); } catch (e) {}
+    }, 2000);
+  }
+  function smTVFocus(k) { k = String(k); if (smTV.k !== k) { smTV.k = k; smDrawSoon(); } }
+  function smTVToggle() {
+    smTV.on = !smTV.on; try { localStorage.setItem('vtm-smtv', smTV.on ? '1' : '0'); } catch (e) {}
+    var b = smQ('smWrap') && smQ('smWrap').querySelector('[data-sm="tv"]'); if (b) b.setAttribute('aria-pressed', String(smTV.on));
+    smDrawSoon();
+  }
+  /* A token sees another when there's a straight line to any part of it, and (for a player's token) it isn't hidden from that player. */
+  function smTVSees(v, t, W) { return smTokSees([v.x, v.y], [t.x, t.y], W) && (!t.hid || !v.ow || smSeesHid(v.ow, t.k)); }
+  /* Token view now: the token whose eyes the host is using, and the walls that block sight (or null: the host sees all). */
+  function smTVNow(list) {
+    if (!smTV.on || smMode() !== 'host' || !smTV.k) return null;
+    var v = list.filter(function (t) { return t.k === smTV.k; })[0]; if (!v) return null;
+    var W = smWalls().filter(smWBlockS); return W.length ? { v: v, W: W } : null;
+  }
+  function smTVToks(list) { var tv = smTVNow(list); return tv ? list.filter(function (t) { return t.k === tv.v.k || smTVSees(tv.v, t, tv.W); }) : list; }
+  /* The host keeps every token's memory up to date (a few times a second; a last look once things settle). */
+  function smFogHTrack(toks) {
+    var W = smWalls().filter(smWBlockS); if (!W.length) return;
+    var now = Date.now(); if (now - smFogHT < 160) { if (!smFogHLate) smFogHLate = setTimeout(function () { smFogHLate = 0; smDrawSoon(); }, 180); return; }
+    smFogHT = now;
+    var key = smWc.k, enc = smEnc(), changed = false, have = {};
+    toks.forEach(function (t) { have[t.k] = 1; });
+    toks.forEach(function (v) {
+      var M = smFogHMem(v.k);
+      if (!M.vp.some(function (q) { return q[2] === key && Math.hypot(q[0] - v.x, q[1] - v.y) < 1; })) {
+        M.vp.push([v.x, v.y, key]); M.rem.push(smPolyS(smVisPoly([v.x, v.y], W)));
+        if (M.rem.length > 300) { M.rem.shift(); M.vp.shift(); }
+        M.remD = null; changed = true;
+      }
+      var vis = {};
+      toks.forEach(function (t) { if (t.k !== v.k && smTVSees(v, t, W)) vis[t.k] = { x: t.x, y: t.y, i: initials(t.name), n: t.name, pl: t.pl }; });
+      smLkpStep(M, vis, enc, function (l) { return smSeesPt([v.x, v.y], [l.x, l.y], W); });
+      Object.keys(M.lkp).forEach(function (k) { if (!have[k]) delete M.lkp[k]; });   // a token taken off the map
+    });
+    if (changed) smFogHSave();
+  }
+  /* Which token's eyes: a small note in the map's corner while Token view is on. */
+  function smTVBadge() {
+    var st = smQ('smStage'); if (!st) return;
+    var bd = st.querySelector('.sm-tvbadge');
+    if (!(smTV.on && smMode() === 'host')) { if (bd) bd.hidden = true; return; }
+    if (!bd) { bd = smDoc().createElement('div'); bd.className = 'sm-tvbadge'; st.appendChild(bd); }
+    var list = smHostTokens(), v = smTV.k && list.filter(function (t) { return t.k === smTV.k; })[0], tv = smTVNow(list);
+    bd.textContent = tv ? 'Seeing as ' + v.name : v ? 'Token view: ' + v.name + ' (no walls block sight)' : 'Token view: pick up a token';
+    bd.hidden = false;
+  }
+  function smFogPaint(svg, toks, rm) {
+    var ov = smQ('smFogSvg'); if (!ov) return;
+    ov.setAttribute('viewBox', svg.getAttribute('viewBox') || '0 0 10 10');
+    if (!ov.querySelector('.sm-fog-top')) {
+      var big = 'x="-3000" y="-3000" width="6000" height="6000"';
+      ov.innerHTML = '<defs><mask id="smFogA" maskUnits="userSpaceOnUse" ' + big + '><rect ' + big + ' fill="#fff"/><path class="rem" fill="#000"/><path class="vis" fill="#000"/></mask>' +
+        '<mask id="smFogB" maskUnits="userSpaceOnUse" ' + big + '><rect ' + big + ' fill="#000"/><path class="rem" fill="#fff"/><path class="vis" fill="#000"/></mask></defs>' +
+        '<rect class="sm-fog-full" ' + big + ' mask="url(#smFogA)"/><rect class="sm-fog-dim" ' + big + ' mask="url(#smFogB)"/><g class="sm-fog-top"></g>';
+      smFog.remD = smFog.visD = null;
+    }
+    var top = ov.querySelector('.sm-fog-top'), join = smMode() === 'join', h = '';
+    if (!join) { if (smFog.code !== null) smFog.code = null; }
+    var mine = [], W = [], M = null;
+    if (smMode() === 'host') smFogHTrack(smHostTokens());
+    if (join) {
+      var code = (R() && R().watchCode ? R().watchCode() : '') || '-';
+      if (smFog.code !== code) smFogLoad(code);
+      if (rm && rm.fe !== undefined && smFog.ep !== rm.fe) { if (smFog.ep !== null && smFog.ep !== undefined) { smFog.rem = []; smFog.vp = []; smFog.lkp = {}; smFog.remD = null; } smFog.ep = rm.fe; smFogSave(); }   // the host made everyone forget
+      mine = toks.filter(function (t) { return t.own; });
+      W = smWalls().filter(smWBlockS);
+      var vis = {};
+      toks.forEach(function (t) { if (!t.own) vis[t.k] = { x: t.x, y: t.y, i: t.ini, n: t.pub, pl: t.pl }; });
+      smLkpStep(smFog, vis, !!(rm && rm.e), function (l) { return !mine.length || !W.length || mine.some(function (v) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }); });
+      M = smFog;
+    } else if (smMode() === 'host') {   // the host in Token view: what the token they last held (or a player's token just moved) sees
+      var tv = smTVNow(smHostTokens());
+      if (tv) { mine = [tv.v]; W = tv.W; M = smFogHMem(tv.v.k); }
+    }
+    if (M) Object.keys(M.lkp).forEach(function (k) { var l = M.lkp[k]; h += '<g class="sm-lkp" transform="translate(' + l.x + ' ' + l.y + ')"><title>Last seen here: ' + esc(l.n || 'a token') + ' (right-click to forget)</title><circle r="' + SM_R + '"/><text dy="0.02">' + esc(String(l.i || '?').slice(0, 3)) + '</text></g>'; });
+    smTVBadge();
+    var fogOn = !!(M && mine.length && W.length);
+    ov.classList.toggle('on', !!fogOn);
+    if (fogOn) {
+      var key = smWc.k, polys = mine.map(function (t) { return smVisPoly([t.x, t.y], W); });
+      /* Remembered: a new view is kept when a token stands somewhere new (a square from where it last looked), or the walls changed. */
+      mine.forEach(function (t, i) {
+        if (M.vp.some(function (v) { return v[2] === key && Math.hypot(v[0] - t.x, v[1] - t.y) < 1; })) return;
+        M.vp.push([t.x, t.y, key]); M.rem.push(smPolyS(polys[i]));
+        if (M.rem.length > 300) { M.rem.shift(); M.vp.shift(); }
+        M.remD = null; if (M === smFog) smFogSave(); else smFogHSave();
+      });
+      if (smFog.cur !== M) { smFog.cur = M; M.remD = null; }   // another token's memory
+      if (M.remD === null) { var remD = smPolyD(M.rem); M.remD = 1; [].forEach.call(ov.querySelectorAll('path.rem'), function (p) { p.setAttribute('d', remD); }); }   // only when something new is remembered
+      var visD = smPolyD(polys);
+      if (smFog.visD !== visD) { smFog.visD = visD; [].forEach.call(ov.querySelectorAll('path.vis'), function (p) { p.setAttribute('d', visD); }); }
+    }
+    top.innerHTML = h + '<g class="sm-pings">' + smPingsSVG() + '</g>';
   }
   /* Dragging a token: it can't pass through a wall that blocks movement; it slides along it instead. */
   function smWallMove(p0, p1) {
@@ -18380,6 +18631,7 @@ V1.5
     var can = smMayDraw(), b = w.querySelector('[data-sm="draw"]');
     if (!can && smDw.on) { smDw.on = false; smDw.act = null; smDw.path = null; smDw.sel = {}; smDrDlgClose(); }
     if (b) { b.hidden = !can; b.setAttribute('aria-pressed', String(smDw.on)); }
+    var tvb = w.querySelector('[data-sm="tv"]'); if (tvb) { tvb.hidden = smMode() !== 'host'; tvb.setAttribute('aria-pressed', String(smTV.on)); }
     var bar = smQ('smDtools'); if (!bar) return;
     bar.hidden = !smDw.on;
     var svg = smSvgEl(); if (svg) svg.classList.toggle('drawing', smDw.on && smDw.tool !== 'pan');
@@ -18430,6 +18682,9 @@ V1.5
     if (a === 'dwW') { smDw.w = +b.getAttribute('data-v'); smDwSave(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwW"][data-v="' + smDw.w + '"]'); if (q) q.focus(); }, 0); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrDo(smDrSelected().map(function (s) { return { i: s.i, s: Object.assign({}, s, { w: smDw.w }) }; })); smDrUI(); return true; }
     if (a === 'dwCopy') { smDrCopy(); return true; }
     if (a === 'dwDup') { smDrDup(); return true; }
+    if (a === 'tv') { smTVToggle(); return true; }
+    if (a === 'lkpForget') { var tvm = smTVNow(smHostTokens()); delete (smMode() === 'host' && tvm ? smFogHMem(tvm.v.k) : smFog).lkp[b.getAttribute('data-k')]; smMenuClose(); smDrawSoon(); var sv2 = smSvgEl(); if (sv2) sv2.focus({ preventScroll: true }); return true; }
+    if (a === 'fogReset' && smMode() === 'host') { sm.fe = (sm.fe || 0) + 1; smSave(); smPushSoon(); smFogH = {}; smFogHSave(); smDrawSoon(); if (window.cmToast) window.cmToast('Players forget the map they\'ve seen.'); return true; }
     if (a === 'wlTog') { smMenuClose(); smWallSet(b.getAttribute('data-i'), b.getAttribute('data-o') === '1'); var sv1 = smSvgEl(); if (sv1) sv1.focus({ preventScroll: true }); return true; }
     if (a === 'dwWl') { smDw.wl = +b.getAttribute('data-v'); smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('wl', smDw.wl); smDrUI(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwWl"][data-v="' + smDw.wl + '"]'); if (q) q.focus(); }, 0); return true; }
     if (a === 'dwTxt') { var t1 = smDrSelected()[0]; if (t1 && t1.t === 't') smDrTextEd(t1); return true; }

@@ -507,3 +507,13 @@ V3.6.4
 V3.6.5
 -Skirmish Map Changes:
 	-Fixed a move's bends not going away at some corners (like after going round a building's corner and back): a move's line is now pulled tight like a string around the walls, a token's width clear of them, so it's the shortest way that still goes round each wall on the side the token did. Rounding a corner shows as a few short bends hugging it.
+
+V3.6.6
+-Skirmish Map Changes:
+	-Pings: press Tab with the pointer over the map to ping that spot. Everyone sees a pulse with your name and hears the notification sound, a little faster (even with the app's sounds off; muting the browser tab silences it). Tab works as usual anywhere else, or while typing.
+	-Fog of war: players now see nothing of the map their tokens can't see (shapes, walls, areas, measurements, everything), not just the tokens. What they've seen before stays, dimmed (also after a reload).
+	-Last known position: when a token goes out of a player's sight, or is hidden in front of them, a faint marker stays where they last saw it. It goes when they see the token again, when they look at that spot again after looking away, when the encounter ends, or when they right-click it and choose Forget.
+	-Settings (host): "Players forget the map" clears what every player (and every token) remembers seeing, and their last known positions.
+	-Token view (host): the eye button, or Space with the pointer over the map, shows the map as one token sees it: the last token you picked up, or a player's token someone else just moved (named in the map's corner). It has the same fog, remembered parts and last known positions a player gets. Every token keeps its own memory all along, so turning Token view off (to see everything) and back on finds it as it was.
+-Friends Changes:
+	-The friends list is split into Online and Offline (online friends get a green dot). A friend counts as online while they have the app open.
