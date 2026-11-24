@@ -2003,7 +2003,8 @@ img.user-av { object-fit: cover; border-radius: 50%; padding: 0; }
 .sm-tok.moving .sm-tok-ring { stroke: var(--sm-live); stroke-dasharray: 0.2 0.12; }
 .sm-tok.down image { filter: grayscale(0.85) brightness(0.6); }
 .sm-tok.down .sm-tok-ini { fill: #9a8f80; }
-.sm-tok-ini { font: 700 0.34px var(--font-data); fill: #f3e6c8; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+.sm-tok-ini { font: 700 0.26px var(--font-data); fill: #f3e6c8; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+.sm-tok-ini.long, .sm-lkp text.long, .sm-tvo text.long { font-size: 0.2px; }
 .sm-tok-by { font: 400 0.34px var(--font-display); fill: var(--sm-live); text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: #000; stroke-width: 0.08; }
 .sm-hurt { pointer-events: none; }
 .sm-hurt-tint { fill: rgba(120, 0, 12, 0.16); }
@@ -2401,13 +2402,13 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
 .sm-fogsvg.on .sm-fog-full { display: inline; fill: #0d0a0f; }
 .sm-fogsvg.on .sm-fog-dim { display: inline; fill: rgba(13, 10, 15, 0.55); }
 .sm-lkp circle { fill: rgba(29, 24, 32, 0.25); stroke: #e8dcc0; stroke-width: 0.05; stroke-dasharray: 0.12 0.1; }
-.sm-lkp text { text-anchor: middle; dominant-baseline: central; font-size: 0.36px; font-weight: 700; fill: #e8dcc0; opacity: 0.8; }
+.sm-lkp text { text-anchor: middle; dominant-baseline: central; font-size: 0.26px; font-weight: 700; fill: #e8dcc0; opacity: 0.8; }
 .sm-lkp { opacity: 0.85; }
 .sm-tvbadge { position: absolute; z-index: 3; left: 8px; top: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(29, 24, 32, 0.85); color: #f2c14e; font: 600 0.75rem/1.3 var(--font-data); pointer-events: none; }
 .sm-tvb[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .sm-tok.tvout { opacity: 0.4; }
 .sm-tvo circle { fill: rgba(60, 50, 64, 0.55); stroke: #b9aec4; stroke-width: 0.04; }
-.sm-tvo text { text-anchor: middle; dominant-baseline: central; font-size: 0.34px; font-weight: 700; fill: #d8cfe0; }
+.sm-tvo text { text-anchor: middle; dominant-baseline: central; font-size: 0.26px; font-weight: 700; fill: #d8cfe0; }
 .sm-tvo { opacity: 0.55; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
@@ -12924,9 +12925,16 @@ V1.5
   window.cmHostChanged = function (code) { code = code || ''; if (code === myHost) return; myHost = code; postHost(); };
   window.setInterval(function () { if (myHost) postHost(); }, 30000);   // keeps going in a background tab
   /* Friends see you as online while the app is open: it says so every 60 s (in a background tab too). The list, while
-     it's open, looks again every 30 s. */
+     it's open, looks again every 15 s. */
   window.setInterval(function () { if (signedIn() && acctReady()) api('friends/here', {}).catch(function () {}); }, 60000);
-  window.setInterval(function () { var p = $('friendsPanel'); if (p && !p.hidden && !document.hidden && signedIn()) loadFriends(); }, 30000);
+  window.setInterval(function () { var p = $('friendsPanel'); if (p && !p.hidden && !document.hidden && signedIn()) loadFriends(); }, 15000);
+  /* Closing the app says so (friends see it offline right away); coming back to the tab says it's open again. */
+  window.addEventListener('pagehide', function () {
+    if (!signedIn() || !acctReady() || !acct.token) return;
+    try { navigator.sendBeacon(apiBase() + '/api/friends/bye?t=' + encodeURIComponent(acct.token), ''); } catch (e) {}
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted && signedIn() && acctReady()) loadFriends(); });   // back from the browser's page cache
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && signedIn() && acctReady()) loadFriends(); });
   function respondFriend(pid, accept) {
     return api('friends/respond', { pid: pid, accept: !!accept }).then(function (res) {
       toast(accept ? 'You and ' + (res.name || 'they') + ' are now friends.' : 'Request declined.');
@@ -16481,7 +16489,7 @@ V1.5
       units: d.units === 'i' ? 'i' : 'm', uf: d.uf !== false, uy: d.uy !== false, any: !!d.any, dj: !!d.dj, dr: Array.isArray(d.dr) ? d.dr.slice(0, 1500) : [], seq: +d.seq || 1, drag: null, hid: d.hid && typeof d.hid === 'object' && !Array.isArray(d.hid) ? d.hid : {}, aoe: Array.isArray(d.aoe) ? d.aoe.filter(smAoeOk).slice(0, SM_AOE_MAX) : [] };
   })();
   function smSave() { try { localStorage.setItem(SM_KEY, JSON.stringify({ pos: sm.pos, lines: sm.lines, meas: sm.meas, units: sm.units, any: sm.any, seq: sm.seq, aoe: sm.aoe, hid: sm.hid, dj: sm.dj, dr: sm.dr, uf: sm.uf, uy: sm.uy })); } catch (e) {} }
-  var smUi = { open: false, set: false, vb: null, fitted: false, act: null, pend: null, menu: null, local: {}, hover: '', hl: null, ha: [], hp: null, aoe: null };
+  var smUi = { open: false, set: false, vb: null, fitted: false, act: null, pend: null, menu: null, local: {}, lraw: {}, hover: '', hl: null, ha: [], hp: null, aoe: null };
   /* Each person's own view: grid lines on or off, and how strong they are. */
   /* Background styles: each person's own pick; "auto" follows light/dark mode (grimy tabletop / aged parchment). */
   var SM_STYLES = [['auto', 'Match light/dark mode'], ['grime', 'Grimy tabletop'], ['parch', 'Aged parchment'], ['street', 'Night street'], ['marble', 'Elysium marble']];
@@ -16575,11 +16583,14 @@ V1.5
     return out;
   }
   /* Watcher: tokens as the host sent them. */
-  function smJoinTokens() {
+  function smJoinTokens(raw) {   // raw: where the host has them (not where this page just dropped one)
     var s = smState(), m = s && s.remote && s.remote.m; if (!m || !Array.isArray(m.t)) return [];
     var seen = {}, hidT = (smMine.h && Array.isArray(smMine.h.t) ? smMine.h.t : []).map(function (t) { return Object.assign({}, t, { hid: 1 }); });
     return m.t.concat(hidT).filter(function (t) { var k0 = String(t && t.k); if (!t || seen[k0]) return false; seen[k0] = 1; return true; }).map(function (t) {
-      var k = String(t.k), lp = smUi.local[k];
+      var k = String(t.k), lp = smUi.local[k], lr = smUi.lraw[k];
+      /* After a drop the token shows where it was dropped until the host's update moves it (or someone undoes it). */
+      if (lp && !raw && lr && Math.hypot(+t.x - lr[0], +t.y - lr[1]) > 0.01) { delete smUi.local[k]; delete smUi.lraw[k]; lp = null; }
+      if (raw) lp = null;
       return { k: k, name: t.n, pub: t.n, pl: t.ty === 'p', x: lp ? lp[0] : +t.x, y: lp ? lp[1] : +t.y, pic: t.p ? smPics[t.p] || '' : '', ini: t.i, h: t.h, w: t.w, s: t.s, g: t.g && typeof t.g === 'object' ? { w: (Array.isArray(t.g.w) ? t.g.w : []).slice(0, 6).map(function (x) { return String(x).slice(0, 40); }), a: String(t.g.a || '').slice(0, 60) } : null, hu: +t.hu === 2 ? 2 : +t.hu === 1 ? 1 : 0, own: s.mine.indexOf(+t.k) >= 0, hid: !!t.hid, hv: Array.isArray(t.hv) ? t.hv.map(Number) : [] };
     });
   }
@@ -17267,7 +17278,7 @@ V1.5
       var lab = mode === 'host' ? t.name : t.pub, ini = mode === 'host' ? (t.rev ? initials(t.name) : t.pub) : t.ini;
       h += '<g class="' + cls + '" data-tok="' + esc(t.k) + '" transform="translate(' + t.x + ' ' + t.y + ')" tabindex="0" role="img" aria-label="' + esc(lab) + '">' +
         '<circle class="sm-tok-ring" r="' + (SM_R + 0.07) + '"/><circle class="sm-tok-bg" r="' + SM_R + '"/>' +
-        (t.pic ? '<image href="' + t.pic + '" x="' + -SM_R + '" y="' + -SM_R + '" width="' + 2 * SM_R + '" height="' + 2 * SM_R + '" clip-path="url(#smClip)" preserveAspectRatio="xMidYMid slice"/>' : '<text class="sm-tok-ini" y="0.02">' + esc(ini) + '</text>') + smHurtSvg(t) +
+        (t.pic ? '<image href="' + t.pic + '" x="' + -SM_R + '" y="' + -SM_R + '" width="' + 2 * SM_R + '" height="' + 2 * SM_R + '" clip-path="url(#smClip)" preserveAspectRatio="xMidYMid slice"/>' : '<text class="sm-tok-ini' + (String(ini).length > 2 ? ' long' : '') + '" y="0.02">' + esc(ini) + '</text>') + smHurtSvg(t) +
         (t.hid ? '<g class="sm-hid-mk" transform="translate(' + (SM_R * 0.72) + ' ' + (-SM_R * 0.72) + ')"><title>Hidden</title><circle r="0.17"/><path d="M-0.1 0C-0.05 -0.07 0.05 -0.07 0.1 0C0.05 0.07 -0.05 0.07 -0.1 0ZM-0.09 0.09L0.09 -0.09"/></g>' : '') +
         '</g>';
       if (t.k === dragK && dragBy) smLabel(t.x, t.y - SM_R - 0.3, dragBy + ' is moving', 'sm-lbl-by', 2);
@@ -17697,7 +17708,7 @@ V1.5
     var x = q[0], y = q[1];
     a.to = [x, y];
     if (smMode() === 'host') { sm.pos[a.k] = [x, y]; sm.drag = { k: a.k, by: myName() || 'Host', who: 'host', t: Date.now(), from: a.from, v: a.via }; smPushSoon(); }
-    else { smUi.local[a.k] = [x, y]; var now = Date.now(); if (now - smLiveT > 90) { smLiveT = now; smSend({ op: 'drag', id: +a.k, x: smNum(x), y: smNum(y), from: a.from, via: a.via }); } }
+    else { smUi.local[a.k] = [x, y]; delete smUi.lraw[a.k]; var now = Date.now(); if (now - smLiveT > 90) { smLiveT = now; smSend({ op: 'drag', id: +a.k, x: smNum(x), y: smNum(y), from: a.from, via: a.via }); } }
     smDrawSoon();
   }
   function smUp(e) {
@@ -17716,7 +17727,7 @@ V1.5
     if (a.moved) {
       var to = a.to || a.from;
       if (smMode() === 'host') { sm.drag = null; smHostDo('host', myName() || 'Host', { op: 'drop', id: +a.k, x: to[0], y: to[1], from: a.from, via: a.via }); }
-      else { smFogMoveEnd(a.k, true, [a.from].concat(a.via || [], [to])); smSend({ op: 'drop', id: +a.k, x: smNum(to[0]), y: smNum(to[1]), from: a.from, via: a.via }); var k = a.k; setTimeout(function () { delete smUi.local[k]; smDrawSoon(); }, 1500); }
+      else { var r0 = smJoinTokens(true).filter(function (t) { return t.k === String(a.k); })[0]; if (r0) smUi.lraw[a.k] = [r0.x, r0.y]; smFogMoveEnd(a.k, true, [a.from].concat(a.via || [], [to])); smSend({ op: 'drop', id: +a.k, x: smNum(to[0]), y: smNum(to[1]), from: a.from, via: a.via }); var k = a.k; setTimeout(function () { if (smUi.act && smUi.act.k === k) return; delete smUi.local[k]; delete smUi.lraw[k]; smDrawSoon(); }, 1500); }
       smDrawSoon();
       return;
     }
@@ -18125,14 +18136,14 @@ V1.5
      last known positions, who was in sight, and what each move would put back. */
   function smMemPack(M, n) {
     var keep = M.rem.length - Math.min(M.rem.length, n);
-    return { r: M.rem.slice(keep), v: M.vp.slice(keep), l: M.lkp, s: M.seen, g: (M.gone || []).slice(-100), ss: M.ss || {}, tf: M.tf || {}, dt: M.dt || {}, en: M.en };
+    return { r: M.rem.slice(keep), v: M.vp.slice(keep), l: M.lkp, s: M.seen, g: (M.gone || []).slice(-100), ss: M.ss || {}, tf: M.tf || {}, dt: M.dt || {}, df: M.df || {}, en: M.en };
   }
   function smMemUnpack(d, M) {
     M = M || {};
     var ok = d && Array.isArray(d.r) && Array.isArray(d.v) && d.r.length === d.v.length;
     M.rem = ok ? d.r : []; M.vp = ok ? d.v.map(function (v) { return [v[0], v[1], v[2], v[3] || '']; }) : [];
     var obj = function (x) { return x && typeof x === 'object' && !Array.isArray(x) ? x : {}; };
-    M.lkp = obj(d && d.l); M.seen = obj(d && d.s); M.gone = d && Array.isArray(d.g) ? d.g : []; M.ss = obj(d && d.ss); M.tf = obj(d && d.tf); M.dt = obj(d && d.dt);
+    M.lkp = obj(d && d.l); M.seen = obj(d && d.s); M.gone = d && Array.isArray(d.g) ? d.g : []; M.ss = obj(d && d.ss); M.tf = obj(d && d.tf); M.dt = obj(d && d.dt); M.df = obj(d && d.df);
     M.en = d && typeof d.en === 'boolean' ? d.en : null; M.remD = null;
     return M;
   }
@@ -18187,12 +18198,12 @@ V1.5
     if (tv && !M.ss[tv]) M.ss[tv] = { all: Object.assign({}, M.seen) };
     var keys = {}, now = {};
     Object.keys(M.seen).concat(Object.keys(vis)).forEach(function (k) { keys[k] = 1; });
-    var tagOf = function (k) { if (tv) return tv; var to = tgOf ? tgOf(k) || '' : ''; return to; };
+    var tagOf = function (k) { var to = tgOf ? tgOf(k) || '' : ''; return to || tv; };   // a token that just moved: what changes about it belongs to its move (else to the viewer's)
     var drop = function (k, tg) { if (tg && M.lkp[k]) { M.gone.push({ k: k, l: M.lkp[k], tg: tg }); if (M.gone.length > 300) M.gone.shift(); } delete M.lkp[k]; };
     Object.keys(keys).forEach(function (k) {
       var tg = tagOf(k);
       if (tg.indexOf('p:') === 0) { if (M.seen[k]) now[k] = M.seen[k]; return; }   // it's being dragged: wait for its drop
-      if (tg && !tv) { var ss = M.ss[tg] || (M.ss[tg] = { part: {} }); if (ss.part && !(k in ss.part)) ss.part[k] = M.seen[k] || null; }
+      if (tg && tg !== tv) { var ss = M.ss[tg] || (M.ss[tg] = { part: {} }); if (ss.part && !(k in ss.part)) ss.part[k] = M.seen[k] || null; }
       if (vis[k]) { now[k] = vis[k]; if (M.lkp[k]) drop(k, tg); }
       else if (M.seen[k] && !M.lkp[k]) { var o = M.seen[k]; M.lkp[k] = { x: o.x, y: o.y, i: o.i, n: o.n, pl: o.pl, out: false, tg: tg }; }
     });
@@ -18256,7 +18267,7 @@ V1.5
       var vis = {};
       toks.forEach(function (t) { if (t.k !== v.k && smTVSees(v, t, W)) vis[t.k] = { x: t.x, y: t.y, i: initials(t.name), n: t.name, pl: t.pl }; });
       smLkpStep(M, vis, enc, function (l) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }, vt, function (k) { return smFogTagFor(k, M); });
-      smFogResolve(M, sm.lines, function (k) { return sm.pos[k]; }, enc, 'tie');
+      smFogResolve(M, sm.lines, function (k) { return sm.pos[k]; }, enc, 'tie', smFogTagFor(v.k, M).indexOf('p:') === 0);
       Object.keys(M.lkp).forEach(function (k) { if (!have[k]) delete M.lkp[k]; });   // a token taken off the map
     });
     if (changed || Object.keys(smFogH).some(function (k) { var d = smFogH[k].dirty; smFogH[k].dirty = false; return d; })) smFogHSave();
@@ -18285,7 +18296,7 @@ V1.5
     if (M && M.dt && M.dt[k]) return 'd:' + k;   // dropped, not yet tied to its line: what's seen where it landed belongs to the move
     return '';
   }
-  function smMemInit(M) { M.gone = M.gone || []; M.tf = M.tf || {}; M.dt = M.dt || {}; M.ss = M.ss || {}; return M; }
+  function smMemInit(M) { M.gone = M.gone || []; M.tf = M.tf || {}; M.dt = M.dt || {}; M.df = M.df || {}; M.ss = M.ss || {}; return M; }
   function smMemRetag(M, a, b) {
     smMemInit(M);
     M.vp.forEach(function (v) { if ((v[3] || '') === a) v[3] = b; });
@@ -18312,7 +18323,7 @@ V1.5
     var L = smMode() === 'host' ? Object.keys(smFogH).map(function (q) { return smFogH[q]; }) : [smFog];   // the host: every token's memory (others watched it move)
     L.forEach(function (M) {
       smMemInit(M);
-      if (ok) M.dt[k] = Date.now(); else { M.cx = M.cx || {}; M.cx[k] = Date.now() + 2000; }
+      if (ok) { M.dt[k] = Date.now(); if (Array.isArray(P) && P[0]) M.df[k] = [+P[0][0], +P[0][1]]; else delete M.df[k]; } else { M.cx = M.cx || {}; M.cx[k] = Date.now() + 2000; }
     });
     if (!ok) setTimeout(smDrawSoon, 2100);
     smDrawSoon();
@@ -18343,13 +18354,16 @@ V1.5
   /* Ties dropped moves to their lines, and forgets what an undone move taught. lines: [{id, a, f, t}]; posOf(k): where k is. */
   /* phase 'undo' (before anything new is learned): forget what undone moves taught. phase 'tie' (after what's seen
      where a token landed has been taken in): tie dropped moves to their lines. */
-  function smFogResolve(M, lines, posOf, enc, phase) {
+  function smFogResolve(M, lines, posOf, enc, phase, hold) {
     smMemInit(M);
+    if (phase === 'tie' && hold) return;   // the viewer is mid-drag: nothing it sees is taken in yet, so a dropped move waits to be tied
     var now = Date.now(), changed = false;
     if (phase === 'tie') Object.keys(M.dt).forEach(function (k) {
       var p = posOf(k), L = lines.filter(function (l) { return String(l.a) === k && p && smDist(l.t, p) < 0.05; }), l = L[L.length - 1];
-      if (l) { var tg = 'L' + l.id; smMemRetag(M, 'd:' + k, tg); M.tf[tg] = { k: k, id: +l.id, f: [+l.f[0], +l.f[1]] }; delete M.dt[k]; changed = true; }
-      else if (!enc || now - M.dt[k] > 4000) { smMemRetag(M, 'd:' + k, ''); delete M.dt[k]; changed = true; }   // no move line to tie it to: kept for good
+      var f0 = M.df[k];
+      if (l) { var tg = 'L' + l.id; smMemRetag(M, 'd:' + k, tg); M.tf[tg] = { k: k, id: +l.id, f: [+l.f[0], +l.f[1]] }; delete M.dt[k]; delete M.df[k]; changed = true; }
+      else if (enc && p && f0 && smDist(p, f0) < 0.05 && now - M.dt[k] > 1500) { smMemForget(M, 'd:' + k); delete M.dt[k]; delete M.df[k]; changed = true; }   // put back where it started (only nudged, or the move refused): it taught nothing
+      else if (!enc || now - M.dt[k] > 8000) { smMemRetag(M, 'd:' + k, ''); delete M.dt[k]; delete M.df[k]; changed = true; }   // no move line to tie it to: kept for good
     });
     if (phase === 'tie') { if (changed) { if (M === smFog) smFogSave(); else smFogHSave(); } return; }
     Object.keys(M.cx || {}).forEach(function (k) { if (M.cx[k] <= now) delete M.cx[k]; });
@@ -18371,7 +18385,19 @@ V1.5
       ov.innerHTML = '<defs><mask id="smFogA" maskUnits="userSpaceOnUse" ' + big + '><rect ' + big + ' fill="#fff"/><path class="rem" fill="#000"/><path class="vis" fill="#000"/></mask>' +
         '<mask id="smFogB" maskUnits="userSpaceOnUse" ' + big + '><rect ' + big + ' fill="#000"/><path class="rem" fill="#fff"/><path class="vis" fill="#000"/></mask></defs>' +
         '<rect class="sm-fog-full" ' + big + ' mask="url(#smFogA)"/><rect class="sm-fog-dim" ' + big + ' mask="url(#smFogB)"/><g class="sm-fog-top"></g>';
-      smFog.remD = smFog.visD = null;
+      smFog.remD = smFog.visD = null; ov._vb = '';
+    }
+    /* The fog and its masks only cover what's in view (a little past it): Firefox can't make a mask as big as the whole
+       world at a close zoom (it gave up and drew the fog everywhere). */
+    var vbS = ov.getAttribute('viewBox'), bb = ov.getBoundingClientRect(), vbK = vbS + '|' + Math.round(bb.width) + 'x' + Math.round(bb.height);
+    if (ov._vb !== vbK) {
+      ov._vb = vbK;
+      var vq = vbS.split(/[\s,]+/).map(Number), sc = bb.width > 0 && bb.height > 0 ? Math.min(bb.width / vq[2], bb.height / vq[3]) : 0;
+      var vw = sc ? bb.width / sc : vq[2] * 3, vh = sc ? bb.height / sc : vq[3] * 3;   // what shows: the view box, widened to the panel's shape
+      vq = [vq[0] + vq[2] / 2 - vw / 2, vq[1] + vq[3] / 2 - vh / 2, vw, vh];
+      var mx = vw * 0.1 + 1, my = vh * 0.1 + 1;
+      var at = { x: vq[0] - mx, y: vq[1] - my, width: vq[2] + 2 * mx, height: vq[3] + 2 * my };
+      if (vq.every(isFinite)) [].forEach.call(ov.querySelectorAll('mask, mask > rect, .sm-fog-full, .sm-fog-dim'), function (el) { Object.keys(at).forEach(function (n) { el.setAttribute(n, smDrN(at[n])); }); });
     }
     var top = ov.querySelector('.sm-fog-top'), join = smMode() === 'join', h = '';
     if (!join) { if (smFog.code !== null) smFog.code = null; }
@@ -18385,7 +18411,7 @@ V1.5
       W = smWalls().filter(smWBlockS);
       var vis = {};
       toks.forEach(function (t) { if (!t.own) vis[t.k] = { x: t.x, y: t.y, i: t.ini, n: t.pub, pl: t.pl }; });
-      smJoinTokens().forEach(function (t) { posJ[t.k] = [t.x, t.y]; });   // every token's spot, also those out of sight (an undone move puts one back behind a wall)
+      smJoinTokens(true).forEach(function (t) { posJ[t.k] = [t.x, t.y]; });   // where the host has them   // every token's spot, also those out of sight (an undone move puts one back behind a wall)
       var linesJ = (rm && Array.isArray(rm.l) ? rm.l : []).filter(function (l) { return l && Array.isArray(l.f) && Array.isArray(l.t); });
       smFogResolve(smFog, linesJ, function (k) { return posJ[k]; }, smEnc(), 'undo');
       /* Someone else's drag (from the host's update): when it ends, that token counts as dropped. */
@@ -18397,9 +18423,9 @@ V1.5
         var ek = smFogDragK, ep = posJ[ek], ef = smFogDragF;
         var eL = linesJ.filter(function (l) { return String(l.a) === ek && ep && smDist(l.t, ep) < 0.05; }), el = eL[eL.length - 1];
         smMemInit(smFog);
-        if (!el && ep && ef && smDist(ep, ef) < 0.05) { smFog.cx = smFog.cx || {}; smFog.cx[ek] = Date.now() + 2000; setTimeout(smDrawSoon, 2100); }   // put back: cancelled
+        if (!el && ep && ef && smDist(ep, ef) < 0.05) { }   // put back (cancelled, or only nudged): nothing was learned while it was dragged
         else {
-          smFog.dt[ek] = Date.now();
+          smFog.dt[ek] = Date.now(); if (ef) smFog.df[ek] = ef.slice(); else delete smFog.df[ek];
           if (el && mine.some(function (t) { return t.k === ek; })) { smFog.dp = smFog.dp || {}; smFog.dp[ek] = [el.f].concat(Array.isArray(el.v) ? el.v : [], [el.t]).map(function (q) { return [+q[0], +q[1]]; }).slice(0, 80); }   // learns along the path it was moved by
         }
       }
@@ -18421,8 +18447,8 @@ V1.5
     }
     var liveK = {}; toks.forEach(function (t) { if (!t.tvo) liveK[t.k] = 1; });
     /* The host in Token view still sees every token: those the chosen one can't see, dimmed over the fog. */
-    if (smMode() === 'host') toks.forEach(function (t) { if (t.tvo) h += '<g class="sm-tvo" transform="translate(' + t.x + ' ' + t.y + ')"><title>' + esc(t.name) + ': out of sight</title><circle r="' + SM_R + '"/><text dy="0.02">' + esc(initials(t.name)) + '</text></g>'; });
-    if (M) Object.keys(M.lkp).forEach(function (k) { if (liveK[k]) return; var l = M.lkp[k]; h += '<g class="sm-lkp" transform="translate(' + l.x + ' ' + l.y + ')"><title>Last seen here: ' + esc(l.n || 'a token') + ' (right-click to forget)</title><circle r="' + SM_R + '"/><text dy="0.02">' + esc(String(l.i || '?').slice(0, 3)) + '</text></g>'; });
+    if (smMode() === 'host') toks.forEach(function (t) { if (t.tvo) h += '<g class="sm-tvo" transform="translate(' + t.x + ' ' + t.y + ')"><title>' + esc(t.name) + ': out of sight</title><circle r="' + SM_R + '"/><text dy="0.02"' + (initials(t.name).length > 2 ? ' class="long"' : '') + '>' + esc(initials(t.name)) + '</text></g>'; });
+    if (M) Object.keys(M.lkp).forEach(function (k) { if (liveK[k]) return; var l = M.lkp[k]; h += '<g class="sm-lkp" transform="translate(' + l.x + ' ' + l.y + ')"><title>Last seen here: ' + esc(l.n || 'a token') + ' (right-click to forget)</title><circle r="' + SM_R + '"/><text dy="0.02"' + (String(l.i || '?').slice(0, 3).length > 2 ? ' class="long"' : '') + '>' + esc(String(l.i || '?').slice(0, 3)) + '</text></g>'; });
     smTVBadge();
     var fogOn = !!(M && mine.length && W.length);
     ov.classList.toggle('on', !!fogOn);
@@ -18441,7 +18467,7 @@ V1.5
       var visD = smPolyD(polys);
       if (smFog.visD !== visD) { smFog.visD = visD; [].forEach.call(ov.querySelectorAll('path.vis'), function (p) { p.setAttribute('d', visD); }); }
     }
-    if (join && linesJ) smFogResolve(smFog, linesJ, function (k) { return posJ[k]; }, smEnc(), 'tie');   // after what it sees where it landed is taken in
+    if (join && linesJ) smFogResolve(smFog, linesJ, function (k) { return posJ[k]; }, smEnc(), 'tie', mine.some(function (t) { return smFogTagFor(t.k, smFog).indexOf('p:') === 0; }));   // after what it sees where it landed is taken in
     top.innerHTML = h + '<g class="sm-pings">' + smPingsSVG() + '</g>';
   }
   /* Dragging a token: it can't pass through a wall that blocks movement; it slides along it instead. */
@@ -19046,9 +19072,23 @@ V1.5
       chrTabBtn();
       if (chrSyncFields() || changed) window.vtmWhenFree('cm', function () { if (store.view === 'chars') render(); });
       if (store.view === 'chron' && !same) window.vtmWhenFree('chr', chrRender);   // only when something changed (the Grand Dossier isn't redrawn for nothing)
+      /* The chronicle open here: a player answered, or put a character in or took one out. Its players are fetched again. */
+      var cur = chr.cur && (res.own || []).filter(function (x) { return x.id === chr.cur; })[0];
+      if (cur) { var sig = cur.players + '|' + (cur.sids || []).slice().sort().join(','); if (chr.curSig && chr.curSig.id === cur.id && chr.curSig.s !== sig) chrPlayersAgain(cur.id); chr.curSig = { id: cur.id, s: sig }; }
     }).catch(function () {}).then(function () { chr.busy = false; });
   }
   setInterval(function () { if (signedIn() && !document.hidden) loadChronicles(); }, 30000);
+  setInterval(function () { if (signedIn() && !document.hidden && store.view === 'chron' && chr.cur) loadChronicles(); }, 8000);   // a chronicle open: answers and characters show up within seconds
+  /* Only the players and their characters, so nothing being written in the chronicle is touched. */
+  function chrPlayersAgain(id) {
+    return api('chronicles/' + id).then(function (res) {
+      var d = chr.det[id]; if (!d) return;
+      d.players = res.players; d.chars = res.chars;
+      var redraw = function () { if (chr.cur === id && store.view === 'chron') window.vtmWhenFree('chr', chrRender); };
+      redraw();
+      if (res.chars.some(function (c) { return !store.chars['sh-' + c.sid]; })) shareReconcile().then(redraw);
+    }).catch(function () {});
+  }
   setTimeout(loadChronicles, 1500);
   /* A character's chronicles: [{id, title, own}] (own: the Storyteller's own chronicle). */
   function chrOf(c) { return c && isShared(c) ? chr.sids[c.share.sid] || [] : []; }
@@ -19163,7 +19203,8 @@ V1.5
   function chrOpen(id) {
     chr.cur = id;
     return api('chronicles/' + id).then(function (res) {
-      res.data = chrData(res.data); chr.det[id] = res; if (chr.gdHost && chr.gdHost._chr === id) chr.gdHost = null; chrRender();
+      res.data = chrData(res.data); chr.det[id] = res;
+      chr.curSig = { id: id, s: res.players.filter(function (p) { return p.status === 'accepted'; }).length + '|' + res.chars.map(function (c) { return c.sid; }).sort().join(',') }; if (chr.gdHost && chr.gdHost._chr === id) chr.gdHost = null; chrRender();
       /* Players' characters not on this device yet: fetch them, then show them. */
       if (res.chars.some(function (c) { return !store.chars['sh-' + c.sid]; })) shareReconcile().then(function () { if (chr.cur === id && store.view === 'chron') window.vtmWhenFree('chr', chrRender); });
     }, function (e) { toast('Couldn\'t open it (' + e.message + ').'); chr.cur = ''; chrRender(); });

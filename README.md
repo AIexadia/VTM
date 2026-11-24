@@ -546,3 +546,14 @@ V3.7.4a
 	-Fixed undone moves not taking back what they revealed (remembered map, last known positions) after the page had been reloaded: everything a token knows, and which move taught it, is now kept past a reload.
 	-Token view (host): the token you were seeing through is kept past a reload.
 	-Fixed a player's token keeping what it saw during a move the host made for it (remembered map, last known positions) after the host undid that move: a move the host (or anyone else) makes with a player's token is now taken back like the player's own, it learns from the path it was moved along, and a move the host picks up and cancels teaches nothing.
+	-Fixed undone moves sometimes keeping what they revealed (remembered map, last known positions), seemingly at random: a token moved while another had just been nudged (or put back) could have its discoveries counted toward the wrong move and kept for good; an undo made right after a player dropped their token was missed while their page still showed it where they dropped it; and a second move made quickly after the first could go unrecorded.
+	-What changes about a token that just moved (it comes into sight, or its last known position is cleared) now always belongs to that token's move, so undoing that move takes it back, whoever is watching.
+	-Smaller initials on tokens (and on last known positions), so they fit inside the token; three-letter ones are smaller still.
+-General Changes:
+	-Fixed friends not changing between Online and Offline: closing the app now shows you offline to friends right away (instead of minutes later), coming back to the tab shows you online again, and the Friends list looks again every 15 seconds while it's open.
+-Chronicles Changes:
+	-Fixed a player who accepted a chronicle invitation still showing as "invited, hasn't answered yet", and their characters not showing in it, until the page was reloaded: an open chronicle now picks up answers and characters put in (or taken out) within seconds.
+
+V3.7.5
+-Skirmish Map Changes:
+	-Fixed the Skirmish Map going dark and showing nothing in Firefox once walls that block sight were placed: the fog now only covers what's in view, instead of a huge area Firefox couldn't draw.
