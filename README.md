@@ -557,3 +557,13 @@ V3.7.4a
 V3.7.5
 -Skirmish Map Changes:
 	-Fixed the Skirmish Map going dark and showing nothing in Firefox once walls that block sight were placed: the fog now only covers what's in view, instead of a huge area Firefox couldn't draw.
+
+V3.8
+-Dossier Changes (Character Dossiers and the Chronicles' Grand Dossier):
+	-Images: notes can now hold an image. Right-click the board and choose Add image…, paste an image onto the board, or drop an image file on it; right-click a note to add, change or remove its image.
+	-Images are shrunk before uploading (at most 1600 px; a photo's location data is dropped) and kept on the server, so they don't make the Dossier bigger. Once seen, they're kept on the device and show without a connection.
+	-Who sees them: on a Character Dossier, whoever can see that character (its owner and the people it's shared with); on a Grand Dossier, its Storyteller.
+	-Each account has room for 50 MB of images (Storytellers: 250 MB). An image no Dossier uses any more is deleted a week later, so undoing its removal still brings it back.
+	-Duplicating a character keeps its Dossier's images; deleting a character or a chronicle lets go of them.
+	-Images need you to be signed in. Rulebook pages don't belong here: images are synced.
+	-Fixed undo and redo on a Grand Dossier not being saved to the chronicle.

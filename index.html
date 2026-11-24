@@ -2410,6 +2410,12 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
 .sm-tvo circle { fill: rgba(60, 50, 64, 0.55); stroke: #b9aec4; stroke-width: 0.04; }
 .sm-tvo text { text-anchor: middle; dominant-baseline: central; font-size: 0.26px; font-weight: 700; fill: #d8cfe0; }
 .sm-tvo { opacity: 0.55; }
+/* Dossier images (V3.8): a picture on a note keeps its shape while it loads. */
+.nb-img { position: relative; width: 100%; margin: 6px 0 4px; border-radius: 3px; overflow: hidden; background: rgba(20, 12, 16, 0.18); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25); }
+.nb-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; -webkit-user-drag: none; }
+.nb-img.miss img { visibility: hidden; }
+.nb-imiss { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px; font-size: 12px; opacity: 0.75; }
+.nb-untitled .nb-img { margin-top: 2px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -8050,6 +8056,7 @@ V1.5
       if (b) { o.b = true; o.h = num(x.h, 240, 100, 40000); }
       if (!b && typeof x.cr === 'string' && /^[\w.:-]{1,80}$/.test(x.cr)) o.cr = x.cr;   // a character it stands for (a chronicle's Grand Dossier)
       if (!b && x.st && NB_STAMPS.some(function (k) { return k[0] === x.st; })) o.st = x.st;
+      if (!b && typeof x.im === 'string' && /^[a-f0-9]{32}$/.test(x.im)) { o.im = x.im; var ia0 = +x.ia; o.ia = isFinite(ia0) && ia0 >= 0.1 && ia0 <= 10 ? Math.round(ia0 * 10000) / 10000 : 0.75; }   // an image on the note (V3.8): its id, and its height / width
       var sc0 = num(x.sc, 100, 50, 200); if (sc0 !== 100) o.sc = sc0;   // size, in percent
       out[id] = o;
     });
@@ -10040,14 +10047,14 @@ V1.5
       var c = cur(); if (!c) return;
       var d = JSON.parse(JSON.stringify(c)); d.id = uid(); d.info.name = (c.info.name || 'Unnamed') + ' (copy)'; d.created = Date.now(); delete d.share; delete d.temp;
       var at = store.order.indexOf(c.id); store.chars[d.id] = d; if (folderOf(c.id)) placeIn(d.id, folderOf(c.id)); store.order.splice(at < 0 ? store.order.length : at + 1, 0, d.id); store.cur = d.id; xpMode = false; tabEdit = {};
-      commit(); toast('Duplicated.');
+      commit(); toast('Duplicated.'); dimgRefsSoon(d);   // the copy's Dossier holds the same images
     },
     del: function () {
       var c = cur(); if (!c) return;
       var shared = isShared(c) && c.share.role === 'owner';
       confirmBox('Delete ' + (c.info.name || 'this character') + '? This can\'t be undone. Export first if you want a backup.' + (shared ? '\n\nIt\'s shared, so deleting it also stops sharing it: everyone else loses it too.' : ''), 'Delete', function () {
         function gone() { delete store.chars[c.id]; delete store.lib.place[c.id]; delete store.libSeen[c.id]; store.order = store.order.filter(function (id) { return id !== c.id; }); store.cur = store.order[0] || (store.synced || [])[0] || null; tabEdit = {}; commit(); }
-        if (shared) stopSharing(c).then(gone, function (e) { toast('Couldn\'t stop sharing it, so it wasn\'t deleted (' + e.message + ').'); }); else gone();
+        dimgForget(c).then(function () { if (shared) stopSharing(c).then(gone, function (e) { toast('Couldn\'t stop sharing it, so it wasn\'t deleted (' + e.message + ').'); }); else gone(); });
       }, true);
     },
     privMode: function () { privMode = !privMode; render(); },
@@ -14388,7 +14395,7 @@ V1.5
     var pc = Math.min(100, Math.round(nbSize(c) / (c.nbMax || NB_BYTES) * 100));
     el.textContent = pc >= 1 ? 'Board ' + pc + '% full' : ''; el.classList.toggle('warn', pc >= 85);
   }
-  function nbChanged() { var c = nbC(); if (c) nbRecord(c); if (c && c.nbSave) c.nbSave(); else save(); nbCap(); nbUndoBtns(); }
+  function nbChanged() { var c = nbC(); if (c) nbRecord(c); if (c && c.nbSave) c.nbSave(); else save(); nbCap(); nbUndoBtns(); if (c) dimgRefsSoon(c); }
 
   /* ---- undo and redo (this device, this session): snapshots of the board ---- */
   var nbHist = {};
@@ -14415,7 +14422,8 @@ V1.5
     to.push(h.last); h.last = from.pop(); h.t = 0; h.key = '';
     c.notes = JSON.parse(h.last);
     nbSel = null; nbPick = {};
-    save(); nbCap(); nbDraw(); nbUndoBtns();
+    if (c.nbSave) c.nbSave(); else save();   // a Grand Dossier saves to its chronicle
+    nbCap(); nbDraw(); nbUndoBtns(); dimgRefsSoon(c);
   }
   function nbUndoBtns() {
     var c = nbC(); if (!c || !$('nbCard')) return;
@@ -14512,6 +14520,9 @@ V1.5
     board.addEventListener('keydown', nbKey);
     board.addEventListener('focusout', nbFocusOut);
     board.addEventListener('input', nbInput);
+    board.addEventListener('paste', nbPaste);
+    board.addEventListener('dragover', nbDragOver);
+    board.addEventListener('drop', nbDropFile);
     board.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('[data-nb]'); if (b) nbAct(b, e); });
     $('nbCard').querySelector('.card-head').addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('[data-nb]'); if (b) nbAct(b, e); });
     if (document.body.classList.contains('nb-full-on')) { $('nbCard').classList.add('nb-full'); var fb = $('nbCard').querySelector('[data-nb="full"]'); fb.setAttribute('aria-pressed', 'true'); fb.textContent = 'Exit full screen'; }
@@ -14540,6 +14551,7 @@ V1.5
     var html = '<svg class="nb-hits" id="nbHits" aria-hidden="true"></svg><svg class="nb-links" id="nbLinks" aria-hidden="true"></svg>';
     html += vis.map(function (id) { return nbNodeHTML(nb, id, ro); }).join('');
     stage.innerHTML = html;
+    dimgFill(stage);
     nbPrivMark(c);
     $('nbEmpty').hidden = ids.length > 0;
     nbApplyView();
@@ -14586,7 +14598,8 @@ V1.5
       untitled ? (o.f ? '<span class="nb-t nb-ph">' + esc((o.d.trim().split('\n')[0] || 'Untitled note').slice(0, 60)) + '</span>' : '') : '<span class="nb-t">' + nbHl(nbTitle(o)) + '</span>';
     var count = o.b && o.f && inside ? '<span class="nb-cnt">' + inside + ' inside</span>' : '';
     var body = o.f ? '' : ed ? '<textarea class="nb-di" maxlength="' + NB_DMAX + '" aria-label="Details" placeholder="Details">' + esc(o.d) + '</textarea>' :
-      (o.d.trim() ? '<div class="nb-d">' + nbHl(o.d) + '</div>' : (o.b ? '' : '<div class="nb-d nb-ph">No details yet</div>'));
+      (o.d.trim() ? '<div class="nb-d">' + nbHl(o.d) + '</div>' : (o.b || o.im ? '' : '<div class="nb-d nb-ph">No details yet</div>'));
+    if (o.im && !o.b && !o.f) body = dimgHTML(o) + body;   // an image on the note, above its details
     if (untitled && !ed) cls += ' nb-untitled';
     return '<div class="' + cls + '" data-nid="' + id + '" style="' + st + '" tabindex="0" role="group" aria-roledescription="' + (o.b ? 'container' : 'note') + '" aria-label="' + esc(nbTitle(o)) + (o.f ? ', collapsed' : '') + '">' +
       (o.b ? '' : '<span class="nb-pin" aria-hidden="true"></span>') +
@@ -14643,7 +14656,7 @@ V1.5
   function nbRedraw(id) {
     var c = nbC(), el = nbEl(id); if (!c || !el || !nbOf(c).n[id]) return nbDraw();
     var tmp = document.createElement('div'); tmp.innerHTML = nbNodeHTML(nbOf(c), id, nbRO(c));
-    el.parentNode.replaceChild(tmp.firstChild, el); nbPrivMark(c, id); nbLinks();
+    el.parentNode.replaceChild(tmp.firstChild, el); dimgFill(nbEl(id)); nbPrivMark(c, id); nbLinks();
     if (nbEdit === id) {
       var ne = nbEl(id), ti = ne.querySelector('.nb-ti'), di = ne.querySelector('.nb-di, .nb-xi');
       if (di) { di.style.height = 'auto'; di.style.height = di.scrollHeight + 'px'; }
@@ -14974,12 +14987,12 @@ V1.5
   /* ---- changes ---- */
   /* Adds a note, a container or a piece of text where the board was right-clicked (or in the middle of the view).
      Nothing opens for editing: double-click it for that. */
-  function nbAdd(kind, at, inside, ref) {
+  function nbAdd(kind, at, inside, ref, ex) {
     var c = nbC(); if (!c || nbRO(c)) return;
     var nb = nbOf(c), box = kind === 'box', tx = kind === 'text';
     if (Object.keys(nb.n).length >= NB_MAX) return toast('A board holds up to ' + NB_MAX + ' notes.');
     if (nbFull(c, 400)) return toast('This board is full. Shorten or remove some notes to add more.');
-    var r = $('nbBoard').getBoundingClientRect(), v = nbV(c), w = box ? 360 : tx ? 160 : 200;
+    var r = $('nbBoard').getBoundingClientRect(), v = nbV(c), w = box ? 360 : tx ? 160 : ex && ex.im ? 260 : 200;
     if (!at) at = { x: (r.width / 2 - v.x) / v.z - w / 2, y: (r.height / 2 - v.y) / v.z - (box ? 120 : 30) };
     var x = Math.round(at.x), y = Math.round(at.y), p = '';
     if (!tx && inside && nb.n[inside] && nb.n[inside].b && !nb.n[inside].f) p = inside;
@@ -14987,12 +15000,40 @@ V1.5
     var id = rid();
     nb.n[id] = tx ? { tx: true, t: 'New Text', x: x, y: y, w: w, fs: 20, fo: 't', r: 0, k: '', z: nbTopZ(nb), p: '' } :
       box ? { t: 'New container', d: '', x: x, y: y, w: w, s: 'round', k: '', f: false, p: p, z: nbTopZ(nb), b: true, h: 240 } :
-      (function () { var ln = nbLastNote(), o = { t: 'New note', d: '', x: x, y: y, w: w, s: ln.s, k: ln.k, f: false, p: p, z: nbTopZ(nb) }; if (ref && store.chars[ref]) { o.t = (store.chars[ref].info.name || 'Unnamed').slice(0, NB_TMAX); o.cr = ref; } return o; })();
+      (function () { var ln = nbLastNote(), o = { t: 'New note', d: '', x: x, y: y, w: w, s: ln.s, k: ln.k, f: false, p: p, z: nbTopZ(nb) }; if (ref && store.chars[ref]) { o.t = (store.chars[ref].info.name || 'Unnamed').slice(0, NB_TMAX); o.cr = ref; } if (ex) { Object.keys(ex).forEach(function (k) { o[k] = ex[k]; }); } return o; })();
     nbSel = { k: 'n', id: id };
     nbChanged(); nbDraw();
     if (p) nbGrow(nb, id);
     nbSettleNow(tx ? [] : [id], [], tx ? [] : [id]);
     var e = nbEl(id); if (e) e.focus({ preventScroll: true });
+  }
+  /* A new note holding an image (picked from a file, pasted or dropped). at: board point; none: the middle of the view. */
+  function nbImageNew(at, inside, file) {
+    var c = nbC(); if (!c || nbRO(c)) return;
+    var go = function (f) { dimgAddTo(c, f, function (r) { nbAdd('note', at, inside, null, { t: '', im: r.im, ia: r.ia }); }); };
+    if (file) go(file); else dimgPick(go);
+  }
+  /* Puts an image on a note (or changes it). */
+  function nbImageSet(id) {
+    var c = nbC(); if (!c || nbRO(c)) return;
+    dimgPick(function (f) { dimgAddTo(c, f, function (r) { var o = nbOf(c).n[id]; if (!o) return; o.im = r.im; o.ia = r.ia; nbSettleNow([id]); }); });
+  }
+  /* An image file pasted onto the board, or dropped on it. */
+  function nbImageFile(list) { for (var i = 0; list && i < list.length; i++) { var f = list[i].kind === 'file' ? list[i].getAsFile() : list[i]; if (f && /^image\//.test(f.type || '')) return f; } return null; }
+  function nbPaste(e) {
+    var c = nbC(); if (!c || nbRO(c) || nbEdit || !e.clipboardData) return;
+    var t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    var f = nbImageFile(e.clipboardData.items); if (!f) return;
+    e.preventDefault(); nbImageNew(null, '', f);
+  }
+  function nbDragOver(e) { var c = nbC(); if (!c || nbRO(c) || !e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') < 0) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }
+  function nbDropFile(e) {
+    var c = nbC(); if (!c || nbRO(c) || !e.dataTransfer) return;
+    var f = nbImageFile(e.dataTransfer.files); if (!f) return;
+    e.preventDefault();
+    var r = $('nbBoard').getBoundingClientRect(), v = nbV(c), pt = { x: (e.clientX - r.left - v.x) / v.z - 20, y: (e.clientY - r.top - v.y) / v.z - 14 };
+    var under = document.elementFromPoint(e.clientX, e.clientY), bx = under && under.closest && under.closest('.nb-node.nb-box'), inside = bx ? bx.getAttribute('data-nid') : '';
+    nbImageNew(pt, inside, f);
   }
   /* Grows the container (and the ones around it) so a note dropped inside fits. */
   function nbGrow(nb, id) {
@@ -15310,7 +15351,7 @@ V1.5
   function nbItemsAdd(pt, inside) {
     var c = nbC(), box = inside && nbOf(c).n[inside], where = box ? ' in ' + esc(nbTitle(box)) : '';
     function add(kind) { return function () { nbAdd(kind, { x: pt.x - (kind === 'text' ? 10 : 20), y: pt.y - 14 }, box ? inside : ''); }; }
-    var out = [{ label: 'Add note' + where, run: add('note') }, { label: 'Add container' + where, run: add('box') }, { label: 'Add text', run: add('text') }];
+    var out = [{ label: 'Add note' + where, run: add('note') }, { label: 'Add image' + where + '…', run: function () { nbImageNew({ x: pt.x - 20, y: pt.y - 14 }, box ? inside : ''); } }, { label: 'Add container' + where, run: add('box') }, { label: 'Add text', run: add('text') }];
     /* On a chronicle's Grand Dossier: a card for one of your characters (or one shared with you) that opens its sheet. */
     if (c && c.chrRefs) out.splice(1, 0, { label: 'Add a character' + where + '…', run: function () { chrGdPick(function (cid) { nbAdd('note', { x: pt.x - 20, y: pt.y - 14 }, box ? inside : '', cid); }); } });
     return out;
@@ -15364,7 +15405,8 @@ V1.5
     var items = [];
     if (o.b && !o.f) items = nbItemsAdd(pt, id).concat([null]);
     var stamps = [{ label: 'None', on: !o.st, run: nbSet(id, function (x) { delete x.st; }) }].concat(NB_STAMPS.map(function (k) { return { label: k[1], on: o.st === k[0], sw: k[2], run: nbSet(id, function (x) { x.st = k[0]; }) }; }));
-    items = items.concat([{ label: 'Edit text', run: function () { nbStartEdit(id); } },
+    var img = o.b ? [] : [{ label: o.im ? 'Change image…' : 'Add image…', run: function () { nbImageSet(id); } }].concat(o.im ? [{ label: 'Remove image', run: nbSet(id, function (x) { delete x.im; delete x.ia; }) }] : []);
+    items = items.concat([{ label: 'Edit text', run: function () { nbStartEdit(id); } }], img, [
       { label: 'Shape', sub: shapes }, { label: 'Colour', sub: nbColours(id, o) }, nbSizeItem([id])].concat(o.b ? [] : [{ label: 'Stamp', sub: stamps }]).concat([
       { label: o.f ? 'Expand' : 'Collapse', run: nbSet(id, function (x) { x.f = !x.f; if (nbEdit === id) nbEdit = null; }) }]));
     if (o.p && nb.n[o.p]) items.push({ label: 'Take out of ' + esc(nbTitle(nb.n[o.p])), run: nbSet(id, function (x) { x.p = ''; x.z = nbTopZ(nb); }) });
@@ -15737,6 +15779,149 @@ V1.5
     var card = $('nbCard');
     document.body.classList.remove('nb-full-on'); if (card) { card.classList.remove('nb-full'); var b = card.querySelector('[data-nb="full"]'); b.setAttribute('aria-pressed', 'false'); b.textContent = 'Full screen'; b.focus(); }
   });
+  /* ---- Dossier images (V3.8): pictures on a Character Dossier or a chronicle's Grand Dossier ----
+     A note can carry a image (o.im: its id on the server, o.ia: its height / width). The image is shrunk here
+     (at most 1600 px, WebP, which also drops whatever a photo carries about where it was taken) and uploaded; the
+     Dossier only keeps the id. After a Dossier changes, the server is told which images it holds, so it can let the
+     right people see them and delete the ones no Dossier holds any more (a week later). Images already seen are kept
+     on this device, so they show at once and without a connection. */
+  var DIMG_PX = 1600, DIMG_MAX = 1450000, DIMG_ID = /^[a-f0-9]{32}$/;
+  var dimgUrl = {}, dimgWait = {}, dimgBad = {}, dimgRefT = {}, dimgBusy = false, dimgDbP = null;
+  function dimgDb() {
+    if (dimgDbP) return dimgDbP;
+    dimgDbP = new Promise(function (res, rej) {
+      if (!window.indexedDB) return rej(new Error('no-idb'));
+      var rq = indexedDB.open('vtm-dimg', 1);
+      rq.onupgradeneeded = function () { rq.result.createObjectStore('img'); };
+      rq.onsuccess = function () { res(rq.result); };
+      rq.onerror = function () { rej(rq.error); };
+    });
+    dimgDbP.catch(function () {});
+    return dimgDbP;
+  }
+  function dimgIdb(mode, fn) { return dimgDb().then(function (db) { return new Promise(function (res, rej) { var t = db.transaction('img', mode), r = fn(t.objectStore('img')); t.oncomplete = function () { res(r && r.result); }; t.onerror = function () { rej(t.error); }; }); }); }
+  /* Which Dossier: a chronicle's, a shared character's (its sheet) or one of your own characters. */
+  function dimgScope(c) { return c._chr ? 'ch:' + c._chr : isShared(c) ? 's:' + c.share.sid : 'c:' + c.id; }
+  function dimgAuth() { return signedIn() && acctReady() && acct.token; }
+  /* The image (an address this page can show), from memory, this device, or the server. */
+  function dimgGet(id) {
+    if (!DIMG_ID.test(id)) return Promise.reject(new Error('bad'));
+    if (dimgUrl[id]) return Promise.resolve(dimgUrl[id]);
+    if (dimgWait[id]) return dimgWait[id];
+    var keep = function (blob) { dimgUrl[id] = URL.createObjectURL(blob); return dimgUrl[id]; };
+    dimgWait[id] = dimgIdb('readonly', function (st) { return st.get(id); }).catch(function () { return null; }).then(function (b) {
+      if (b instanceof Blob) return keep(b);
+      if (!dimgAuth()) throw new Error('signed-out');
+      return fetch(apiBase() + '/api/dimg/' + id, { headers: { authorization: 'Bearer ' + acct.token } }).then(function (r) {
+        if (!r.ok) { var e = new Error(r.status === 404 ? 'missing' : 'net'); e.status = r.status; throw e; }
+        return r.blob();
+      }).then(function (blob) { dimgIdb('readwrite', function (st) { return st.put(blob, id); }).catch(function () {}); return keep(blob); });
+    });
+    dimgWait[id].then(function () { delete dimgWait[id]; }, function (e) { delete dimgWait[id]; if (e && e.message === 'missing') dimgBad[id] = 1; });
+    return dimgWait[id];
+  }
+  /* The image inside a note (the box keeps its shape while it loads, so nothing on the board jumps). */
+  function dimgHTML(o) {
+    var ia = Math.max(0.1, Math.min(10, +o.ia || 0.75)), u = dimgUrl[o.im];
+    return '<div class="nb-img' + (dimgBad[o.im] ? ' miss' : '') + '" style="aspect-ratio:' + (1 / ia).toFixed(4) + '">' +
+      '<img data-dimg="' + esc(o.im) + '" alt="' + esc(o.t.trim() || 'Picture') + '" draggable="false"' + (u ? ' src="' + u + '"' : '') + '>' +
+      (dimgBad[o.im] ? '<span class="nb-imiss">Picture not found</span>' : '') + '</div>';
+  }
+  /* Fills in the images still loading (after the board is drawn). */
+  function dimgFill(root) {
+    if (!root) return;
+    Array.prototype.forEach.call(root.querySelectorAll('img[data-dimg]:not([src])'), function (im) {
+      var id = im.getAttribute('data-dimg'); if (dimgBad[id]) return;
+      dimgGet(id).then(function (u) { im.src = u; }, function (e) {
+        var box = im.parentNode; if (!box || box.classList.contains('miss')) return;
+        box.classList.add('miss');
+        box.insertAdjacentHTML('beforeend', '<span class="nb-imiss">' + (e && e.message === 'missing' ? 'Picture not found' : e && e.message === 'signed-out' ? 'Sign in to see this picture' : 'Couldn\'t load the image') + '</span>');
+      });
+    });
+  }
+  /* A file → a smaller WebP (JPEG where the browser can't make WebP), and its height / width. */
+  function dimgShrink(file) {
+    var load = window.createImageBitmap ? createImageBitmap(file) : new Promise(function (res, rej) {
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function () { res(im); }; im.onerror = function () { URL.revokeObjectURL(u); rej(new Error('not-an-image')); }; im.src = u;
+    });
+    return load.then(function (src) {
+      var w = src.width, h = src.height; if (!w || !h) throw new Error('not-an-image');
+      var k = Math.min(1, DIMG_PX / Math.max(w, h)), W = Math.max(1, Math.round(w * k)), H = Math.max(1, Math.round(h * k));
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d'); g.drawImage(src, 0, 0, W, H); if (src.close) src.close();
+      var enc = function (type, q) { return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, type, q); }); };
+      return enc('image/webp', 0.85).then(function (b) {
+        if (b && b.type === 'image/webp') return b;
+        g.globalCompositeOperation = 'destination-over'; g.fillStyle = '#e9dcc0'; g.fillRect(0, 0, W, H);   // JPEG has no see-through parts
+        return enc('image/jpeg', 0.85);
+      }).then(function step(b, q) {
+        if (!b) throw new Error('not-an-image');
+        if (b.size <= DIMG_MAX) return { blob: b, ia: H / W };
+        q = (q || 0.85) - 0.15; if (q < 0.3) throw new Error('too-big');
+        return enc(b.type, q).then(function (b2) { return step(b2, q); });
+      });
+    });
+  }
+  /* Shrinks and uploads a image for this Dossier. Resolves { im, ia }. */
+  function dimgUpload(c, file) {
+    if (!dimgAuth()) return Promise.reject(new Error('signed-out'));
+    if (!file || !/^image\//.test(file.type || '')) return Promise.reject(new Error('not-an-image'));
+    if (file.size > 40e6) return Promise.reject(new Error('too-big'));
+    return dimgShrink(file).then(function (s) {
+      return fetch(apiBase() + '/api/dimg?scope=' + encodeURIComponent(dimgScope(c)), { method: 'POST', headers: { 'content-type': s.blob.type, authorization: 'Bearer ' + acct.token }, body: s.blob }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok || !j.ok) { var e = new Error(j.error || 'net'); e.info = j; throw e; }
+          dimgUrl[j.id] = URL.createObjectURL(s.blob);
+          dimgIdb('readwrite', function (st) { return st.put(s.blob, j.id); }).catch(function () {});
+          return { im: j.id, ia: Math.round(s.ia * 10000) / 10000 };
+        });
+      });
+    });
+  }
+  function dimgMb(n) { return (n / 1e6).toFixed(n < 10e6 ? 1 : 0) + ' MB'; }
+  function dimgErr(e) {
+    var m = e && e.message;
+    toast(m === 'signed-out' ? 'Sign in to add pictures.' : m === 'not-an-image' ? 'That isn\'t a image this browser can read.' :
+      m === 'too-big' ? 'That image is too big.' : m === 'full' && e.info && e.info.usage ? 'Your images are using all of your ' + dimgMb(e.info.usage.allowance) + '. Remove some from your Dossiers to add more.' :
+      m === 'not-allowed' ? 'You can\'t add images here.' : m === 'no-storage' ? 'Images aren\'t set up on the server yet.' : 'Couldn\'t add the image. Check your connection and try again.');
+  }
+  /* Asks for a picture file, then hands it on. */
+  function dimgPick(then) {
+    var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+    inp.addEventListener('change', function () { if (inp.files && inp.files[0]) then(inp.files[0]); });
+    inp.click();
+  }
+  /* Uploads, then runs done({ im, ia }) on the board it came from (if it's still the one on screen). */
+  function dimgAddTo(c, file, done) {
+    if (dimgBusy) return toast('Still adding the last picture…');
+    if (!dimgAuth()) return dimgErr(new Error('signed-out'));
+    dimgBusy = true; toast('Adding the picture…');
+    dimgUpload(c, file).then(function (r) { dimgBusy = false; if (nbC() === c && !nbRO(c)) done(r); else dimgRefsSoon(c); }, function (e) { dimgBusy = false; dimgErr(e); });
+  }
+  /* Tells the server which images this Dossier holds now (a few seconds after it last changed). */
+  function dimgRefsSoon(c) {
+    if (!c || isReadOnly(c) || !dimgAuth()) return;
+    var nb = c.notes && c.notes.n; if (!nb) return;
+    var sc = dimgScope(c);
+    var has = Object.keys(nb).some(function (k) { return nb[k] && nb[k].im; }), had = {};
+    try { had = JSON.parse(localStorage.getItem('vtm-dimg-sc') || '{}') || {}; } catch (e) {}
+    var hk = c._chr ? 'ch:' + c._chr : c.id;   // the Dossier on this device (a character keeps its id when it gets shared)
+    if (!has && !had[hk]) return;   // a Dossier that has never had images (on this device): nothing to say
+    if (has && !had[hk]) { had[hk] = 1; try { localStorage.setItem('vtm-dimg-sc', JSON.stringify(had)); } catch (e) {} }
+    clearTimeout(dimgRefT[sc]);
+    dimgRefT[sc] = setTimeout(function () {
+      var n = c.notes && c.notes.n || {}, ids = [];
+      Object.keys(n).forEach(function (k) { if (n[k] && DIMG_ID.test(n[k].im || '') && ids.indexOf(n[k].im) < 0) ids.push(n[k].im); });
+      api('dimg/refs', { scope: sc, ids: ids }).catch(function () {});
+    }, 4000);
+  }
+  /* A character being deleted: its Dossier lets go of its images (they're deleted a week later). */
+  function dimgForget(c) {
+    var n = c && c.notes && c.notes.n;
+    if (!n || !dimgAuth() || isReadOnly(c) || !Object.keys(n).some(function (k) { return n[k] && n[k].im; })) return Promise.resolve();
+    return api('dimg/refs', { scope: dimgScope(c), ids: [] }).catch(function () {});
+  }
   /* ================= WHAT VIEWERS SEE =================
      Once a sheet is shared with a Viewer, everything on it is private by default: the owner and editors pick what
      viewers may see (tabs, sections, subsections, fields, board notes), on the sheet or with a preset. A mark says
