@@ -16810,7 +16810,7 @@ V1.5
       if (smWallCross(pre0, to0)) to0 = pre0;   // never nudged through a wall
       sm.pos[k] = to0; sm.drag = null;
       smRecord(k, from, to0, P.slice(1, -1), rel);
-      smFogMoveEnd(k, true);   // what it saw on the way counts now (until the move is undone)
+      smFogMoveEnd(k, true, P);   // what it saw along its path counts now (until the move is undone)
     } else if (o.op === 'undo') {
       var li = sm.lines.filter(function (l) { return l.id === +o.line; })[0]; if (!li) return;
       a = smActor(li.a); if (!a || !smMayMove(a, who)) return;
@@ -17716,7 +17716,7 @@ V1.5
     if (a.moved) {
       var to = a.to || a.from;
       if (smMode() === 'host') { sm.drag = null; smHostDo('host', myName() || 'Host', { op: 'drop', id: +a.k, x: to[0], y: to[1], from: a.from, via: a.via }); }
-      else { smFogMoveEnd(a.k, true); smSend({ op: 'drop', id: +a.k, x: smNum(to[0]), y: smNum(to[1]), from: a.from, via: a.via }); var k = a.k; setTimeout(function () { delete smUi.local[k]; smDrawSoon(); }, 1500); }
+      else { smFogMoveEnd(a.k, true, [a.from].concat(a.via || [], [to])); smSend({ op: 'drop', id: +a.k, x: smNum(to[0]), y: smNum(to[1]), from: a.from, via: a.via }); var k = a.k; setTimeout(function () { delete smUi.local[k]; smDrawSoon(); }, 1500); }
       smDrawSoon();
       return;
     }
@@ -18217,6 +18217,10 @@ V1.5
       var M = smFogHMem(v.k);
       smFogResolve(M, sm.lines, function (k) { return sm.pos[k]; }, enc, 'undo');   // first: an undone move is forgotten before anything new is learned
       var vt = smFogTagFor(v.k, M);
+      if (vt.indexOf('d:') === 0) {   // just dropped: what it saw along its path
+        var pl = smFogPathLearn(M, v.k, W, key, vt, function (s) { var o = {}, sv = { x: s[0], y: s[1], ow: v.ow }; toks.forEach(function (t) { if (t.k !== v.k && smTVSees(sv, t, W)) o[t.k] = { x: t.x, y: t.y, i: initials(t.name), n: t.name, pl: t.pl }; }); return o; });
+        if (pl) { smLkpStep(M, pl.vis, enc, function (l) { return pl.S.some(function (s) { return smSeesPt(s, [l.x, l.y], W); }); }, vt, function (k) { return smFogTagFor(k, M); }); changed = true; }
+      }
       if (W.length && vt.indexOf('p:') !== 0 && !M.vp.some(function (q) { return q[2] === key && Math.hypot(q[0] - v.x, q[1] - v.y) < 1; })) {   // nothing is remembered while it's dragged
         M.vp.push([v.x, v.y, key, vt]); M.rem.push(smPolyS(smVisPoly([v.x, v.y], W)));
         if (M.rem.length > 300) { M.rem.shift(); M.vp.shift(); }
@@ -18272,8 +18276,11 @@ V1.5
     M.remD = null;
   }
   /* A drag ended: dropped (waiting to be tied to its move line) or cancelled (forgotten). */
-  function smFogMoveEnd(k, ok) {
+  function smFogMoveEnd(k, ok, P) {
     k = String(k);
+    /* The mover's memory keeps the path it was dropped with: it learns from along it (see smFogPathLearn). */
+    var MM = smMode() === 'host' ? smFogHMem(k) : smFog;
+    if (ok && Array.isArray(P) && P.length >= 2) { MM.dp = MM.dp || {}; MM.dp[k] = P.map(function (q) { return [+q[0], +q[1]]; }).slice(0, 80); }
     var L = smMode() === 'host' ? Object.keys(smFogH).map(function (q) { return smFogH[q]; }) : [smFog];   // the host: every token's memory (others watched it move)
     L.forEach(function (M) {
       smMemInit(M);
@@ -18281,6 +18288,29 @@ V1.5
     });
     if (!ok) setTimeout(smDrawSoon, 2100);
     smDrawSoon();
+  }
+  /* Points along a move's path, about a square apart (and each bend), where the token looked as it went. */
+  function smPathSamples(P) {
+    var out = [P[0]];
+    for (var i = 1; i < P.length; i++) { var d = smDist(P[i - 1], P[i]), n = Math.max(1, Math.ceil(d)); for (var j = 1; j <= n; j++) out.push(smWAt({ a: P[i - 1], b: P[i] }, j / n)); }
+    return out;
+  }
+  /* Once a move is dropped, the mover learns from its whole path: what's seen from along it is remembered, and whoever it
+     saw on the way (seesFrom(point): who's seen from there) is known, then becomes a last known position if it's out of
+     sight from where the mover ended. All of it carries the move's tag, so undoing the move takes it back. */
+  function smFogPathLearn(M, k, W, key, tag, seesFrom) {
+    var P = M.dp && M.dp[k]; if (!P) return null;
+    delete M.dp[k];
+    var S = smPathSamples(P), vis = {};
+    S.forEach(function (s) {
+      if (W.length && !M.vp.some(function (q) { return q[2] === key && Math.hypot(q[0] - s[0], q[1] - s[1]) < 1; })) {
+        M.vp.push([smDrN(s[0]), smDrN(s[1]), key, tag]); M.rem.push(smPolyS(smVisPoly(s, W)));
+        if (M.rem.length > 300) { M.rem.shift(); M.vp.shift(); }
+        M.remD = null;
+      }
+      var o = seesFrom(s); Object.keys(o).forEach(function (q) { vis[q] = o[q]; });
+    });
+    return { vis: vis, S: S };
   }
   /* Ties dropped moves to their lines, and forgets what an undone move taught. lines: [{id, a, f, t}]; posOf(k): where k is. */
   /* phase 'undo' (before anything new is learned): forget what undone moves taught. phase 'tie' (after what's seen
@@ -18335,6 +18365,12 @@ V1.5
       if (smFogDragK && smFogDragK !== dk && !mine.some(function (t) { return t.k === smFogDragK; })) { smMemInit(smFog); smFog.dt[smFogDragK] = Date.now(); }
       smFogDragK = mine.some(function (t) { return t.k === dk; }) ? '' : dk;
       var jtg = '', jp = false; mine.forEach(function (t) { var g = smFogTagFor(t.k, smFog); if (g.indexOf('p:') === 0) jp = true; else jtg = jtg || g; });
+      if (!jp) mine.forEach(function (t) {   // one of theirs just dropped: what it saw along its path
+        var g = smFogTagFor(t.k, smFog); if (g.indexOf('d:') !== 0 || !smFog.dp || !smFog.dp[t.k]) return;
+        var allJ = smJoinTokens();
+        var pl = smFogPathLearn(smFog, t.k, W, smWc.k, g, function (s) { var o = {}; allJ.forEach(function (x) { if (!x.own && (!W.length || smTokSees(s, [x.x, x.y], W))) o[x.k] = { x: x.x, y: x.y, i: x.ini, n: x.pub, pl: x.pl }; }); return o; });
+        if (pl) { smLkpStep(smFog, Object.assign({}, vis, pl.vis), smEnc(), function (l) { return pl.S.some(function (s) { return !W.length || smSeesPt(s, [l.x, l.y], W); }); }, g, function (k) { return smFogTagFor(k, smFog); }); smFogSave(); }
+      });
       smLkpStep(smFog, vis, smEnc(), function (l) { return !mine.length || !W.length || mine.some(function (v) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }); }, jp ? 'p:' : jtg, function (k) { return smFogTagFor(k, smFog); });
       M = smFog;
     } else if (smMode() === 'host') {   // the host in Token view: what the token they last held (or a player's token just moved) sees

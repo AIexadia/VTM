@@ -538,3 +538,7 @@ V3.7.3
 	-Watchers who lose the connection rejoin by themselves, and a reload takes them back into the room.
 	-A heartbeat notices a connection that quietly stopped working, and reconnects right away instead of waiting for the browser to notice.
 	-Rejoin room: when the connection to a room is lost for good, a Rejoin button (for the host, if the room is still open; for a watcher, if it still exists) takes them back in.
+
+V3.7.4
+-Skirmish Map Changes:
+	-Once a move is dropped, the token learns from its whole path (the move's line, bends and all), not only where it ended: what's seen from along it is remembered, and tokens it saw on the way get a last known position if they're out of sight from where it stopped. Undoing the move takes it all back.
