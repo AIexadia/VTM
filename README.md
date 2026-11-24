@@ -543,3 +543,5 @@ V3.7.4a
 -Skirmish Map Changes:
 	-Once a move is dropped, the token learns from its whole path (the move's line, bends and all), not only where it ended: what's seen from along it is remembered, and tokens it saw on the way get a last known position if they're out of sight from where it stopped. Undoing the move takes it all back.
 	-Fixed a player keeping a new last known position for a token whose move was undone: if a token behind a wall moved into sight and the move was undone, the player kept a marker where it had briefly been, instead of the one behind the wall they knew of before.
+	-Fixed undone moves not taking back what they revealed (remembered map, last known positions) after the page had been reloaded: everything a token knows, and which move taught it, is now kept past a reload.
+	-Token view (host): the token you were seeing through is kept past a reload.
