@@ -11248,10 +11248,12 @@ V1.5
     if (!o[6]) return null;
     var w = o[6] === 'weapon' ? cqmWeapon(c) : null, s = o[6] === 'weapon' ? (w ? w.dmg : 'Str') : o[6];
     var kind = o[7] === 'claw' ? ((c.disc.Protean || 0) >= 2 ? 'aggravated' : 'lethal') : o[7] === 'special' ? (w ? ({ B: 'bashing', L: 'lethal', A: 'aggravated' }[w.type] || 'lethal') : 'bashing') : o[7];
-    return { pool: dmgPool(c, s), text: (w ? w.name + ' ' : '') + s.replace('Str', 'Strength ').replace('+', '+ ').trim() + ', ' + kind };
+    var ap = store.settings.armorAtk ? ((wornArmor(c) || {}).penalty || 0) : 0;   // and on their damage, like other attacks
+    return { pool: dmgPool(c, s) - ap, text: (w ? w.name + ' ' : '') + s.replace('Str', 'Strength ').replace('+', '+ ').trim() + ', ' + kind };
   }
   function cqmPool(c, o) {
-    var attr = o[2], skill = o[3], wp = woundPenalty(c), arm = wornArmor(c), ap = arm ? (+arm.penalty || 0) : 0, auto = [], mod = 0;
+    /* Maneuvers are attacks: armor's penalty only counts with Armor Penalty on Attacks (V3.9.2). */
+    var attr = o[2], skill = o[3], wp = woundPenalty(c), arm = wornArmor(c), ap = arm && store.settings.armorAtk ? (+arm.penalty || 0) : 0, auto = [], mod = 0;
     if (wp) { mod += wp; auto.push('Wounds ' + wp); }
     if (ap) { mod -= ap; auto.push('Armor −' + ap); }
     if (o[5]) { mod += o[5]; auto.push('Accuracy +' + o[5]); }
@@ -11265,7 +11267,7 @@ V1.5
     var step = function (k, lbl, v) {
       return '<div class="def-step"><span class="def-lbl">' + lbl + '</span><span class="qr-diff"><button type="button" class="qr-step" data-qstep="' + k + '" data-d="-1" aria-label="Lower ' + lbl + '">−</button><b>' + v + '</b><button type="button" class="qr-step" data-qstep="' + k + '" data-d="1" aria-label="Raise ' + lbl + '">+</button></span></div>';
     };
-    openModal('<h2>Close Combat Maneuvers</h2><p class="muted small">The attack rolls at once in the main roller; its damage is made ready in the Damage module. Wound penalties, armor, Celerity and Potence are added for you.</p>' +
+    openModal('<h2>Close Combat Maneuvers</h2><p class="muted small">The attack rolls at once in the main roller; its damage is made ready in the Damage module. Wound penalties, Celerity and Potence are added for you' + (store.settings.armorAtk ? ', and armor (Armor Penalty on Attacks is on)' : '') + '.</p>' +
       (incap ? '<p class="untrained-warn">' + esc(c.info.name || 'This character') + ' is Incapacitated and can\'t attack.</p>' : '') +
       '<div class="def-steps">' + step('dmod', 'Difficulty mod', sg(cqs.dmod)) + step('mod', 'Dice mod', sg(cqs.mod)) + '</div><div class="soak-opts">' + CQM_OPTS.map(function (o) {
         var p = cqmPool(c, o), d = cqmDmg(c, o), diff = clamp(6 + o[4] + cqs.dmod, 2, 10);

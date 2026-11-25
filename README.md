@@ -602,3 +602,7 @@ V3.9.1
 -Skirmish Map Changes:
 	-"Players forget the map" (in the map's settings) now works without hosting a room too, so you can try things out in Token view first: it clears what Token view remembers.
 	-Next to it, a "Shortcut on the map" toggle puts the same button in the bottom-left corner of the map itself. It takes two quick clicks (the first turns it into "Click again to forget" for 3 seconds), so a stray click doesn't wipe anything. The toggle is remembered on this device.
+
+V3.9.2
+-Character Changes:
+	-Fixed close combat maneuvers (CQM) always taking the worn armor's penalty: they're attacks, so it now follows Armor Penalty on Attacks like weapon attacks do. On: the penalty comes off the maneuver and its damage. Off: neither.
