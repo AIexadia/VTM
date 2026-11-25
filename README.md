@@ -605,4 +605,8 @@ V3.9.1
 
 V3.9.2
 -Character Changes:
-	-Fixed close combat maneuvers (CQM) always taking the worn armor's penalty: they're attacks, so it now follows Armor Penalty on Attacks like weapon attacks do. On: the penalty comes off the maneuver and its damage. Off: neither.
+	-Fixed close combat maneuvers (CQM) always taking the worn armor's penalty: they're attacks, so it now follows Armor Penalty on Attacks like weapon attacks do.
+
+V3.9.3
+-Dossier Changes:
+	-Notes have no width limit any more (they used to stop at 480): drag a note's corner to make it as wide as you like, like containers.

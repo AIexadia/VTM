@@ -8146,7 +8146,7 @@ V1.5
       }
       var b = !!x.b, o = {
         t: String(x.t == null ? '' : x.t).slice(0, NB_TMAX), d: String(x.d == null ? '' : x.d).slice(0, NB_DMAX),
-        x: num(x.x, 0, -20000, 20000), y: num(x.y, 0, -20000, 20000), w: num(x.w, b ? 360 : 200, b ? 180 : 120, b ? 40000 : 480),
+        x: num(x.x, 0, -20000, 20000), y: num(x.y, 0, -20000, 20000), w: num(x.w, b ? 360 : 200, b ? 180 : 120, 40000),   // notes as wide as you like (V3.9.3), like containers
         s: shapes[x.s] && (!b || NB_BOX_SHAPES[x.s]) ? x.s : (b ? 'round' : 'rect'), k: cols[x.k] ? x.k : '', f: !!x.f, p: typeof x.p === 'string' ? x.p : '', z: num(x.z, 0, 0, 1e9)
       };
       if (b) { o.b = true; o.h = num(x.h, 240, 100, 40000); }
@@ -16010,7 +16010,7 @@ V1.5
       if (et) { et.style.width = nw + 'px'; et.style.minHeight = ot.h ? ot.h + 'px' : ''; }
     } else if (d.m === 'size') {
       var o = nb.n[d.id], el = $('nbStage').querySelector('.nb-node[data-nid="' + d.id + '"]');
-      o.w = Math.max(o.b ? 180 : 120, Math.min(o.b ? 40000 : 480, Math.round((d.w * d.sc + p.x - d.px) / d.sc)));
+      o.w = Math.max(o.b ? 180 : 120, Math.min(40000, Math.round((d.w * d.sc + p.x - d.px) / d.sc)));
       if (o.b) o.h = Math.max(100, Math.min(40000, Math.round(d.h + p.y - d.py)));
       var rw = Math.round(o.w * d.sc); el.style.width = rw + 'px'; el.style.setProperty('--w', rw + 'px'); if (o.b) el.style.height = o.h + 'px'; nbLinks();
     } else if (d.m === 'link') {
