@@ -575,3 +575,19 @@ V3.8.1
 	-Fixed some messages saying "picture" instead of "image", and "a image".
 -General Changes:
 	-Fixed windows closing when a drag that started inside them (selecting text, cropping) ended outside them.
+
+V3.9
+-General Changes:
+	-Stats: while you're signed in, the app now keeps count of how you use it. Open them from your Account (See your stats). Counting starts with this version. The window shows your headline numbers (rolls, successes, botches, days) and a tab for each section: Dice, Streaks, Characters, Health & pools, Combat & maps, Dossiers and Days.
+	-Dice: rolls, dice rolled, most dice in one roll, successes, most successes in one roll, rolls with successes, failures, botches, 10s, 1s and Specialty 10s; the kinds of roll and the difficulties you roll at; the longest runs of successes, failures and botches.
+	-Characters: made from scratch, at random, imported, duplicated, deleted, shared and put into chronicles; damage taken (bashing, lethal, aggravated), blood and Willpower spent.
+	-Combat and maps: rooms hosted and joined, encounters, rounds, initiative rolls, token moves and the distance moved, pings, shapes drawn, walls placed and moves undone.
+	-Dossiers and chronicles: notes, containers, text labels, strings and images added; chronicles made and players invited. Also the days you've used the app and your longest run of days.
+	-Per character: rolls made from a character's sheet, damage it took and what it spent are also kept for that character; pick it from Show in the Stats window. Deleted characters stay listed, marked as deleted.
+	-Friends can see your stats: the new Stats button on a friend in the Friends list opens theirs.
+	-Reset my stats (in the Stats window) sets everything back to zero, after two confirmations.
+-Dossier Changes:
+	-Crop shapes: the crop window has a Shape list: Free (as before), Original (the image's own shape), Square (1:1), 4:3, 3:4, 3:2, 2:3, 16:9, 9:16, 5:4 and 4:5. With a shape picked, dragging corners or edges, drawing a new crop and Shift + arrow keys all keep that shape. The last shape you used is remembered.
+	-Image position is remembered: adding an image to a note that didn't have one puts it where you last chose with Image position (above, left or right). Changing a note's image keeps its position, and an image added straight onto the board always starts above.
+-Skirmish Map Changes:
+	-Fill colour and opacity: filled shapes (rectangles, circles and closed paths) can now have their own fill colour (any pen colour, or the same as the line, as before) and opacity (10% to 100%; 30% as before). Set them for new shapes in the pen's options, or for selected shapes from their right-click menu. Picking a fill colour or opacity turns the fill on.

@@ -2435,6 +2435,60 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
 .dcrop-h.h-e { left: 100%; top: 50%; cursor: ew-resize; } .dcrop-h.h-se { left: 100%; top: 100%; cursor: nwse-resize; } .dcrop-h.h-s { left: 50%; top: 100%; cursor: ns-resize; }
 .dcrop-h.h-sw { left: 0; top: 100%; cursor: nesw-resize; } .dcrop-h.h-w { left: 0; top: 50%; cursor: ew-resize; }
 .dcrop-size { text-align: center; margin: 4px 0 8px; }
+/* V3.8.2: the crop shape picker, beside the size. */
+.dcrop-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.dcrop-bar label.fld.dcrop-shape { display: flex; flex-direction: row; align-items: center; gap: 8px; margin: 0; }
+.dcrop-bar label.fld.dcrop-shape .cm-lbl { margin: 0; }
+.dcrop-bar .dcrop-size { margin: 0; }
+/* V3.9: Stats. */
+.acct-stats { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.cm-modal.st-modal { width: min(780px, calc(100vw - 32px)); --st-b: #8a8f99; --st-l: var(--accent); --st-a: #5a1730; }
+.st-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.st-top h2 { margin: 0; }
+.st-modal #stMsg { margin-top: -8px; }
+.st-pick { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
+.st-pick select { min-width: 180px; }
+.st-hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.st-tiles { display: grid; grid-template-columns: repeat(var(--st-c, 4), minmax(0, 1fr)); gap: 8px; }
+.st-tile { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); min-width: 0; }
+.st-tile b { font-family: var(--font-display); font-size: 1.45rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.st-tile b small { font-size: 0.7em; opacity: 0.7; }
+.st-tile span { font-size: 0.8rem; color: var(--muted); }
+.st-tile small { font-size: 0.72rem; color: var(--muted); opacity: 0.85; }
+.st-tile.big { padding: 12px 14px; border-color: var(--line-strong); background: linear-gradient(180deg, var(--surface-2), var(--surface)); }
+.st-tile.big b { font-size: 1.9rem; color: var(--accent-text, var(--accent)); }
+.st-tabs { margin-bottom: 12px; overflow-x: auto; }
+.st-tabs .tab-btn { white-space: nowrap; }
+.st-panel { min-height: 340px; }
+.st-h { margin: 14px 0 8px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+.st-panel > .st-h:first-child { margin-top: 2px; }
+.st-none { color: var(--muted); padding: 24px 0; text-align: center; }
+.st-split { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
+.st-split .w { background: var(--accent); } .st-split .f { background: #8a8f99; } .st-split .b { background: #2a0f18; }
+.st-key { display: flex; gap: 16px; flex-wrap: wrap; margin: 6px 0 12px; font-size: 0.8rem; color: var(--muted); }
+.st-key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.st-key i.w { background: var(--accent); } .st-key i.f { background: #8a8f99; } .st-key i.b { background: #2a0f18; }
+.st-two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.st-bars { display: grid; gap: 6px; }
+.st-bar { display: grid; grid-template-columns: 84px 1fr 52px; align-items: center; gap: 10px; font-size: 0.84rem; }
+.st-bt { height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.st-bt > span { display: block; height: 100%; background: var(--accent); border-radius: 5px; }
+.st-bv { text-align: right; font-variant-numeric: tabular-nums; }
+.st-cols { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; align-items: end; height: 150px; }
+.st-col { display: grid; grid-template-rows: 16px 1fr 18px; height: 100%; text-align: center; font-size: 0.72rem; }
+.st-cv { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: visible; }
+.st-cb { display: flex; align-items: flex-end; background: var(--surface-2); border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.st-cb > span { display: block; width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; }
+.st-cl { font-weight: 600; padding-top: 3px; }
+.st-reset { margin-right: auto; }
+@media (max-width: 600px) { .st-hero, .st-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } .st-two { grid-template-columns: 1fr; } }
+/* V3.9: Skirmish Map fill colour and opacity. */
+.sm-dfill { flex-wrap: wrap; align-items: center; }
+.sm-dcol.sm-dcol-ln { background: linear-gradient(135deg, var(--surface) 0 44%, var(--accent) 44% 56%, var(--surface) 56% 100%); }
+.sm-menu .sm-dfill .sm-dcol { width: 20px; height: 20px; }
+.sm-dop { display: grid; grid-template-columns: auto 1fr 40px; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--muted); }
+.sm-dop input[type="range"] { width: 100%; accent-color: var(--accent); }
+.sm-dop output { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg); }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -5208,7 +5262,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
   }
   /* CHARACTERS-MODULE:END ini-extra */
   function recompute(a) { syncIx(a); if (a.init !== null) a.init = a.die + a.mod + a.applied + a.ix; }
-  function rollActor(a) { syncIx(a); a.die = rand10(); a.tie = 0; a.init = a.die + a.mod + a.applied + a.ix; }
+  function rollActor(a) { syncIx(a); a.die = rand10(); a.tie = 0; a.init = a.die + a.mod + a.applied + a.ix; if (window.vtmStats) { window.vtmStats.add('k_init'); window.vtmStats.add('dice'); } }
   /* Before a round is started nobody is acting; everything can still be set up. */
   function syncTurn() {
     if (!ini.live) ini.turn = 0;
@@ -5252,6 +5306,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     ini.live = false;
     ini.turn = 0;
     ini.round++;
+    if (window.vtmStats) window.vtmStats.add('rounds');
   }
   /* Start round: bonuses and penalties count from here, Fresh initiative rolls everyone again (with the dice sound), and the
      top of the order acts first. */
@@ -5465,6 +5520,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     hostWs = ws;
     var finished = false;
     if (!resume) syncMsg('Connecting…');
+    if (!resume && window.vtmStats) window.vtmStats.add('roomsHosted');
     ws.addEventListener('message', function (e) {
       ws.__alive = true;   // anything from the server shows the connection is alive
       var m; try { m = JSON.parse(e.data); } catch (err) { return; }
@@ -5543,6 +5599,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
       var m; try { m = JSON.parse(e.data); } catch (err) { return; }
       if (m.t === 'joined') {
         joined = true;
+        if (window.vtmStats) window.vtmStats.joined(m.code);
         watchWs = ws;
         remote = { r: 1, c: '', rows: [] }; mineRows = {};
         $('syncWatchCode').textContent = m.code;
@@ -5678,6 +5735,8 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     if (kind === 'main') kind = ctx && ctx.kind === 'soak' ? 'soak' : 'generic';
     var rec = rollRecord(kind, roll, values, ctx);
     if (kind === 'soak') rollCtx = null;   // a soak setup is used once
+    /* Stats: every roll you make; a roll set up from a sheet also counts for that character. */
+    if (window.vtmStats) { var V = window.VTMChars; window.vtmStats.roll(kind, rec, ctx && V && V.store ? V.store.chars[V.store.cur] : null); }
     if (!inRoom() || hideRoll) return;
     if (watchWs) {
       var ac = activeChar(), u = window.vtmAccount && window.vtmAccount.state ? (window.vtmAccount.state().user || {}) : {};
@@ -6151,6 +6210,7 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
     ini.actors.forEach(function (a) { if (a.type !== 'player') { a.seen = false; a.pn = 0; } });   // CHARACTERS-MODULE: joiners see them afresh
     ini.encounter = true;   // nothing is rolled yet: that happens when the round starts
     ini.eid = Date.now();   // CHARACTERS-MODULE: identifies the encounter for per-turn tracking
+    if (window.vtmStats) window.vtmStats.add('encounters'); window.vtmStats.add('rounds');   // its first round
     ini.rolls = [];   // a new encounter starts a fresh roll history (for everyone in the room)
     ini.round = 1;
     ini.started = false;
@@ -10065,14 +10125,14 @@ V1.5
     dup: function () {
       var c = cur(); if (!c) return;
       var d = JSON.parse(JSON.stringify(c)); d.id = uid(); d.info.name = (c.info.name || 'Unnamed') + ' (copy)'; d.created = Date.now(); delete d.share; delete d.temp;
-      var at = store.order.indexOf(c.id); store.chars[d.id] = d; if (folderOf(c.id)) placeIn(d.id, folderOf(c.id)); store.order.splice(at < 0 ? store.order.length : at + 1, 0, d.id); store.cur = d.id; xpMode = false; tabEdit = {};
+      var at = store.order.indexOf(c.id); store.chars[d.id] = d; stAdd('chDup'); if (folderOf(c.id)) placeIn(d.id, folderOf(c.id)); store.order.splice(at < 0 ? store.order.length : at + 1, 0, d.id); store.cur = d.id; xpMode = false; tabEdit = {};
       commit(); toast('Duplicated.'); dimgRefsSoon(d);   // the copy's Dossier holds the same images
     },
     del: function () {
       var c = cur(); if (!c) return;
       var shared = isShared(c) && c.share.role === 'owner';
       confirmBox('Delete ' + (c.info.name || 'this character') + '? This can\'t be undone. Export first if you want a backup.' + (shared ? '\n\nIt\'s shared, so deleting it also stops sharing it: everyone else loses it too.' : ''), 'Delete', function () {
-        function gone() { delete store.chars[c.id]; delete store.lib.place[c.id]; delete store.libSeen[c.id]; store.order = store.order.filter(function (id) { return id !== c.id; }); store.cur = store.order[0] || (store.synced || [])[0] || null; tabEdit = {}; commit(); }
+        function gone() { stAdd('chDel'); stGone(c); delete store.chars[c.id]; delete store.lib.place[c.id]; delete store.libSeen[c.id]; store.order = store.order.filter(function (id) { return id !== c.id; }); store.cur = store.order[0] || (store.synced || [])[0] || null; tabEdit = {}; commit(); }
         dimgForget(c).then(function () { if (shared) stopSharing(c).then(gone, function (e) { toast('Couldn\'t stop sharing it, so it wasn\'t deleted (' + e.message + ').'); }); else gone(); });
       }, true);
     },
@@ -10161,7 +10221,8 @@ V1.5
     },
     pool: function (el) {
       var c = cur(), i = +el.dataset.i, k = el.dataset.k, o = k === 'blood' ? c.blood : c.willpower;
-      o.cur = (o.cur === i + 1) ? i : i + 1;
+      var o0 = o.cur; o.cur = (o.cur === i + 1) ? i : i + 1;
+      if (o.cur < o0 && !creating(c)) stAdd(k === 'blood' ? 'blood' : 'wp', o0 - o.cur, c);   // Stats: spent by clicking the boxes
       if (k === 'blood' && creating(c)) c.creation.bloodSet = true;
       commit();
     },
@@ -10194,10 +10255,10 @@ V1.5
         var was = c.blood.cur; c.blood.cur = clamp(c.blood.cur + d, 0, genInfo(c).blood);
         if (c.blood.cur < was) { noteSpend(c, was - c.blood.cur); var lim = genInfo(c).turn; if (spentNow(c) > lim) toast('That\'s ' + spentNow(c) + ' blood this turn; the limit for ' + ord(c.info.generation) + ' Generation is ' + lim + '.'); }
       }
-      else c.willpower.cur = clamp(c.willpower.cur + d, 0, c.willpower.perm);
+      else { var w0 = c.willpower.cur; c.willpower.cur = clamp(c.willpower.cur + d, 0, c.willpower.perm); if (c.willpower.cur < w0 && !creating(c)) stAdd('wp', w0 - c.willpower.cur, c); }
       commit();
     },
-    dmg: function (el) { var c = cur(); addDamage(c, el.dataset.t); commit(); },
+    dmg: function (el) { var c = cur(); addDamage(c, el.dataset.t); stAdd({ b: 'dmgB', l: 'dmgL', a: 'dmgA' }[el.dataset.t] || 'dmgB', 1, c); commit(); },
     heal: function (el) {
       var c = cur(), t = el.dataset.t;
       if (t === 'n') t = c.health.l > 0 ? 'l' : 'b';
@@ -10589,7 +10650,7 @@ V1.5
       if (start === 'blank') { c.mode = 'edit'; c.creation.done = true; }
       c.tracker.type = actT();
       if ($('ncGoon').checked) c.goon = true;
-      store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
+      store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {}; stAdd('chNew');
       closeModal(); commit(); window.scrollTo({ top: 0 });
     };
     $('ncName').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('mOk').click(); });
@@ -10726,7 +10787,7 @@ V1.5
         } else {
           if (r.match) x.info.name = (x.info.name || 'Unnamed') + ' [Copy]';
           if (!x.id || store.chars[x.id]) x.id = uid();
-          store.chars[x.id] = x; store.order.push(x.id); added++;
+          store.chars[x.id] = x; store.order.push(x.id); added++; stAdd('chImport');
         }
         store.cur = x.id;
       });
@@ -11421,7 +11482,7 @@ V1.5
   /* Rage: one blood point (double for thin blood, still one towards the turn's limit) and wound penalties, dice and
      speed, don't count for the rest of that round of the encounter. */
   function rageNow(c) { var t = turnNow(), g = c && c.rage; return !!(t && g && g.eid === t.eid && g.round === t.round); }
-  function noteSpend(c, n) { var t = turnNow(); if (!t) return; c.spent = { eid: t.eid, round: t.round, n: spentNow(c) + n }; }
+  function noteSpend(c, n) { stAdd('blood', n, c); var t = turnNow(); if (!t) return; c.spent = { eid: t.eid, round: t.round, n: spentNow(c) + n }; }
   function dupNumber(orig) {
     var used = {};
     Object.keys(store.chars).forEach(function (id) { var x = store.chars[id]; if (x.temp && x.temp.of === orig.id) used[x.temp.n] = true; });
@@ -12315,6 +12376,7 @@ V1.5
       '<span class="hint">' + esc([u.name, u.email].filter(Boolean).join(' · ')) + (('username' in u) ? ' (only you see this)' : '') + '</span></div>' +
       (u.pid ? '<div class="acct-pid"><span class="acct-pid-lbl">Your player ID</span><div class="acct-pid-row"><b class="mono">' + esc(fmtPid(u.pid)) + '</b><button type="button" class="reset-btn" data-acct="copyPid">Copy</button></div><span class="hint">' + (guest ? 'An admin can find your account with it.' : 'Give it to anyone who wants to share a character with you.') + '</span></div>' : '') +
       (guest ? '' : avSection()) +
+      (guest ? '' : '<div class="acct-stats"><span class="acct-pid-lbl">Stats</span><button type="button" class="reset-btn" data-acct="stats">See your stats</button><span class="hint">How you\'ve used the app: dice, characters, combat and more. Your friends can see them too.</span></div>') +
       (guest ? '<p class="hint">Your account is a Guest account: it\'s waiting for an admin to give it access. ' + esc(reqStatusText()) + ' Until then, the Roller and Rule Book work as they do without an account, and nothing syncs.</p>' +
         '<div class="acct-btns"><button type="button" class="reset-btn" data-acct="out">Sign out</button>' + outAllBtn() + '<button type="button" class="danger-btn' + (acctState.delSure ? ' solid' : '') + '" data-acct="del">' + (acctState.delSure ? 'Click again: delete my account' : 'Delete my account') + '</button></div>' : '') +
       (guest ? '' : '<p class="hint" id="acctStatus">' + (acctState.busy ? 'Syncing…' : acctState.err ? esc(acctState.err) : acctState.last ? 'Synced ' + ago(acctState.last) + '. Changes sync on their own.' : 'Not synced yet.') + '</p>' +
@@ -12351,6 +12413,7 @@ V1.5
     if (k === 'uname') { unameModal(false); return; }
     if (k === 'avSet') { avSet(); return; }
     if (k === 'avRm') { avRemove(); return; }
+    if (k === 'stats') { acctClose(); stOpen(''); return; }
     if (k === 'admin') { acctClose(); if ($('settingsClose')) $('settingsClose').click(); admOpen('requests'); return; }
     if (k === 'sync') syncNow();
     else if (k === 'out') api('logout', {}).catch(function () {}).then(function () { signOutLocal('Signed out. Your data stays on this device and in your account.'); });
@@ -12704,6 +12767,7 @@ V1.5
     $('mOk').onclick = function () {
       $('mOk').disabled = true;
       api('sheets', { data: shareDoc(c), cid: /^[\w.-]{1,64}$/.test(c.id) ? c.id : undefined }).then(function (res) {
+        stAdd('chShared');
         c.share = { sid: res.sid, role: 'owner', owner: myName(), v: res.v || 1, pending: [] };
         shState(res.sid).base = shareDoc(c);
         save(); render(); shConnect(c); shMsg = ''; manageShare(c);
@@ -12990,7 +13054,7 @@ V1.5
     var onl = fr.friends.filter(function (x) { return x.on; }).sort(byName), off = fr.friends.filter(function (x) { return !x.on; }).sort(byName);
     var frRow = function (x) {
       return frRemove === x.pid ? '<li class="fr-row fr-confirm"><span class="fr-txt">Remove <b>' + esc(x.name) + '</b> from your friends?</span><button type="button" class="btn small danger" data-frrmyes="' + esc(x.pid) + '">Remove</button><button type="button" class="btn small" data-frrmno>Cancel</button></li>'
-        : row(x, (x.host ? '<button type="button" class="btn small primary fr-join" data-frjoin="' + esc(x.host) + '" data-frname="' + esc(x.name) + '" title="Join their room (' + esc(x.host) + ')">Join room</button>' : '') + '<button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Remove ' + esc(x.name) + '" title="Remove friend">×</button>');
+        : row(x, (x.host ? '<button type="button" class="btn small primary fr-join" data-frjoin="' + esc(x.host) + '" data-frname="' + esc(x.name) + '" title="Join their room (' + esc(x.host) + ')">Join room</button>' : '') + '<button type="button" class="fr-ic" data-frstats="' + esc(x.pid) + '" data-frname="' + esc(x.name) + '" aria-label="' + esc(x.name) + '\'s stats" title="Stats"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2 14h12M4 12V8M8 12V3M12 12V6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>' + '<button type="button" class="fr-ic" data-frrm="' + esc(x.pid) + '" aria-label="Remove ' + esc(x.name) + '" title="Remove friend">×</button>');
     };
     if (!fr.friends.length) h += '<h3 class="fr-h">Friends</h3><p class="fr-empty">' + (frLoaded ? 'No friends yet. Add one with their player ID.' : 'Loading…') + '</p>';
     else {
@@ -13020,6 +13084,7 @@ V1.5
         if (t.dataset.frdec) return respondFriend(t.dataset.frdec, false);
         if (t.dataset.frrm) { var isOut = fr.outgoing.some(function (x) { return x.pid === t.dataset.frrm; }); if (isOut) return removeFriend(t.dataset.frrm); frRemove = t.dataset.frrm; renderFriends(); var y = p.querySelector('[data-frrmyes]'); if (y) y.focus(); return; }
         if (t.dataset.frrmyes) return removeFriend(t.dataset.frrmyes);
+        if (t.dataset.frstats) { closeFriends(true); return stOpen(t.dataset.frstats, t.dataset.frname); }
         if (t.dataset.frjoin) { closeFriends(true); return joinFriendRoom(t.dataset.frjoin, t.dataset.frname); }
         if (t.hasAttribute('data-frrmno')) { frRemove = ''; renderFriends(); }
       });
@@ -13187,6 +13252,222 @@ V1.5
       .catch(function (e) { toast('Couldn\'t set it (' + (e && e.message || 'error') + ').'); });
   }
   function avRemove() { api('avatar', { remove: true }).then(function () { acct.user.av = 0; saveAcct(); toast('Profile picture removed.'); renderAcct(); }, function (e) { toast('Couldn\'t remove it (' + e.message + ').'); }); }
+  /* ---- Stats (V3.9): how a signed-in player uses the app ----
+     Counts are kept for the account and per character (the character a sheet roll, damage or a spend was for). They're
+     queued on this device and sent every 30 s and when the page closes; the server adds them up, so several devices
+     count together. Nothing is counted while signed out (or on a Guest account). Friends can see them; Reset wipes them. */
+  var stQ = null, stQKey = '', stSending = false, stOpenPid = '';
+  /* The queue is per account, so someone else signing in on this device never sends your counts. */
+  function stKeyNow() { return 'vtm-stq-' + ((acct && acct.user && acct.user.pid) || ''); }
+  function stOn() { return signedIn() && acctReady() && acctAccess() && !!acct.token; }
+  function stQueue() {
+    if (stQ && stQKey === stKeyNow()) return stQ;
+    stQKey = stKeyNow();
+    try { stQ = JSON.parse(localStorage.getItem(stQKey) || 'null'); } catch (e) { stQ = null; }
+    if (!stQ || typeof stQ !== 'object') stQ = {};
+    ['add', 'max', 'seq', 'names'].forEach(function (k) { if (!stQ[k] || typeof stQ[k] !== 'object') stQ[k] = {}; });
+    if (!Array.isArray(stQ.gone)) stQ.gone = [];
+    return stQ;
+  }
+  function stKeep() { try { localStorage.setItem(stKeyNow(), JSON.stringify(stQueue())); } catch (e) {} }
+  /* The character a count is also kept under: its id in the app (encounter copies count for the account only). */
+  function stScope(c) {
+    if (!c) return '';
+    if (c.temp) return '';
+    var id = String(c.id || ''); if (!/^[\w.:-]{1,64}$/.test(id)) return '';
+    stQueue().names[id] = String((c.info && c.info.name) || c.name || 'Unnamed').slice(0, 40);
+    return id;
+  }
+  function stBump(where, k, n, sc) { var q = stQueue()[where], m = q[sc || '_'] = q[sc || '_'] || {}; m[k] = where === 'max' ? Math.max(m[k] || 0, n) : (m[k] || 0) + n; }
+  /* Adds n to a count, for the account and (with a character) for that character too. */
+  function stAdd(k, n, c) {
+    if (!stOn()) return; n = n == null ? 1 : n; if (!(n > 0)) return;
+    stBump('add', k, n); var sc = stScope(c); if (sc) stBump('add', k, n, sc);
+    stKeep();
+  }
+  /* A deleted character keeps its line in Stats, marked as deleted. */
+  function stGone(c) { if (!stOn() || !c || c.temp) return; var q = stQueue(); if (q.gone.indexOf(String(c.id)) < 0) q.gone.push(String(c.id)); delete q.names[String(c.id)]; stKeep(); }
+  function stMax(k, v, c) { if (!stOn()) return; stBump('max', k, v); var sc = stScope(c); if (sc) stBump('max', k, v, sc); stKeep(); }
+  /* A roll's dice: totals, highs, kind, difficulty and the result's place in the streaks. */
+  function stRoll(kind, r, c) {
+    if (!stOn() || !r) return;
+    var d = (r.dice || []).filter(function (v) { return v >= 1 && v <= 10; }), n = Math.max(d.length, +r.pool || 0);
+    if (!n) return;
+    var tens = d.filter(function (v) { return v === 10; }).length, ones = d.filter(function (v) { return v === 1; }).length, net = Math.max(0, +r.net || 0);
+    var res = r.botch ? 'b' : net > 0 ? 's' : 'f', diff = Math.max(2, Math.min(10, +r.diff || 6));
+    var sc = stScope(c), both = function (fn) { fn('_'); if (sc) fn(sc); };
+    both(function (s) {
+      var A = function (k, v) { if (v > 0) stBump('add', k, v, s === '_' ? '' : s); };
+      A('rolls', 1); A('dice', n); A('succ', net); A('tens', tens); A('ones', ones); if (r.spec) A('specTens', tens);
+      A(res === 'b' ? 'botch' : res === 'f' ? 'fail' : 'win', 1);
+      A('k_' + (kind === 'damage' || kind === 'soak' ? kind : 'generic'), 1);
+      A('d' + diff, 1); A('diffSum', diff);
+      stBump('max', 'maxDice', n, s === '_' ? '' : s); stBump('max', 'maxSucc', net, s === '_' ? '' : s);
+      var q = stQueue().seq; q[s] = String(q[s] || '').concat(res).slice(-400);
+    });
+    stKeep();
+  }
+  /* Rooms joined: once per room per visit (a dropped connection joining again isn't another one). */
+  function stJoined(code) {
+    var key = 'vtm-stj-' + String(code || '');
+    try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) {}
+    stAdd('roomsJoined');
+  }
+  function stEmpty(q) { return !Object.keys(q.add).length && !Object.keys(q.max).length && !Object.keys(q.seq).length && !Object.keys(q.names).length && !q.gone.length; }
+  function stDay() { var t = new Date(); return Math.floor((t.getTime() - t.getTimezoneOffset() * 60000) / 86400000); }
+  /* Sends what's queued (force: even nothing, so today counts as a day the app was used). */
+  function stFlush(force) {
+    if (!stOn() || stSending) return Promise.resolve();
+    var q = stQueue(); if (stEmpty(q) && !force) return Promise.resolve();
+    stQ = null; try { localStorage.removeItem(stKeyNow()); } catch (e) {}
+    stSending = true;
+    var body = { add: q.add, max: q.max, seq: q.seq, names: q.names, gone: q.gone, day: stDay() };
+    return api('stats/add', body).then(function () { stSending = false; }, function () {
+      stSending = false;   // not sent: back in the queue, added to whatever came since
+      var n = stQueue();
+      Object.keys(q.add).forEach(function (s) { Object.keys(q.add[s]).forEach(function (k) { var m = n.add[s] = n.add[s] || {}; m[k] = (m[k] || 0) + q.add[s][k]; }); });
+      Object.keys(q.max).forEach(function (s) { Object.keys(q.max[s]).forEach(function (k) { var m = n.max[s] = n.max[s] || {}; m[k] = Math.max(m[k] || 0, q.max[s][k]); }); });
+      Object.keys(q.seq).forEach(function (s) { n.seq[s] = (q.seq[s] + (n.seq[s] || '')).slice(-400); });
+      Object.keys(q.names).forEach(function (s) { if (!n.names[s]) n.names[s] = q.names[s]; });
+      n.gone = q.gone.concat(n.gone).slice(-40); stKeep();
+    });
+  }
+  setInterval(function () { stFlush(false); }, 30000);
+  window.addEventListener('pagehide', function () {
+    var q = stQueue(); if (!stOn() || stEmpty(q)) return;
+    try {
+      var body = JSON.stringify({ add: q.add, max: q.max, seq: q.seq, names: q.names, gone: q.gone, day: stDay() });
+      if (navigator.sendBeacon(apiBase() + '/api/stats/add?t=' + encodeURIComponent(acct.token), body)) { stQ = null; localStorage.removeItem(stKeyNow()); }
+    } catch (e) {}
+  });
+  /* Today counts as a day the app was used (once per visit, after signing in). */
+  var stDayed = false;
+  setInterval(function () { if (!stDayed && stOn()) { stDayed = true; stFlush(true); } }, 3000);
+
+  /* ---- The Stats window (V3.9): a few headline numbers, then a tab per section ---- */
+  var ST_TABS = [
+    ['dice', 'Dice'], ['streaks', 'Streaks'], ['chars', 'Characters', 'acct'], ['health', 'Health & pools'],
+    ['combat', 'Combat & maps', 'acct'], ['dossier', 'Dossiers', 'acct'], ['days', 'Days', 'acct']
+  ];
+  var stTab = 'dice';
+  function stNum(v) { return (+v || 0).toLocaleString(); }
+  function stPct(a, b) { return b ? Math.round(a / b * 100) + '%' : '—'; }
+  function stTile(v, lbl, sub, big) { return '<div class="st-tile' + (big ? ' big' : '') + '"><b>' + v + '</b><span>' + esc(lbl) + '</span>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</div>'; }
+  function stTiles(list) { var n = list.length, c = n <= 5 ? n : n === 6 || n === 9 ? 3 : 4; return '<div class="st-tiles" style="--st-c:' + c + '">' + list.map(function (t) { return stTile(t[0], t[1], t[2]); }).join('') + '</div>'; }
+  function stH(t) { return '<h3 class="st-h">' + esc(t) + '</h3>'; }
+  /* Horizontal bars (kinds of roll, damage). */
+  function stBars(rows) {
+    var mx = Math.max(1, Math.max.apply(null, rows.map(function (r) { return r[1]; })));
+    return '<div class="st-bars">' + rows.map(function (r) {
+      return '<div class="st-bar"><span class="st-bl">' + esc(r[0]) + '</span><span class="st-bt"><span style="width:' + (r[1] / mx * 100).toFixed(1) + '%' + (r[2] ? ';background:' + r[2] : '') + '"></span></span><span class="st-bv">' + stNum(r[1]) + '</span></div>';
+    }).join('') + '</div>';
+  }
+  /* Rolls at each difficulty, as columns. */
+  function stCols(s) {
+    var ds = [2, 3, 4, 5, 6, 7, 8, 9, 10], mx = Math.max(1, Math.max.apply(null, ds.map(function (d) { return +s['d' + d] || 0; })));
+    return '<div class="st-cols" role="img" aria-label="Rolls at each difficulty: ' + ds.map(function (d) { return d + ': ' + (+s['d' + d] || 0); }).join(', ') + '">' + ds.map(function (d) {
+      var v = +s['d' + d] || 0;
+      return '<div class="st-col" title="Difficulty ' + d + ': ' + stNum(v) + ' roll' + (v === 1 ? '' : 's') + '"><span class="st-cv">' + (v ? stNum(v) : '') + '</span><span class="st-cb"><span style="height:' + (v / mx * 100).toFixed(1) + '%"></span></span><span class="st-cl">' + d + '</span></div>';
+    }).join('') + '</div>';
+  }
+  /* How rolls came out: one bar split into successes, failures and botches. */
+  function stSplit(s) {
+    var w = +s.win || 0, f = +s.fail || 0, b = +s.botch || 0, t = w + f + b;
+    if (!t) return '';
+    var seg = function (v, cls) { return v ? '<span class="' + cls + '" style="flex:' + v + '"></span>' : ''; };
+    return '<div class="st-split" role="img" aria-label="Successes ' + stPct(w, t) + ', failures ' + stPct(f, t) + ', botches ' + stPct(b, t) + '">' + seg(w, 'w') + seg(f, 'f') + seg(b, 'b') + '</div>' +
+      '<div class="st-key"><span><i class="w"></i>Successes ' + stPct(w, t) + '</span><span><i class="f"></i>Failures ' + stPct(f, t) + '</span><span><i class="b"></i>Botches ' + stPct(b, t) + '</span></div>';
+  }
+  function stPanel(tab, s) {
+    var rolls = +s.rolls || 0;
+    if (tab === 'dice') {
+      if (!rolls && !+s.k_init) return '<p class="st-none">No rolls counted yet.</p>';
+      return stH('How they came out') + stSplit(s) +
+        stTiles([[stNum(s.dice), 'Dice rolled'], [rolls ? (s.dice / rolls).toFixed(1) : '—', 'Dice per roll'], [stNum(s.maxDice), 'Most dice at once'],
+          [rolls ? (s.succ / rolls).toFixed(2) : '—', 'Successes per roll'], [stNum(s.maxSucc), 'Most successes at once'], [rolls ? (s.diffSum / rolls).toFixed(1) : '—', 'Average difficulty'],
+          [stNum(s.tens), '10s rolled'], [stNum(s.ones), '1s rolled'], [stNum(s.specTens), 'Specialty 10s']]) +
+        '<div class="st-two"><div>' + stH('Kinds of roll') + stBars([['Regular', +s.k_generic || 0], ['Damage', +s.k_damage || 0], ['Soak', +s.k_soak || 0]].concat(+s.k_init ? [['Initiative', +s.k_init]] : [])) + '</div>' +
+        '<div>' + stH('Difficulty') + stCols(s) + '</div></div>';
+    }
+    if (tab === 'streaks') {
+      if (!rolls) return '<p class="st-none">No rolls counted yet.</p>';
+      return stH('Longest runs') + stTiles([[stNum(s.bestS), 'Successes in a row'], [stNum(s.bestF), 'Failures in a row'], [stNum(s.bestB), 'Botches in a row']]) +
+        stH('Right now') + stTiles([[stNum(s.runS), 'Successes in a row'], [stNum(s.runF), 'Failures in a row']]);
+    }
+    if (tab === 'chars') return stH('Made') + stTiles([[stNum(s.chNew), 'From scratch'], [stNum(s.chRandom), 'At random'], [stNum(s.chImport), 'Imported'], [stNum(s.chDup), 'Duplicated']]) +
+      stH('Since then') + stTiles([[stNum(s.chShared), 'Shared'], [stNum(s.chChron), 'Put into chronicles'], [stNum(s.chDel), 'Deleted']]);
+    if (tab === 'health') {
+      var dm = (+s.dmgB || 0) + (+s.dmgL || 0) + (+s.dmgA || 0);
+      return stH('Damage taken') + (dm ? stBars([['Bashing', +s.dmgB || 0, 'var(--st-b)'], ['Lethal', +s.dmgL || 0, 'var(--st-l)'], ['Aggravated', +s.dmgA || 0, 'var(--st-a)']]) : '<p class="st-none">None yet.</p>') +
+        stH('Spent') + stTiles([[stNum(s.blood), 'Blood'], [stNum(s.wp), 'Willpower']]);
+    }
+    if (tab === 'combat') return stH('Rooms and encounters') + stTiles([[stNum(s.roomsHosted), 'Rooms hosted'], [stNum(s.roomsJoined), 'Rooms joined'], [stNum(s.encounters), 'Encounters run'], [stNum(s.rounds), 'Rounds played'], [stNum(s.k_init), 'Initiative rolls']]) +
+      stH('Skirmish Map') + stTiles([[stNum(s.mapMoves), 'Token moves'], [stNum(Math.round((+s.dist10 || 0) / 10)) + '<small> yd</small>', 'Distance moved'], [stNum(s.pings), 'Pings'], [stNum(s.shapes), 'Shapes drawn'], [stNum(s.walls), 'Walls placed'], [stNum(s.undos), 'Moves undone']]);
+    if (tab === 'dossier') return stH('Dossiers') + stTiles([[stNum(s.nbNote), 'Notes'], [stNum(s.nbBox), 'Containers'], [stNum(s.nbText), 'Text labels'], [stNum(s.nbString), 'Strings'], [stNum(s.nbImage), 'Images']]) +
+      stH('Chronicles') + stTiles([[stNum(s.chrNew), 'Chronicles made'], [stNum(s.chrInvite), 'Players invited']]);
+    if (tab === 'days') {
+      var first = s.dayFirst ? new Date(s.dayFirst * 86400000).toLocaleDateString(undefined, { timeZone: 'UTC', year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+      return stTiles([[stNum(s.days), 'Days using the app'], [s.dayLast && s.dayLast >= stDay() - 1 ? stNum(s.dayRun) : '0', 'Days in a row now'], [stNum(s.dayBest), 'Most days in a row'], [esc(first), 'First day']]);
+    }
+    return '';
+  }
+  /* The headline numbers, then the tabs. */
+  function stView(s, acctView) {
+    if (!Object.keys(s).length) return '<p class="st-none">Nothing counted yet.</p>';
+    var rolls = +s.rolls || 0, dm = (+s.dmgB || 0) + (+s.dmgL || 0) + (+s.dmgA || 0);
+    var tabs = ST_TABS.filter(function (t) { return acctView || t[2] !== 'acct'; });
+    if (!tabs.some(function (t) { return t[0] === stTab; })) stTab = 'dice';
+    return '<div class="st-hero">' + stTile(stNum(rolls), 'Rolls', '', true) + stTile(stNum(s.succ), 'Successes', rolls ? (s.succ / rolls).toFixed(1) + ' per roll' : '', true) +
+      stTile(stNum(s.botch), 'Botches', rolls ? stPct(+s.botch || 0, rolls) + ' of rolls' : '', true) +
+      (acctView ? stTile(stNum(s.days), 'Days used', s.dayBest ? 'best run ' + s.dayBest : '', true) : stTile(stNum(dm), 'Damage taken', '', true)) + '</div>' +
+      '<nav class="tabs chr-tabs st-tabs" role="tablist" aria-label="Stats sections">' + tabs.map(function (t) {
+        return '<button type="button" role="tab" class="tab-btn" data-st-tab="' + t[0] + '" aria-selected="' + (stTab === t[0]) + '">' + esc(t[1]) + '</button>';
+      }).join('') + '</nav><div class="st-panel" role="tabpanel">' + stPanel(stTab, s) + '</div>';
+  }
+  /* Opens the window: yours (pid empty), or a friend's. */
+  function stOpen(pid, name) {
+    if (!stOn()) return toast('Sign in to see stats.');
+    stOpenPid = pid || '';
+    openModal('<div class="st-top"><h2>' + (pid ? esc(name || 'Friend') + '\'s stats' : 'Your stats') + '</h2><span id="stPickWrap"></span></div><p class="hint" id="stMsg">Loading…</p><div id="stWrap"></div>' +
+      '<div class="acts">' + (pid ? '' : '<button type="button" class="danger-btn st-reset" id="stReset">Reset my stats…</button>') + '<button type="button" class="btn" id="mNo">Close</button></div>', 'st-modal');
+    $('mNo').onclick = closeModal;
+    if ($('stReset')) $('stReset').onclick = stResetAsk;
+    var load = pid ? api('stats/friend?pid=' + encodeURIComponent(pid)) : stFlush(false).then(function () { return api('stats'); });
+    load.then(function (res) {
+      if (!$('stWrap') || stOpenPid !== (pid || '')) return;
+      var chars = (res.chars || []).slice().sort(function (a, b) { return (+b.s.rolls || 0) - (+a.s.rolls || 0) || String(a.name).localeCompare(String(b.name)); });
+      $('stMsg').textContent = pid ? 'Counted since Stats arrived (V3.9), while signed in.' : 'Counted since Stats arrived (V3.9), while you\'re signed in. Your friends can see these.';
+      if (chars.length) $('stPickWrap').innerHTML = '<label class="st-pick"><span>Show</span><select id="stWho"><option value="">' + (pid ? 'Their account' : 'Your account') + '</option>' +
+        chars.map(function (c, i) { return '<option value="' + i + '">' + esc(c.name) + (c.gone ? ' (deleted)' : '') + '</option>'; }).join('') + '</select></label>';
+      var show = function () { var v = $('stWho') ? $('stWho').value : ''; $('stWrap').innerHTML = v === '' ? stView(res.account || {}, true) : stView(chars[+v].s || {}, false); };
+      if ($('stWho')) $('stWho').onchange = show;
+      $('stWrap').onclick = function (e) {
+        var b = e.target.closest && e.target.closest('[data-st-tab]'); if (!b) return;
+        stTab = b.getAttribute('data-st-tab'); show();
+        var nb = $('stWrap').querySelector('[data-st-tab="' + stTab + '"]'); if (nb) nb.focus();
+      };
+      $('stWrap').onkeydown = function (e) {   // arrow keys move between tabs
+        var b = e.target.closest && e.target.closest('[data-st-tab]'); if (!b || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
+        var all = Array.prototype.slice.call($('stWrap').querySelectorAll('[data-st-tab]')), i = all.indexOf(b) + (e.key === 'ArrowRight' ? 1 : -1);
+        if (all[(i + all.length) % all.length]) { e.preventDefault(); all[(i + all.length) % all.length].click(); }
+      };
+      show();
+    }, function (e) { if ($('stMsg')) $('stMsg').textContent = e && e.message === 'not-found' ? 'Their stats aren\'t available (you need to be friends).' : 'Couldn\'t load the stats. Check your connection and try again.'; });
+  }
+  /* Reset: two confirmations. */
+  function stResetAsk() {
+    openModal('<h2>Reset all your stats?</h2><p>Every count goes back to zero: your account and every character.</p><div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="danger-btn" id="mOk">Reset</button></div>');
+    $('mNo').onclick = function () { stOpen(''); };
+    $('mOk').onclick = function () {
+      openModal('<h2>Are you sure?</h2><p>This can\'t be undone.</p><div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="danger-btn solid" id="mOk">Yes, reset my stats</button></div>');
+      $('mNo').onclick = function () { stOpen(''); };
+      $('mOk').onclick = function () {
+        stQ = null; try { localStorage.removeItem(stKeyNow()); } catch (e) {}
+        api('stats/reset', {}).then(function () { toast('Your stats were reset.'); stOpen(''); }, function () { toast('Couldn\'t reset them. Try again.'); });
+      };
+    };
+  }
+  window.vtmStats = { add: stAdd, max: stMax, roll: stRoll, joined: stJoined, open: stOpen, flush: stFlush };
   /* ================= SHORT SUMMARIES: Backgrounds, Merits, Flaws ================= */
   /* One-line summaries written for this app (not the book's text), shown on hover and in the right-click menu. */
   var SUMS = {
@@ -14377,7 +14658,7 @@ V1.5
       var taken = {}; Object.keys(store.chars).forEach(function (id) { var f = String(store.chars[id].info.name || '').trim().split(/\s+/)[0]; if (f) taken[f.toLowerCase()] = 1; });
       var c = generateKindred({ name: $('gnName').value.trim(), clan: $('gnClan').value, cls: selCls, tmpl: base.tmpl.id, tgen: selGen ? +selGen : 0, xp: Math.min(xp, 2000), mf: mf && base.tmpl.id !== 'thin' ? o : null, gear: gear, weapons: bookW.state === 'ready' ? bookW.list : null, taken: taken });
       c.template = base.tmpl.id; c.tracker.type = base.tag || ''; if (base.goon) c.goon = true;
-      store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {};
+      store.chars[c.id] = c; store.order.push(c.id); store.cur = c.id; xpMode = false; tabEdit = {}; stAdd('chRandom');
       if (libDest) { placeIn(c.id, libDest); libDest = ''; }
       closeModal(); commit(); window.scrollTo({ top: 0 });
       var left = xpAvail(c);
@@ -15019,7 +15300,7 @@ V1.5
     var x = Math.round(at.x), y = Math.round(at.y), p = '';
     if (!tx && inside && nb.n[inside] && nb.n[inside].b && !nb.n[inside].f) p = inside;
     var g = 0; while (g++ < 40 && Object.keys(nb.n).some(function (k) { return Math.abs(nb.n[k].x - x) < 8 && Math.abs(nb.n[k].y - y) < 8; })) { x += 24; y += 24; }
-    var id = rid();
+    var id = rid(); stAdd(tx ? 'nbText' : box ? 'nbBox' : 'nbNote');
     nb.n[id] = tx ? { tx: true, t: 'New Text', x: x, y: y, w: w, fs: 20, fo: 't', r: 0, k: '', z: nbTopZ(nb), p: '' } :
       box ? { t: 'New container', d: '', x: x, y: y, w: w, s: 'round', k: '', f: false, p: p, z: nbTopZ(nb), b: true, h: 240 } :
       (function () { var ln = nbLastNote(), o = { t: 'New note', d: '', x: x, y: y, w: w, s: ln.s, k: ln.k, f: false, p: p, z: nbTopZ(nb) }; if (ref && store.chars[ref]) { o.t = (store.chars[ref].info.name || 'Unnamed').slice(0, NB_TMAX); o.cr = ref; } if (ex) { Object.keys(ex).forEach(function (k) { o[k] = ex[k]; }); } return o; })();
@@ -15038,8 +15319,15 @@ V1.5
   /* Puts an image on a note (or changes it). */
   function nbImageSet(id) {
     var c = nbC(); if (!c || nbRO(c)) return;
-    dimgPick(function (f) { dimgAddTo(c, f, function (r) { var o = nbOf(c).n[id]; if (!o) return; o.im = r.im; o.ia = r.ia; nbSettleNow([id]); }); });
+    dimgPick(function (f) { dimgAddTo(c, f, function (r) {
+      var o = nbOf(c).n[id]; if (!o) return;
+      /* A note getting its first image: it goes where the last image position you picked put one (a changed image stays put). */
+      if (!o.im) { var ip = nbIpLast(); if (ip) { o.ip = ip; o.w = Math.max(o.w, 380); } else delete o.ip; }
+      o.im = r.im; o.ia = r.ia; nbSettleNow([id]);
+    }); });
   }
+  /* The last image position picked from a note's menu ('', 'l' or 'r'), on this device. */
+  function nbIpLast() { try { var v = localStorage.getItem('vtm-nb-ip') || ''; return v === 'l' || v === 'r' ? v : ''; } catch (e) { return ''; } }
   /* An image file pasted onto the board, or dropped on it. */
   function nbImageFile(list) { for (var i = 0; list && i < list.length; i++) { var f = list[i].kind === 'file' ? list[i].getAsFile() : list[i]; if (f && /^image\//.test(f.type || '')) return f; } return null; }
   function nbPaste(e) {
@@ -15262,7 +15550,7 @@ V1.5
     if (Object.keys(nb.l).length >= NB_LMAX) { toast('A board holds up to ' + NB_LMAX + ' links.'); return false; }
     if (nbFull(c, 60)) { toast('This board is full. Shorten or remove some notes to add more.'); return false; }
     var nl = { a: a, b: b }, lc = nbLastStr(); if (lc) nl.c = lc;
-    nb.l[rid()] = nl; nbChanged(); return true;
+    nb.l[rid()] = nl; stAdd('nbString'); nbChanged(); return true;
   }
   function nbMove(nb, id, dx, dy) {
     [id].concat(nbDesc(nb, id)).forEach(function (k) {   // a container's contents, and text attached to it
@@ -15427,7 +15715,7 @@ V1.5
     var items = [];
     if (o.b && !o.f) items = nbItemsAdd(pt, id).concat([null]);
     var stamps = [{ label: 'None', on: !o.st, run: nbSet(id, function (x) { delete x.st; }) }].concat(NB_STAMPS.map(function (k) { return { label: k[1], on: o.st === k[0], sw: k[2], run: nbSet(id, function (x) { x.st = k[0]; }) }; }));
-    var ipSet = function (v) { return nbSet(id, function (x) { if (v) { x.ip = v; x.w = Math.max(x.w, 380); } else delete x.ip; }); };   // beside the text: the note widens to make room
+    var ipSet = function (v) { return nbSet(id, function (x) { try { localStorage.setItem('vtm-nb-ip', v); } catch (e) {} if (v) { x.ip = v; x.w = Math.max(x.w, 380); } else delete x.ip; }); };   // beside the text: the note widens to make room
     var img = o.b ? [] : [{ label: o.im ? 'Change image…' : 'Add image…', run: function () { nbImageSet(id); } }].concat(o.im ? [
       { label: 'Image position', sub: [{ label: 'Above the text', on: !o.ip, run: ipSet('') }, { label: 'Left of the text', on: o.ip === 'l', run: ipSet('l') }, { label: 'Right of the text', on: o.ip === 'r', run: ipSet('r') }] },
       { label: 'Remove image', run: nbSet(id, function (x) { delete x.im; delete x.ia; delete x.ip; }) }] : []);
@@ -15912,17 +16200,21 @@ V1.5
     inp.addEventListener('change', function () { if (inp.files && inp.files[0]) then(inp.files[0]); });
     inp.click();
   }
+  /* Crop shapes (V3.8.2): free, the image's own, or a fixed width : height. */
+  var DCROP_SHAPES = [['free', 'Free'], ['orig', 'Original'], ['1:1', 'Square (1:1)'], ['4:3', '4:3'], ['3:4', '3:4'], ['3:2', '3:2'], ['2:3', '2:3'], ['16:9', '16:9'], ['9:16', '9:16'], ['5:4', '5:4'], ['4:5', '4:5']];
   /* The crop overlay (V3.8.1): the whole image with a crop box of any shape. Drag inside the box to move it, its corners
      and edges to resize it, or anywhere outside it to draw a new one; arrow keys move it, Shift + arrows resize it.
      done(cr): cr is the part to keep in the image's own pixels, or null for the whole image. */
   function dimgCrop(img, done) {
     var W = img.naturalWidth, H = img.naturalHeight;
     var hs = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
-    openModal('<h2>Add an image</h2><p class="muted small">Drag the corners or edges to crop it to any shape, drag inside to move the crop, or drag outside it to draw a new one. Or use the whole image.</p>' +
+    openModal('<h2>Add an image</h2><p class="muted small">Pick a shape (or Free), then drag the corners or edges to crop it, drag inside to move the crop, or drag outside it to draw a new one. Or use the whole image.</p>' +
       '<div class="dcrop-wrap" id="dcropWrap"><div class="dcrop" id="dcrop"><div class="dcrop-clip"><img src="' + img.src + '" alt="" draggable="false"><div class="dcrop-shade" id="dcropShade"></div></div>' +
       '<div class="dcrop-box" id="dcropBox" tabindex="0" role="group" aria-label="Crop box. Arrow keys move it, Shift and the arrow keys resize it.">' +
       hs.map(function (h) { return '<span class="dcrop-h h-' + h + '" data-h="' + h + '"></span>'; }).join('') + '</div></div></div>' +
-      '<p class="muted small dcrop-size" id="dcropSize" role="status"></p>' +
+      '<div class="dcrop-bar"><label class="fld dcrop-shape"><span class="cm-lbl">Shape</span><select id="dcropShape">' +
+      DCROP_SHAPES.map(function (x) { return '<option value="' + x[0] + '">' + x[1] + '</option>'; }).join('') + '</select></label>' +
+      '<p class="muted small dcrop-size" id="dcropSize" role="status"></p></div>' +
       '<div class="acts"><button type="button" class="btn" id="mNo">Cancel</button><button type="button" class="btn" id="dcropAll">Use the whole image</button><button type="button" class="btn primary" id="mOk">Use this crop</button></div>', 'dcrop-modal');
     var box = $('dcropBox'), area = $('dcrop'), MIN = 16;
     /* As big as the window allows, with room for the handles at the edges. */
@@ -15937,11 +16229,44 @@ V1.5
     function toNat() {
       var x = Math.round(r.x / k), y = Math.round(r.y / k), w = Math.round(r.w / k), h = Math.round(r.h / k);
       if (r.x <= 0.5 && r.y <= 0.5 && r.x + r.w >= dw - 0.5 && r.y + r.h >= dh - 0.5) return { x: 0, y: 0, w: W, h: H };
-      return { x: Math.max(0, x), y: Math.max(0, y), w: Math.max(1, Math.min(W - x, w)), h: Math.max(1, Math.min(H - y, h)) };
+      w = Math.max(1, Math.min(W - x, w)); h = Math.max(1, Math.min(H - y, h));
+      if (ratio) { var h2 = Math.round(w / ratio); if (h2 <= H - y) h = Math.max(1, h2); else w = Math.max(1, Math.round(h * ratio)); }   // exactly the chosen shape
+      return { x: Math.max(0, x), y: Math.max(0, y), w: w, h: h };
     }
     function clamp() {
-      r.w = Math.max(MIN, Math.min(dw, r.w)); r.h = Math.max(MIN, Math.min(dh, r.h));
+      if (ratio) {   // keeps the shape: shrinks (or grows to the smallest size) as a whole
+        var f = Math.min(1, dw / r.w, dh / r.h); r.w *= f; r.h *= f;
+        var g = Math.max(1, MIN / r.w, MIN / r.h); if (r.w * g <= dw && r.h * g <= dh) { r.w *= g; r.h *= g; }
+      } else { r.w = Math.max(MIN, Math.min(dw, r.w)); r.h = Math.max(MIN, Math.min(dh, r.h)); }
       r.x = Math.max(0, Math.min(dw - r.w, r.x)); r.y = Math.max(0, Math.min(dh - r.h, r.y));
+    }
+    /* A fixed shape: width / height (null when free). */
+    var ratio = null;
+    function ratioOf(v) { if (v === 'orig') return W / H; var m = /^(\d+):(\d+)$/.exec(v || ''); return m ? +m[1] / +m[2] : null; }
+    /* Growing from a fixed point (ax, ay) towards (sx, sy) = ±1: as big as the drag asks, as far as there's room. */
+    function fromCorner(ax, ay, sx, sy, w, h, by) {   // by: 'w' / 'h' follows that side; otherwise the bigger one
+      var nw = Math.max(by === 'w' ? w : by === 'h' ? h * ratio : Math.max(w, h * ratio), MIN), nh = nw / ratio;
+      var f = Math.min(1, (sx > 0 ? dw - ax : ax) / nw, (sy > 0 ? dh - ay : ay) / nh); nw *= f; nh *= f;
+      return { x: sx > 0 ? ax : ax - nw, y: sy > 0 ? ay : ay - nh, w: nw, h: nh };
+    }
+    /* Dragging an edge: the other side follows, staying centred where it can. */
+    function fromEdge(m, o, nr) {
+      if (m === 'e' || m === 'w') {
+        var w = nr.w, h = w / ratio, maxW = m === 'e' ? dw - o.x : o.x + o.w, f = Math.min(1, maxW / w, dh / h); w *= f; h *= f;
+        return { x: m === 'e' ? o.x : o.x + o.w - w, y: o.y + o.h / 2 - h / 2, w: w, h: h };
+      }
+      var h2 = nr.h, w2 = h2 * ratio, maxH = m === 's' ? dh - o.y : o.y + o.h, f2 = Math.min(1, maxH / h2, dw / w2); w2 *= f2; h2 *= f2;
+      return { x: o.x + o.w / 2 - w2 / 2, y: m === 's' ? o.y : o.y + o.h - h2, w: w2, h: h2 };
+    }
+    /* A new shape: the biggest box of that shape around the crop's middle. */
+    function setShape(v) {
+      ratio = ratioOf(v);
+      try { localStorage.setItem('vtm-dcrop-shape', v); } catch (e) {}
+      if (ratio) {
+        var cx = r.x + r.w / 2, cy = r.y + r.h / 2, w = Math.min(dw, dh * ratio), h = w / ratio;
+        r = { x: cx - w / 2, y: cy - h / 2, w: w, h: h };
+      }
+      clamp(); show();
     }
     var drag = null;
     area.addEventListener('pointerdown', function (e) {
@@ -15967,7 +16292,12 @@ V1.5
         if (m.indexOf('s') >= 0) y1 = Math.max(y0 + MIN, o.y + o.h + dy);
         x0 = Math.max(0, x0); y0 = Math.max(0, y0); x1 = Math.min(dw, x1); y1 = Math.min(dh, y1);
         r = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+        if (ratio) {
+          if (m.length === 2) r = fromCorner(m.indexOf('w') >= 0 ? o.x + o.w : o.x, m.indexOf('n') >= 0 ? o.y + o.h : o.y, m.indexOf('w') >= 0 ? -1 : 1, m.indexOf('n') >= 0 ? -1 : 1, r.w, r.h, Math.abs(dx) >= Math.abs(dy) * ratio ? 'w' : 'h');   // follows the side moved most
+          else r = fromEdge(m, o, r);
+        }
       }
+      if (ratio && drag.m === 'new') r = fromCorner(drag.sx, drag.sy, px >= drag.sx ? 1 : -1, py >= drag.sy ? 1 : -1, Math.abs(px - drag.sx), Math.abs(py - drag.sy));
       clamp(); show();
     });
     var up = function () { drag = null; };
@@ -15976,13 +16306,17 @@ V1.5
       var st = Math.max(1, Math.round((e.altKey ? 1 : 10) * Math.min(dw, dh) / 200)), d = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] }[e.key];
       if (!d) return;
       e.preventDefault();
-      if (e.shiftKey) { r.w += d[0]; r.h += d[1]; } else { r.x += d[0]; r.y += d[1]; }
+      if (e.shiftKey && ratio) { var nw = Math.max(MIN, r.w + (d[0] || d[1] * ratio)); r = fromCorner(r.x, r.y, 1, 1, nw, nw / ratio); if (r.w + 0.01 < nw && d[0] + d[1] > 0) return; }
+      else if (e.shiftKey) { r.w += d[0]; r.h += d[1]; } else { r.x += d[0]; r.y += d[1]; }
       clamp(); show();
     });
+    var sel = $('dcropShape'), last = ''; try { last = localStorage.getItem('vtm-dcrop-shape') || ''; } catch (e) {}
+    if (DCROP_SHAPES.some(function (x) { return x[0] === last; })) sel.value = last;
+    sel.addEventListener('change', function () { setShape(sel.value); });
     $('mNo').onclick = function () { closeModal(); };
     $('dcropAll').onclick = function () { closeModal(); done(null); };
     $('mOk').onclick = function () { var nat = toNat(); closeModal(); done(nat.w === W && nat.h === H ? null : nat); };
-    show(); box.focus({ preventScroll: true });
+    setShape(sel.value); box.focus({ preventScroll: true });
   }
   /* A file → a loaded image (the browser turns photos the right way up). */
   function dimgLoad(file) {
@@ -16002,7 +16336,7 @@ V1.5
     dimgLoad(file).then(function (img) {
       dimgCrop(img, function (cr) {
         dimgBusy = true; toast('Adding the image…');
-        dimgUpload(c, img, cr).then(function (r) { dimgBusy = false; URL.revokeObjectURL(img.src); if (nbC() === c && !nbRO(c)) done(r); else dimgRefsSoon(c); },
+        dimgUpload(c, img, cr).then(function (r) { dimgBusy = false; URL.revokeObjectURL(img.src); stAdd('nbImage'); if (nbC() === c && !nbRO(c)) done(r); else dimgRefsSoon(c); },
           function (e) { dimgBusy = false; URL.revokeObjectURL(img.src); dimgErr(e); });
       });
     }, dimgErr);
@@ -17185,7 +17519,7 @@ V1.5
     if (Date.now() - smPingLast < 350) return; smPingLast = Date.now();
     var p = smToWorld({ clientX: cx, clientY: cy }), x = smNum(p[0]), y = smNum(p[1]);
     smPingShow(x, y, myName() || 'You');   // right away here
-    smSend({ op: 'ping', x: x, y: y });
+    smSend({ op: 'ping', x: x, y: y }); stAdd('pings');
   }
   /* A watcher: new pings in the host's update (not their own, already shown). Those already there on joining aren't played. */
   function smPingsIn(rm) {
@@ -18019,6 +18353,7 @@ V1.5
     if (a.moved && a.stuck) { smDrawSoon(); return; }   // it couldn't move: nothing to drop
     if (a.moved) {
       var to = a.to || a.from;
+      (function () { var P = [a.from].concat(a.via || [], [to]), L = 0; for (var q = 1; q < P.length; q++) L += smDist(P[q - 1], P[q]); if (L > 0.05) { stAdd('mapMoves'); stAdd('dist10', Math.round(L * 10)); } })();   // Stats: 1 square = 1 yard
       if (smMode() === 'host') { sm.drag = null; smHostDo('host', myName() || 'Host', { op: 'drop', id: +a.k, x: to[0], y: to[1], from: a.from, via: a.via }); }
       else { var r0 = smJoinTokens(true).filter(function (t) { return t.k === String(a.k); })[0]; if (r0) smUi.lraw[a.k] = [r0.x, r0.y]; smFogMoveEnd(a.k, true, [a.from].concat(a.via || [], [to])); smSend({ op: 'drop', id: +a.k, x: smNum(to[0]), y: smNum(to[1]), from: a.from, via: a.via }); var k = a.k; setTimeout(function () { if (smUi.act && smUi.act.k === k) return; delete smUi.local[k]; delete smUi.lraw[k]; smDrawSoon(); }, 1500); }
       smDrawSoon();
@@ -18056,7 +18391,7 @@ V1.5
     if (a === 'set') { smUi.set = !smUi.set; smSetDraw(); var f = smUi.set && smQ('smSet').querySelector('input'); if (f) f.focus(); return; }
     if (a === 'fit') { smUi.fitted = false; smDraw(); return; }
     if (a === 'zin' || a === 'zout') { var vb = smUi.vb; if (!vb) return; var f = a === 'zin' ? 0.8 : 1.25, cx = vb.x + vb.w / 2, cy = vb.y + vb.h / 2; smUi.vb = { x: cx - vb.w * f / 2, y: cy - vb.h * f / 2, w: vb.w * f, h: vb.h * f }; smDraw(); return; }
-    if (a === 'undo' && smUi.menu != null) { smSend({ op: 'undo', line: smUi.menu }); smMenuClose(); smDrawSoon(); return; }
+    if (a === 'undo' && smUi.menu != null) { stAdd('undos'); smSend({ op: 'undo', line: smUi.menu }); smMenuClose(); smDrawSoon(); return; }
     if (a === 'menuNo') { smMenuClose(); return; }
     if (a === 'aoeNo') { smAoeClose(); var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); return; }
     if (a === 'pip') { smPip(!smUi.pip); return; }
@@ -18137,9 +18472,9 @@ V1.5
   var smDw = (function () {
     var d = null; try { d = JSON.parse(localStorage.getItem('vtm-smap-draw') || 'null'); } catch (e) {}
     d = d && typeof d === 'object' ? d : {};
-    return { hist: [], fut: [], ghost: null, on: false, tool: 'f', col: isFinite(+d.col) ? Math.max(0, Math.min(5, +d.col)) : 0, w: isFinite(+d.w) ? Math.max(0, Math.min(2, +d.w)) : 1, sizes: d.sizes !== false, ds: isFinite(+d.ds) ? Math.max(0, Math.min(2, +d.ds)) : 0, fill: !!d.fill, wl: isFinite(+d.wl) ? Math.max(0, Math.min(4, +d.wl)) : 0, wver: 0, hid: false, sel: {}, act: null, path: null, clip: null, dlg: '', seq: 0 };
+    return { hist: [], fut: [], ghost: null, on: false, tool: 'f', col: isFinite(+d.col) ? Math.max(0, Math.min(5, +d.col)) : 0, w: isFinite(+d.w) ? Math.max(0, Math.min(2, +d.w)) : 1, sizes: d.sizes !== false, ds: isFinite(+d.ds) ? Math.max(0, Math.min(2, +d.ds)) : 0, fill: !!d.fill, fc: isFinite(+d.fc) ? Math.max(-1, Math.min(5, Math.round(+d.fc))) : -1, fo: isFinite(+d.fo) ? Math.max(10, Math.min(100, Math.round(+d.fo / 10) * 10)) : 30, wl: isFinite(+d.wl) ? Math.max(0, Math.min(4, +d.wl)) : 0, wver: 0, hid: false, sel: {}, act: null, path: null, clip: null, dlg: '', seq: 0 };
   })();
-  function smDwSave() { try { localStorage.setItem('vtm-smap-draw', JSON.stringify({ col: smDw.col, w: smDw.w, sizes: smDw.sizes, ds: smDw.ds, fill: smDw.fill, wl: smDw.wl })); } catch (e) {} }
+  function smDwSave() { try { localStorage.setItem('vtm-smap-draw', JSON.stringify({ col: smDw.col, w: smDw.w, sizes: smDw.sizes, ds: smDw.ds, fill: smDw.fill, fc: smDw.fc, fo: smDw.fo, wl: smDw.wl })); } catch (e) {} }
   if (!Array.isArray(sm.dr)) sm.dr = [];
   var smDrIn = [];   // a watcher's copy of the host's drawing
   function smShapes() { return smMode() === 'join' ? smDrIn : sm.dr; }
@@ -18156,7 +18491,12 @@ V1.5
     if (s.t === 't') { var x = String(s.x == null ? '' : s.x).replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 120); if (!x) return null; o.x = x; }
     else { var d = Math.round(+s.d) || 0; if (d === 1 || d === 2) o.d = d; }
     if (s.t === 'p' && s.z && p.length >= 3) o.z = 1;
-    if (s.f && (s.t === 'r' || s.t === 'e' || o.z)) o.f = 1;
+    if (s.f && (s.t === 'r' || s.t === 'e' || o.z)) {
+      o.f = 1;
+      /* Fill colour (V3.9): one of the pen colours, or none = the line's; opacity in tens of percent (none = 30%). */
+      var fc = Math.round(+s.fc); if (s.fc != null && fc >= 0 && fc <= 5) o.fc = fc;
+      var fo = Math.round(+s.fo / 10) * 10; if (fo >= 10 && fo <= 100 && fo !== 30) o.fo = fo;
+    }
     if (s.h) o.h = 1;
     var wl = Math.round(+s.wl) || 0; if (s.t !== 't' && wl >= 1 && wl <= 4) { o.wl = wl; if (s.wo && wl >= 3) o.wo = 1; }
     return o;
@@ -18176,6 +18516,9 @@ V1.5
   /* Sends changes: the host applies them and tells the room; a watcher asks the host (and shows them straight away). */
   function smDrSend(ops) {
     if (!ops.length) return;
+    /* Stats: new shapes, and new walls (a shape turned into a wall counts too). */
+    var have = {}; (smMode() === 'join' ? smDrIn : sm.dr || []).forEach(function (x) { have[x.i] = x; });
+    ops.forEach(function (o) { if (!o || o.d || !o.s) return; var was = have[String(o.i)]; if (!was) stAdd('shapes'); if (o.s.wl && (!was || !was.wl)) stAdd('walls'); });
     if (smMode() === 'join') {
       smDrApply(smDrIn, ops);
       smDrChunks(ops).forEach(function (part) { smSend({ op: 'draw', ops: part }); });
@@ -18246,10 +18589,10 @@ V1.5
     var col = SMD_COLS[s.c][0], w = SMD_W[s.w][0];
     if (s.t === 't') { var fs = SMD_FS[s.w]; return '<text class="sm-shp-tx ' + (cls || '') + '" x="' + s.p[0][0] + '" y="' + s.p[0][1] + '" font-size="' + fs + '" fill="' + col + '" stroke="' + (s.c === 0 ? '#efe8d8' : '#1d1820') + '" stroke-width="' + smDrN(fs * 0.14) + '">' + esc(s.x) + '</text>'; }
     var st = s.d === 1 ? 'stroke-dasharray:' + smDrN(w * 4 + 0.15) + ' ' + smDrN(w * 3 + 0.12) + ';' : s.d === 2 ? 'stroke-dasharray:0.001 ' + smDrN(w * 2.5 + 0.1) + ';' : '';
-    if (s.f) st += 'fill:' + col + ';fill-opacity:0.3;';
+    if (s.f) st += 'fill:' + (s.fc != null && SMD_COLS[s.fc] ? SMD_COLS[s.fc][0] : col) + ';fill-opacity:' + ((s.fo || 30) / 100) + ';';
     return '<path class="sm-shp-ln ' + (cls || '') + '" d="' + smDrPathD(s) + '" stroke="' + col + '" stroke-width="' + w + '"' + (st ? ' style="' + st + '"' : '') + '/>';
   }
-  function smDrPen(s) { var o = Object.assign({ c: smDw.col, w: smDw.w }, s); if (smDw.ds && s.t !== 't') o.d = smDw.ds; if (smDw.fill && (s.t === 'r' || s.t === 'e' || s.z)) o.f = 1; if (smDw.hid && smMode() === 'host') o.h = 1; if (smDw.wl && s.t !== 't') o.wl = smDw.wl; return o; }
+  function smDrPen(s) { var o = Object.assign({ c: smDw.col, w: smDw.w }, s); if (smDw.ds && s.t !== 't') o.d = smDw.ds; if (smDw.fill && (s.t === 'r' || s.t === 'e' || s.z)) { o.f = 1; if (smDw.fc >= 0) o.fc = smDw.fc; if (smDw.fo !== 30) o.fo = smDw.fo; } if (smDw.hid && smMode() === 'host') o.h = 1; if (smDw.wl && s.t !== 't') o.wl = smDw.wl; return o; }
   function smDrLen(p) { var n = 0; for (var i = 1; i < p.length; i++) n += smDist(p[i - 1], p[i]); return n; }
   /* Free-hand lines are simplified as they're finished (fewer points, same look). */
   function smDrSimplify(p, eps) {
@@ -19096,11 +19439,19 @@ V1.5
       '<span class="sm-dgrp sm-mlook" role="radiogroup" aria-label="Thickness (text: size)">' + SMD_W.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt sm-dw" role="radio" data-sm="dwMW" data-v="' + i + '" aria-checked="' + (w === i) + '" aria-label="' + x[1] + '" title="' + x[1] + ' (text: ' + ['small', 'medium', 'large'][i] + ')"><span style="height:' + (2 + i * 2.5) + 'px"></span></button>'; }).join('') + '</span>' +
       (lines.length ? '<span class="sm-dgrp sm-mlook" role="radiogroup" aria-label="Line style">' + smDrDsBtns('dwMD', ds) + '</span>' : '') +
       (lines.length ? '<span class="sm-dgrp sm-mlook sm-dwl" role="radiogroup" aria-label="Wall">' + smDrWlBtns('dwMWl', lines.every(function (x) { return (x.wl || 0) === (lines[0].wl || 0); }) ? lines[0].wl || 0 : -1) + '</span>' : '') +
-      (fills.length ? smDrSw('smDrMFill', fills.every(function (x) { return x.f; }), 'Fill', 'Rectangles, circles and closed paths') : '') +
+      (fills.length ? smDrSw('smDrMFill', fills.every(function (x) { return x.f; }), 'Fill', 'Rectangles, circles and closed paths') +
+        smDrFillUI('dwMFc', fills.every(function (x) { return (x.fc != null ? x.fc : -1) === (fills[0].fc != null ? fills[0].fc : -1); }) ? (fills[0].fc != null ? fills[0].fc : -1) : -2, fills[0].fo || 30, 'smDrMFo') : '') +
       (smMode() === 'host' ? smDrSw('smDrMHid', L.every(function (x) { return x.h; }), 'Hidden', 'Only you see it') : '');
   }
   function smDrDsBtns(act, cur) { return SMD_DS.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt" role="radio" data-sm="' + act + '" data-v="' + i + '" aria-checked="' + (cur === i) + '" aria-label="' + x[0] + '" title="' + x[0] + '"><svg viewBox="0 0 20 16" width="20" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="' + x[1] + '"/></svg></button>'; }).join(''); }
   function smDrWlBtns(act, cur) { return '<span class="sm-dwl-t">Wall</span>' + SMD_WL.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt sm-dwlb" role="radio" data-sm="' + act + '" data-v="' + i + '" aria-checked="' + (cur === i) + '" title="' + ['Not a wall', 'Blocks sight and movement', 'Cover: measurements across it show it', 'Blocks movement, not sight (right-click it to break it)', 'Blocks sight and movement until opened (right-click it)'][i] + '">' + x + '</button>'; }).join(''); }
+  /* Fill colour (the line's, or a pen colour) and opacity (V3.9). act: the buttons' action; cur: the colour shared (-2: mixed). */
+  function smDrFillUI(act, cur, op, sid) {
+    return '<span class="sm-dgrp sm-dfill" role="radiogroup" aria-label="Fill colour"><span class="sm-dwl-t">Fill colour</span>' +
+      '<button type="button" class="sm-dcol sm-dcol-ln" role="radio" data-sm="' + act + '" data-v="-1" aria-checked="' + (cur === -1) + '" aria-label="Same as the line" title="Same as the line"></button>' +
+      SMD_COLS.map(function (c, i) { return '<button type="button" class="sm-dcol" role="radio" data-sm="' + act + '" data-v="' + i + '" aria-checked="' + (cur === i) + '" aria-label="' + c[1] + ' fill" title="' + c[1] + '" style="--c:' + c[0] + '"></button>'; }).join('') + '</span>' +
+      '<label class="sm-dop" for="' + sid + '"><span>Opacity</span><input type="range" id="' + sid + '" min="10" max="100" step="10" value="' + op + '"><output for="' + sid + '">' + op + '%</output></label>';
+  }
   function smDrSw(id, on, t, sub) { return '<label class="switch sm-sw sm-dsz" for="' + id + '"><input type="checkbox" role="switch" id="' + id + '"' + (on ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>' + t + '</strong><small>' + sub + '</small></span></label>'; }
   function smDrSelected() { return smShapes().filter(function (s) { return smDw.sel[s.i]; }); }
   function smDrDel() { var ids = Object.keys(smDw.sel); smDw.sel = {}; smDrDo(ids.map(function (i) { return { i: i, d: 1 }; })); smDrUI(); }
@@ -19135,9 +19486,17 @@ V1.5
   }
   /* Sets something on every selected shape (fill only on the shapes that can be filled; nothing on hidden ones for watchers). */
   function smDrSetSel(key, v) {
-    var L = smDrSelected().filter(function (x) { return key === 'f' ? (x.t === 'r' || x.t === 'e' || x.z) : key === 'd' || key === 'wl' ? x.t !== 't' : true; });
+    var fk = key === 'f' || key === 'fc' || key === 'fo';
+    var L = smDrSelected().filter(function (x) { return fk ? (x.t === 'r' || x.t === 'e' || x.z) : key === 'd' || key === 'wl' ? x.t !== 't' : true; });
     if (!L.length) return;
-    smDrDo(L.map(function (x) { var n = Object.assign({}, x); if (v) n[key] = v; else delete n[key]; if (key === 'wl' && !(v >= 3)) delete n.wo; return { i: x.i, s: n }; }));
+    smDrDo(L.map(function (x) {
+      var n = Object.assign({}, x);
+      if (key === 'fc') { n.f = 1; if (v >= 0) n.fc = v; else delete n.fc; }
+      else if (key === 'fo') { n.f = 1; if (v !== 30) n.fo = v; else delete n.fo; }
+      else if (v) n[key] = v; else delete n[key];
+      if (key === 'wl' && !(v >= 3)) delete n.wo;
+      return { i: x.i, s: n };
+    }));
     smDrawSoon();
   }
   /* Writing or changing a text: a box on the map where it goes. Enter (or clicking away) keeps it; Escape leaves it as it was. */
@@ -19209,7 +19568,7 @@ V1.5
         '<span class="sm-dgrp" role="radiogroup" aria-label="Thickness">' + SMD_W.map(function (x, i) { return '<button type="button" class="btn-sec sm-z sm-dt sm-dw" role="radio" data-sm="dwW" data-v="' + i + '" aria-checked="' + (smDw.w === i) + '" aria-label="' + x[1] + '" title="' + x[1] + '"><span style="height:' + (2 + i * 2.5) + 'px"></span></button>'; }).join('') + '</span>' +
         '<span class="sm-dgrp" role="radiogroup" aria-label="Line style">' + smDrDsBtns('dwD', smDw.ds) + '</span>' +
         '<span class="sm-dgrp sm-dwl" role="radiogroup" aria-label="Wall">' + smDrWlBtns('dwWl', smDw.wl) + '</span>' +
-        smDrSw('smDrFill', smDw.fill, 'Fill', 'Rectangles, circles and closed paths') +
+        smDrSw('smDrFill', smDw.fill, 'Fill', 'Rectangles, circles and closed paths') + smDrFillUI('dwFc', smDw.fc, smDw.fo, 'smDrFo') +
         (host ? smDrSw('smDrHid', smDw.hid, 'Draw hidden', 'New shapes only you see') : '') +
         '<label class="switch sm-sw sm-dsz" for="smDrSizes"><input type="checkbox" role="switch" id="smDrSizes"' + (smDw.sizes ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>Sizes</strong><small>While drawing and resizing</small></span></label></div>' : '') + '</span>' +
       '<span class="sm-dpw"><button type="button" class="btn-sec sm-z sm-dt" data-sm="dwPop" data-v="more" aria-haspopup="menu" aria-expanded="' + (pop === 'more') + '" aria-label="More" title="Copy, paste, delete, presets and maps">⋯</button>' +
@@ -19219,10 +19578,11 @@ V1.5
     if (hadFocus && !bar.contains(smDoc().activeElement)) { var sv = smSvgEl(); if (sv) sv.focus({ preventScroll: true }); }   // focus stays in the map (for Delete and the rest)
   }
   function smDrawClick(b, a) {
-    if ((a === 'dwMCol' || a === 'dwMW' || a === 'dwMD' || a === 'dwMWl' || a === 'dwXf') && smUi.menu === 'draw') {   // the menu stays open, so several can be changed
+    if ((a === 'dwMCol' || a === 'dwMW' || a === 'dwMD' || a === 'dwMWl' || a === 'dwMFc' || a === 'dwXf') && smUi.menu === 'draw') {   // the menu stays open, so several can be changed
       if (a === 'dwXf') { smDrXf(b.getAttribute('data-v')); b.focus({ preventScroll: true }); return true; }
       var v = +b.getAttribute('data-v');
       if (a === 'dwMD') smDrSetSel('d', v);
+      else if (a === 'dwMFc') { smDrSetSel('fc', v); var fsw = b.closest('.sm-menu') && b.closest('.sm-menu').querySelector('#smDrMFill'); if (fsw) fsw.checked = true; }
       else if (a === 'dwMWl') smDrSetSel('wl', v);
       else { var key = a === 'dwMCol' ? 'c' : 'w', L = smDrSelected(); if (L.length) smDrDo(L.map(function (s) { var o = {}; o[key] = v; return { i: s.i, s: Object.assign({}, s, o) }; })); }
       [].forEach.call(b.parentNode.querySelectorAll('[data-sm="' + a + '"]'), function (q) { q.setAttribute('aria-checked', String(q === b)); });
@@ -19248,6 +19608,7 @@ V1.5
     if (a === 'wlTog') { smMenuClose(); smWallSet(b.getAttribute('data-i'), b.getAttribute('data-o') === '1'); var sv1 = smSvgEl(); if (sv1) sv1.focus({ preventScroll: true }); return true; }
     if (a === 'dwWl') { smDw.wl = +b.getAttribute('data-v'); smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('wl', smDw.wl); smDrUI(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwWl"][data-v="' + smDw.wl + '"]'); if (q) q.focus(); }, 0); return true; }
     if (a === 'dwTxt') { var t1 = smDrSelected()[0]; if (t1 && t1.t === 't') smDrTextEd(t1); return true; }
+    if (a === 'dwFc') { smDw.fc = +b.getAttribute('data-v'); smDw.fill = true; smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('fc', smDw.fc); smDrUI(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwFc"][data-v="' + smDw.fc + '"]'); if (q) q.focus(); }, 0); return true; }
     if (a === 'dwD') { smDw.ds = +b.getAttribute('data-v'); smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('d', smDw.ds); smDrUI(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwD"][data-v="' + smDw.ds + '"]'); if (q) q.focus(); }, 0); return true; }
     if (a === 'dwPaste') { smDrPaste(); return true; }
     if (a === 'dwDel') { smDrDel(); return true; }
@@ -19316,12 +19677,16 @@ V1.5
     w.addEventListener('blur', function () { if (smDw.ghost && smDw.ghost.multi) { smDw.ghost = null; smDrawSoon(); } if (smDw.snapAt) { smDw.snapAt = null; smDrawSoon(); } });
     /* A pop-up closes when you press anywhere outside it. */
     w.addEventListener('pointerdown', function (e) { if (smDw.pop && !(e.target.closest && e.target.closest('.sm-dpw'))) { smDw.pop = ''; smDrUI(); } }, true);
+    /* The opacity shows its number while it's dragged (the change is made when it's let go: one undo step). */
+    w.addEventListener('input', function (e) { if (e.target.id === 'smDrFo' || e.target.id === 'smDrMFo') { var out = e.target.parentNode.querySelector('output'); if (out) out.textContent = e.target.value + '%'; } });
     w.addEventListener('change', function (e) {
       var id = e.target.id;
       if (id === 'smDrSizes') { smDw.sizes = e.target.checked; smDwSave(); smDrawSoon(); }
       if (id === 'smDrFill') { smDw.fill = e.target.checked; smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('f', smDw.fill ? 1 : 0); }
       if (id === 'smDrHid') smDw.hid = e.target.checked;
       if (id === 'smDrMFill') smDrSetSel('f', e.target.checked ? 1 : 0);
+      if (id === 'smDrFo') { smDw.fo = +e.target.value; smDw.fill = true; smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('fo', smDw.fo); smDrUI(); }
+      if (id === 'smDrMFo') { smDrSetSel('fo', +e.target.value); var mf = smQ('smDrMFill'); if (mf) mf.checked = true; }
       if (id === 'smDrMHid' && smMode() === 'host') smDrSetSel('h', e.target.checked ? 1 : 0);
     });
   }
@@ -19446,7 +19811,7 @@ V1.5
         inp.onchange = function () {
           var id = inp.getAttribute('data-chr-a'), on = inp.checked, x = mem.filter(function (y) { return y.id === id; })[0];
           Array.prototype.forEach.call($('cmModal').querySelectorAll('[data-chr-a]'), function (q) { q.disabled = true; });
-          var job = on ? chrEnsureShared(c).then(function (sid) { return api('chronicles/' + id + '/assign', { sid: sid }); })
+          var job = on ? chrEnsureShared(c).then(function (sid) { return api('chronicles/' + id + '/assign', { sid: sid }); }).then(function (x) { stAdd('chChron'); return x; })
             : api('chronicles/' + id + '/unassign', { sid: c.share.sid }).then(function (res) {
               if (res.dropped) { var sid0 = c.share.sid; shClose(sid0); delete shs[sid0]; delete c.share; save(); }
             });
@@ -19633,7 +19998,7 @@ V1.5
     var el = e.target.closest('[data-chr]'); if (!el || el.disabled) return;
     var a = el.getAttribute('data-chr'), d = chr.det[chr.cur];
     if (a === 'new') return chrModalNamed('New chronicle', '', '', 'Create', function (t, ds) {
-      api('chronicles', { title: t, descr: ds }).then(function (res) { closeModal(); chr.tab = 'players'; return loadChronicles().then(function () { return chrOpen(res.id); }); }, function (er) { closeModal(); toast(er.message === 'too-many' ? 'That\'s the most chronicles one Storyteller can have.' : 'Couldn\'t make it (' + er.message + ').'); });
+      api('chronicles', { title: t, descr: ds }).then(function (res) { stAdd('chrNew'); closeModal(); chr.tab = 'players'; return loadChronicles().then(function () { return chrOpen(res.id); }); }, function (er) { closeModal(); toast(er.message === 'too-many' ? 'That\'s the most chronicles one Storyteller can have.' : 'Couldn\'t make it (' + er.message + ').'); });
     });
     if (a === 'open') { chr.tab = 'players'; return chrOpen(el.closest('[data-id]').getAttribute('data-id')); }
     if (a === 'menu') {
@@ -19702,6 +20067,7 @@ V1.5
         b.onclick = function () {
           b.disabled = true;
           api('chronicles/' + d.id + '/invite', { pids: [b.getAttribute('data-inv')] }).then(function (res) {
+            stAdd('chrInvite', (res.invited || []).length);
             return api('chronicles/' + d.id).then(function (r2) { r2.data = chrData(r2.data); chr.det[d.id] = r2; d = r2; draw((res.invited || []).length ? 'Invited.' : 'Couldn\'t invite them.'); });
           }, function (er) { draw('Couldn\'t invite (' + er.message + ').'); });
         };
