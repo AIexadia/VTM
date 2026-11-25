@@ -2489,6 +2489,20 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
 .sm-dop { display: grid; grid-template-columns: auto 1fr 40px; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--muted); }
 .sm-dop input[type="range"] { width: 100%; accent-color: var(--accent); }
 .sm-dop output { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg); }
+/* V3.9.1: "Players forget the map" without a room, and its shortcut on the map. */
+.sm-fr-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sm-forget { position: absolute; z-index: 3; left: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35); }
+.sm-forget.armed { background: var(--accent); border-color: var(--accent); color: #fff; }
+/* V3.9.1: Stats → Limits. */
+.st-lims { display: grid; gap: 14px; }
+.st-lim { display: grid; gap: 6px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+.st-lim-t { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.st-lim-t span { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.9rem; }
+.st-lim .st-bt { height: 12px; border-radius: 6px; }
+.st-lim.near .st-bt > span { background: #d9a441; }
+.st-lim.full .st-bt > span { background: #b3263a; }
+.st-lim small { color: var(--muted); font-size: 0.78rem; }
+.st-dupsw { margin: 0 0 10px; }
 </style>
 <!-- CHARACTERS-MODULE:END css -->
 
@@ -2526,6 +2540,9 @@ polyline.sm-move-hit, polyline.sm-move-ln, polyline.sm-drag-ln { fill: none; str
       <button type="button" class="sound-btn notif-btn" id="notifBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifPanel" aria-label="Notifications" title="Notifications">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         <span class="notif-badge" id="notifBadge" hidden></span>
+      </button>
+      <button type="button" class="sound-btn" id="statsBtn" aria-haspopup="dialog" aria-label="Stats" title="Stats" hidden>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M6 17v-5"></path><path d="M11 17V6"></path><path d="M16 17v-8"></path></svg>
       </button>
       <button type="button" class="sound-btn" id="settingsBtn" aria-haspopup="dialog" aria-label="Settings" title="Settings">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -9808,6 +9825,7 @@ V1.5
       '<div class="bar-btns"><button type="button" class="btn primary" data-act="newChar">New character</button>' +
       (own || recv ? '<button type="button" class="btn" data-act="dup" title="' + (recv ? 'Make your own separate copy' : 'Make a copy') + '">Duplicate</button>' : '') +
       '<button type="button" class="btn" data-act="import">Import</button>' +
+      (c0 && !tmp && signed ? '<button type="button" class="btn" data-act="charStats" title="This character\'s stats">Stats</button>' : '') +
       (own || recv ? '<button type="button" class="btn" data-act="export">Export</button>' : '') +
       (own && signed ? '<button type="button" class="btn' + (isShared(c0) ? ' toggle" aria-pressed="true' : '') + '" data-act="share" title="Share this sheet with other players">' + (isShared(c0) ? 'Sharing' : 'Share') + '</button>' : '') +
       (privCanMark(c0) && privOn(c0) ? '<button type="button" class="btn pv-mode' + (privMode ? ' toggle" aria-pressed="true' : '') + '" data-act="privMenu" aria-haspopup="dialog" title="Choose what view-only people see">' + PRIV_EYE + ' Privacy</button>' : '') +
@@ -10122,6 +10140,7 @@ V1.5
     libOpen: function () { openLib(); },
     import: importModal,
     export: exportModal,
+    charStats: function () { var c = cur(); if (c && !c.temp) stOpen('', '', c.id); },
     dup: function () {
       var c = cur(); if (!c) return;
       var d = JSON.parse(JSON.stringify(c)); d.id = uid(); d.info.name = (c.info.name || 'Unnamed') + ' (copy)'; d.created = Date.now(); delete d.share; delete d.temp;
@@ -12376,7 +12395,6 @@ V1.5
       '<span class="hint">' + esc([u.name, u.email].filter(Boolean).join(' · ')) + (('username' in u) ? ' (only you see this)' : '') + '</span></div>' +
       (u.pid ? '<div class="acct-pid"><span class="acct-pid-lbl">Your player ID</span><div class="acct-pid-row"><b class="mono">' + esc(fmtPid(u.pid)) + '</b><button type="button" class="reset-btn" data-acct="copyPid">Copy</button></div><span class="hint">' + (guest ? 'An admin can find your account with it.' : 'Give it to anyone who wants to share a character with you.') + '</span></div>' : '') +
       (guest ? '' : avSection()) +
-      (guest ? '' : '<div class="acct-stats"><span class="acct-pid-lbl">Stats</span><button type="button" class="reset-btn" data-acct="stats">See your stats</button><span class="hint">How you\'ve used the app: dice, characters, combat and more. Your friends can see them too.</span></div>') +
       (guest ? '<p class="hint">Your account is a Guest account: it\'s waiting for an admin to give it access. ' + esc(reqStatusText()) + ' Until then, the Roller and Rule Book work as they do without an account, and nothing syncs.</p>' +
         '<div class="acct-btns"><button type="button" class="reset-btn" data-acct="out">Sign out</button>' + outAllBtn() + '<button type="button" class="danger-btn' + (acctState.delSure ? ' solid' : '') + '" data-acct="del">' + (acctState.delSure ? 'Click again: delete my account' : 'Delete my account') + '</button></div>' : '') +
       (guest ? '' : '<p class="hint" id="acctStatus">' + (acctState.busy ? 'Syncing…' : acctState.err ? esc(acctState.err) : acctState.last ? 'Synced ' + ago(acctState.last) + '. Changes sync on their own.' : 'Not synced yet.') + '</p>' +
@@ -12413,7 +12431,6 @@ V1.5
     if (k === 'uname') { unameModal(false); return; }
     if (k === 'avSet') { avSet(); return; }
     if (k === 'avRm') { avRemove(); return; }
-    if (k === 'stats') { acctClose(); stOpen(''); return; }
     if (k === 'admin') { acctClose(); if ($('settingsClose')) $('settingsClose').click(); admOpen('requests'); return; }
     if (k === 'sync') syncNow();
     else if (k === 'out') api('logout', {}).catch(function () {}).then(function () { signOutLocal('Signed out. Your data stays on this device and in your account.'); });
@@ -13040,7 +13057,7 @@ V1.5
   /* The Friends button's badge counts requests waiting for an answer. */
   function renderFriends() {
     var b = $('friendsBadge'); if (!b || !fr) return;   // the account code can draw before this part has started
-    var btn = $('friendsBtn'); btn.hidden = !signedIn() || !acctReady();
+    var btn = $('friendsBtn'); btn.hidden = !signedIn() || !acctReady(); stBtn();
     var n = fr.incoming.length; b.hidden = !n; b.textContent = n > 9 ? '9+' : String(n);
     btn.setAttribute('aria-label', n ? 'Friends, ' + n + ' request' + (n > 1 ? 's' : '') : 'Friends');
     var p = $('friendsPanel'); if (!p || p.hidden) return;
@@ -13273,7 +13290,12 @@ V1.5
   /* The character a count is also kept under: its id in the app (encounter copies count for the account only). */
   function stScope(c) {
     if (!c) return '';
-    if (c.temp) return '';
+    if (c.temp) {   // an encounter duplicate: kept apart, under the character it was copied from (its stats can include them)
+      var of = c.temp.of && store.chars[c.temp.of];
+      if (!of || of.temp || !/^[\w.:-]{1,60}$/.test(String(of.id))) return '';
+      stQueue().names['dup:' + of.id] = String((of.info && of.info.name) || 'Unnamed').slice(0, 40);
+      return 'dup:' + of.id;
+    }
     var id = String(c.id || ''); if (!/^[\w.:-]{1,64}$/.test(id)) return '';
     stQueue().names[id] = String((c.info && c.info.name) || c.name || 'Unnamed').slice(0, 40);
     return id;
@@ -13313,6 +13335,9 @@ V1.5
     try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) {}
     stAdd('roomsJoined');
   }
+  /* Your own characters on this device (not ones shared with you, nor encounter copies). */
+  function stOwnChars() { return Object.keys(store.chars || {}).filter(function (id) { var c = store.chars[id]; return c && !c.temp && !/^sh-/.test(id) && !(c.share && c.share.role && c.share.role !== 'owner'); }); }
+  function stOwnCount() { return stOwnChars().length; }
   function stEmpty(q) { return !Object.keys(q.add).length && !Object.keys(q.max).length && !Object.keys(q.seq).length && !Object.keys(q.names).length && !q.gone.length; }
   function stDay() { var t = new Date(); return Math.floor((t.getTime() - t.getTimezoneOffset() * 60000) / 86400000); }
   /* Sends what's queued (force: even nothing, so today counts as a day the app was used). */
@@ -13321,7 +13346,7 @@ V1.5
     var q = stQueue(); if (stEmpty(q) && !force) return Promise.resolve();
     stQ = null; try { localStorage.removeItem(stKeyNow()); } catch (e) {}
     stSending = true;
-    var body = { add: q.add, max: q.max, seq: q.seq, names: q.names, gone: q.gone, day: stDay() };
+    var body = { add: q.add, max: q.max, seq: q.seq, names: q.names, gone: q.gone, set: { _: { chNow: stOwnCount() } }, day: stDay() };
     return api('stats/add', body).then(function () { stSending = false; }, function () {
       stSending = false;   // not sent: back in the queue, added to whatever came since
       var n = stQueue();
@@ -13342,13 +13367,23 @@ V1.5
   });
   /* Today counts as a day the app was used (once per visit, after signing in). */
   var stDayed = false;
-  setInterval(function () { if (!stDayed && stOn()) { stDayed = true; stFlush(true); } }, 3000);
+  setInterval(function () { stBtn(); if (!stDayed && stOn()) { stDayed = true; stFlush(true); } }, 3000);
+  /* The Stats button (left of Settings, V3.9.1): only while signed in. */
+  function stBtn() { var b = $('statsBtn'); if (b) b.hidden = !stOn(); }
+  if ($('statsBtn')) $('statsBtn').addEventListener('click', function () { stOpen(''); });
 
   /* ---- The Stats window (V3.9): a few headline numbers, then a tab per section ---- */
   var ST_TABS = [
     ['dice', 'Dice'], ['streaks', 'Streaks'], ['chars', 'Characters', 'acct'], ['health', 'Health & pools'],
-    ['combat', 'Combat & maps', 'acct'], ['dossier', 'Dossiers', 'acct'], ['days', 'Days', 'acct']
+    ['combat', 'Combat & maps', 'acct'], ['dossier', 'Dossiers', 'acct'], ['days', 'Days', 'acct'], ['limits', 'Limits', 'own']
   ];
+  var stLim = null, stDupOn = true;
+  /* A character's numbers with its encounter duplicates' added (highs and best runs: the higher; current runs: its own). */
+  function stMerge(a, b) {
+    var o = Object.assign({}, a), hi = { maxDice: 1, maxSucc: 1, bestS: 1, bestF: 1, bestB: 1 }, own = { runS: 1, runF: 1, runB: 1 };
+    Object.keys(b || {}).forEach(function (k) { if (own[k]) return; o[k] = hi[k] ? Math.max(+o[k] || 0, +b[k] || 0) : (+o[k] || 0) + (+b[k] || 0); });
+    return o;
+  }   // your allowances (Limits tab), loaded with the window
   var stTab = 'dice';
   function stNum(v) { return (+v || 0).toLocaleString(); }
   function stPct(a, b) { return b ? Math.round(a / b * 100) + '%' : '—'; }
@@ -13383,8 +13418,8 @@ V1.5
     if (tab === 'dice') {
       if (!rolls && !+s.k_init) return '<p class="st-none">No rolls counted yet.</p>';
       return stH('How they came out') + stSplit(s) +
-        stTiles([[stNum(s.dice), 'Dice rolled'], [rolls ? (s.dice / rolls).toFixed(1) : '—', 'Dice per roll'], [stNum(s.maxDice), 'Most dice at once'],
-          [rolls ? (s.succ / rolls).toFixed(2) : '—', 'Successes per roll'], [stNum(s.maxSucc), 'Most successes at once'], [rolls ? (s.diffSum / rolls).toFixed(1) : '—', 'Average difficulty'],
+        stTiles([[stNum(s.dice), 'Dice rolled'], [rolls ? ((+s.dice || 0) / rolls).toFixed(1) : '—', 'Dice per roll'], [stNum(s.maxDice), 'Most dice at once'],
+          [rolls ? ((+s.succ || 0) / rolls).toFixed(2) : '—', 'Successes per roll'], [stNum(s.maxSucc), 'Most successes at once'], [rolls ? ((+s.diffSum || 0) / rolls).toFixed(1) : '—', 'Average difficulty'],
           [stNum(s.tens), '10s rolled'], [stNum(s.ones), '1s rolled'], [stNum(s.specTens), 'Specialty 10s']]) +
         '<div class="st-two"><div>' + stH('Kinds of roll') + stBars([['Regular', +s.k_generic || 0], ['Damage', +s.k_damage || 0], ['Soak', +s.k_soak || 0]].concat(+s.k_init ? [['Initiative', +s.k_init]] : [])) + '</div>' +
         '<div>' + stH('Difficulty') + stCols(s) + '</div></div>';
@@ -13394,7 +13429,7 @@ V1.5
       return stH('Longest runs') + stTiles([[stNum(s.bestS), 'Successes in a row'], [stNum(s.bestF), 'Failures in a row'], [stNum(s.bestB), 'Botches in a row']]) +
         stH('Right now') + stTiles([[stNum(s.runS), 'Successes in a row'], [stNum(s.runF), 'Failures in a row']]);
     }
-    if (tab === 'chars') return stH('Made') + stTiles([[stNum(s.chNew), 'From scratch'], [stNum(s.chRandom), 'At random'], [stNum(s.chImport), 'Imported'], [stNum(s.chDup), 'Duplicated']]) +
+    if (tab === 'chars') return stH('Now') + stTiles([[stNum(s.chNow), 'Characters', 'Not counting ones shared by others']]) + stH('Made') + stTiles([[stNum(s.chNew), 'From scratch'], [stNum(s.chRandom), 'At random'], [stNum(s.chImport), 'Imported'], [stNum(s.chDup), 'Duplicated']]) +
       stH('Since then') + stTiles([[stNum(s.chShared), 'Shared'], [stNum(s.chChron), 'Put into chronicles'], [stNum(s.chDel), 'Deleted']]);
     if (tab === 'health') {
       var dm = (+s.dmgB || 0) + (+s.dmgL || 0) + (+s.dmgA || 0);
@@ -13405,6 +13440,22 @@ V1.5
       stH('Skirmish Map') + stTiles([[stNum(s.mapMoves), 'Token moves'], [stNum(Math.round((+s.dist10 || 0) / 10)) + '<small> yd</small>', 'Distance moved'], [stNum(s.pings), 'Pings'], [stNum(s.shapes), 'Shapes drawn'], [stNum(s.walls), 'Walls placed'], [stNum(s.undos), 'Moves undone']]);
     if (tab === 'dossier') return stH('Dossiers') + stTiles([[stNum(s.nbNote), 'Notes'], [stNum(s.nbBox), 'Containers'], [stNum(s.nbText), 'Text labels'], [stNum(s.nbString), 'Strings'], [stNum(s.nbImage), 'Images']]) +
       stH('Chronicles') + stTiles([[stNum(s.chrNew), 'Chronicles made'], [stNum(s.chrInvite), 'Players invited']]);
+    if (tab === 'limits') {
+      if (!stLim) return '<p class="st-none">Loading…</p>';
+      if (stLim.err) return '<p class="st-none">Couldn\'t load your limits.</p>';
+      var mb = function (n) { return n < 1e6 ? Math.max(n ? 1 : 0, Math.round(n / 1e3)) + ' KB' : (n / 1e6).toFixed(n < 10e6 ? 1 : 0) + ' MB'; };
+      var row = function (lbl, used, max, fmt, note) {
+        var pct = max ? Math.min(100, used / max * 100) : 0, f = fmt || stNum;
+        return '<div class="st-lim' + (max && pct >= 90 ? ' full' : max && pct >= 70 ? ' near' : '') + '"><div class="st-lim-t"><b>' + esc(lbl) + '</b><span>' + f(used) + (max ? ' of ' + f(max) : ' (no limit)') + '</span></div>' +
+          '<span class="st-bt"><span style="width:' + (max ? pct.toFixed(1) : 0) + '%"></span></span>' + (note ? '<small>' + esc(note) + '</small>' : '') + '</div>';
+      };
+      var L = stLim;
+      return '<div class="st-lims">' +
+        (L.images ? row('Dossier images', L.images.used, L.images.max, mb, stNum(L.images.count) + ' image' + (L.images.count === 1 ? '' : 's') + '. Images no Dossier uses any more go a week later.') : '') +
+        row('Shared characters', L.shared.used, L.shared.max, null, 'Characters you share with others (ones put into a chronicle don\'t count).') +
+        (L.chronicles ? row('Chronicles', L.chronicles.used, L.chronicles.max, null, 'Chronicles you run.') : '') +
+        row('Friends and requests', L.friends.used, L.friends.max, null, 'Friends, plus requests you\'ve sent that are waiting.') + '</div>';
+    }
     if (tab === 'days') {
       var first = s.dayFirst ? new Date(s.dayFirst * 86400000).toLocaleDateString(undefined, { timeZone: 'UTC', year: 'numeric', month: 'short', day: 'numeric' }) : '—';
       return stTiles([[stNum(s.days), 'Days using the app'], [s.dayLast && s.dayLast >= stDay() - 1 ? stNum(s.dayRun) : '0', 'Days in a row now'], [stNum(s.dayBest), 'Most days in a row'], [esc(first), 'First day']]);
@@ -13412,12 +13463,12 @@ V1.5
     return '';
   }
   /* The headline numbers, then the tabs. */
-  function stView(s, acctView) {
-    if (!Object.keys(s).length) return '<p class="st-none">Nothing counted yet.</p>';
+  function stView(s, acctView, own) {
+    if (!Object.keys(s).length && !own) return '<p class="st-none">Nothing counted yet.</p>';
     var rolls = +s.rolls || 0, dm = (+s.dmgB || 0) + (+s.dmgL || 0) + (+s.dmgA || 0);
-    var tabs = ST_TABS.filter(function (t) { return acctView || t[2] !== 'acct'; });
+    var tabs = ST_TABS.filter(function (t) { return t[2] === 'own' ? acctView && own : acctView || t[2] !== 'acct'; });
     if (!tabs.some(function (t) { return t[0] === stTab; })) stTab = 'dice';
-    return '<div class="st-hero">' + stTile(stNum(rolls), 'Rolls', '', true) + stTile(stNum(s.succ), 'Successes', rolls ? (s.succ / rolls).toFixed(1) + ' per roll' : '', true) +
+    return '<div class="st-hero">' + stTile(stNum(rolls), 'Rolls', '', true) + stTile(stNum(s.succ), 'Successes', rolls ? ((+s.succ || 0) / rolls).toFixed(1) + ' per roll' : '', true) +
       stTile(stNum(s.botch), 'Botches', rolls ? stPct(+s.botch || 0, rolls) + ' of rolls' : '', true) +
       (acctView ? stTile(stNum(s.days), 'Days used', s.dayBest ? 'best run ' + s.dayBest : '', true) : stTile(stNum(dm), 'Damage taken', '', true)) + '</div>' +
       '<nav class="tabs chr-tabs st-tabs" role="tablist" aria-label="Stats sections">' + tabs.map(function (t) {
@@ -13425,22 +13476,43 @@ V1.5
       }).join('') + '</nav><div class="st-panel" role="tabpanel">' + stPanel(stTab, s) + '</div>';
   }
   /* Opens the window: yours (pid empty), or a friend's. */
-  function stOpen(pid, name) {
+  function stOpen(pid, name, pick) {
     if (!stOn()) return toast('Sign in to see stats.');
     stOpenPid = pid || '';
     openModal('<div class="st-top"><h2>' + (pid ? esc(name || 'Friend') + '\'s stats' : 'Your stats') + '</h2><span id="stPickWrap"></span></div><p class="hint" id="stMsg">Loading…</p><div id="stWrap"></div>' +
       '<div class="acts">' + (pid ? '' : '<button type="button" class="danger-btn st-reset" id="stReset">Reset my stats…</button>') + '<button type="button" class="btn" id="mNo">Close</button></div>', 'st-modal');
     $('mNo').onclick = closeModal;
     if ($('stReset')) $('stReset').onclick = stResetAsk;
-    var load = pid ? api('stats/friend?pid=' + encodeURIComponent(pid)) : stFlush(false).then(function () { return api('stats'); });
+    var load = pid ? api('stats/friend?pid=' + encodeURIComponent(pid)) : stFlush(true).then(function () { return api('stats'); });
+    stLim = null;
+    if (!pid) api('stats/limits').then(function (r) { stLim = r; }, function () { stLim = { err: true }; }).then(function () { if ($('stWrap') && stOpenPid === '' && stTab === 'limits' && $('stWrap')._show) $('stWrap')._show(); });
     load.then(function (res) {
       if (!$('stWrap') || stOpenPid !== (pid || '')) return;
-      var chars = (res.chars || []).slice().sort(function (a, b) { return (+b.s.rolls || 0) - (+a.s.rolls || 0) || String(a.name).localeCompare(String(b.name)); });
+      var list = (res.chars || []).filter(function (c) { return !/^dup:/.test(c.id); }), dups = {};
+      (res.chars || []).forEach(function (c) { if (/^dup:/.test(c.id)) dups[c.id.slice(4)] = c.s; });
+      if (!pid) {   // your own characters are all there, even those with nothing counted yet
+        res.account = res.account || {}; res.account.chNow = stOwnCount();
+        stOwnChars().forEach(function (id) { if (!list.some(function (c) { return c.id === id; })) list.push({ id: id, name: String((store.chars[id].info && store.chars[id].info.name) || 'Unnamed'), s: {} }); });
+        list.forEach(function (c) { if (store.chars[c.id] && store.chars[c.id].info) c.name = String(store.chars[c.id].info.name || c.name); });
+      }
+      list.forEach(function (c) { if (dups[c.id] && Object.keys(dups[c.id]).length) c.dup = dups[c.id]; });
+      if (pick && !list.some(function (c) { return c.id === pick; }) && store.chars[pick]) list.push({ id: pick, name: String((store.chars[pick].info && store.chars[pick].info.name) || 'Unnamed'), s: {} });
+      var chars = list.sort(function (a, b) { return (+b.s.rolls || 0) - (+a.s.rolls || 0) || String(a.name).localeCompare(String(b.name)); });
       $('stMsg').textContent = pid ? 'Counted since Stats arrived (V3.9), while signed in.' : 'Counted since Stats arrived (V3.9), while you\'re signed in. Your friends can see these.';
       if (chars.length) $('stPickWrap').innerHTML = '<label class="st-pick"><span>Show</span><select id="stWho"><option value="">' + (pid ? 'Their account' : 'Your account') + '</option>' +
         chars.map(function (c, i) { return '<option value="' + i + '">' + esc(c.name) + (c.gone ? ' (deleted)' : '') + '</option>'; }).join('') + '</select></label>';
-      var show = function () { var v = $('stWho') ? $('stWho').value : ''; $('stWrap').innerHTML = v === '' ? stView(res.account || {}, true) : stView(chars[+v].s || {}, false); };
-      if ($('stWho')) $('stWho').onchange = show;
+      var show = function () {
+        var v = $('stWho') ? $('stWho').value : '', ch = v === '' ? null : chars[+v];
+        /* Encounter duplicates: a switch, only for a character whose duplicates have stats. */
+        var dupSw = ch && ch.dup ? '<label class="switch st-dupsw" for="stDup"><input type="checkbox" role="switch" id="stDup"' + (stDupOn ? ' checked' : '') + '><span class="track" aria-hidden="true"></span><span class="txt"><strong>Include encounter duplicates</strong><small>Its copies added to encounters as duplicates ([1], [2]…)</small></span></label>' : '';
+        $('stWrap').innerHTML = dupSw + (ch ? stView(ch.dup && stDupOn ? stMerge(ch.s || {}, ch.dup) : ch.s || {}, false, !pid) : stView(res.account || {}, true, !pid));
+        if ($('stDup')) $('stDup').onchange = function () { stDupOn = this.checked; show(); };
+      };
+      $('stWrap')._show = show;
+      if ($('stWho')) {
+        $('stWho').onchange = show;
+        if (pick) { var at = -1; chars.forEach(function (c, i) { if (c.id === pick) at = i; }); if (at >= 0) $('stWho').value = String(at); }
+      }
       $('stWrap').onclick = function (e) {
         var b = e.target.closest && e.target.closest('[data-st-tab]'); if (!b) return;
         stTab = b.getAttribute('data-st-tab'); show();
@@ -14142,6 +14214,7 @@ V1.5
       libMenu = null;
       var canPic = c && !c.temp && !(c.share && c.share.role === 'view');
       showLibMenu(b, '<button type="button" role="menuitem" data-lib="open" data-id="' + id + '"><span>Open</span></button>' +
+        (c && !c.temp && signedIn() ? '<button type="button" role="menuitem" data-lib="stats" data-id="' + id + '"><span>Stats</span></button>' : '') +
         (canPic ? '<button type="button" role="menuitem" data-lib="pic" data-id="' + id + '"><span>' + (c.img ? 'Change picture…' : 'Add picture…') + '</span></button>' +
           (c.img ? '<button type="button" role="menuitem" data-lib="picRm" data-id="' + id + '"><span>Remove picture</span></button>' : '') : '') +
         moveList(folderOf(id), 'mvChar').replace(/data-lib="mvChar/g, 'data-id="' + id + '" data-lib="mvChar'));
@@ -14154,6 +14227,7 @@ V1.5
         moveList(f.parent, 'mvFolder', id).replace(/data-lib="mvFolder/g, 'data-id="' + id + '" data-lib="mvFolder'));
       return;
     }
+    if (a === 'stats') { closeLibMenu(); return stOpen('', '', id); }
     if (a === 'pic') { closeLibMenu(); return imgPick(id); }
     if (a === 'picRm') { closeLibMenu(); return imgRemove(id); }
     if (a === 'mvChar') { closeLibMenu(); return moveChar(id, b.dataset.to); }
@@ -17124,7 +17198,7 @@ V1.5
     var d = null; try { d = JSON.parse(localStorage.getItem('vtm-smap-view') || 'null'); } catch (e) {}
     d = d && typeof d === 'object' ? d : {};
     return { grid: d.grid !== false, op: isFinite(+d.op) && d.op !== null ? Math.max(5, Math.min(100, Math.round(+d.op))) : 60,
-      pat: d.pat !== false, pop: isFinite(+d.pop) && d.pop !== null ? Math.max(5, Math.min(100, Math.round(+d.pop))) : 100, style: SM_STYLES.some(function (x) { return x[0] === d.style; }) ? d.style : 'auto' };
+      pat: d.pat !== false, pop: isFinite(+d.pop) && d.pop !== null ? Math.max(5, Math.min(100, Math.round(+d.pop))) : 100, style: SM_STYLES.some(function (x) { return x[0] === d.style; }) ? d.style : 'auto', fr: !!d.fr };
   })();
   function smViewSave() { try { localStorage.setItem('vtm-smap-view', JSON.stringify(smView)); } catch (e) {} }
   var smThumbs = {}, smThumbBusy = {}, smPics = {}, smSent = {};
@@ -17775,7 +17849,9 @@ V1.5
     if (!smUi.set) return;
     var s = smState(), mode = smMode(), rm = s && s.remote && s.remote.m;
     var room = mode === 'host' ? smSwitch('smUnits', sm.units === 'i', 'Imperial units', 'Feet, with yards beside them (1 yard = 1 metre).') +
-      (sm.units === 'i' ? '<div class="sm-sw-row">' + smSwitch('smUF', sm.uf !== false, 'Feet') + smSwitch('smUY', sm.uy !== false, 'Yards') + '</div>' : '') + (s && s.hosting ? smSwitch('smDj', !!sm.dj, 'Watchers can draw', 'They get the Draw button too') + smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') + '<button type="button" class="btn small" data-sm="fogReset" title="Players forget the parts of the map they\'ve seen (and where they last saw tokens)">Players forget the map</button>' : '')
+      (sm.units === 'i' ? '<div class="sm-sw-row">' + smSwitch('smUF', sm.uf !== false, 'Feet') + smSwitch('smUY', sm.uy !== false, 'Yards') + '</div>' : '') + (s && s.hosting ? smSwitch('smDj', !!sm.dj, 'Watchers can draw', 'They get the Draw button too') + smSwitch('smAny', sm.any, 'Watchers move any token', 'Otherwise they move only their own characters.') : '') +
+      /* V3.9.1: also without a room (to try things out in Token view first), with a shortcut on the map itself. */
+      '<div class="sm-fr-row"><button type="button" class="btn small" data-sm="fogReset" title="Players (and Token view) forget the parts of the map they\'ve seen, and where they last saw tokens">Players forget the map</button>' + smSwitch('smFr', smView.fr, 'Shortcut on the map', 'A button at its bottom left') + '</div>'
       : '<p class="sm-set-note">' + (rm && rm.u === 'i' ? 'Feet, with yards beside them' : 'Metres') + ' (the host\'s choice). ' + (rm && rm.any ? 'You can move any token.' : 'You can move your own characters.') + '</p>';
     var key = mode + '|' + room + '|' + smView.grid + '|' + smView.style + '|' + smView.pat;
     if (box.getAttribute('data-k') === key) return;
@@ -18427,6 +18503,7 @@ V1.5
     }
     if (e.target.id === 'smAny') { sm.any = e.target.checked; smSave(); smPushSoon(); smDraw(); }
     if (e.target.id === 'smDj') { sm.dj = e.target.checked; smSave(); smPushSoon(); smDraw(); }
+    if (e.target.id === 'smFr') { smView.fr = e.target.checked; smViewSave(); smDraw(); }
     if (e.target.id === 'smGridOn') { smView.grid = e.target.checked; smViewSave(); smDraw(); }
     if (e.target.id === 'smPatOn') { smView.pat = e.target.checked; smViewSave(); smDraw(); }
     if (e.target.name === 'smStyle') { smView.style = e.target.value; smViewSave(); smDraw(); var r = smQ('smSet').querySelector('input[name="smStyle"]:checked'); if (r) r.focus(); }
@@ -18908,6 +18985,34 @@ V1.5
     });
     if (changed || Object.keys(smFogH).some(function (k) { var d = smFogH[k].dirty; smFogH[k].dirty = false; return d; })) smFogHSave();
   }
+  /* The "Players forget the map" shortcut (V3.9.1): a button in the map's bottom-left corner, for the host, when turned on in
+     the map's settings. */
+  function smFogBtn() {
+    var st = smQ('smStage'); if (!st) return;
+    var bt = st.querySelector('.sm-forget'), on = smView.fr && smMode() === 'host';
+    if (!on) { if (bt) bt.hidden = true; return; }
+    if (!bt) {
+      bt = smDoc().createElement('button'); bt.type = 'button'; bt.className = 'btn small sm-forget';
+      bt.title = 'Players (and Token view) forget the parts of the map they\'ve seen, and where they last saw tokens';
+      bt.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>Players forget the map</span>';
+      ['pointerdown', 'mousedown', 'touchstart', 'dblclick', 'contextmenu', 'wheel'].forEach(function (ev) { bt.addEventListener(ev, function (e) { e.stopPropagation(); }, { passive: true }); });   // not a pan, drag or menu on the map
+      /* Two quick clicks: the first asks, a second within 3 s does it. */
+      var lbl = function (armed) { bt.classList.toggle('armed', armed); bt.querySelector('span').textContent = armed ? 'Click again to forget' : 'Players forget the map'; };
+      bt.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (bt._armT) { clearTimeout(bt._armT); bt._armT = 0; lbl(false); smFogForget(); return; }
+        lbl(true); bt._armT = setTimeout(function () { bt._armT = 0; lbl(false); }, 3000);
+      });
+      bt.addEventListener('blur', function () { if (bt._armT) { clearTimeout(bt._armT); bt._armT = 0; lbl(false); } });
+      st.appendChild(bt);
+    }
+    bt.hidden = false;
+  }
+  function smFogForget() {
+    if (smMode() !== 'host') return;
+    sm.fe = (sm.fe || 0) + 1; smSave(); smPushSoon(); smFogH = {}; smFogHSave(); smDrawSoon();
+    if (window.cmToast) window.cmToast('Players forget the map they\'ve seen.');
+  }
   /* Which token's eyes: a small note in the map's corner while Token view is on. */
   function smTVBadge() {
     var st = smQ('smStage'); if (!st) return;
@@ -19085,7 +19190,7 @@ V1.5
     /* The host in Token view still sees every token: those the chosen one can't see, dimmed over the fog. */
     if (smMode() === 'host') toks.forEach(function (t) { if (t.tvo) h += '<g class="sm-tvo" transform="translate(' + t.x + ' ' + t.y + ')"><title>' + esc(t.name) + ': out of sight</title><circle r="' + SM_R + '"/><text dy="0.02"' + (initials(t.name).length > 2 ? ' class="long"' : '') + '>' + esc(initials(t.name)) + '</text></g>'; });
     if (M) Object.keys(M.lkp).forEach(function (k) { if (liveK[k]) return; var l = M.lkp[k]; h += '<g class="sm-lkp" transform="translate(' + l.x + ' ' + l.y + ')"><title>Last seen here: ' + esc(l.n || 'a token') + ' (right-click to forget)</title><circle r="' + SM_R + '"/><text dy="0.02"' + (String(l.i || '?').slice(0, 3).length > 2 ? ' class="long"' : '') + '>' + esc(String(l.i || '?').slice(0, 3)) + '</text></g>'; });
-    smTVBadge();
+    smTVBadge(); smFogBtn();
     var fogOn = !!(M && mine.length && W.length);
     ov.classList.toggle('on', !!fogOn);
     if (fogOn) {
@@ -19604,7 +19709,7 @@ V1.5
     if (a === 'dwDup') { smDrDup(); return true; }
     if (a === 'tv') { smTVToggle(); return true; }
     if (a === 'lkpForget') { var tvm = smTVNow(smHostTokens()); delete (smMode() === 'host' && tvm ? smFogHMem(tvm.v.k) : smFog).lkp[b.getAttribute('data-k')]; smMenuClose(); smDrawSoon(); var sv2 = smSvgEl(); if (sv2) sv2.focus({ preventScroll: true }); return true; }
-    if (a === 'fogReset' && smMode() === 'host') { sm.fe = (sm.fe || 0) + 1; smSave(); smPushSoon(); smFogH = {}; smFogHSave(); smDrawSoon(); if (window.cmToast) window.cmToast('Players forget the map they\'ve seen.'); return true; }
+    if (a === 'fogReset' && smMode() === 'host') { smFogForget(); return true; }
     if (a === 'wlTog') { smMenuClose(); smWallSet(b.getAttribute('data-i'), b.getAttribute('data-o') === '1'); var sv1 = smSvgEl(); if (sv1) sv1.focus({ preventScroll: true }); return true; }
     if (a === 'dwWl') { smDw.wl = +b.getAttribute('data-v'); smDwSave(); if (smDw.tool === 'sel' && Object.keys(smDw.sel).length) smDrSetSel('wl', smDw.wl); smDrUI(); setTimeout(function () { var q = smQ('smDtools') && smQ('smDtools').querySelector('[data-sm="dwWl"][data-v="' + smDw.wl + '"]'); if (q) q.focus(); }, 0); return true; }
     if (a === 'dwTxt') { var t1 = smDrSelected()[0]; if (t1 && t1.t === 't') smDrTextEd(t1); return true; }

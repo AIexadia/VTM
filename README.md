@@ -591,3 +591,14 @@ V3.9
 	-Image position is remembered: adding an image to a note that didn't have one puts it where you last chose with Image position (above, left or right). Changing a note's image keeps its position, and an image added straight onto the board always starts above.
 -Skirmish Map Changes:
 	-Fill colour and opacity: filled shapes (rectangles, circles and closed paths) can now have their own fill colour (any pen colour, or the same as the line, as before) and opacity (10% to 100%; 30% as before). Set them for new shapes in the pen's options, or for selected shapes from their right-click menu. Picking a fill colour or opacity turns the fill on.
+
+V3.9.1
+-General Changes:
+	-Stats has its own button now, left of Settings (shown while you're signed in), instead of being inside Account.
+	-Stats count the characters you have now (your own, not ones shared with you), in the Characters tab, and the Show list has all your characters, even ones with nothing counted yet.
+	-New Limits tab in Stats (only you see it): how much of your allowances you've used: Dossier images, shared characters, chronicles (Storytellers) and friends and requests. Bars turn gold near the limit and red at it.
+	-A character's stats open straight from its sheet (the new Stats button next to Import) or from its menu in the character browser.
+	-Encounter duplicates ("Name [1]", "Name [2]"…) now count for the character they were copied from. In that character's stats, an "Include encounter duplicates" switch adds them in or leaves them out; it only shows once one of its duplicates has rolled, taken damage or spent something.
+-Skirmish Map Changes:
+	-"Players forget the map" (in the map's settings) now works without hosting a room too, so you can try things out in Token view first: it clears what Token view remembers.
+	-Next to it, a "Shortcut on the map" toggle puts the same button in the bottom-left corner of the map itself. It takes two quick clicks (the first turns it into "Click again to forget" for 3 seconds), so a stray click doesn't wipe anything. The toggle is remembered on this device.
