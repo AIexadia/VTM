@@ -18905,27 +18905,48 @@ V1.5
      before but not now leaves a marker; seeing it again takes it away; a fresh look at the spot (after looking away)
      shows it's gone; an encounter ending clears them. What a move changes is kept with the move, so undoing it can put
      back the markers (and the list of who was in sight) as they were. */
-  function smLkpStep(M, vis, enc, sees, tv, tgOf) {
+  function smLkpStep(M, vis, enc, sees, tv, tgOf, all) {
     smMemInit(M); tv = tv || '';
     if (tv.indexOf('p:') === 0) return;
     if (M.en === true && !enc) { M.lkp = {}; M.gone = []; M.ss = {}; M.en = enc; M.seen = vis; return; }
     M.en = enc;
     if (tv && !M.ss[tv]) M.ss[tv] = { all: Object.assign({}, M.seen) };
     var keys = {}, now = {};
-    Object.keys(M.seen).concat(Object.keys(vis)).forEach(function (k) { keys[k] = 1; });
+    Object.keys(M.seen).concat(Object.keys(vis), Object.keys(M.dpo || {})).forEach(function (k) { keys[k] = 1; });   // dpo: one that moved while out of sight may have crossed it
     var tagOf = function (k) { var to = tgOf ? tgOf(k) || '' : ''; return to || tv; };   // a token that just moved: what changes about it belongs to its move (else to the viewer's)
     var drop = function (k, tg) { if (tg && M.lkp[k]) { M.gone.push({ k: k, l: M.lkp[k], tg: tg }); if (M.gone.length > 300) M.gone.shift(); } delete M.lkp[k]; };
     Object.keys(keys).forEach(function (k) {
       var tg = tagOf(k);
       if (tg.indexOf('p:') === 0) { if (M.seen[k]) now[k] = M.seen[k]; return; }   // it's being dragged: wait for its drop
       if (tg && tg !== tv) { var ss = M.ss[tg] || (M.ss[tg] = { part: {} }); if (ss.part && !(k in ss.part)) ss.part[k] = M.seen[k] || null; }
-      if (vis[k]) { now[k] = vis[k]; if (M.lkp[k]) drop(k, tg); }
+      var mp = M.dpo && M.dpo[k];
+      if (vis[k]) { now[k] = vis[k]; if (M.lkp[k]) drop(k, tg); if (mp) delete M.dpo[k]; }
+      else if (mp) {
+        /* It moved, and ended out of sight: it's last known where it left sight along its path (V3.9.3), not where it started. */
+        delete M.dpo[k];
+        var at = smPathLastSeen(mp, sees), was = M.seen[k] || M.lkp[k] || (all && all[k]);
+        if (at && was) { if (M.lkp[k]) drop(k, tg); M.lkp[k] = { x: at[0], y: at[1], i: was.i, n: was.n, pl: was.pl, out: false, tg: tg }; }
+        else if (M.seen[k] && !M.lkp[k]) { var o0 = M.seen[k]; M.lkp[k] = { x: o0.x, y: o0.y, i: o0.i, n: o0.n, pl: o0.pl, out: false, tg: tg }; }
+      }
       else if (M.seen[k] && !M.lkp[k]) { var o = M.seen[k]; M.lkp[k] = { x: o.x, y: o.y, i: o.i, n: o.n, pl: o.pl, out: false, tg: tg }; }
     });
     M.seen = now;
     Object.keys(M.lkp).forEach(function (k) { var l = M.lkp[k], tg = tagOf(k); if (tg.indexOf('p:') === 0) return; if (!sees(l)) l.out = true; else if (l.out) drop(k, tg); });
     var sig = Object.keys(M.lkp).map(function (k) { var l = M.lkp[k]; return k + l.x + ',' + l.y + l.tg + (l.out ? 'o' : ''); }).join('|') + '#' + Object.keys(M.seen).join(',');
     if (sig !== M.sig) { M.sig = sig; M.dirty = true; }   // worth saving
+  }
+  /* The last point along a path the viewer could see (null if it never could), found to within a tenth of a square. */
+  function smPathLastSeen(P, sees) {
+    var S = smPathSamples(P), ok = function (q) { return sees({ x: q[0], y: q[1] }); };
+    for (var i = S.length - 1; i >= 0; i--) {
+      if (!ok(S[i])) continue;
+      if (i === S.length - 1) return S[i];
+      var a = S[i], b = S[i + 1];
+      for (var j = 0; j < 7; j++) { var m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; if (ok(m)) a = m; else b = m; }
+      var r = [Math.round(a[0] * 100) / 100, Math.round(a[1] * 100) / 100];
+      return ok(r) ? r : a;   // stays on the side they could see
+    }
+    return null;
   }
   /* ---- the host's Token view ----
      The host can see the map as one token does: the last token they picked up, or a player's token someone else just
@@ -18981,7 +19002,8 @@ V1.5
       }
       var vis = {};
       toks.forEach(function (t) { if (t.k !== v.k && smTVSees(v, t, W)) vis[t.k] = { x: t.x, y: t.y, i: initials(t.name), n: t.name, pl: t.pl }; });
-      smLkpStep(M, vis, enc, function (l) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }, vt, function (k) { return smFogTagFor(k, M); });
+      var allH = {}; toks.forEach(function (t) { allH[t.k] = { i: initials(t.name), n: t.name, pl: t.pl }; });
+      smLkpStep(M, vis, enc, function (l) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }, vt, function (k) { return smFogTagFor(k, M); }, allH);
       smFogResolve(M, sm.lines, function (k) { return sm.pos[k]; }, enc, 'tie', smFogTagFor(v.k, M).indexOf('p:') === 0);
       Object.keys(M.lkp).forEach(function (k) { if (!have[k]) delete M.lkp[k]; });   // a token taken off the map
     });
@@ -19066,6 +19088,7 @@ V1.5
     var L = smMode() === 'host' ? Object.keys(smFogH).map(function (q) { return smFogH[q]; }) : [smFog];   // the host: every token's memory (others watched it move)
     L.forEach(function (M) {
       smMemInit(M);
+      if (ok && M !== MM && Array.isArray(P) && P.length >= 2) { M.dpo = M.dpo || {}; M.dpo[k] = P.map(function (q) { return [+q[0], +q[1]]; }).slice(0, 80); }   // watchers: where it went (its last known spot is where it left their sight)
       if (ok) { M.dt[k] = Date.now(); if (Array.isArray(P) && P[0]) M.df[k] = [+P[0][0], +P[0][1]]; else delete M.df[k]; } else { M.cx = M.cx || {}; M.cx[k] = Date.now() + 2000; }
     });
     if (!ok) setTimeout(smDrawSoon, 2100);
@@ -19169,6 +19192,7 @@ V1.5
         if (!el && ep && ef && smDist(ep, ef) < 0.05) { }   // put back (cancelled, or only nudged): nothing was learned while it was dragged
         else {
           smFog.dt[ek] = Date.now(); if (ef) smFog.df[ek] = ef.slice(); else delete smFog.df[ek];
+          if (el && !mine.some(function (t) { return t.k === ek; })) { smFog.dpo = smFog.dpo || {}; smFog.dpo[ek] = [el.f].concat(Array.isArray(el.v) ? el.v : [], [el.t]).map(function (q) { return [+q[0], +q[1]]; }).slice(0, 80); }   // someone else's token: where it left our sight
           if (el && mine.some(function (t) { return t.k === ek; })) { smFog.dp = smFog.dp || {}; smFog.dp[ek] = [el.f].concat(Array.isArray(el.v) ? el.v : [], [el.t]).map(function (q) { return [+q[0], +q[1]]; }).slice(0, 80); }   // learns along the path it was moved by
         }
       }
@@ -19181,7 +19205,8 @@ V1.5
         var pl = smFogPathLearn(smFog, t.k, W, smWc.sk, g, function (s) { var o = {}; allJ.forEach(function (x) { if (!x.own && (!W.length || smTokSees(s, [x.x, x.y], W))) o[x.k] = { x: x.x, y: x.y, i: x.ini, n: x.pub, pl: x.pl }; }); return o; });
         if (pl) { smLkpStep(smFog, Object.assign({}, vis, pl.vis), smEnc(), function (l) { return pl.S.some(function (s) { return !W.length || smSeesPt(s, [l.x, l.y], W); }); }, g, function (k) { return smFogTagFor(k, smFog); }); smFogSave(); }
       });
-      smLkpStep(smFog, vis, smEnc(), function (l) { return !mine.length || !W.length || mine.some(function (v) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }); }, jp ? 'p:' : jtg, function (k) { return smFogTagFor(k, smFog); });
+      var allJ = {}; toks.forEach(function (t) { allJ[t.k] = { i: t.ini, n: t.pub, pl: t.pl }; });
+      smLkpStep(smFog, vis, smEnc(), function (l) { return !mine.length || !W.length || mine.some(function (v) { return smSeesPt([v.x, v.y], [l.x, l.y], W); }); }, jp ? 'p:' : jtg, function (k) { return smFogTagFor(k, smFog); }, allJ);
       if (smFog.dirty) { smFog.dirty = false; smFogSave(); }   // markers and tags too, so a reload keeps them
       M = smFog;
     } else if (smMode() === 'host') {   // the host in Token view: what the token they last held (or a player's token just moved) sees
