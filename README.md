@@ -610,3 +610,8 @@ V3.9.3
 V3.9.4
 -Skirmish Map Changes:
 -Fixed last known positions of tokens that moved out of sight: they were left where the token started, even when it was seen walking part of the way. Now it's the last spot along its path that could be seen, both for players and in the host's Token view (and undoing the move still puts it back).
+
+V3.9.5
+-Skirmish Map Changes:
+-The map stays smooth with lots of shapes: the drawing is only redrawn when it changes (not every time a token moves), and walls are looked up by area instead of one by one, so line of sight, fog of war, sliding along walls and paths around them are much faster on big maps.
+-Circle and free-hand walls are cut into fewer straight pieces (still within a fraction of a pixel of what's drawn), which also speeds up everything that checks walls.

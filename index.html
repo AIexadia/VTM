@@ -17907,7 +17907,9 @@ V1.5
     h += '<rect class="sm-bg" x="' + (Math.floor(vb.x / 5) * 5 - 5) + '" y="' + (Math.floor(vb.y / 5) * 5 - 5) + '" width="' + (vb.w + 15) + '" height="' + (vb.h + 15) + '" fill="' + (smView.grid ? 'url(#smG5)' : 'transparent') + '"/>';
     smLbls = [];
     var dk = smMayDraw() + '|' + smDw.on; if (dk !== smDw.uiKey) { smDw.uiKey = dk; smDrUI(); }
-    h += smShapesSVG();   // the drawing, under everything else
+    var hb = h; h = '';
+    if (!SM_FAST) h += smShapesSVG();   // the drawing, under everything else
+    else h += smShapesSVG('live');   // what's being drawn right now (the drawing itself is kept: see below)
     var byK = {}; toks.forEach(function (t) { byK[t.k] = t; });
     /* Areas of Effect, faint, under everything else; brighter (with their size) while the pointer is in them. */
     var areas = smAreas(), hotA = {}; smUi.ha.forEach(function (i) { hotA[i] = 1; });
@@ -17990,7 +17992,16 @@ V1.5
     });
     h += '<g class="sm-clashes">' + clash + '</g>';
     h += '<g class="sm-lbls">' + smLabelsOut(dragK && byK[dragK] ? [[byK[dragK].x, byK[dragK].y]] : [], toks) + '</g>';   // on top, none overlapping
-    svg.innerHTML = h;
+    if (!SM_FAST) svg.innerHTML = hb + h;
+    else {
+      /* Three layers: the grid, the drawing (made again only when it changes: with many shapes, that's most of the work),
+         and everything else. */
+      var Ly = svg._ly;
+      if (!Ly || Ly[0].parentNode !== svg || svg.childNodes.length !== 3) { svg.innerHTML = '<g class="sm-ly-bg"></g><g class="sm-ly-shp"></g><g class="sm-ly-top"></g>'; Ly = svg._ly = [].slice.call(svg.childNodes); svg._shk = null; }
+      Ly[0].innerHTML = hb;
+      var shk = smShapesKey(); if (svg._shk !== shk) { svg._shk = shk; Ly[1].innerHTML = smShapesSVG('shapes'); }
+      Ly[2].innerHTML = h;
+    }
     smFogPaint(svg, toks, rm);   // over it all: a player's fog, last known positions and pings
     smTip();
   }
@@ -18697,9 +18708,15 @@ V1.5
     b.n = ids.length; return b;
   }
   /* What the drawing looks like (and the shape being drawn, the selection, sizes while drawing). */
-  function smShapesSVG() {
+  /* The drawing itself (shapes and walls): the same until it changes, a shape is (un)selected, or a selection is moved or sized. */
+  function smShapesKey() {
+    var a = smDw.act, L = smShapes();
+    return [smMode(), smDw.wver, L.length, L === sm.dr ? 'h' : 'j', smDw.on ? 1 : 0, smDw.tool, Object.keys(smDw.sel).join(','),
+      a && (a.m === 'move' || a.m === 'size') ? [a.m, a.dx, a.dy, a.ox, a.oy, a.fx, a.fy].join(',') : ''].join('|');
+  }
+  function smShapesSVG(part) {
     var a = smDw.act, L = smShapes(), h = '<g class="sm-shapes' + (smDw.on && smDw.tool !== 'pan' ? ' live' : '') + '">';
-    L.forEach(function (s0) {
+    if (part !== 'live') L.forEach(function (s0) {
       var s = s0;
       if (a && (a.m === 'move' || a.m === 'size') && smDw.sel[s.i]) s = a.m === 'move' ? smDrMoved(s, a.dx || 0, a.dy || 0) : smDrScaled(s, a.ox, a.oy, a.fx || 1, a.fy || 1);
       var w = SMD_W[s.w][0], tb = s.t === 't' ? smDrTB(s) : null;
@@ -18707,7 +18724,8 @@ V1.5
         (tb ? '<rect class="sm-shp-hit fh" x="' + tb.x0 + '" y="' + tb.y0 + '" width="' + (tb.x1 - tb.x0) + '" height="' + (tb.y1 - tb.y0) + '"/>' : '<path class="sm-shp-hit' + (s.f ? ' fh' : '') + '" d="' + smDrPathD(s) + '" stroke-width="' + Math.max(w + 0.3, 0.4) + '"/>') +
         smDrEl(s) + (s.h ? '<title>Hidden from players</title>' : '') + '</g>';
     });
-    smWalls().forEach(function (w) { h += '<line class="sm-wall w' + w.wl + (w.wo ? ' o' : '') + '" x1="' + w.a[0] + '" y1="' + w.a[1] + '" x2="' + w.b[0] + '" y2="' + w.b[1] + '"/>'; });
+    if (part === 'shapes') return h + smWalls().map(function (w) { return '<line class="sm-wall w' + w.wl + (w.wo ? ' o' : '') + '" x1="' + w.a[0] + '" y1="' + w.a[1] + '" x2="' + w.b[0] + '" y2="' + w.b[1] + '"/>'; }).join('') + '</g>';
+    if (part !== 'live') smWalls().forEach(function (w) { h += '<line class="sm-wall w' + w.wl + (w.wo ? ' o' : '') + '" x1="' + w.a[0] + '" y1="' + w.a[1] + '" x2="' + w.b[0] + '" y2="' + w.b[1] + '"/>'; });
     if (a && a.m === 'draw' && a.s) {
       var p = a.s.p, prev = a.s;
       h += smDrEl(smDrPen(prev), 'live');
@@ -18752,6 +18770,84 @@ V1.5
      movement only; half walls block neither, but a measurement across one shows it (cover). Players see only what their
      own tokens can (a fog over the rest); the host sees everything. Hidden walls count only on the host's page, so a
      hidden door over a wall stays a wall for the players until it's shown. */
+  /* Speed-ups (V3.9.5): the drawing kept between frames, walls cut into fewer pieces, and walls looked up by area instead
+     of one by one. localStorage 'vtm-sm-fast' = '0' turns them all off (back to the V3.9.4 way) on this device. */
+  var SM_FAST = (function () { try { return localStorage.getItem('vtm-sm-fast') !== '0'; } catch (e) { return true; } })();
+  /* A grid of squares (SMG_C wide) listing what lies in each: found by area, or along a straight line. */
+  var SMG_C = 2;
+  function smGrid(items, box) {
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity, B = items.map(box);
+    B.forEach(function (b) { x0 = Math.min(x0, b[0]); y0 = Math.min(y0, b[1]); x1 = Math.max(x1, b[2]); y1 = Math.max(y1, b[3]); });
+    if (!items.length) { x0 = y0 = 0; x1 = y1 = 1; }
+    x0 -= 1e-3; y0 -= 1e-3; x1 += 1e-3; y1 += 1e-3;
+    var nx = Math.max(1, Math.ceil((x1 - x0) / SMG_C)), ny = Math.max(1, Math.ceil((y1 - y0) / SMG_C)), cells = new Array(nx * ny);
+    var g = { x0: x0, y0: y0, nx: nx, ny: ny, cells: cells, items: items, mark: new Uint32Array(items.length), st: 0 };
+    B.forEach(function (b, i) {
+      var cx0 = smGX(g, b[0] - 1e-6), cx1 = smGX(g, b[2] + 1e-6), cy0 = smGY(g, b[1] - 1e-6), cy1 = smGY(g, b[3] + 1e-6);
+      for (var cy = cy0; cy <= cy1; cy++) for (var cx = cx0; cx <= cx1; cx++) { var k = cy * nx + cx; (cells[k] || (cells[k] = [])).push(i); }
+    });
+    return g;
+  }
+  function smGX(g, x) { return Math.max(0, Math.min(g.nx - 1, Math.floor((x - g.x0) / SMG_C))); }
+  function smGY(g, y) { return Math.max(0, Math.min(g.ny - 1, Math.floor((y - g.y0) / SMG_C))); }
+  function smGStamp(g) { if (++g.st > 4e9) { g.st = 1; g.mark.fill(0); } return g.st; }
+  /* Each item in the squares touching a box, once. */
+  function smGBox(g, x0, y0, x1, y1, fn) {
+    if (x1 < g.x0 || y1 < g.y0 || x0 > g.x0 + g.nx * SMG_C || y0 > g.y0 + g.ny * SMG_C) return;
+    var st = smGStamp(g), cx0 = smGX(g, x0), cx1 = smGX(g, x1), cy0 = smGY(g, y0), cy1 = smGY(g, y1);
+    for (var cy = cy0; cy <= cy1; cy++) for (var cx = cx0; cx <= cx1; cx++) {
+      var c = g.cells[cy * g.nx + cx]; if (!c) continue;
+      for (var j = 0; j < c.length; j++) { var i = c[j]; if (g.mark[i] === st) continue; g.mark[i] = st; if (fn(g.items[i], i) === true) return; }
+    }
+  }
+  /* Each item in the squares a line p to q passes through, nearest first; fn(item, t0) gets where along the line that
+     square starts (0 to 1), and stops the walk by returning true. */
+  function smGLine(g, p, q, fn) {
+    var dx = q[0] - p[0], dy = q[1] - p[1], t0 = 0, t1 = 1, X0 = g.x0, Y0 = g.y0, X1 = g.x0 + g.nx * SMG_C, Y1 = g.y0 + g.ny * SMG_C;
+    function clip(d, a, lo, hi) { if (Math.abs(d) < 1e-15) return a >= lo && a <= hi; var u = (lo - a) / d, v = (hi - a) / d; if (u > v) { var w = u; u = v; v = w; } t0 = Math.max(t0, u); t1 = Math.min(t1, v); return t0 <= t1; }
+    if (!clip(dx, p[0], X0, X1) || !clip(dy, p[1], Y0, Y1)) return;
+    var sx = p[0] + dx * t0, sy = p[1] + dy * t0, cx = smGX(g, sx), cy = smGY(g, sy), ex = smGX(g, p[0] + dx * t1), ey = smGY(g, p[1] + dy * t1);
+    var stx = dx > 0 ? 1 : dx < 0 ? -1 : 0, sty = dy > 0 ? 1 : dy < 0 ? -1 : 0;
+    var tmx = stx ? (X0 + (cx + (stx > 0 ? 1 : 0)) * SMG_C - p[0]) / dx : Infinity, tmy = sty ? (Y0 + (cy + (sty > 0 ? 1 : 0)) * SMG_C - p[1]) / dy : Infinity;
+    var tdx = stx ? SMG_C / Math.abs(dx) : Infinity, tdy = sty ? SMG_C / Math.abs(dy) : Infinity, st = smGStamp(g), te = t0, n = g.nx + g.ny + 2;
+    while (n-- > 0) {
+      var c = g.cells[cy * g.nx + cx];
+      if (c) for (var j = 0; j < c.length; j++) { var i = c[j]; if (g.mark[i] === st) continue; g.mark[i] = st; if (fn(g.items[i], te) === true) return; }
+      if (cx === ex && cy === ey) return;
+      if (tmx < tmy) { cx += stx; te = tmx; tmx += tdx; } else { cy += sty; te = tmy; tmy += tdy; }
+      if (cx < 0 || cy < 0 || cx >= g.nx || cy >= g.ny || te > t1) return;
+    }
+  }
+  function smSegBox(w) { return [Math.min(w.a[0], w.b[0]), Math.min(w.a[1], w.b[1]), Math.max(w.a[0], w.b[0]), Math.max(w.a[1], w.b[1])]; }
+  /* A list of walls' grid (made once per list; small lists are just gone through). */
+  function smWG(W) { if (!SM_FAST || !W || W.length < 24) return null; if (!W._g) Object.defineProperty(W, '_g', { value: smGrid(W, smSegBox) }); return W._g; }
+  /* The walls that block sight, and those that block movement (the same lists until the drawing changes). */
+  function smWallsS() { var L = smWalls(); if (smWc.sL !== L) { smWc.sL = L; smWc.S = L.filter(smWBlockS); smWc.M = L.filter(smWBlockM); } return smWc.S; }
+  function smWallsM() { smWallsS(); return smWc.M; }
+  /* A wall's outline in straight pieces: a circle in as few as keep within SMW_TOL of it, a free-hand line without the points
+     that don't change its course by more than that (what's drawn stays as it was). */
+  var SMW_TOL = 0.005;   // a fifth of a pixel at the usual zoom
+  function smWallOutline(s) {
+    if (!SM_FAST) return smDrOutline(s);
+    var p = s.p;
+    if (s.t === 'e') {
+      var cx = (p[0][0] + p[1][0]) / 2, cy = (p[0][1] + p[1][1]) / 2, rx = Math.abs(p[1][0] - p[0][0]) / 2, ry = Math.abs(p[1][1] - p[0][1]) / 2, r = Math.max(rx, ry, 0.03);
+      var n = Math.max(16, Math.min(72, Math.ceil(Math.PI / Math.acos(Math.max(-1, 1 - SMW_TOL / r))))); n = Math.ceil(n / 4) * 4;
+      var o = []; for (var i = 0; i <= n; i++) { var t = i / n * 2 * Math.PI; o.push([cx + rx * Math.cos(t), cy + ry * Math.sin(t)]); }
+      return o;
+    }
+    if (s.t === 'f' && p.length > 2) return smDP(p, SMW_TOL);
+    return smDrOutline(s);
+  }
+  function smDP(P, tol) {   // Douglas-Peucker
+    var keep = new Uint8Array(P.length), st = [[0, P.length - 1]]; keep[0] = keep[P.length - 1] = 1;
+    while (st.length) {
+      var r = st.pop(), a = r[0], b = r[1], bd = -1, bi = -1;
+      for (var i = a + 1; i < b; i++) { var d = smSegDist(P[i], P[a], P[b]); if (d > bd) { bd = d; bi = i; } }
+      if (bi >= 0 && bd > tol) { keep[bi] = 1; st.push([a, bi], [bi, b]); }
+    }
+    return P.filter(function (q, i) { return keep[i]; });
+  }
   var SMW_R = 0.15, SMW_COS = Math.cos(25 * Math.PI / 180), smWc = { k: '', L: [] };
   function smWBlockS(w) { return w.wl === 1 || (w.wl === 4 && !w.wo); }
   function smWBlockM(w) { return w.wl === 1 || ((w.wl === 3 || w.wl === 4) && !w.wo); }
@@ -18779,7 +18875,7 @@ V1.5
     var out = [];
     L.forEach(function (s) {
       if (!s.wl || s.t === 't') return;
-      var o = smDrOutline(s), add = [];
+      var o = smWallOutline(s), add = [];
       for (var i = 1; i < o.length; i++) if (smDist(o[i - 1], o[i]) > 1e-4) add.push({ a: o[i - 1], b: o[i], wl: s.wl, wo: s.wo ? 1 : 0, i: s.i });
       add.forEach(function (n) {
         var next = [];
@@ -18807,7 +18903,11 @@ V1.5
     var t = ((a[0] - p[0]) * sy - (a[1] - p[1]) * sx) / den, u = ((a[0] - p[0]) * ry - (a[1] - p[1]) * rx) / den;
     return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? t : -1;
   }
-  function smSeesPt(p, q, W) { for (var i = 0; i < W.length; i++) if (smSegHit(p, q, W[i].a, W[i].b) >= 0) return false; return true; }
+  function smSeesPt(p, q, W) {
+    var g = smWG(W);
+    if (g) { var hit = false; smGLine(g, p, q, function (w) { if (smSegHit(p, q, w.a, w.b) >= 0) { hit = true; return true; } }); return !hit; }
+    for (var i = 0; i < W.length; i++) if (smSegHit(p, q, W[i].a, W[i].b) >= 0) return false; return true;
+  }
   /* Can a token at v see any part of a token at t? */
   function smTokSees(v, t, W) {
     if (smSeesPt(v, t, W)) return true;
@@ -18817,7 +18917,7 @@ V1.5
   /* A player's tokens: those their own tokens can't see are left off (the host sees all). */
   function smFogToks(list) {
     var mine = list.filter(function (t) { return t.own; }); if (!mine.length) return list;
-    var W = smWalls().filter(smWBlockS); if (!W.length) return list;
+    var W = smWallsS(); if (!W.length) return list;
     return list.filter(function (t) { return t.own || mine.some(function (v) { return smTokSees([v.x, v.y], [t.x, t.y], W); }); });
   }
   /* What can be seen from v: a polygon, worked out by casting rays at every wall end. */
@@ -18826,14 +18926,17 @@ V1.5
     var key = smWc.k + '|' + smDrN(v[0]) + ',' + smDrN(v[1]); if (smFogC[key]) return smFogC[key];
     var B = 700, box = [[v[0] - B, v[1] - B], [v[0] + B, v[1] - B], [v[0] + B, v[1] + B], [v[0] - B, v[1] + B]];
     var segs = W.map(function (w) { return [w.a, w.b]; }).concat([[box[0], box[1]], [box[1], box[2]], [box[2], box[3]], [box[3], box[0]]]);
-    var angs = [];
+    var angs = [], g = smWG(W);
     segs.forEach(function (sg) { sg.forEach(function (q) { var an = Math.atan2(q[1] - v[1], q[0] - v[0]); angs.push(an - 1e-4, an, an + 1e-4); }); });
     angs.sort(function (a, b) { return a - b; });
     var pts = [], last = null;
     angs.forEach(function (an) {
       if (last !== null && an - last < 1e-7) return; last = an;
       var far = [v[0] + Math.cos(an) * B * 3, v[1] + Math.sin(an) * B * 3], best = 1;
-      segs.forEach(function (sg) { var t = smSegHit(v, far, sg[0], sg[1]); if (t >= 0 && t < best) best = t; });
+      if (g) {   // the box, then the walls along the way (nearest squares first)
+        for (var bi = W.length; bi < segs.length; bi++) { var tb = smSegHit(v, far, segs[bi][0], segs[bi][1]); if (tb >= 0 && tb < best) best = tb; }
+        smGLine(g, v, far, function (w, te) { if (te > best) return true; var t = smSegHit(v, far, w.a, w.b); if (t >= 0 && t < best) best = t; });
+      } else segs.forEach(function (sg) { var t = smSegHit(v, far, sg[0], sg[1]); if (t >= 0 && t < best) best = t; });
       pts.push([smDrN(v[0] + (far[0] - v[0]) * best), smDrN(v[1] + (far[1] - v[1]) * best)]);
     });
     if (Object.keys(smFogC).length > 40) smFogC = {};
@@ -18977,12 +19080,12 @@ V1.5
   function smTVNow(list) {
     if (!smTV.on || smMode() !== 'host' || !smTV.k) return null;
     var v = list.filter(function (t) { return t.k === smTV.k; })[0]; if (!v) return null;
-    var W = smWalls().filter(smWBlockS); return W.length ? { v: v, W: W } : null;
+    var W = smWallsS(); return W.length ? { v: v, W: W } : null;
   }
   function smTVMark(list) { var tv = smTVNow(list); list.forEach(function (t) { t.tvo = !!(tv && t.k !== tv.v.k && !smTVSees(tv.v, t, tv.W)); }); }
   /* The host keeps every token's memory up to date (a few times a second; a last look once things settle). */
   function smFogHTrack(toks) {
-    var W = smWalls().filter(smWBlockS);   // with no walls, every token sees every other (last known positions still follow hiding)
+    var W = smWallsS();   // with no walls, every token sees every other (last known positions still follow hiding)
     var now = Date.now(); if (now - smFogHT < 160) { if (!smFogHLate) smFogHLate = setTimeout(function () { smFogHLate = 0; smDrawSoon(); }, 180); return; }
     smFogHT = now;
     var key = smWc.sk, enc = smEnc(), changed = false, have = {};
@@ -19174,7 +19277,7 @@ V1.5
       if (smFog.code !== code) smFogLoad(code);
       if (rm && rm.fe !== undefined && smFog.ep !== rm.fe) { if (smFog.ep !== null && smFog.ep !== undefined) { smFog.rem = []; smFog.vp = []; smFog.lkp = {}; smFog.remD = null; } smFog.ep = rm.fe; smFogSave(); }   // the host made everyone forget
       mine = toks.filter(function (t) { return t.own; });
-      W = smWalls().filter(smWBlockS);
+      W = smWallsS();
       var vis = {};
       toks.forEach(function (t) { if (!t.own) vis[t.k] = { x: t.x, y: t.y, i: t.ini, n: t.pub, pl: t.pl }; });
       smJoinTokens(true).forEach(function (t) { posJ[t.k] = [t.x, t.y]; });   // where the host has them   // every token's spot, also those out of sight (an undone move puts one back behind a wall)
@@ -19240,13 +19343,21 @@ V1.5
   }
   /* Dragging a token: it can't pass through a wall that blocks movement; it slides along it instead. */
   function smWallMove(p0, p1) {
-    var W = smWalls().filter(smWBlockM); if (!W.length || !p0) return p1;
+    var W = smWallsM(); if (!W.length || !p0) return p1;
     var R0 = SM_R - 0.02;
-    function ok(a, b) { return W.every(function (w) { if (smSegHit(a, b, w.a, w.b) >= 0) return false; var d = smSegDist(b, w.a, w.b); return d >= R0 || d >= smSegDist(a, w.a, w.b) - 1e-6; }); }
+    var g = smWG(W);
+    function ok1(a, b, w) { if (smSegHit(a, b, w.a, w.b) >= 0) return false; var d = smSegDist(b, w.a, w.b); return d >= R0 || d >= smSegDist(a, w.a, w.b) - 1e-6; }
+    function ok(a, b) {
+      if (!g) return W.every(function (w) { return ok1(a, b, w); });
+      var good = true, m = R0 + 0.01;   // only walls near the way can stop it
+      smGBox(g, Math.min(a[0], b[0]) - m, Math.min(a[1], b[1]) - m, Math.max(a[0], b[0]) + m, Math.max(a[1], b[1]) + m, function (w) { if (!ok1(a, b, w)) { good = false; return true; } });
+      return good;
+    }
     function upTo(a, b) { if (ok(a, b)) return b; var lo = 0, hi = 1; for (var i = 0; i < 10; i++) { var m = (lo + hi) / 2; if (ok(a, smWAt({ a: a, b: b }, m))) lo = m; else hi = m; } return smWAt({ a: a, b: b }, lo); }
     if (ok(p0, p1)) return p1;
-    var q = upTo(p0, p1), best = null, bd = Infinity;
-    W.forEach(function (w) { var d = smSegDist(q, w.a, w.b); if (d < bd) { bd = d; best = w; } });
+    var q = upTo(p0, p1), best = null, bd = Infinity, bi = -1, near = function (w, i) { var d = smSegDist(q, w.a, w.b); if (d < bd || (d === bd && i < bi)) { bd = d; best = w; bi = i; } };   // the first of equals, as before
+    if (g) smGBox(g, q[0] - 1, q[1] - 1, q[0] + 1, q[1] + 1, near);
+    if (!best || bd > 1) { best = null; bd = Infinity; bi = -1; W.forEach(near); }
     if (!best) return q;
     var dx = best.b[0] - best.a[0], dy = best.b[1] - best.a[1], L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
     var along = (p1[0] - q[0]) * dx + (p1[1] - q[1]) * dy, sl = [q[0] + dx * along, q[1] + dy * along];
@@ -19265,7 +19376,7 @@ V1.5
   var SMP_RI = SM_R - 0.05;
   function smPObs() {
     var key = smWalls() && smWc.k; if (smWc.obsK === key) return smWc.obs;
-    var W = smWalls().filter(smWBlockM), V = [], nb = {};
+    var W = smWallsM(), V = [], nb = {};
     W.forEach(function (w) {
       var dx = w.b[0] - w.a[0], dy = w.b[1] - w.a[1], L = Math.hypot(dx, dy); if (L < 1e-6) return;
       dx /= L; dy /= L; var nx = -dy, ny = dx, poly = [];
@@ -19274,7 +19385,13 @@ V1.5
       poly.forEach(function (q, i) { V.push({ p: q, n: [poly[(i + 9) % 10], poly[(i + 1) % 10]] }); });
     });
     /* Corners inside another wall's shape can never be reached: they're left out. */
-    V = V.filter(function (v) { return W.every(function (w) { return smSegDist(v.p, w.a, w.b) >= SMP_RI - 1e-4; }); });
+    var g = smWG(W);
+    V = V.filter(function (v) {
+      if (!g) return W.every(function (w) { return smSegDist(v.p, w.a, w.b) >= SMP_RI - 1e-4; });
+      var ok = true; smGBox(g, v.p[0] - SMP_RI, v.p[1] - SMP_RI, v.p[0] + SMP_RI, v.p[1] + SMP_RI, function (w) { if (smSegDist(v.p, w.a, w.b) < SMP_RI - 1e-4) { ok = false; return true; } });
+      return ok;
+    });
+    if (SM_FAST && V.length >= 40) Object.defineProperty(V, '_g', { value: smGrid(V, function (v) { return [v.p[0], v.p[1], v.p[0], v.p[1]]; }) });   // the corners, by area
     smWc.obsK = key; smWc.obs = V;
     return V;
   }
@@ -19291,12 +19408,13 @@ V1.5
     function tri(a, b, c) {   // what b becomes: [] (dropped), a list of corners, or null (it stays)
       var ar = cr(a, c, b); if (Math.abs(ar) < 1e-10) return [];
       var sg = ar > 0 ? 1 : -1, eps = 1e-10, x0 = Math.min(a[0], b[0], c[0]), x1 = Math.max(a[0], b[0], c[0]), y0 = Math.min(a[1], b[1], c[1]), y1 = Math.max(a[1], b[1], c[1]), S = [], bn = [];
-      V.forEach(function (v) {
+      var each = function (v) {
         var p = v.p; if (p[0] < x0 || p[0] > x1 || p[1] < y0 || p[1] > y1) return;
         if (same(p, b)) { bn.push(v.n); return; }   // where walls meet, several shapes share a corner
         if (same(p, a) || same(p, c)) return;
         if (cr(a, b, p) * -sg >= -1e-9 && cr(b, c, p) * -sg >= -1e-9 && cr(c, a, p) * -sg >= -1e-9) S.push(p);   // on its edges counts too (or the way could cut across a corner)
-      });
+      };
+      if (V._g) { var I = []; smGBox(V._g, x0, y0, x1, y1, function (v, i) { I.push(i); }); I.sort(function (m, n) { return m - n; }).forEach(function (i) { each(V[i]); }); } else V.forEach(each);   // in the same order as before
       /* b stays a corner if the shape it's on reaches into the triangle from it. */
       /* When the way runs along one of the shape's edges into or out of b, the shape is inside the bend if its other
          edge from b is on the same side of the way as the triangle. */
@@ -19329,7 +19447,7 @@ V1.5
   function smPathPull(T) { if (!T || T.length < 3) return []; return smPOff(smPRelax(T)); }
   function smViaOk(v) { return (Array.isArray(v) ? v : []).slice(0, 60).map(function (q) { return Array.isArray(q) && isFinite(+q[0]) && isFinite(+q[1]) ? [smDrN(Math.max(-600, Math.min(600, +q[0]))), smDrN(Math.max(-600, Math.min(600, +q[1])))] : null; }).filter(Boolean); }
   /* Does a straight move cross a wall that blocks movement? (The host's check on a nudge after a drop.) */
-  function smWallCross(p, q) { return smWalls().some(function (w) { return smWBlockM(w) && smSegHit(p, q, w.a, w.b) >= 0; }); }
+  function smWallCross(p, q) { var W = smWallsM(); return !smSeesPt(p, q, W); }
   /* A measurement across walls: where it passes a half wall (cover) and a wall that blocks sight. */
   function smWMeas(f, t) {
     var hc = 2, sc = 2;
